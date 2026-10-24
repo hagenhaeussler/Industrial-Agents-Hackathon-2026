@@ -36,7 +36,7 @@ export const api = {
   tour: (id: string) => send<Tour>('GET', `/api/tours/${encodeURIComponent(id)}`),
   /** `X-Session-ID` lets "Got it" advance the phone session's position (CONTRACTS C2). */
   progress: (id: string, stop_id: string, status: StopStatus, sessionId?: string) => send<Tour>('POST', `/api/tours/${encodeURIComponent(id)}/progress`, { stop_id, status }, sessionId ? { 'X-Session-ID': sessionId } : undefined),
-  replan: (id: string, body: { session_id: string; from: Position; reason: string }) => send<Tour>('POST', `/api/tours/${encodeURIComponent(id)}/replan`, body),
+  replan: (id: string, body: { session_id: string; from: Position; reason: string; constraints?: Partial<Constraints> }) => send<Tour>('POST', `/api/tours/${encodeURIComponent(id)}/replan`, body),
   tool: (name: string, session_id: string, args: Record<string, unknown>) => send<ToolResponse>('POST', `/api/tools/${name}`, { session_id, args }),
   chat: (session_id: string, message: string) => send<ChatReply>('POST', '/api/chat', { session_id, message }),
   marker: (id: string) => send<Marker>('GET', `/api/markers/${encodeURIComponent(id)}`),
