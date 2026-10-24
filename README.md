@@ -297,3 +297,56 @@ A reply with no `Answer:` line is wrong. So is an answer line with a range or se
 ## 8. Licences
 
 The data comes under several licences: CC BY 4.0 (Swiss Dwellings, ResPlan), ODbL 1.0 (the OpenStreetMap buildings) and CC0 (procedural). See `ATTRIBUTION.md`. If you publish anything built from the OSM buildings, it must stay under the ODbL and credit OpenStreetMap contributors.
+
+## Run it locally
+
+The Talk to Your Building service needs Python 3.12+, [uv](https://docs.astral.sh/uv/), and [Bun](https://bun.sh/) for the frontend. The building list, snapshots, and deterministic benchmark checks run without API keys. Copy the environment template and add provider keys only for chat and voice:
+
+```bash
+uv sync
+cp .env.example .env
+uv run --env-file .env uvicorn server.app:app --reload --port 8000
+```
+
+In another terminal, start the SPA:
+
+```bash
+cd web/app
+bun install --frozen-lockfile
+bun run dev
+```
+
+Until the C01 move is merged, the prototype is at `web/mobile` instead. Open the development UI at `http://localhost:5173`; the API is at `http://localhost:8000`, with docs at `/docs` and readiness at `/health`. For the production SPA, run `bun run build` in `web/app` and open `http://localhost:8000`.
+
+Run the integration checks from the repository root before requesting a merge:
+
+```bash
+scripts/check.sh
+```
+
+The script runs pytest, the unchanged kit oracle, the core text evaluation when H01 is available, and the frontend build when Bun and `web/app` are available. Skipped checks print warnings.
+
+Build and run the production image (Docker builds the frontend with Bun):
+
+```bash
+docker build -t tyb .
+mkdir -p .state
+docker run --rm -p 8000:8000 --env-file .env -e STATE_DIR=/state -v "$PWD/.state:/state" tyb
+```
+
+The image includes kit JSON and CSV data; floor-plan PNG/SVG files are excluded. Mount persistent state at `/state`. The server starts one worker and initializes state on startup. Railway uses this Dockerfile, a volume at `/state`, and `/health` as its healthcheck. The public URL is recorded in the platform builder's [STATUS](<master prompt/Manuel's codex/STATUS.md>) once H3 access is available.
+
+The kit oracle is free to run:
+
+```bash
+uv run python -m starter_agent.evaluate data/dev --oracle
+```
+
+After L01 is merged, run the team's deterministic benchmark and validate its submission with:
+
+```bash
+uv run python -m benchmark.evaluate data/dev --agent bench.agent:answer --name dev-official
+uv run python -m bench.validate_submission submissions/test_answers.csv data/test/submission_template.csv
+```
+
+See `BENCHMARK.md` when published by the evaluation lead for measured results and the Sunday command. [Attribution and dataset licences](ATTRIBUTION.md) apply to the included building data.
