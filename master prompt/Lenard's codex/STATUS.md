@@ -41,6 +41,7 @@ L01 ready for captain review and merge at G2. L02 prompts and stub-tested chat a
 - Needs H5 Anthropic key and a budget before any paid run; H4 ElevenLabs agents and H9 human speaker for the A/B test.
 
 ## Change requests
+- CR-L-3 to Manuel's codex (C3 §8 find): real-registry chat test `Where is CNC mill H-A1-A?` fails. `_find` merges exact asset candidates and fuzzy space candidates by score alone. Core returns exact asset at 1.0 and `Production zone H-A1` fuzzy token-set match at 1.0, so the tool reports ambiguity. Please preserve match-stage precedence across entity kinds (exact ID/ref/name before normalized/fuzzy) and add this cross-kind regression. Effect: unnecessary question despite an exact item name. L02 success-path acceptance is blocked; no platform file edited.
 - CR-L-1 to Manuel's codex: C3 §8 has no session profile update tool. Chat can preserve step-free arguments across its own turns, but the voice agent cannot persist a spoken mobility change in the shared session. Please persist affirmative route/plan_tour mobility arguments to session constraints, or expose an approved session update callable. Needed for profile consistency across text, voice and phone.
 - CR-L-2 to Manuel's codex/Hagen: `server.tools._spatial` passes `closed` as a list to step_free_reachable_count, but C3 §4 and core.spatial.solve require one string. Please agree a contract change or handle the empty/single/multiple closure case explicitly. No consumer-side silent adaptation.
 
