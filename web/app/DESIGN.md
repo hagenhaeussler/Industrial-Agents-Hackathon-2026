@@ -1,6 +1,6 @@
 ---
-name: Alain building guide
-description: A camera-first indoor navigation prototype with white floating controls and a living Blobatar.
+name: Talk to Your Building
+description: Desk planning and phone guidance for finding parts in an unfamiliar building; white floating controls, an architectural floor map and a living Blobatar.
 ---
 
 ## Overview
@@ -43,6 +43,15 @@ The route panel uses a 20px radius. The minimap uses 14px. Buttons use 12–15px
 - Camera: rear-facing preferred, no audio, no recording, no upload. Handle denied, missing, busy and interrupted cameras. Cancel late requests and stop tracks on teardown.
 - Agent: exact `alain00`, `animate="always"`, built-in idle expression. Use the happy expression on arrival. Respect the library's reduced-motion setting. Do not animate the rest of the interface continuously.
 - Chat: locally scripted, clearly marked demo replies. Named destinations switch the demo route. Do not claim a connected language model or real localization.
+
+## Desk and map
+
+- The desk is a plan table: the floor map fills the screen on the background colour; one white panel floats on the left (392px, 20px inset, 20px radius). Phone widths stack the map above the panel.
+- The panel reads top to bottom as the task: "What do you need?" (26px, 750) → start chip ("You are at …") → parts grouped by floor and room → one primary action. After planning, the tour summary replaces the list: policy label, stops and metres (30px), numbered stops, "Send to phone".
+- Map: building metres, y flipped by `toSvg`. Rooms are quiet tints by type (circulation lightest, halls and zones a shade darker, stairs and lifts a soft green-grey), hairline walls, door gaps, other floors as faint dashed outlines. Parts are small grey dots; chosen parts are ink dots with an ink label pill. Closed elements are hatched red.
+- The route is the one bold element: ink outline under the accent line, drawn in 1.2s (instant with reduced motion). Stops are ink discs with accent numbers; collected stops turn grey with a tick. "You" is a white disc with an ink centre. Lift and stair pills on the route switch floors.
+- The floor switch sits top right (highest floor first) with accent counts of stops per floor; zoom and fit controls bottom right.
+- The handoff dialog shows a large QR, the short link and a status line that turns accent when the phone opens the tour.
 
 ## Do's and Don'ts
 

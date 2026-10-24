@@ -6,6 +6,7 @@
 import { ApiError } from '../api/client';
 import type { Transport } from '../api/client';
 import type { Asset, BuildingSummary, ChatReply, Session, Snapshot, Tour } from '../api/types';
+import { centroid } from '../geo/transform';
 import snapshotJson from './data/building_proc-factory-dev-003.json';
 import tourJson from './data/tour_proc-factory-dev-003.json';
 
@@ -15,6 +16,30 @@ const sessions = new Map<string, Session>();
 const tours = new Map<string, Tour>([[fixtureTour.tour_id, structuredClone(fixtureTour)]]);
 const constraints = { step_free: false, min_door_width_m: 0, closed: [], no_transit_room_types: [] };
 let requests = 0;
+
+const repoRoot = (import.meta.env.TYB_REPO_ROOT as string | undefined) ?? '';
+const kitSnapshots = new Map<string, Promise<Snapshot>>();
+
+/** Dev server only: any kit building straight from data/, anchors from polygon centroids (approximate). */
+async function kitManifest(): Promise<(BuildingSummary & { path: string })[]> {
+  if (!repoRoot) return [];
+  const text = await (await fetch(`/@fs${repoRoot}data/manifest.csv`)).text();
+  const [head, ...rows] = text.trim().split('\n');
+  const keys = (head ?? '').split(',');
+  return rows.map(row => {
+    const cells = row.match(/("([^"]|"")*"|[^,]*)(,|$)/g)?.map(cell => cell.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"')) ?? [];
+    const get = (key: string) => cells[keys.indexOf(key)] ?? '';
+    return { id: get('building_id'), name: get('name'), source: get('source'), split: get('split'), floors: Number(get('floors')), has_lift: get('has_lift') === 'True', has_stairs: get('has_stairs') === 'True', path: get('path') };
+  });
+}
+
+async function kitSnapshot(id: string): Promise<Snapshot> {
+  const entry = (await kitManifest()).find(item => item.id === id);
+  if (!entry) throw new ApiError(404, 'not_found', `Mock mode does not know ${id}.`);
+  const building = await (await fetch(`/@fs${repoRoot}data/${entry.path}/building.json`)).json() as Snapshot['building'];
+  const anchors = Object.fromEntries(building.spaces.map(space => [space.id, centroid(space.polygon)]));
+  return { building, building_version: 0, content_hash: `mock:${id}`, closed: [], derived: { anchors, areas_m2: {} } };
+}
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const hex = () => Math.random().toString(16).slice(2, 14).padEnd(12, '0');
@@ -48,11 +73,13 @@ export const mockTransport: Transport = async (method, path, body) => {
   const id = snapshot.building.building.id;
   if (method === 'GET' && route === '/api/buildings') {
     const summary: BuildingSummary = { id, name: snapshot.building.building.name, source: 'procedural', split: 'dev', floors: snapshot.building.floors.length, has_lift: true, has_stairs: true };
-    return [summary];
+    return [summary, ...(await kitManifest()).filter(item => item.id !== id)];
   }
   if (method === 'GET' && parts[1] === 'buildings' && parts.length === 3) {
-    if (parts[2] !== id) throw new ApiError(404, 'not_found', `Mock mode only has ${id}.`);
-    return snapshot;
+    if (parts[2] === id) return snapshot;
+    const key = parts[2] ?? '';
+    if (!kitSnapshots.has(key)) kitSnapshots.set(key, kitSnapshot(key));
+    return await kitSnapshots.get(key)!;
   }
   if (parts[1] === 'sessions') {
     if (method === 'POST') {

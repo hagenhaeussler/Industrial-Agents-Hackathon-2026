@@ -1,6 +1,6 @@
 import { ArrowLeft, Smartphone, TriangleAlert } from 'lucide-react';
 import type { Tour, UnreachableReason } from '../api/types';
-import { spaceName } from '../map/model';
+import { isProvisional, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 
 export const policyLabel = (tour: Tour) => tour.order_policy === 'optimized_exact' ? 'Optimal order' : tour.order_policy === 'optimized_heuristic' ? 'Good order · heuristic' : 'Your order';
@@ -19,7 +19,7 @@ type Props = { model: Model; tour: Tour; plannedMs: number | null; onHandoff: ()
 export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusStop }: Props) {
   const stops = new Map(tour.stops.map(stop => [stop.stop_id, stop]));
   const legTo = new Map(tour.legs.map(leg => [leg.to_space_id, leg]));
-  const provisional = (tour as { _fixture?: { geometry?: string } })._fixture?.geometry === 'provisional';
+  const provisional = isProvisional(tour);
   return <section className="tour-panel" aria-labelledby="tour-title">
     <div className="tour-head">
       <div>

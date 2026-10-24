@@ -4,7 +4,7 @@ import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import type { Session, Tour } from '../api/types';
 import { policyLabel } from '../desk/TourPanel';
 import { MapView } from '../map/MapView';
-import { buildModel, floorName, spaceName } from '../map/model';
+import { buildModel, floorName, placeOf, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 import { DemoBadge } from '../ui/DemoBadge';
 
@@ -43,7 +43,7 @@ export function GoTour({ tourId }: { tourId: string }) {
   const stops = new Map(tour.stops.map(stop => [stop.stop_id, stop]));
 
   return <main className="go">
-    <MapView model={model} floorId={floorId} onFloor={setFloorId} tour={tour} you={session?.position ?? tour.start} frame="route" frameKey={`tour:${tour.tour_id}:${tour.revision}`}/>
+    <MapView model={model} floorId={floorId} onFloor={setFloorId} tour={tour} you={placeOf(model, session?.position ?? tour.start)} frame="route" frameKey={`tour:${tour.tour_id}:${tour.revision}`}/>
     <section className="go-sheet surface" aria-labelledby="go-title">
       <div className="sheet-handle"/>
       <p className="policy">{policyLabel(tour)} {mockMode && <DemoBadge reason="Mock mode"/>}</p>
