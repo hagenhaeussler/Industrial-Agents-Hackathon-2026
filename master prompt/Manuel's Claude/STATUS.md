@@ -1,12 +1,18 @@
 # STATUS: Manuel's Claude (Experience & Frontend Lead)
-Last update: 2026-10-24 22:15 CEST · Branch: `manuel-claude/web` · HEAD: `1ecbc7d` (+ this STATUS commit) · Last sync with origin/main: `d46775f` (main has not moved)
+Last update: 2026-10-24 22:35 CEST · Branch: `manuel-claude/web` · HEAD: `9a65c0a` (+ this STATUS commit) · Last sync with origin/main: `ea2a844` (C6, merged as `d3830c8`, 22:20 CEST) · contract C6
 
 Single writer: Manuel's Claude. Keep this structure (OWNERSHIP_AND_DEPENDENCIES §7).
 
 ## Current task
-C01, C02 and the C03 core (admin card, trace panel, upload) are done and verified locally against the integrated core + platform server (`hagen/core` @ `b57d39f`). Next: demo script (`demo/SCRIPT.md`), accessibility pass, then real-phone checks with the humans.
+CR-M-2, CR-M-3 and CR-M-4 (C6) fixed and verified against a local server at `origin/main` `ea2a844`; branch ready for the captain's recheck. Next: real-phone checks with the humans, then C04 polish (3D only after G5).
 
 ## Delivered (newest first)
+- `9a65c0a` **CR-M-2/3/4** (verified on the C6 server, details under Change requests) · checks: `scripts/check.sh` on this branch **exit 0**: 305 Python tests passed, kit oracle 369/369, dev text 138/138, **52 Bun tests pass**, production build + device gate; log `/private/tmp/claude-501/-Users-silestis-Developer-Industrial-Agent/bbcae864-4739-4a29-9957-a38764018667/scratchpad/check-9a65c0a.log`
+- `cc7631c`/`d3830c8` merged `origin/main` (C6; voice hook and AR modules now in my tree), `bun run gen:api` regenerated `schema.gen.ts` (replan `constraints`)
+- `0af18b5` desk: finish destination ("Finish at …", CONTRACTS §5 `end`), "From Hall access 0.19 and back · step-free" line, × on a stop removes it and replans
+- `b1e4f7f` voice on desk (navigator) and admin (admin agent) through `VoiceRoot`; spoken `edit_preview` opens the same preview card
+- `47d28ee` accessibility pass: focus moves to the tour heading after planning, all controls ≥ 44 px, no unlabeled controls (desk, admin, phone)
+- `9fc9b61` `demo/SCRIPT.md`: 60 s demo, 60 s technical video, 3-minute final with clicks/lines/fallbacks, Q&A, rehearsal log
 - `1ecbc7d` U11: after a reconnect the phone compares `building_version`; if the building changed while offline it reads the missed events and replans from the current step (verified by stopping the server, committing a closure on restart: phone showed "Office staircase is closed. New route via Office lift (+20 m).").
 - `6f65b96` **U6 wheelchair**: desk "How do you move?" (walk / wheelchair / pram / trolley → session profile, inherited by the phone); reroute notice names stops a closure makes unreachable and why ("UPS unit 1.05 can no longer be reached step-free: the Office lift was the only step-free way there. The other stops are replanned."); persistent banner for unreachable stops; **"Show the route with stairs" only on request** (see CR-C-1 for the server part; client fallback in place).
 - `af3bcb6` **U8 upload**: admin drop/choose `building.json` → `POST /api/buildings` (X-Session-ID) → stats, errors, warnings → "Open in desk". Verified: `proc-campus-dev-000` uploaded as `upl-h-rsaalzentrum-024-…`, desk planned a 2-stop tour on it (104 m).
@@ -37,18 +43,16 @@ C01, C02 and the C03 core (admin card, trace panel, upload) are done and verifie
 ## Blockers and resource requests
 - **Humans (H8):** for U3/U10 on real phones I need the app on a URL the phones can reach. LAN works for the map (no camera without HTTPS): run the server + `bun run dev` and open `http://<laptop LAN IP>:5173/go/<tour>`; Railway (Hagen's test URL exists) for HTTPS/camera.
 - **Manuel's codex / Hagen's codex (resolver):** with the platform kit adapter, `find "3D printer"` and `plan_tour "tool cabinet"` returned `not_found` though several match; with `hagen/core` they correctly return "Which of these did you mean?". Please make sure main uses the core resolver.
-- **Request (Dockerfile web stage):** `COPY demo /demo` into the `web` stage so `demo/scenario.json` is bundled.
+- Dockerfile web stage includes `demo/scenario.json` (done by the captain in `1a5c491`, thanks).
 
 ## Change requests
-### CR-C-1: replan should follow the session's current mobility
-- Contract section: CONTRACTS §5/§7 (replan), current version C4
-- Requested change: `POST /api/tours/{id}/replan` (and progress replans) should use the session's current `profile`/`constraints` for `step_free` instead of the tour's stored constraints (today `service.replan_tour` passes `tour["constraints"]` as overrides, so `step_free: true` survives a PATCH to `profile: "walk"`).
-- Why: J6b "Show the route with stairs" must work as an explicit, in-place replan of the same tour (the desk keeps tracking the tour id).
-- Migration effect: server only. My client already PATCHes `profile: "walk"` + `constraints.step_free: false` and then replans; until the fix it falls back to planning the remaining parts as a new tour.
-- Needed by: G4 (01:15 CEST) ideally; fallback works meanwhile.
-- Status: open (owner Manuel's codex)
+### Replies to the captain (Manuel's codex)
+- **CR-M-2 — fixed in `9a65c0a`** (earlier parts in `6f65b96`, `1ecbc7d`). Repro on the C6 server: wheelchair tour A00021 + A00325, admin closes the Office lift → phone: "Office lift is closed. UPS unit 1.05 can no longer be reached step-free: the Office lift was the only step-free way there. The other stops are replanned." + **Show the route with stairs**; after collecting the 3D printer the tour is `order: []` with UPS unreachable → dock shows **"No route right now"**, the persistent banner names UPS, "Ask the building" and the stairs option (no "New route (−80 m)"). Stale tour: a tour planned at version 4, staircase closed (snapshot 5), phone opens it → immediate replan → "Office staircase is closed. New route via Office lift (+20 m)." Reconnect compares the snapshot with both the screen's and the tour's `building_version`. Found and fixed on the way: an unconfirmed tour now PATCHes the phone position to the tour start (`tour_start`, low) instead of reusing another tour's position. Unit tests for the blocked shape added.
+- **CR-M-3 — fixed.** The phone mounts the voice bridge through `VoiceRoot`/`useVoiceSession` with the same display handler as text chat: `tour` with another id opens that tour, `instruction`/`tour`/`route` refresh the step, any display with `space_id`/`space_ids`/`asset_ids` highlights the place on the map for 8 s. Desk and admin register theirs (`b1e4f7f`). Builds against the real hook (merged tree); a live voice run still needs an ElevenLabs agent/token.
+- **CR-M-4 (C6) — consumed.** "Show the route with stairs": `PATCH profile=walk, constraints={…existing, step_free:false}` → checks the response → `POST /replan` with `constraints: {step_free: false}` → checks `step_free` in the result. Verified: same tour `d3ltd6redr`, UPS back via "Stairs to Floor 1", collected stop kept. The new-tour fallback only runs against a pre-C6 server.
+### CR-C-1 (mine): superseded by CR-M-4 (C6). Closed.
 
 ## Next handoff
-- Manuel's codex (captain): `manuel-claude/web` @ `1ecbc7d` is ready to merge after core and platform; trial merge with platform is clean (49 Bun tests). It only touches `web/app/`, `demo/scenario.json` and my STATUS/evidence.
+- Manuel's codex (captain): `manuel-claude/web` @ `9a65c0a` already contains `origin/main` `ea2a844`; `scripts/check.sh` exit 0 on it. Please recheck CR-M-2/3/4 and merge for G3/G4. It only touches `web/app/`, `demo/` and my STATUS/evidence.
 - Hagen's codex: route lines and maneuvers from the core look right on the map (doors, stair landings, no wall crossings seen on the factory); I will report any odd geometry.
 - Lenard's codex: desk/phone/admin show chat replies, candidate chips (≤ 4, with floor) and react to `display` (`tour`, `asset_ids`, `instruction`, `edit_preview`/`edit_committed` via tool calls).
