@@ -4,7 +4,7 @@ Last update: 2026-10-24T21:42+02:00 · Branch: `hagen/core` · HEAD: this checkp
 Single writer: Hagen's codex.
 
 ## Current task
-H01/H02 core delivered; H03 edits/validator delivered, measured venue data pending; H04 SVG spike measured (mention only). Final integrated checks and Railway test deployment.
+H01/H02 core delivered; H03 edits/validator delivered, measured venue data pending; H04 SVG spike measured (mention only). Integrated checks passed; final Railway test smoke and captain handoff.
 
 ## Delivered (newest first)
 - All 15 deterministic solvers; current kit 1.1.0 walk/connector semantics, no kit edits.
@@ -20,11 +20,13 @@ H01/H02 core delivered; H03 edits/validator delivered, measured venue data pendi
 - `core.routing.route`, `core.tour.plan_tour` / `replan`.
 - `core.edits.resolve_edit` / `preview_edit` / `apply_events`, `core.whatif.what_if`, `core.validate.validate_building`.
 - `core.plan_import.import_plan(file_bytes,kind,floor_level,scale=None)` returns draft, validation, correction needs; never auto-commits.
+- Pending-asset replanning also refreshes additive server `target` metadata; direct core regression passes.
 - C3 adds geometry_length_m/start_position/destination_position/building_closed; preserves C2 HTTP/session transport. Core tour_id is null until server assigns one.
 
 ## Evidence
 - `scripts/check.sh` on full core with M01: 113 Python tests passed in 21.69 s; kit oracle 369/369; dev text 138/138. Bun skip explicitly reported at that point.
 - Latest combined Python check after consuming M02, Lenard parser and Claude app: **214 passed in 26.08 s**.
+- Full integrated `scripts/check.sh` passed after consuming all three builder branches: 214 Python tests, oracle 369/369, dev text 138/138, 39 Bun tests and production frontend/device-gate build.
 - `core.evaluate data/dev --check text`: **138/138**; dev structured **138/138**; train structured **517/517**. Train text **510/517**, seven genuinely ambiguous labels, no guessing. Reports: ignored `agent_output/reports/core/`.
 - All **369** dev warm-up regressions pass, exact space/element paths, lengths within inclusive 1 cm. Cache correction reduced full warm-up regression 71.54 s -> 21.56 s.
 - `core.check_geometry data/dev`: **40 buildings, 269 legs, 1,232 walks, zero fallbacks/failures** (22.47 s). Two synthetic L-room examples: `fixtures/route_geometry_l_examples.svg`.
@@ -40,9 +42,10 @@ H01/H02 core delivered; H03 edits/validator delivered, measured venue data pendi
 
 ## Change requests
 - **CR-H-1 accepted C3 (§5):** distinguish raw physical geometry from graph costs rounded to 0.001 m; documented additive result fields, current closures and pending moved-part semantics. C2 platform changes preserved.
-- **CR-H-2 to Manuel's codex (§6/server seam):** `server.service._plan` restores old stops by old space after planning and `replan_tour` bypasses `core.tour.replan`. A pending asset moved to another room needs its server stop target/space updated before core planning (and ID-based reconciliation afterwards), or use core.replan. Otherwise a stale canonical stop with asset_ids in its old room raises invalid_args. Core.replan itself retargets correctly and its regression passes. Please add server-level move-during-tour test; no platform files edited by Hagen.
+- **CR-H-2 to Manuel's codex (§6/server seam):** `server.service._plan` restores old stops by old space after planning and `replan_tour` bypasses `core.tour.replan`. A pending asset moved to another room needs its server stop target/space updated before core planning (and ID-based reconciliation afterwards), or use core.replan. Reproduced against the real local API: move preview/commit succeeds, then POST tour replan returns HTTP 400 invalid_args because the pending stop still refers to the old room. Otherwise a stale canonical stop with asset_ids in its old room raises invalid_args. Core.replan itself retargets correctly and its regression passes. Please add server-level move-during-tour test; no platform files edited by Hagen.
 
 ## Next handoff
+- PR handoff: https://github.com/hagenhaeussler/Industrial-Agents-Hackathon-2026/pull/1 .
 - Captain: merge published Hagen branch, run integrated checks, expose new real core APIs through existing adapter. This branch consumes teammates' checkpoints for seam checks; do not duplicate their modules.
 - Lenard: consume solve/resolve + real parser integration; run your own dev evaluation and test CSV. Temporary reference parser adapter automatically yields to `bench.templates` now present.
 - Claude: real C3 snapshot/tour/tool fixtures ready; geometry is reconstructed, not provisional. Use factory fallback until venue data arrives.

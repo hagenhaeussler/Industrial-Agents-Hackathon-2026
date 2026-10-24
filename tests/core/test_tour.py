@@ -56,6 +56,7 @@ def test_pending_assets_retarget_when_moved():
     a = next(iter(b.assets.values()))
     destination = next(sid for sid in b.spaces if sid != a['space_id'])
     tour = plan_tour(b,a['space_id'],[a['id']])
+    tour['stops'][0]['target'] = a['space_id']  # additive server field, stale after move
     sid = tour['stops'][0]['stop_id']
     a['space_id'] = destination
     revised = replan(b,tour,tour['start'])
