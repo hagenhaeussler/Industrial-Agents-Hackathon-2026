@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useId, useMemo } from 'react';
 import type { Point, ReachableRoute, Segment, Space, Tour } from '../api/types';
 import { svgPoints, toSvg, viewBox, wallDirection } from '../geo/transform';
 import type { Box } from '../geo/transform';
@@ -17,6 +17,7 @@ export type FloorMapProps = {
   you?: Place | null;
   showParts?: boolean;
   compact?: boolean; // phone minimap: fewer labels, no asset dots
+  showLabels?: boolean; // projected building views can place upright room labels separately
   onAsset?: (assetId: string) => void;
   onSpace?: (spaceId: string) => void;
   onFloor?: (floorId: string) => void;
@@ -116,7 +117,7 @@ function Pill({ at, text, unit, dark = true, onClick }: { at: Point; text: strin
   const size = unit * 0.78;
   const w = text.length * size * 0.56 + size * 1.4, h = size * 1.9;
   const [x, y] = toSvg(at);
-  return <g transform={`translate(${fmt(x)} ${fmt(y)})`} className={onClick ? 'map-pill clickable' : 'map-pill'} onClick={onClick}>
+  return <g transform={`translate(${fmt(x)} ${fmt(y)})`} className={onClick ? 'map-pill clickable' : 'map-pill'} onClick={onClick ? event => { event.stopPropagation(); onClick(); } : undefined}>
     <rect x={-w / 2} y={-h - unit * 0.9} width={w} height={h} rx={h / 2} fill={dark ? '#191c16' : '#fff'} stroke={dark ? 'none' : '#191c16'} strokeWidth={unit * 0.06}/>
     <text y={-h / 2 - unit * 0.9} fontSize={size} textAnchor="middle" dominantBaseline="central" fill={dark ? '#fff' : '#191c16'} fontWeight={700}>{text}</text>
   </g>;
@@ -171,8 +172,8 @@ function RouteLayer({ model, floorId, tour, route, focusLeg, onFloor }: { model:
   </g>;
 }
 
-export function FloorMap({ model, floorId, tour, route, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, onOpening, fit, focusLeg }: FloorMapProps) {
-  const vb = useMemo(() => viewBox(model.box, model.unit * 3), [model]);
+export function FloorDrawing({ model, floorId, tour, route, selected, focusAssetId, highlightSpaceIds, you, showParts = true, showLabels = true, compact, onAsset, onSpace, onFloor, onOpening, focusLeg }: FloorMapProps) {
+  const hatchId = `closed-${useId().replace(/:/g, '')}`;
   const marks = useMemo(() => (tour ? stopMarks(model, tour).filter(mark => mark.floorId === floorId) : []), [model, tour, floorId]);
   const closedSpaces = useMemo(() => {
     const ids = new Set<string>();
@@ -187,19 +188,17 @@ export function FloorMap({ model, floorId, tour, route, selected, focusAssetId, 
   const highlighted = (highlightSpaceIds ?? []).map(id => model.space.get(id)).filter((space): space is Space => !!space && space.floor_id === floorId);
   const u = model.unit;
 
-  return <svg className="floor-map-svg" viewBox={vb} role="img" aria-label={`Floor map: ${floorName(model, floorId)}`} preserveAspectRatio="xMidYMid meet">
+  return <g className="floor-drawing">
     <defs>
-      <pattern id="closed-hatch" width={u * 0.9} height={u * 0.9} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <pattern id={hatchId} width={u * 0.9} height={u * 0.9} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width={u * 0.9} height={u * 0.9} fill="#fbe9e7"/><line x1={0} y1={0} x2={0} y2={u * 0.9} stroke="#c83432" strokeWidth={u * 0.22}/>
       </pattern>
     </defs>
-    {fit?.box && <rect id={fit.id} x={fit.box.minX - u * 5} y={-fit.box.maxY - u * 5} width={fit.box.maxX - fit.box.minX + u * 10} height={fit.box.maxY - fit.box.minY + u * 10} fill="none" pointerEvents="none"/>}
-    <Ghost model={model} floorId={floorId}/>
     <Rooms model={model} floorId={floorId} onSpace={onSpace}/>
     {highlighted.map(space => <polygon key={space.id} points={svgPoints(space.polygon)} fill="#f0fbc4" stroke="#191c16" strokeWidth={2} vectorEffect="non-scaling-stroke" pointerEvents="none" className="map-highlight"/>)}
-    {closedSpaces.map(space => <polygon key={space.id} points={svgPoints(space.polygon)} fill="url(#closed-hatch)" stroke="#c83432" strokeWidth={2} vectorEffect="non-scaling-stroke" pointerEvents="none"><title>Closed</title></polygon>)}
+    {closedSpaces.map(space => <polygon key={space.id} points={svgPoints(space.polygon)} fill={`url(#${hatchId})`} stroke="#c83432" strokeWidth={2} vectorEffect="non-scaling-stroke" pointerEvents="none"><title>Closed</title></polygon>)}
     <Doors model={model} floorId={floorId} onOpening={onOpening}/>
-    <Labels model={model} floorId={floorId} compact={compact}/>
+    {showLabels && <Labels model={model} floorId={floorId} compact={compact}/>}
     {showParts && !compact && <Parts model={model} floorId={floorId} onAsset={onAsset}/>}
     {(route || tour) && <RouteLayer key={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.building_version}:${floorId}` : `${tour?.tour_id}:${tour?.revision}:${floorId}:${focusLeg ?? ''}`} model={model} floorId={floorId} tour={tour} route={route} focusLeg={focusLeg} onFloor={onFloor}/>}
     {chosen.map(asset => asset && <g key={asset.id} className="map-chosen" onClick={onAsset ? () => onAsset(asset.id) : undefined}>
@@ -223,5 +222,17 @@ export function FloorMap({ model, floorId, tour, route, selected, focusAssetId, 
         <text y={u * 2} fontSize={u * 0.86} textAnchor="middle" dominantBaseline="central" fontWeight={800} className="map-you-label">You</text>
       </g>;
     })()}
+  </g>;
+}
+
+/** Flat navigation/admin map; the building view shares exactly the same geometry layers. */
+export function FloorMap(props: FloorMapProps) {
+  const { model, floorId, fit } = props;
+  const vb = useMemo(() => viewBox(model.box, model.unit * 3), [model]);
+  const u = model.unit;
+  return <svg className="floor-map-svg" viewBox={vb} role="img" aria-label={`Floor map: ${floorName(model, floorId)}`} preserveAspectRatio="xMidYMid meet">
+    {fit?.box && <rect id={fit.id} x={fit.box.minX - u * 5} y={-fit.box.maxY - u * 5} width={fit.box.maxX - fit.box.minX + u * 10} height={fit.box.maxY - fit.box.minY + u * 10} fill="none" pointerEvents="none"/>}
+    <Ghost model={model} floorId={floorId}/>
+    <FloorDrawing {...props}/>
   </svg>;
 }

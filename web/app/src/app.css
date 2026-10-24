@@ -130,6 +130,22 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .floor-switch button { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; min-width: 132px; padding: 0 12px; border-radius: 11px; background: transparent; font-size: 13px; font-weight: 650; text-align: left; }
 .floor-switch button.active { background: var(--ink); color: #fff; }
 .floor-stops { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 800; display: grid; place-items: center; }
+/* Exploded desk model; floor geometry and route distances remain in building metres. */
+.isometric-building { padding-right: 116px; }
+.isometric-camera { transition: transform 550ms cubic-bezier(.22,.7,.3,1); }
+.isometric-floor { opacity: .58; transition: opacity 350ms ease, transform 550ms cubic-bezier(.22,.7,.3,1); cursor: pointer; }
+.isometric-floor:hover { opacity: .85; }
+.isometric-floor.active { opacity: 1; }
+.isometric-floor.active .isometric-slab polygon { stroke: #7f8d6e; }
+.isometric-floor-label rect { fill: #f4f3ee; stroke: #c5c9bb; stroke-width: .6px; vector-effect: non-scaling-stroke; }
+.isometric-floor-label text { fill: #64685f; }
+.isometric-floor.active .isometric-floor-label rect { fill: #191c16; stroke: #191c16; }
+.isometric-floor.active .isometric-floor-label text { fill: #dcff58; }
+.isometric-room-labels { fill: #64685f; font-weight: 650; paint-order: stroke; stroke: #fff; stroke-width: .18px; }
+.desk-planner .floor-switch { padding: 4px; gap: 2px; border-radius: 12px; }
+.desk-planner .floor-switch button { min-width: 100px; padding: 0 9px; gap: 6px; border-radius: 9px; font-size: 12px; }
+.desk-planner .floor-stops { min-width: 18px; height: 18px; padding: 0 4px; font-size: 10px; }
+
 .map-controls { position: absolute; right: 20px; bottom: 20px; display: grid; padding: 4px; border-radius: 14px; }
 .map-controls button { width: 44px; height: 44px; border-radius: 10px; background: transparent; display: grid; place-items: center; }
 
@@ -202,6 +218,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 @media (prefers-reduced-motion: reduce) {
   .route-draw { animation: none; stroke-dashoffset: 0; }
   .spin, .pulse { animation: none; }
+  .isometric-camera, .isometric-floor { transition: none; }
 }
 
 /* phone journey: banner on top, map in the middle, guidance dock at the thumb */

@@ -74,15 +74,22 @@ export function displayOrder(tour: Tour): string[] {
   return [...tour.stops.filter(stop => !pending.has(stop.stop_id) && stop.status === 'collected').map(stop => stop.stop_id), ...tour.order, ...blocked];
 }
 
-/** Numbered stop positions: the end of the leg that arrives there (what the core drew), else the room anchor. */
+/** Numbered stops use the target-floor arrival, including legs ending in stairs/lifts without a walk. */
 export function stopMarks(model: Model, tour: Tour | null): StopMark[] {
   if (!tour) return [];
   const byId = new Map(tour.stops.map(stop => [stop.stop_id, stop]));
   const arrivals = new Map<string, { point: Point; floorId: string }>();
   for (const leg of reachableLegs(tour)) {
+    const target = model.space.get(leg.to_space_id);
+    if (!target) continue;
+    const arrived = [...leg.maneuvers].reverse().find(maneuver => maneuver.kind === 'arrive');
+    if (arrived?.floor_id === target.floor_id) {
+      arrivals.set(leg.to_space_id, { point: arrived.at, floorId: arrived.floor_id });
+      continue;
+    }
     const walk = [...leg.segments].reverse().find(segment => segment.kind === 'walk');
     const last = walk?.points[walk.points.length - 1];
-    if (walk && last) arrivals.set(leg.to_space_id, { point: last, floorId: walk.floor_id });
+    if (walk?.floor_id === target.floor_id && last) arrivals.set(leg.to_space_id, { point: last, floorId: target.floor_id });
   }
   return displayOrder(tour).flatMap((stopId, index) => {
     const stop = byId.get(stopId);
