@@ -179,6 +179,16 @@ class ChatAgent:
                     text = "I cannot help with that request."
                     break
                 text = "\n".join(block.text for block in response.content if block.type == "text").strip()
+                # The SDK requests another turn only for tool results or an
+                # unfinished server turn. Do not reserve funds just to discover
+                # StopIteration after a completed answer: that false reservation
+                # can discard an answer and its display at the budget boundary.
+                # Keep the next reservation before next(iterator), which can
+                # itself issue the next provider request.
+                if response.stop_reason not in {"tool_use", "pause_turn", "compaction"}:
+                    break
+                if response.stop_reason == "tool_use" and tools is None:
+                    break
         except anthropic.APIError:
             if not turn.calls:
                 return unavailable("The language service is unavailable. Use the building controls.")
