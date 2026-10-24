@@ -1,4 +1,5 @@
 import type { BuildingEventRecord, BuildingSummary, Constraints, Validation, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
+import { forgetAdminCode, readAdminCode } from './adminAccess';
 
 /** `?mock=1` serves the bundled fixtures from `src/mocks/` instead of the live API (CONTRACTS §15). */
 export const mockMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('mock') === '1';
@@ -29,7 +30,7 @@ const send = async <T>(method: string, path: string, body?: unknown, headers?: R
 export const api = {
   buildings: () => send<BuildingSummary[]>('GET', '/api/buildings'),
   building: (id: string, version?: number) => send<Snapshot>('GET', `/api/buildings/${encodeURIComponent(id)}${version === undefined ? '' : `?version=${version}`}`),
-  createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }),
+  createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }, adminCode?: string) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }, body.role === 'admin' && adminCode ? { 'X-Admin-Token': adminCode } : undefined),
   session: (id: string) => send<Session>('GET', `/api/sessions/${id}`),
   updateSession: (id: string, patch: { position?: Position | null; profile?: MobilityProfile; constraints?: Partial<Constraints>; active_tour_id?: string | null }) => send<Session>('PATCH', `/api/sessions/${id}`, patch),
   planTour: (body: { session_id: string; items: string[]; keep_order: boolean; start?: { space_id: string; point?: [number, number] }; end?: string | null }) => send<Tour>('POST', '/api/tours', body),
@@ -47,18 +48,43 @@ export const api = {
   demoReset: (buildingId: string, adminSessionId: string) => send<{ building_id: string; building_version: number }>('POST', '/api/demo/reset', { building_id: buildingId }, { 'X-Session-ID': adminSessionId }),
 };
 
-/** Reuses the stored session for this building and device, or creates one (CONTRACTS §10). */
-export async function ensureSession(building_id: string, device: Device, role: Role = 'navigator'): Promise<Session> {
-  const key = `tyb.session.${building_id}.${device}.${role}${mockMode ? '.mock' : ''}`;
+const sessionKey = (buildingId: string, device: Device, role: Role) => `tyb.session.${buildingId}.${device}.${role}${mockMode ? '.mock' : ''}`;
+
+export function clearAdminSession(buildingId: string, device: Device = 'desk'): void {
+  const key = sessionKey(buildingId, device, 'admin');
+  forgetAdminCode();
+  try { sessionStorage.removeItem(key); } catch { /* ignore */ }
+  try { localStorage.removeItem(key); } catch { /* remove legacy privileged identity */ }
+}
+
+/** Navigator sessions persist; privileged sessions and codes last only in this tab. */
+export async function ensureSession(building_id: string, device: Device, role: Role = 'navigator', adminCode?: string): Promise<Session> {
+  const key = sessionKey(building_id, device, role);
+  if (role === 'admin') { try { localStorage.removeItem(key); } catch { /* remove pre-auth privileged identities */ } }
+  const credential = role === 'admin' ? adminCode ?? readAdminCode() ?? undefined : undefined;
+  if (role === 'admin' && !credential?.trim()) throw new ApiError(403, 'forbidden', 'Enter the admin access code to continue.');
+  let storage: Storage | null = null;
+  try { storage = role === 'admin' ? sessionStorage : localStorage; } catch { /* storage blocked */ }
   let stored: string | null = null;
-  try { stored = localStorage.getItem(key); } catch { /* storage blocked: a fresh session per load */ }
+  try { stored = storage?.getItem(key) ?? null; } catch { /* a fresh session per load */ }
   if (stored) {
     try {
       const session = await api.session(stored);
-      if (session.building_id === building_id) return session;
-    } catch { /* expired or unknown: create a new one */ }
+      if (session.building_id === building_id && session.role === role && session.device === device) return session;
+    } catch (error) {
+      if (role === 'admin' && error instanceof ApiError && error.status === 403) {
+        clearAdminSession(building_id, device);
+        throw error; // revoked or rotated access requires a fresh human entry
+      }
+    }
+    try { storage?.removeItem(key); } catch { /* ignore */ }
   }
-  const session = await api.createSession({ building_id, device, role });
-  try { localStorage.setItem(key, session.session_id); } catch { /* ignore */ }
+  let session: Session;
+  try { session = await api.createSession({ building_id, device, role }, credential); }
+  catch (error) {
+    if (role === 'admin' && error instanceof ApiError && error.status === 403) clearAdminSession(building_id, device);
+    throw error;
+  }
+  try { storage?.setItem(key, session.session_id); } catch { /* ignore */ }
   return session;
 }

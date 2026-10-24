@@ -20,6 +20,11 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .notice h1 { font-size: 24px; letter-spacing: -.8px; }
 .notice p { font-size: 14px; line-height: 1.6; color: var(--muted); }
 .notice .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-access { width: min(440px, 100%); }
+.admin-access label { font-size: 14px; font-weight: 700; }
+.admin-access input { min-height: 48px; width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit; background: white; color: var(--ink); }
+.admin-access input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.admin-access [role="alert"] { color: #a52626; }
 
 /* desk */
 .desk { height: 100svh; min-height: 600px; display: grid; grid-template-columns: 412px 1fr; overflow: hidden; }

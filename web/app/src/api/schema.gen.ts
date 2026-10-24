@@ -167,7 +167,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create Session */
+        /**
+         * Create Session
+         * @description Create a navigator session, or authenticate an admin with its private code.
+         */
         post: operations["create_session_api_sessions_post"];
         delete?: never;
         options?: never;
@@ -696,7 +699,10 @@ export interface components {
              * @enum {string}
              */
             status: "collected" | "pending";
-            /** Stop Id */
+            /**
+             * Stop Id
+             * @description Collection stop ID, or reserved 'end' with status 'collected' to confirm final arrival.
+             */
             stop_id: string;
         };
         /** TourReplan */
@@ -1147,7 +1153,10 @@ export interface operations {
     create_session_api_sessions_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required for admin sessions when TYB_ADMIN_TOKEN is configured. Never returned. */
+                "X-Admin-Token"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };

@@ -1,7 +1,8 @@
 import { ArrowUp, ArrowUpDown, Check, DoorClosed, Footprints, History, LoaderCircle, RotateCcw, ShieldCheck, TriangleAlert, Undo2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { ApiError, api, ensureSession, mockMode } from '../api/client';
+import { ApiError, api, clearAdminSession, ensureSession, mockMode } from '../api/client';
+import { readAdminCode, rememberAdminCode } from '../api/adminAccess';
 import { useLatest } from '../api/latest';
 import type { BuildingEventRecord, EditAction, EditPreview, ServerMessage, Session, ToolResponse } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
@@ -15,6 +16,7 @@ import { DemoBadge } from '../ui/DemoBadge';
 import { TracePanel } from '../trace/TracePanel';
 import { VoiceButton, VoiceRoot, useVoiceSession } from '../phone/voice';
 import { Upload } from './Upload';
+import { AdminAccess, adminAccessError } from './Access';
 
 type Target = { id: string; name: string; kind: 'lift' | 'stairs' | 'door' | 'room'; closed: boolean; detail: string };
 type Preview = EditPreview & { target: Target; opId: string };
@@ -46,6 +48,8 @@ function AdminScreen() {
   const latest = useLatest();
   const [model, setModel] = useState<Model | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [checkingAccess, setCheckingAccess] = useState(true);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [floorId, setFloorId] = useState('');
   const [events, setEvents] = useState<BuildingEventRecord[]>([]);
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -66,9 +70,21 @@ function AdminScreen() {
   useEffect(() => { void reload(); }, [reload]);
   useEffect(() => {
     let live = true;
-    ensureSession(buildingId, 'desk', 'admin').then(next => { if (live) setSession(next); }, error => { if (live) setNotice({ text: `Could not start an admin session: ${message(error)}`, tone: 'error' }); });
+    setSession(null); setAccessError(null);
+    const code = readAdminCode();
+    if (!code) { clearAdminSession(buildingId); setCheckingAccess(false); return; }
+    setCheckingAccess(true);
+    ensureSession(buildingId, 'desk', 'admin', code).then(next => { if (live) setSession(next); }, error => {
+      if (live) { clearAdminSession(buildingId); setAccessError(adminAccessError(error)); }
+    }).finally(() => { if (live) setCheckingAccess(false); });
     return () => { live = false; };
   }, [buildingId]);
+
+  const unlock = async (code: string) => {
+    const next = await ensureSession(buildingId, 'desk', 'admin', code);
+    rememberAdminCode(code); setSession(next); setAccessError(null);
+  };
+  const lock = () => { clearAdminSession(buildingId); setSession(null); setPreview(null); setLastCalls([]); setAsk(''); setAccessError(null); };
 
   const onSocket = useCallback((event: ServerMessage) => {
     if (event.type === 'building_changed' || event.type === 'building_reset') void reload();
@@ -77,8 +93,11 @@ function AdminScreen() {
 
   const tool = async (name: string, args: Record<string, unknown>): Promise<ToolResponse> => {
     if (!session) throw new Error('No admin session yet.');
-    const response = await api.tool(name, session.session_id, args);
+    let response: ToolResponse;
+    try { response = await api.tool(name, session.session_id, args); }
+    catch (error) { if (error instanceof ApiError && error.status === 403) { lock(); setAccessError('Admin access expired. Enter the current code to continue.'); } throw error; }
     setLastCalls(current => [response, ...current].slice(0, 3));
+    if (!response.ok && response.error?.code === 'forbidden') { lock(); setAccessError('Admin access expired. Enter the current code to continue.'); }
     if (!response.ok) throw Object.assign(new ApiError(200, response.error?.code ?? 'internal', response.error?.message ?? response.speech ?? 'The change failed.'), { response });
     return response;
   };
@@ -161,6 +180,8 @@ function AdminScreen() {
 
   const pick = (id: string) => { if (!model || busy) return; const space = model.space.get(id); const connector = [...model.connector.values()].find(item => item.space_ids.includes(id)); const target = targetOf(model, connector?.id ?? space?.id ?? id); if (target) void propose(target); };
 
+  if (checkingAccess) return <main className="desk-message"><p className="loading"><LoaderCircle className="spin" size={20}/>Verifying admin access…</p></main>;
+  if (!session) return <AdminAccess onUnlock={unlock} error={accessError}/>;
   if (!model) return <main className="desk-message">{notice ? <div className="surface notice"><h1>Admin view</h1><p>{notice.text}</p></div> : <p className="loading"><LoaderCircle className="spin" size={20}/>Loading the building…</p>}</main>;
 
   const connectors = [...model.connector.values()].map(item => targetOf(model, item.id)!).sort((a, b) => a.name.localeCompare(b.name));
@@ -173,6 +194,7 @@ function AdminScreen() {
       <header className="desk-brand">
         <button className="brand-mark admin-mark" onClick={() => navigate('/')} aria-label="Choose another building"><ShieldCheck size={18}/></button>
         <div><p className="product">Admin · building changes</p><h1>{model.snapshot.building.building.name}</h1></div>
+        <button className="icon-button" onClick={lock} aria-label="Lock admin view" title="Lock admin view"><ShieldCheck size={18}/></button>
         {mockMode && <DemoBadge reason="Mock mode"/>}
       </header>
 
