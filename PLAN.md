@@ -161,7 +161,7 @@ Der Puffer im Benchmark ist für den Fall gedacht, dass wir auf Sonnet wechseln 
 | Wo | Inhalt | Zustand |
 |---|---|---|
 | `starter_agent/building_map.py` | MultiGraph nach README, Dijkstra, Sperrungen, `add_door` | Python-Referenz für unseren TypeScript-Core. Warm-up-Oracle 369/369 |
-| Lenards UI-Prototyp "Building Guide" (`building-guide` im Codex-Workspace) | Mobile-Ansicht mit Vollbildkamera, Route, Minimap, Chat und Blobatar-Avatar. React 19, Vite, Bun | Vorlage für B.2 Mobile. Nutzt Bun statt pnpm |
+| Lenards UI-Prototyp "Building Guide" (`web/mobile/`) | Mobile-Ansicht mit Vollbildkamera, Route, Minimap, Chat und Blobatar-Avatar. React 19, Vite, Bun | Vorlage für B.2 Mobile. Nutzt Bun statt pnpm |
 | `../repo/ARCHITECTURE.md`, `VIDEO_TAKEAWAYS.md`, `SYNERA.md`, `RESEARCH*.md` | Tool-Schnitt, Prompt-Regeln, ElevenLabs-Wege, Synera-Pitch-Sprache | Referenz. Server-Struktur und Voice-Weg „A“ sind durch Abschnitt 2–4 ersetzt |
 | Dieses Repo | Notizen, PDFs, Skizze, dieser Plan | `.env` wird nicht mehr verfolgt, `.gitignore` ist gefüllt (Commit `62074c2`). `agent.py` ist leer |
 
