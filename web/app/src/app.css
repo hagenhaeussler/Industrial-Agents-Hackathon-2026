@@ -306,3 +306,5 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .code-card input { min-height: 48px; border: 1.5px solid #d8dcd0; border-radius: 12px; padding: 0 12px; font-size: 16px; }
 .code-card input:focus-visible { border-color: var(--ink); }
 .code-card .plan-error { color: #8f2422; }
+.finish-line { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 52px; border-radius: 15px; border: 1.5px dashed #c9cdc0; }
+.stop-n.finish { background: #fff; color: var(--ink); box-shadow: 0 0 0 1.5px var(--ink) inset; }

@@ -45,9 +45,13 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
         </li>;
       })}
     </ol>
+    {tour.end && (() => {
+      const last = tour.legs.find(leg => leg.to_space_id === tour.end!.space_id);
+      return <p className="finish-line"><span className="stop-n finish" aria-hidden="true">⚑</span><span className="stop-copy"><strong>Finish: {spaceName(model, tour.end.space_id)}</strong><span>{model.floor.get(tour.end.floor_id)?.name}</span></span>{last?.reachable && <span className="stop-m">{metres(last.length_m)}</span>}</p>;
+    })()}
     {tour.unreachable_stops.length > 0 && <div className="unreachable" role="status">
       <TriangleAlert size={18} aria-hidden="true"/>
-      <div><strong>Not included</strong>{tour.unreachable_stops.map(item => <p key={item.stop_id}>{stops.get(item.stop_id)?.label ?? item.stop_id}: {reasonText[item.reason as UnreachableReason] ?? item.reason}</p>)}</div>
+      <div><strong>Not included</strong>{tour.unreachable_stops.map(item => <p key={item.stop_id}>{item.stop_id === 'end' ? 'Finish point' : stops.get(item.stop_id)?.label ?? item.stop_id}: {reasonText[item.reason as UnreachableReason] ?? item.reason}</p>)}</div>
     </div>}
     {provisional && <p className="fineprint">Route lines are provisional straight segments until the core publishes walk polylines.</p>}
     <TracePanel model={model} tour={tour}/>

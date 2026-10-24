@@ -5,6 +5,7 @@ One SPA for desk planning (`/desk`), the phone journey (`/go/:tourId`) and admin
 - Live API: run the FastAPI server on port 8000 (`TYB_API` overrides); Vite proxies `/api`, `/ws` and `/health`.
 - Without a server: add `?mock=1` (bundled kit data; in `bun run dev` every kit building is readable from `data/`).
 - Demo: `/desk?demo=hero` preloads `demo/scenario.json`.
+- Admin (`/admin`): the server needs `TYB_ADMIN_TOKEN`; the admin view asks for that code once per browser tab. For local development only, `TYB_ADMIN_OPEN_INSECURE=1` skips it.
 
 The phone prototype below is reachable at `/go/demo` until the live journey replaces it.
 

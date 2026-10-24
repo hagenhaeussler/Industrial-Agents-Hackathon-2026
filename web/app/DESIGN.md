@@ -53,6 +53,12 @@ The route panel uses a 20px radius. The minimap uses 14px. Buttons use 12–15px
 - The floor switch sits top right (highest floor first) with accent counts of stops per floor; zoom and fit controls bottom right.
 - The handoff dialog shows a large QR, the short link and a status line that turns accent when the phone opens the tour.
 
+## Phone journey and admin
+
+- Phone: route banner on top (turn symbol, instruction, next stop, metres to the next step), the map in the middle with the current leg bold and later legs as a quiet dashed line, the guidance dock at the thumb: avatar and status, progress dots (ink done, accent now, hatched red unreachable), one big primary action ("Next step", "Got it", "I have arrived"). Changes arrive as an accent notice that says what happened and what it means for this tour.
+- Start: "Are you at …?" first, with "Yes", "Scan a position code" and "Choose my room". Position is never claimed without one of them.
+- Admin: same plan-table layout as the desk. Every change shows an ink-bordered preview card first; Confirm is the only primary action. The admin code card appears before anything else when the server asks for it.
+
 ## Do's and Don'ts
 
 Keep the camera visible and floating surfaces white, except for the red camera-off control. Keep text black or readable dark gray. Use the accent for navigation. Explain example data in route details and scripted replies in chat. Keep the main view free of repeated demo labels. Do not randomize the avatar name, pin its shape or palette, simulate live location as real data, or add decorative dashboard chrome.

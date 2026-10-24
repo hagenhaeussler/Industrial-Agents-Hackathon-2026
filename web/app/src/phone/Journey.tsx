@@ -13,7 +13,7 @@ import type { Model } from '../map/model';
 import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { ChatSheet } from './ChatSheet';
-import { atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, metresToNext, pendingStops, rerouteNotice, stepPosition } from './guidance';
+import { END_STOP, atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, isComplete, metresToNext, onFinalLeg, pendingStops, rerouteNotice, stepPosition } from './guidance';
 import { VoiceRoot, useVoiceSession } from './voice';
 
 const Scanner = lazy(() => import('./Scanner').then(module => ({ default: module.Scanner })));
@@ -142,7 +142,9 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const shown = clampStep(leg, step);
   const maneuver = leg?.maneuvers[shown] ?? null;
   const next = tour ? pendingStops(tour)[0] ?? null : null;
-  const done = !!tour && tour.stops.length > 0 && tour.stops.every(stop => stop.status === 'collected');
+  const [finishedHere, setFinishedHere] = useState(false);
+  const finalLeg = !!tour && onFinalLeg(tour);
+  const done = !!tour && (isComplete(tour) || (finishedHere && !pendingStops(tour).length));
   const blocked = tour ? blockedReason(tour) : null;
 
   /** Where the person is now: the shown step's point once they have started walking, else the session position. */
@@ -213,6 +215,19 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       await confirmAt({ space_id: marker.space_id, floor_id: marker.floor_id, point: marker.point, heading_deg: marker.heading_deg, source: 'marker', marker_id: marker.marker_id, confidence: 'high' }, marker);
     } catch (reason) { setNotice({ text: `Unknown position code: ${message(reason)}`, blocked: false, tone: 'info' }); }
   }, [session, model, tour]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** C7: arriving at the end destination is reported with the reserved stop id `end`. */
+  const arrive = async () => {
+    if (!tour || !session) return;
+    setBusy(true);
+    await latestAction(() => api.progress(tour.tour_id, END_STOP, 'collected', session.session_id), updated => { applyTour(updated); setNotice(null); setFinishedHere(true); },
+      failure => {
+        // a server without C7 has no end stop to record: the walk is still finished on this phone
+        if (failure instanceof ApiError && [400, 404, 422].includes(failure.status)) setFinishedHere(true);
+        else setNotice({ text: `Could not record your arrival: ${message(failure)}`, blocked: false, tone: 'info' });
+      });
+    setBusy(false);
+  };
 
   const gotIt = async () => {
     if (!tour || !next || !session) return;
@@ -295,7 +310,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     <div className="journey-top">
       {!done && confirmed && leg && maneuver && <button className="route-banner surface" onClick={() => setSheet('steps')} aria-label={`Current step: ${cleanText(maneuver.text)}. Open all steps`}>
         <span className="turn-icon"><ManeuverIcon kind={maneuver.kind}/></span>
-        <span className="route-copy"><span className="route-instruction">{cleanText(maneuver.text)}</span><span className="route-destination">{next?.label.split(' · ')[0]} <span>· {next ? floorName(model, model.space.get(next.space_id)?.floor_id ?? '') : ''}</span></span></span>
+        <span className="route-copy"><span className="route-instruction">{cleanText(maneuver.text)}</span><span className="route-destination">{next ? next.label.split(' · ')[0] : tour.end ? `Finish: ${spaceName(model, tour.end.space_id)}` : ''} <span>· {next ? floorName(model, model.space.get(next.space_id)?.floor_id ?? '') : tour.end ? floorName(model, tour.end.floor_id) : ''}</span></span></span>
         {!arrived && metresToNext(leg, shown) > 0 && <span className="route-distance">{metresToNext(leg, shown)}<span>metres</span></span>}
       </button>}
       {notice && <div className={`journey-notice surface ${notice.tone}`} role="alert">
@@ -303,7 +318,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
         <div><p>{notice.text}</p>{notice.blocked && tour.constraints.step_free && <button className="secondary-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}</div>
         <button className="icon-button" onClick={() => setNotice(null)} aria-label="Dismiss"><X size={18}/></button>
       </div>}
-      {(blocked || tour.unreachable_stops.length > 0) && !notice && !done && <div className="journey-notice surface change" role="status"><TriangleAlert size={20} aria-hidden="true"/><div>
+      {(blocked || tour.unreachable_stops.length > 0) && !finalLeg && !notice && !done && <div className="journey-notice surface change" role="status"><TriangleAlert size={20} aria-hidden="true"/><div>
         <p>{blocked ? (blocked.reason === 'no_step_free_path' || tour.constraints.step_free ? 'There is no step-free route to the next stop.' : 'The next stop cannot be reached right now.') : `${tour.unreachable_stops.map(item => tour.stops.find(stop => stop.stop_id === item.stop_id)?.label.split(' · ')[0] ?? 'A stop').join(', ')} cannot be reached${tour.constraints.step_free ? ' step-free' : ''} right now.`}</p>
         {tour.constraints.step_free && <button className="secondary-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}
       </div></div>}
@@ -316,6 +331,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
         ? <div className="done-card surface">
           <span className="avatar-wrap"><Blobatar name="alain00" animate="always" size={116} expression={happy} title="Alain, your building guide"/></span>
           <h1>All {total} {total === 1 ? 'part' : 'parts'} collected</h1>
+          {tour.end && <p className="muted">You are back at {spaceName(model, tour.end.space_id)}.</p>}
           <ul>{tour.stops.map(stop => <li key={stop.stop_id}><Check size={16}/>{stop.label}</li>)}</ul>
         </div>
         : !confirmed
@@ -333,7 +349,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
             <div className="agent-line">
               <button className="agent-presence" onClick={() => setSheet('chat')} aria-label="Ask the building">
                 <span className="avatar-wrap small"><Blobatar name="alain00" animate="always" size={72} expression={arrived ? happy : idle} title="Alain, your building guide"/></span>
-                <span className="agent-bubble surface"><strong>{!next ? 'No route right now' : arrived ? `Here: ${next.label.split(' · ')[0]}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voice.status === 'connected' ? (voice.isSpeaking ? 'Speaking…' : 'Listening') : 'Tap to ask'}</span></span>
+                <span className="agent-bubble surface"><strong>{finalLeg ? (arrived ? 'You made it' : 'Last leg: to the finish') : !next ? 'No route right now' : arrived ? `Here: ${next.label.split(' · ')[0]}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voice.status === 'connected' ? (voice.isSpeaking ? 'Speaking…' : 'Listening') : 'Tap to ask'}</span></span>
               </button>
               {voice.available && <button className={`icon-button voice-toggle ${voice.status === 'connected' ? 'on' : ''}`} onClick={() => void (voice.status === 'connected' ? voice.stop() : voice.start().catch(() => setSheet('chat')))} aria-label={voice.status === 'connected' ? 'Stop voice guidance' : 'Start voice guidance'}>{voice.status === 'connected' ? <Mic size={20}/> : <MicOff size={20}/>}</button>}
             </div>
@@ -341,14 +357,16 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
             <div className="dock-actions">
               <button className="icon-button" onClick={() => setSheet('steps')} aria-label="All steps"><ListOrdered size={20}/></button>
               {shown > 0 && !arrived && <button className="icon-button" onClick={() => setStep(shown - 1)} aria-label="Previous step"><ArrowLeft size={20}/></button>}
-              {!next && tour.unreachable_stops.length > 0
+              {finalLeg && arrived
+                ? <button className="primary-button got-it" disabled={busy} onClick={() => void arrive()}>{busy ? <LoaderCircle className="spin" size={18}/> : <Check size={20}/>}I have arrived</button>
+                : !next && !finalLeg && tour.unreachable_stops.length > 0
                 ? <button className="primary-button" onClick={() => setSheet('chat')}>Ask the building</button>
-                : arrived || !leg
+                : (arrived || !leg) && !finalLeg
                 ? <button className="primary-button got-it" disabled={busy || !next} onClick={() => void gotIt()}>{busy ? <LoaderCircle className="spin" size={18}/> : <Check size={20}/>}Got it{next ? `: ${next.label.split(' · ')[0]}` : ''}</button>
                 : <button className="primary-button" onClick={() => setStep(shown + 1)}>Next step<ArrowRight size={18}/></button>}
             </div>
-            {!next && tour.unreachable_stops.length > 0 && tour.constraints.step_free && <button className="link-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}
-            {!arrived && leg && <button className="link-button" disabled={busy || !next} onClick={() => void gotIt()}>Already have it? Mark {next?.label.split(' · ')[0]} collected</button>}
+            {!next && !finalLeg && tour.unreachable_stops.length > 0 && tour.constraints.step_free && <button className="link-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}
+            {!arrived && leg && next && <button className="link-button" disabled={busy} onClick={() => void gotIt()}>Already have it? Mark {next?.label.split(' · ')[0]} collected</button>}
           </>}
     </section>
 
@@ -371,6 +389,11 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
           </section>;
         })}
       </div>
+      {finalLeg && <section><h3>Now: back to {tour.end ? spaceName(model, tour.end.space_id) : 'the finish'}</h3><ol>{(leg?.maneuvers ?? []).map((item, index) => <li key={item.i} className={index === shown ? 'current' : ''}>
+        <span className="step-symbol">{index < shown ? <Check size={16}/> : <ManeuverIcon kind={item.kind} size={16}/>}</span>
+        <span><button className="step-jump" onClick={() => { setStep(index); setSheet(null); }}>{cleanText(item.text)}</button><span>{floorName(model, item.floor_id)}</span></span>
+        {item.distance_m > 0 && <span className="step-meters">{Math.round(item.distance_m)} m</span>}
+      </li>)}</ol></section>}
       {tour.unreachable_stops.length > 0 && <section><h3>Cannot be reached right now</h3><ul className="blocked-list">{tour.unreachable_stops.map(item => <li key={item.stop_id}>{tour.stops.find(stop => stop.stop_id === item.stop_id)?.label ?? item.stop_id}</li>)}</ul></section>}
       <p className="demo-explanation">Your position follows the steps you confirm and the position codes you scan. There is no automatic location tracking.</p>
     </dialog>

@@ -211,6 +211,7 @@ export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlig
         <text fontSize={u * 1.15} textAnchor="middle" dominantBaseline="central" fill={mark.collected ? '#fff' : '#dcff58'} fontWeight={800}>{mark.collected ? '✓' : mark.n}</text>
       </g>;
     })}
+    {tour?.end && tour.end.floor_id === floorId && tour.status !== 'completed' && <Pill at={tour.end.point} text="Finish" unit={u}/>}
     {you && you.floor_id === floorId && (() => {
       const [x, y] = toSvg(you.point);
       return <g className="map-you" transform={`translate(${fmt(x)} ${fmt(y)})`} pointerEvents="none">

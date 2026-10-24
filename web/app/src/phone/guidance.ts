@@ -10,20 +10,37 @@ export function pendingStops(tour: Tour): TourStop[] {
 
 export const collectedCount = (tour: Tour) => tour.stops.filter(stop => stop.status === 'collected').length;
 
-/** The leg that leads to the current stop: the first leg arriving there (normally `legs[0]`). */
+/** C7: with every part collected, an optional end destination keeps the tour active with one last leg. */
+export function finalLegIndex(tour: Tour): number {
+  if (pendingStops(tour).length || !tour.end || tour.status === 'completed') return -1;
+  return tour.legs.findIndex(leg => leg.reachable && leg.to_space_id === tour.end!.space_id);
+}
+export const onFinalLeg = (tour: Tour) => finalLegIndex(tour) !== -1;
+
+/** The leg that leads to the current stop (normally `legs[0]`), or the final leg to the end destination. */
 export function currentLeg(tour: Tour): ReachableRoute | null {
   const next = pendingStops(tour)[0];
-  if (!next) return null;
+  if (!next) { const leg = tour.legs[finalLegIndex(tour)]; return leg?.reachable ? leg : null; }
   const leg = tour.legs.find(item => item.to_space_id === next.space_id) ?? tour.legs[0];
   return leg?.reachable ? leg : null;
 }
 
 export function currentLegIndex(tour: Tour): number {
   const next = pendingStops(tour)[0];
-  if (!next) return -1;
+  if (!next) return finalLegIndex(tour);
   const index = tour.legs.findIndex(item => item.to_space_id === next.space_id);
   return index === -1 ? 0 : index;
 }
+
+/** Done: the server says so, or every part is collected and no final leg or unreachable stop is left. */
+export function isComplete(tour: Tour): boolean {
+  if (tour.status === 'completed') return true;
+  if (!tour.stops.length || tour.unreachable_stops.length || pendingStops(tour).length) return false;
+  return tour.stops.every(stop => stop.status === 'collected') && !onFinalLeg(tour);
+}
+
+/** Reserved progress id for arriving at the end destination (CR-H-4 / C7). */
+export const END_STOP = 'end';
 
 /** Why the current stop cannot be reached, if it cannot. */
 export function blockedReason(tour: Tour): { reason: UnreachableReason | string; blocking: string[] } | null {
@@ -80,7 +97,10 @@ export function viaLandmark(tour: Tour, model?: Model): string | null {
 
 const subjectOf = (summary: string) => /^(?:undo:\s*)?(?:close|open|reopen)\s+(.+?)\.?$/i.exec(summary)?.[1] ?? null;
 const list = (items: string[]) => items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
-const stopName = (tour: Tour, stopId: string) => tour.stops.find(stop => stop.stop_id === stopId)?.label.split(' · ')[0] ?? 'A stop';
+const stopName = (tour: Tour, stopId: string) => (stopId === END_STOP ? 'your finish point' : tour.stops.find(stop => stop.stop_id === stopId)?.label.split(' · ')[0] ?? 'a stop');
+const REASON: Record<string, string> = { no_step_free_path: 'no step-free way', blocked_by_closure: 'blocked by a closure', too_narrow: 'the doors are too narrow', disconnected: 'not connected' };
+const unreachableList = (tour: Tour) => list(tour.unreachable_stops.map(item => `${stopName(tour, item.stop_id)} (${REASON[item.reason] ?? String(item.reason).replace(/_/g, ' ')})`));
+const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** "Close Office staircase" → "Office staircase is closed"; "Undo: Close X" → "X is open again". */
 export function humanSummary(summary: string): string {
@@ -106,26 +126,34 @@ export function rerouteNotice(rawSummary: string, before: Tour, after: Tour, mod
     const subject = subjectOf(rawSummary);
     const why = stepFree && subject && /^close/i.test(rawSummary) ? `: the ${subject} was the only step-free way there` : '';
     const rest = pendingStops(after).length ? ' The other stops are replanned.' : '';
-    return { text: `${summary}. ${list(lost.map(id => stopName(after, id)))} can no longer be reached${stepFree ? ' step-free' : ''}${why}.${rest}`, blocked: true };
+    return { text: `${summary}. ${capital(list(lost.map(id => stopName(after, id))))} can no longer be reached${stepFree ? ' step-free' : ''}${why}.${rest}`, blocked: true };
   }
   const blocked = blockedReason(after);
   if (blocked) {
     const why = blocked.reason === 'no_step_free_path' || stepFree ? 'There is no step-free route to the next stop any more.' : 'The next stop cannot be reached any more.';
     return { text: `${summary}. ${why}`, blocked: true };
   }
-  if (regained.length) return { text: `${summary}. ${list(regained.map(id => stopName(after, id)))} can be reached again and is back in the tour.`, blocked: false };
+  if (regained.length) return { text: `${summary}. ${capital(list(regained.map(id => stopName(after, id))))} can be reached again and is back in the tour.`, blocked: false };
   const delta = Math.round(remainingLength(after) - remainingLength(before));
   const via = viaLandmark(after, model);
   return { text: `${summary}. New route${via ? ` via ${via}` : ''}${delta > 0 ? ` (+${delta} m)` : delta < 0 ? ` (${delta} m)` : ''}.`, blocked: false };
 }
 
+const nextLabel = (tour: Tour) => pendingStops(tour)[0]?.label ?? (onFinalLeg(tour) ? 'the finish point' : 'none');
+
 /** CONTRACTS §8 context phrasings for the voice agent. */
 export const context = {
   position: (model: Model, position: Position) => `Position: ${spaceName(model, position.space_id)} (${floorName(model, position.floor_id ?? model.space.get(position.space_id)?.floor_id ?? '')}), source ${position.source === 'tour_start' ? 'tour start' : position.source}.`,
-  tourLoaded: (tour: Tour) => `Tour ${tour.tour_id} loaded: ${pendingStops(tour).length} stops, next ${pendingStops(tour)[0]?.label ?? 'none'}.`,
-  replanned: (summary: string, tour: Tour) => {
+  tourLoaded: (tour: Tour) => `Tour ${tour.tour_id} loaded: ${pendingStops(tour).length} stops, next ${nextLabel(tour)}.${tour.unreachable_stops.length ? ` Not reachable now: ${unreachableList(tour)}.` : ''}`,
+  /** CR-M-3: a fully blocked tour says which stop and why, never "replanned: 0 m, next none". */
+  replanned: (rawSummary: string, tour: Tour) => {
+    const summary = humanSummary(rawSummary);
+    const routed = pendingStops(tour).length > 0 || onFinalLeg(tour);
+    if (!routed && tour.unreachable_stops.length) return `Building changed: ${summary}. No route is available any more: ${unreachableList(tour)}.`;
     const blocked = blockedReason(tour);
-    return blocked ? `Building changed: ${summary}. No route is available any more: ${blocked.reason}.` : `Building changed: ${summary}. The active tour was replanned: ${Math.round(remainingLength(tour))} m, next ${pendingStops(tour)[0]?.label ?? 'none'}.`;
+    if (blocked && !routed) return `Building changed: ${summary}. No route is available any more: ${REASON[blocked.reason] ?? blocked.reason}.`;
+    const missing = tour.unreachable_stops.length ? ` Not reachable now: ${unreachableList(tour)}.` : '';
+    return `Building changed: ${summary}. The active tour was replanned: ${Math.round(remainingLength(tour))} m, next ${nextLabel(tour)}.${missing}`;
   },
   collected: (label: string, tour: Tour) => `Stop collected: ${label}. ${collectedCount(tour)} of ${tour.stops.length} done.`,
 };
