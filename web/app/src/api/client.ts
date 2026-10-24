@@ -1,4 +1,4 @@
-import type { BuildingSummary, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
+import type { BuildingEventRecord, BuildingSummary, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
 
 /** `?mock=1` serves the bundled fixtures from `src/mocks/` instead of the live API (CONTRACTS §15). */
 export const mockMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('mock') === '1';
@@ -40,6 +40,9 @@ export const api = {
   tool: (name: string, session_id: string, args: Record<string, unknown>) => send<ToolResponse>('POST', `/api/tools/${name}`, { session_id, args }),
   chat: (session_id: string, message: string) => send<ChatReply>('POST', '/api/chat', { session_id, message }),
   marker: (id: string) => send<Marker>('GET', `/api/markers/${encodeURIComponent(id)}`),
+  events: (buildingId: string) => send<BuildingEventRecord[]>('GET', `/api/buildings/${encodeURIComponent(buildingId)}/events`),
+  /** Demo mode only (TYB_DEMO_MODE on the server); admin session in `X-Session-ID`. */
+  demoReset: (buildingId: string, adminSessionId: string) => send<{ building_id: string; building_version: number }>('POST', '/api/demo/reset', { building_id: buildingId }, { 'X-Session-ID': adminSessionId }),
 };
 
 /** Reuses the stored session for this building and device, or creates one (CONTRACTS §10). */

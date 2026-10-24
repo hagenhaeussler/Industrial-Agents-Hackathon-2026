@@ -7,6 +7,7 @@ const Home = lazy(() => import('./home/Home').then(module => ({ default: module.
 const Desk = lazy(() => import('./desk/Desk').then(module => ({ default: module.Desk })));
 const Journey = lazy(() => import('./phone/Journey').then(module => ({ default: module.Journey })));
 const MarkerPage = lazy(() => import('./phone/MarkerPage').then(module => ({ default: module.MarkerPage })));
+const Admin = lazy(() => import('./admin/Admin').then(module => ({ default: module.Admin })));
 const Guide = lazy(() => import('./phone/Guide').then(module => ({ default: module.Guide })));
 
 function Placeholder({ title, text }: { title: string; text: string }) {
@@ -19,7 +20,7 @@ function Screen() {
   if (route.name === 'home') return <Home/>;
   if (route.name === 'desk') return <Desk/>;
   if (route.name === 'go') return route.tourId === 'demo' || query.get('prototype') === '1' ? <Guide/> : <Journey tourId={route.tourId}/>;
-  if (route.name === 'admin') return <Placeholder title="Admin view" text="Closing and reopening parts of the building arrives with the admin milestone."/>;
+  if (route.name === 'admin') return <Admin/>;
   if (route.name === 'marker') return <MarkerPage markerId={route.markerId}/>;
   return <Placeholder title="This page does not exist" text="Check the link, or start from the building list."/>;
 }

@@ -18,6 +18,8 @@ export type FloorMapProps = {
   onAsset?: (assetId: string) => void;
   onSpace?: (spaceId: string) => void;
   onFloor?: (floorId: string) => void;
+  /** admin: doors become clickable */
+  onOpening?: (openingId: string) => void;
   fit?: { id: string; box: Box | null };
   /** phone: index into `tour.legs` drawn bold; the other legs are drawn quietly */
   focusLeg?: number;
@@ -55,10 +57,10 @@ const Ghost = memo(function Ghost({ model, floorId }: { model: Model; floorId: s
   return <path d={d} fill="none" stroke="#c9cbbf" strokeWidth={1} vectorEffect="non-scaling-stroke" strokeDasharray="3 3" opacity={0.35} pointerEvents="none"/>;
 });
 
-const Doors = memo(function Doors({ model, floorId }: { model: Model; floorId: string }) {
+const Doors = memo(function Doors({ model, floorId, onOpening }: { model: Model; floorId: string; onOpening?: (id: string) => void }) {
   const openings = model.openingsOn.get(floorId) ?? [];
   const gap = model.unit * 0.32;
-  return <g className="map-doors" pointerEvents="none">
+  return <g className="map-doors" pointerEvents={onOpening ? 'auto' : 'none'}>
     {openings.map(opening => {
       const space = model.space.get(opening.space_ids[0] ?? '');
       if (!space) return null;
@@ -73,6 +75,7 @@ const Doors = memo(function Doors({ model, floorId }: { model: Model; floorId: s
           <circle cx={fmt(a[0])} cy={fmt(a[1])} r={gap * 0.38} fill={opening.kind === 'entrance' ? '#191c16' : '#8f9485'}/>
           <circle cx={fmt(b[0])} cy={fmt(b[1])} r={gap * 0.38} fill={opening.kind === 'entrance' ? '#191c16' : '#8f9485'}/>
         </>}
+        {onOpening && <circle cx={fmt(toSvg(opening.position)[0])} cy={fmt(toSvg(opening.position)[1])} r={model.unit * 0.7} className="map-door-hit clickable" onClick={() => onOpening(opening.id)}><title>{closed ? 'Closed door' : 'Door'}</title></circle>}
       </g>;
     })}
   </g>;
@@ -166,7 +169,7 @@ function RouteLayer({ model, floorId, tour, focusLeg, onFloor }: { model: Model;
   </g>;
 }
 
-export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, fit, focusLeg }: FloorMapProps) {
+export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, onOpening, fit, focusLeg }: FloorMapProps) {
   const vb = useMemo(() => viewBox(model.box, model.unit * 3), [model]);
   const marks = useMemo(() => (tour ? stopMarks(model, tour).filter(mark => mark.floorId === floorId) : []), [model, tour, floorId]);
   const closedSpaces = useMemo(() => {
@@ -193,7 +196,7 @@ export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlig
     <Rooms model={model} floorId={floorId} onSpace={onSpace}/>
     {highlighted.map(space => <polygon key={space.id} points={svgPoints(space.polygon)} fill="#f0fbc4" stroke="#191c16" strokeWidth={2} vectorEffect="non-scaling-stroke" pointerEvents="none" className="map-highlight"/>)}
     {closedSpaces.map(space => <polygon key={space.id} points={svgPoints(space.polygon)} fill="url(#closed-hatch)" stroke="#c83432" strokeWidth={2} vectorEffect="non-scaling-stroke" pointerEvents="none"><title>Closed</title></polygon>)}
-    <Doors model={model} floorId={floorId}/>
+    <Doors model={model} floorId={floorId} onOpening={onOpening}/>
     <Labels model={model} floorId={floorId} compact={compact}/>
     {showParts && !compact && <Parts model={model} floorId={floorId} onAsset={onAsset}/>}
     {tour && <RouteLayer key={`${tour.tour_id}:${tour.revision}:${floorId}:${focusLeg ?? ''}`} model={model} floorId={floorId} tour={tour} focusLeg={focusLeg} onFloor={onFloor}/>}
