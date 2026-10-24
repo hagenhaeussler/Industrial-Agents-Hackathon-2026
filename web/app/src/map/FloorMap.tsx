@@ -1,9 +1,9 @@
 import { memo, useMemo } from 'react';
-import type { Point, Position, Space, Tour } from '../api/types';
+import type { Point, Space, Tour } from '../api/types';
 import { svgPoints, toSvg, viewBox, wallDirection } from '../geo/transform';
 import type { Box } from '../geo/transform';
 import { anchorOf, floorName, isPart, reachableLegs, stopMarks } from './model';
-import type { Model } from './model';
+import type { Model, Place } from './model';
 
 export type FloorMapProps = {
   model: Model;
@@ -12,7 +12,7 @@ export type FloorMapProps = {
   selected?: ReadonlySet<string>; // asset ids
   focusAssetId?: string | null;
   highlightSpaceIds?: readonly string[];
-  you?: Position | { space_id: string; floor_id: string; point: Point } | null;
+  you?: Place | null;
   showParts?: boolean;
   compact?: boolean; // phone minimap: fewer labels, no asset dots
   onAsset?: (assetId: string) => void;
@@ -118,7 +118,17 @@ function Pill({ at, text, unit, dark = true, onClick }: { at: Point; text: strin
 function RouteLayer({ model, floorId, tour, onFloor }: { model: Model; floorId: string; tour: Tour; onFloor?: (id: string) => void }) {
   const legs = reachableLegs(tour);
   const walks = legs.flatMap(leg => leg.segments).filter(segment => segment.kind === 'walk' && segment.floor_id === floorId);
-  const d = walks.map(segment => `M${svgPoints(segment.points)}`).join('');
+  // contiguous segments continue one subpath, so the line has no caps or gaps at room boundaries
+  let d = '';
+  let last: Point | undefined;
+  for (const segment of walks) {
+    const [first, ...rest] = segment.points;
+    if (!first) continue;
+    const joined = last && Math.abs(last[0] - first[0]) < 1e-6 && Math.abs(last[1] - first[1]) < 1e-6;
+    d += `${joined ? 'L' : 'M'}${svgPoints(joined ? rest : segment.points)}`;
+    last = segment.points[segment.points.length - 1];
+  }
+  d = d.replace(/L(?=M|$)/g, '');
   // one pill per connector and other floor: "Stairs to Floor 1", "Stairs from Floor 1" or "Stairs to and from Floor 1"
   const pills = new Map<string, { at: Point; kind: string; other: string; to: boolean; from: boolean }>();
   for (const segment of legs.flatMap(leg => leg.segments)) {
