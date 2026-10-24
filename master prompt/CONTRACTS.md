@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C1** (initial, written by the master agent on 24 Oct 2026 against `a5656fe`). Section owners:
+Contract version: **C3** (24 Oct 2026; C2 HTTP clarifications by Manuel's codex preserved; C3 core result clarifications by Hagen's codex). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -157,7 +157,8 @@ Rules, verified on 24 Oct 2026 against the kit answers (161/161 reachable dev ro
 - `space_path` is `BuildingMap.spaces_passed(graph, node_path)`: every space passed, corridors crossed door to door included.
 - `element_path` lists, for each consecutive node pair: the connector ID when the cheapest edge is a stair/lift edge (**one entry per flight or ride edge**, so a two-flight stair appears twice), and the opening ID whenever the next node is a door node. This reproduces the kit `element_path` exactly.
 - `length_m` is the Dijkstra length on the profile graph, rounded to 2 decimals for display; unrounded value kept in `length_m_exact`.
-- `segments[].points` are the actual walk polylines inside each space: anchor or landing points plus the corners of the shrunken polygon chosen by the visibility-graph shortest path, then the door position. The sum of walk segment lengths equals the walk edge lengths within 1e-6 m (acceptance check in H02). The UI never chooses doors or straightens lines.
+- `segments[].points` are the actual walk polylines inside each space: anchor or landing points plus the corners of the shrunken polygon chosen by the visibility-graph shortest path, then the door position. `segments[].length_m` is the authoritative graph cost (rounded to 0.001 m by the kit); additive `geometry_length_m` is the raw measured polyline length. Check the latter against unrounded kit walks within 1e-6 m, and against rounded graph costs within 0.001 m. Rounding makes equality at 1e-6 m to the rounded graph cost impossible in general. Explicit `fallback: true` means the kit used its inflated straight-line fallback: its drawing is not claimed to be a verified walkable route. The UI never chooses doors or straightens lines.
+- Routes accept position objects and use their actual point, rather than silently replacing it with the room anchor. Additive `start_position` and `destination_position` record the actual endpoints.
 - `maneuvers[].kind` ∈ `depart, straight, turn_left, turn_right, slight_left, slight_right, u_turn, enter, take_lift, take_stairs, arrive`. Turn kinds come from the polyline heading change at door crossings (> 30° slight, > 60° turn, > 150° u-turn). `landmark` is the nearest named asset within 3 m of the maneuver point that is not furniture of category `furniture`, else the space being entered, else null. `text` is plain English, at most 90 characters.
 
 **RouteResult** (unreachable): `{"reachable": false, "from_space_id": ..., "to_space_id": ..., "reason": "no_step_free_path|blocked_by_closure|too_narrow|disconnected", "blocking_ids": [...], "constraints": ..., "profile": ..., "building_id": ..., "building_version": ..., "content_hash": ...}`. `blocking_ids` is best effort (for example the closed lift whose removal would make it reachable); it may be empty.
@@ -188,6 +189,8 @@ Rules, verified on 24 Oct 2026 against the kit answers (161/161 reachable dev ro
 - **Meaning of "optimal":** minimal total profile length of an open path from `start` through all pending reachable stops, ending at `end` if given. `order_policy`: `optimized_exact` (Held-Karp dynamic programme over the stop distance matrix, used up to 12 stops), `optimized_heuristic` (nearest neighbour + 2-opt, above 12 stops, labelled as heuristic in the UI), `fixed` (`keep_order: true`; this is the kit `tour` kind, where order is prescribed).
 - **Replan:** collected stops keep `status: "collected"` and are excluded from optimisation; the new start is the latest known position (§10); `revision` increments; `changed_because` names the event.
 - **Unreachable stops** are listed with their reason and never silently dropped. The remaining stops are still planned.
+- **Core/server boundary:** core returns `tour_id: null` until the server assigns the opaque ID. `constraints` retain requested mobility/closure constraints; current building closures are applied to every leg and recorded separately as additive `building_closed`. A later reopen must not be overridden by a stale copy of a building closure saved in the tour.
+- **Moved parts:** replanning retargets pending asset stops from the current asset inventory. Collected stops stay collected. Existing stop IDs are retained, including when previously separate stops move into the same room; if one grouped stop splits across rooms, extra stops receive new IDs. New tours still merge items initially sharing a space.
 
 ## 6. Edits, proposals, events and versions
 
@@ -243,6 +246,8 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `GET /api/voice/token` | `?agent=navigator|admin` | `{"token", "agent_id"}`; 503 `voice_unavailable` when no key; the API key never leaves the server |
 | `POST /api/chat` | `{"session_id", "message"}` | `{"reply", "tool_calls": [ToolResponse], "display": {...}}` |
 | `POST /api/demo/reset` | `{"building_id"}` (admin; demo mode) | archives the building's event log, restarts it at version 0 and broadcasts `building_reset`; never available outside demo mode |
+
+**Session header and handoff metadata (C2, additive):** Administrative raw-HTTP requests (building upload, marker creation, demo reset, plan import) carry `X-Session-ID: <admin session_id>`; tools already carry `session_id` in their JSON body. `POST /api/tours/{id}/progress` accepts optional `X-Session-ID` to advance the calling phone's position; include it on the phone. Without it, the stored tour session is used for compatibility. The caller must belong to the same building and have opened that tour. Server tours also carry `mobility_profile` (`walk|wheelchair|pram|trolley`) separately from the cost `profile`; the phone copies it and `constraints` when opening the handoff. `TYB_DEMO_MODE=true` is required to enable demo reset; it is disabled by default. `GET /devtest` serves the unlinked device-gate page after the frontend build.
 
 Front-end routes served by the SPA: `/` (building picker), `/desk`, `/admin`, `/go/{tour_id}`, `/m/{marker_id}`. Query `?demo=hero` loads the demo scenario.
 
@@ -364,6 +369,7 @@ One short explanatory sentence may precede the line. Never two `Answer:` lines w
 | `invalid_args` | schema or semantic validation failed | agent repairs once, else asks |
 | `version_conflict` | building changed since preview | re-preview and ask again |
 | `forbidden` | edit from a non-admin session | explain that changes need the admin view |
+| `voice_unavailable` | voice token/provider configuration unavailable (HTTP 503) | show text chat fallback |
 | `not_available` | feature not built or provider missing (voice, import) | fall back (text chat, JSON upload) |
 | `internal` | bug | apologise briefly; logged with `request_id` |
 
@@ -381,3 +387,7 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 | Version | Date/time | Section | Change | By |
 |---|---|---|---|---|
 | C1 | 24 Oct 2026 | all | initial (includes the `spatial_query` tool addition and `tour_opened` event) | master agent |
+
+- **C2 — 24 Oct 2026, Manuel's codex, CR-M-1:** clarified §7 admin session header, optional phone progress header, mobility handoff metadata and demo opt-in; documented the existing voice token 503 code in §14. Endpoint paths, eleven tool names and their required arguments unchanged.
+
+- **C3 — 24 Oct 2026, Hagen's codex, CR-H-1:** clarified §5 raw polyline length versus rounded kit cost, actual point endpoints, server-assigned tour IDs, current building closures and moved-part replanning. C2 HTTP/session transport preserved.

@@ -10,3 +10,7 @@ __pycache__/
 
 # Agent- und Benchmark-Ausgaben
 agent_output/
+
+# Platform state and SPA build
+.state/
+web/app/dist/
