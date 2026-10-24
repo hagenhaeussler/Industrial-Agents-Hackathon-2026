@@ -1,4 +1,4 @@
-# Platform integration (C7)
+# Platform integration (C8)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -41,7 +41,11 @@ The voice hook is documented in [the browser bridge README](../web/app/src/voice
 
 ## Admin and markers
 
-Create an admin session in the admin view. Tools use its body `session_id`; raw upload/marker/reset endpoints use `X-Session-ID`. Propose before commit. A proposal expires after ten minutes; version conflicts require a new preview. Repeat `proposal_id` or `op_id` commits return the original event. Undo appends an event.
+Create an admin session in the admin view. `POST /api/sessions` with `role: "admin"` needs `X-Admin-Token: <TYB_ADMIN_TOKEN>` (constant-time check); a wrong or missing code returns 403 `forbidden`, and without a configured code nobody can open one (fail closed, including direct `Settings()` construction). `TYB_ADMIN_OPEN_INSECURE=1` reopens it for local development only; never set it on a server other people can reach (a Vite dev proxy on `0.0.0.0` counts). The role in the body alone never grants admin rights. Tools use its body `session_id`; raw upload/marker/reset endpoints use `X-Session-ID`. Propose before commit. A proposal expires after ten minutes; version conflicts require a new preview. Repeat `proposal_id` or `op_id` commits return the original event. Undo appends an event.
+
+Before making a previously open installation public, start with a fresh state volume or explicitly retire its old admin sessions. Existing sessions are bearer credentials; this creation gate and code rotation do not revoke them. No state is deleted automatically. The local integration verifier generates its own ephemeral code, clears any inherited insecure opt-in and never prints the code.
+
+Public event reads, REST tour responses and building WebSocket messages omit session IDs, including nested event metadata. Otherwise a public event reader could replay the admin's bearer credential. Database owner records and private tool calls retain their session IDs for ownership, idempotency and undo; phone handoff uses its own session plus the tour ID.
 
 Uploads use the core validator and get a server-assigned `upl-…` building ID. When the core validator is unavailable the endpoint returns `not_available`, rather than accepting unchecked data. Marker standing points must be in their rooms; marker sheets escape labels and print 12 cm QR codes. A scanned marker is a known point/heading under the standing protocol, not a camera pose.
 

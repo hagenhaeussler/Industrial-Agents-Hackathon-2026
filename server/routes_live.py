@@ -1,4 +1,5 @@
 """C1 session, tour, tool, edit-event and marker HTTP transports."""
+import hmac
 import importlib
 import inspect
 import json
@@ -14,6 +15,7 @@ from shapely.geometry import Point
 from starter_agent.building_map import outline
 
 from .errors import ServiceError
+from .public import public_payload
 from . import schemas
 from .state import now
 
@@ -33,6 +35,15 @@ def admin_session(request, session_id, building_id=None):
     if building_id and session['building_id'] != building_id:
         raise ServiceError('forbidden', 'This admin session belongs to another building.', status=403)
     return session
+
+
+def admin_allowed(request, code):
+    """Whether this request may open an admin session (CR-C-2); the role in the body is never trusted alone."""
+    settings = request.app.state.settings
+    if not settings.admin_requires_code:
+        return True
+    # Fail closed: without a configured code nobody is admin. The client address is never an auth factor.
+    return bool(settings.admin_token) and bool(code) and hmac.compare_digest(code.encode(), settings.admin_token.encode())
 
 
 def checked_position(service, store, building_id, position):
@@ -66,7 +77,10 @@ def checked_position(service, store, building_id, position):
 
 
 @router.post('/sessions', response_model=schemas.Session, tags=['sessions'])
-def create_session(body: schemas.SessionCreate, request: Request):
+def create_session(body: schemas.SessionCreate, request: Request,
+                   admin_code: str | None = Header(default=None, alias='X-Admin-Token')):
+    if body.role == 'admin' and not admin_allowed(request, admin_code):
+        raise ServiceError('forbidden', 'Changes need the admin code.', status=403)
     service, store = components(request)
     service.current(body.building_id)
     return store.create_session(body.building_id, body.device, body.role, body.profile)
@@ -111,23 +125,23 @@ def call_tool(name: str, body: schemas.ToolCall, request: Request):
 def get_events(building_id: str, request: Request, since: int = Query(default=0, ge=0)) -> list[dict]:
     service, store = components(request)
     service.current(building_id)
-    return store.events(building_id, since)
+    return public_payload(store.events(building_id, since))
 
 
 @router.post('/tours', response_model=schemas.TourResult, response_model_exclude_none=True, tags=['tours'])
 def create_tour(body: schemas.TourCreate, request: Request) -> dict:
-    return request.app.state.service.create_tour(body.session_id, body.items, body.start, body.keep_order, body.end)
+    return public_payload(request.app.state.service.create_tour(body.session_id, body.items, body.start, body.keep_order, body.end))
 
 
 @router.get('/tours/{tour_id}', response_model=schemas.TourResult, response_model_exclude_none=True, tags=['tours'])
 def get_tour(tour_id: str, request: Request) -> dict:
-    return request.app.state.store.get_tour(tour_id)
+    return public_payload(request.app.state.store.get_tour(tour_id))
 
 
 @router.post('/tours/{tour_id}/progress', response_model=schemas.TourResult, response_model_exclude_none=True, tags=['tours'])
 def progress_tour(tour_id: str, body: schemas.TourProgress, request: Request,
                   session_id: str | None = Header(default=None, alias='X-Session-ID')) -> dict:
-    return request.app.state.service.progress_tour(tour_id, body.stop_id, body.status, session_id=session_id)
+    return public_payload(request.app.state.service.progress_tour(tour_id, body.stop_id, body.status, session_id=session_id))
 
 
 @router.post('/tours/{tour_id}/replan', response_model=schemas.TourResult, response_model_exclude_none=True, tags=['tours'])
@@ -138,7 +152,7 @@ def replan_tour(tour_id: str, body: schemas.TourReplan, request: Request) -> dic
     constraints = body.constraints.model_dump(exclude_unset=True) if body.constraints is not None else None
     result = service.replan_tour(tour_id, body.session_id, position, body.reason, constraints=constraints)
     store.update_session(body.session_id, {'position': position, 'active_tour_id': tour_id})
-    return result
+    return public_payload(result)
 
 
 @router.get('/markers/{marker_id}', tags=['markers'])

@@ -7,6 +7,8 @@ import logging
 
 from fastapi import WebSocket, WebSocketDisconnect
 
+from .public import public_payload
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,6 +30,7 @@ class BuildingHub:
             future.add_done_callback(self.pending.discard)
 
     async def broadcast(self, building_id, message):
+        message = public_payload(message)
         async def send(socket):
             try:
                 async with self.send_locks[socket]:
