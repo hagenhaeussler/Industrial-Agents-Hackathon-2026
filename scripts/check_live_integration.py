@@ -10,9 +10,9 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import secrets
 import shutil
 import signal
+import secrets
 import socket
 import subprocess
 import sys
@@ -36,6 +36,10 @@ def git(*parts):
 
 expected_sha = git('rev-parse', 'HEAD')
 initial_diff = subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD'])
+security_paths = ['server/config.py', 'server/app.py', 'server/state.py', 'server/routes_live.py',
+                  'server/ws.py', 'server/public.py', 'server/tools.py']
+security_hashes = {path: hashlib.sha256((source / path).read_bytes()).hexdigest()
+                   for path in security_paths if (source / path).is_file()}
 url = None
 state = None
 report = {
@@ -43,6 +47,7 @@ report = {
     'started_at': datetime.now(timezone.utc).isoformat(),
     'source_tracked_changes': bool(initial_diff),
     'source_diff_sha256': hashlib.sha256(initial_diff).hexdigest(),
+    'security_source_sha256': security_hashes,
     'verification_script_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     'method': 'Actual uvicorn subprocess, real HTTP and WebSocket clients, isolated SQLite state, actual core and kit building data.',
     'limits': ['Local laptop only; phone is an API session, not a physical device.',
@@ -58,13 +63,14 @@ server_log = None
 environment = {key: value for key, value in os.environ.items()
                if not key.startswith(('ANTHROPIC', 'ELEVENLABS', 'OPENAI'))
                and key not in {'RAILWAY_GIT_COMMIT_SHA', 'PYTHONPATH'}}
+admin_code = secrets.token_urlsafe(32)
 environment.update(ANTHROPIC_API_KEY='', ELEVENLABS_API_KEY='',
                    ELEVENLABS_AGENT_ID_NAVIGATOR='', ELEVENLABS_AGENT_ID_ADMIN='',
                    OPENAI_API_KEY='', TYB_CHAT_BUDGET_USD='0',
                    PYTHON_DOTENV_DISABLED='1', DATA_DIR=str(source / 'data'),
-                   PYTHONDONTWRITEBYTECODE='1', TYB_PROFILE='kit_1_1_0')
-admin_code = secrets.token_urlsafe(32)
-environment.update(TYB_ADMIN_TOKEN=admin_code, TYB_DEMO_MODE='0')
+                   PYTHONDONTWRITEBYTECODE='1', TYB_PROFILE='kit_1_1_0',
+                   TYB_ADMIN_TOKEN=admin_code, TYB_ADMIN_OPEN_INSECURE='',
+                   TYB_DEMO_MODE='0', TYB_ALLOW_UNAUTHENTICATED_DEMO_ADMIN='0')
 
 
 def interrupted(signum, frame):
@@ -94,10 +100,28 @@ try:
     environment.update(STATE_DIR=str(state / 'database'), PUBLIC_BASE_URL=url)
     server = launch()
     with httpx.Client(base_url=url, timeout=15, trust_env=False) as client:
+        credentials = set()
+
+        def check_public(payload):
+            def check_keys(value):
+                if isinstance(value, dict):
+                    assert 'session_id' not in value, 'Public payload contains a session bearer field.'
+                    for item in value.values():
+                        check_keys(item)
+                elif isinstance(value, (list, tuple)):
+                    for item in value:
+                        check_keys(item)
+            check_keys(payload)
+            rendered = json.dumps(payload)
+            assert not any(credential in rendered for credential in credentials), 'Public payload contains a session bearer value.'
+
         def request(method, path, body=None, headers=None):
             response = client.request(method, path, json=body, headers=headers)
             assert response.status_code == 200, (path, response.status_code, response.text)
-            return response.json()
+            payload = response.json()
+            if path.startswith('/api/tours') or path.split('?')[0].endswith('/events'):
+                check_public(payload)
+            return payload
 
         def get(path): return request('GET', path)
         def post(path, body, headers=None): return request('POST', path, body, headers)
@@ -106,6 +130,7 @@ try:
         def tool(sid, name, values, ok=True):
             result = post('/api/tools/' + name, {'session_id': sid, 'args': values})
             assert result['ok'] is ok, (name, result)
+            check_public(result)
             return result
 
         def ready():
@@ -131,19 +156,27 @@ try:
         ups = next(v for v in raw['assets'] if v['id'].endswith('A00325'))
 
         def session(role='navigator', device='desk', profile='walk'):
-            return post('/api/sessions', {'building_id': bid, 'role': role,
-                                         'device': device, 'profile': profile},
-                        {'X-Admin-Token': admin_code} if role == 'admin' else None)['session_id']
-
-        for headers in ({}, {'X-Admin-Token': 'incorrect-code'}):
-            denied = client.post('/api/sessions', json={'building_id': bid, 'role': 'admin'}, headers=headers)
-            assert denied.status_code == 403
-        report['checks']['admin_authorization'] = {'missing_and_wrong_code_forbidden': True,
-                                                   'ephemeral_code_not_recorded': True}
+            created = post('/api/sessions', {'building_id': bid, 'role': role,
+                                            'device': device, 'profile': profile},
+                           {'X-Admin-Token': admin_code} if role == 'admin' else None)
+            credentials.add(created['session_id'])
+            return created['session_id']
 
         desk = session(profile='wheelchair')
         phone = session(device='phone')
+        admin_body = {'building_id': bid, 'role': 'admin', 'device': 'desk', 'profile': 'walk'}
+        missing_code = client.post('/api/sessions', json=admin_body)
+        wrong_code = client.post('/api/sessions', json=admin_body, headers={'X-Admin-Token': 'incorrect-admin-token'})
+        assert missing_code.status_code == wrong_code.status_code == 403
+        assert missing_code.json()['error']['code'] == wrong_code.json()['error']['code'] == 'forbidden'
         admin = session(role='admin')
+        report['checks']['admin_auth'] = {
+            'missing_header_status': missing_code.status_code, 'wrong_header_status': wrong_code.status_code,
+            'authenticated_status': 200, 'navigator_status': 200,
+            'ephemeral_code_configured': bool(admin_code),
+            'inherited_insecure_opt_in_cleared': environment['TYB_ADMIN_OPEN_INSECURE'] == '',
+            'inherited_token_replaced': environment['TYB_ADMIN_TOKEN'] != os.environ.get('TYB_ADMIN_TOKEN', ''),
+        }
         patch('/api/sessions/' + desk, {'position': {'space_id': printer['space_id'], 'source': 'desk'},
               'constraints': {'step_free': True, 'min_door_width_m': .6, 'no_transit_room_types': ['toilet']}})
         found = tool(desk, 'find', {'query': cnc['name']})
@@ -167,6 +200,7 @@ try:
         def until(ws, kind, field=None, value=None):
             for _ in range(30):
                 message = json.loads(ws.recv(timeout=5))
+                check_public(message)
                 if message['type'] == kind and (field is None or message.get(field) == value):
                     return message
             raise AssertionError('Missing matching WebSocket message: ' + kind)
@@ -213,6 +247,7 @@ try:
                 stale = tool(admin, 'propose_edit', {'action': 'close', 'target': lift['id']})['result']
                 started = time.perf_counter()
                 commit = tool(admin, 'commit_edit', {'proposal_id': preview['proposal_id'], 'op_id': f'g34-close-{trial}'})['result']
+                check_public(commit)
                 committed = time.perf_counter()
                 changed = until(ws, 'building_changed')
                 notified = time.perf_counter()
@@ -272,6 +307,7 @@ try:
             previous_tour = get(tour_path)
             assert previous_tour['building_version'] == 6 and snap['building_version'] == 7
             events = get('/api/buildings/' + bid + '/events?since=6')
+            check_public(disconnected_event)
             assert events == [disconnected_event]
             caught_up = replan()
             assert until(ws, 'tour_updated')['revision'] == caught_up['revision']
@@ -281,6 +317,10 @@ try:
                 'refetched_snapshot': True, 'refetched_tour': True, 'events_since_6': events,
                 'replanned_version': 7, 'collected_preserved': True,
                 'automatic_ui_reconnect_verified': False}
+        report['checks']['public_credentials'] = {
+            'public_events_tours_and_ws_omit_session_fields_and_values': True,
+            'tool_results_and_displays_omit_session_fields_and_values': True,
+        }
 
         expected = {'tour': get(tour_path), 'session': get('/api/sessions/' + phone),
                     'events': get('/api/buildings/' + bid + '/events')}
@@ -315,7 +355,11 @@ try:
             'blocked_pending_survives': True, 'collected_stop_ids': collected,
             'post_restart_undo_restores_route': True, 'restored_pending_order': recovered['order']}
         assert git('rev-parse', 'HEAD') == expected_sha
-        assert subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD']) == initial_diff
+        final_diff = subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD'])
+        report['source_after_diff_sha256'] = hashlib.sha256(final_diff).hexdigest()
+        assert final_diff == initial_diff
+        assert {path: hashlib.sha256((source / path).read_bytes()).hexdigest()
+                for path in security_hashes} == security_hashes
         report['source_unchanged_after_run'] = True
         report['status'] = 'PASS'
 except (Exception, KeyboardInterrupt) as error:

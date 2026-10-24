@@ -218,6 +218,8 @@ Rules, verified on 24 Oct 2026 against the kit answers (161/161 reachable dev ro
 
 **Event record:** `{"event_id": "evt-4", "building_id", "building_version": 4, "kind": "close|open|add_door|move_asset|set_room_type|undo", "edit": {...resolved IDs...}, "undoes": null, "op_id", "proposal_id", "session_id", "author_role": "admin", "summary", "created_at"}`.
 
+This is the private storage record. Public event reads, tool envelopes and WebSocket broadcasts omit `session_id`; ownership remains in storage for authorization, undo and idempotency.
+
 - Base data is immutable. The materialised building at version *v* is `apply_events(base, events[:v])`.
 - **Benchmark isolation:** benchmark and Sunday runs always load base files from disk and never read `/state`. Each question starts from the original building.
 - Edits require a server-authenticated admin session (§7 C8). Requesting `role: "admin"` or an LLM-provided argument grants no permission.
@@ -314,12 +316,13 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 {"type": "building_changed", "building_id": "...", "building_version": 4, "event": {"event_id": "evt-4", "kind": "close", "edit": {"action": "close", "target": "...-V02"}, "summary": "East lift closed"}, "at": "2026-10-24T23:10:00Z"}
 {"type": "building_reset", "building_id": "...", "building_version": 0}
 {"type": "tour_updated", "tour_id": "...", "revision": 3}
-{"type": "tour_opened", "tour_id": "...", "session_id": "...", "device": "phone"}
+{"type": "tour_opened", "tour_id": "...", "device": "phone"}
 ```
 
 - Clients reconnect with backoff 0.5 s → 5 s, then `GET /api/buildings/{id}` and the active tour. Messages with `building_version` ≤ the known version are ignored.
 - On `building_changed`, the phone with an active tour calls `POST /api/tours/{id}/replan` from its current position. Only the newest response per tour is applied (compare `revision` and `request_id`).
 - `tour_opened` is sent when a phone session sets `active_tour_id` (the desk shows "Opened on phone").
+- Public broadcasts recursively omit bearer session IDs, including actor and nested event metadata. Consumers match by tour ID and revision.
 - Target: phone shows the new route ≤ 2 s after the admin says "Yes" (Aha 3).
 
 ## 10. Sessions, position, handoff and markers

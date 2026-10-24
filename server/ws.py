@@ -6,6 +6,7 @@ from contextlib import suppress
 import logging
 
 from fastapi import WebSocket, WebSocketDisconnect
+
 from .public import public_payload
 
 logger = logging.getLogger(__name__)
