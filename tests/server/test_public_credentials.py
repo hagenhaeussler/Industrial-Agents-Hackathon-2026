@@ -8,6 +8,7 @@ import pytest
 from server.app import create_app
 from server.config import REPO_ROOT, Settings
 from server.schemas import TourResult
+from server.public import public_payload
 
 
 CODE = "privacy-test-admin-code"
@@ -17,7 +18,7 @@ CODE = "privacy-test-admin-code"
 def api(tmp_path):
     settings = Settings(admin_token=CODE, state_dir=tmp_path / "state",
                         hero_dir=tmp_path / "hero", static_dir=tmp_path / "web")
-    assert settings.admin_requires_code is True
+    assert settings.admin_token == CODE and not settings.allow_unauthenticated_demo_admin
     raw = json.loads((REPO_ROOT / "data/dev/proc-factory-dev-003/building.json").read_text())
     with TestClient(create_app(settings)) as client:
         yield client, raw
@@ -80,7 +81,7 @@ def test_public_event_and_broadcast_hide_admin_owner_without_losing_audit(api):
         committed = tool(client, admin, "commit_edit", args)
         assert committed["ok"], committed
         event = committed["result"]
-        assert event["session_id"] == admin  # Private caller response retains ownership.
+        assert_public(committed, admin)
         internal = deepcopy(client.app.state.store.events(bid))
         message = ws.receive_json()
         public = client.get("/api/buildings/" + bid + "/events").json()
@@ -90,7 +91,9 @@ def test_public_event_and_broadcast_hide_admin_owner_without_losing_audit(api):
         assert public[0]["edit"] == event["edit"] and public[0]["summary"] == event["summary"]
         assert_public(message, admin)
         assert_public(public, admin)
-        assert client.app.state.store.events(bid) == internal == [event]
+        assert client.app.state.store.events(bid) == internal
+        assert internal[0]["session_id"] == admin
+        assert public_payload(internal) == [event]
         assert tool(client, admin, "commit_edit", args)["result"] == event
         assert len(client.app.state.store.events(bid)) == 1
         refused = tool(client, navigator, "propose_edit", {"action": "open", "target": lift})
@@ -98,7 +101,8 @@ def test_public_event_and_broadcast_hide_admin_owner_without_losing_audit(api):
 
         undo_args = {"event_id": event["event_id"], "op_id": "privacy-undo"}
         undone = tool(client, admin, "undo", undo_args)
-        assert undone["ok"] and undone["result"]["session_id"] == admin
+        assert undone["ok"]
+        assert_public(undone, admin)
         undo_message = ws.receive_json()
         assert undo_message["event"]["undoes"] == event["event_id"]
         assert_public(undo_message, admin)

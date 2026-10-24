@@ -1,6 +1,6 @@
 """Environment configuration; provider secrets never enter API responses."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from pathlib import Path
 
@@ -18,10 +18,8 @@ class Settings:
     demo_mode: bool = False
     profile: str = "kit_1_1_0"
     public_base_url: str = "http://localhost:8000"
-    # CR-C-2: every construction path fails closed. Only an explicit local
-    # development opt-in may allow admin creation without a code.
-    admin_token: str | None = None
-    admin_requires_code: bool = True
+    admin_token: str = field(default="", repr=False)
+    allow_unauthenticated_demo_admin: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -32,6 +30,6 @@ class Settings:
             demo_mode=os.environ.get("TYB_DEMO_MODE", "").lower() in {"1", "true", "yes"},
             profile=os.environ.get("TYB_PROFILE", "kit_1_1_0"),
             public_base_url=os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/"),
-            admin_token=os.environ.get("TYB_ADMIN_TOKEN", "").strip() or None,
-            admin_requires_code=os.environ.get("TYB_ADMIN_OPEN_INSECURE", "").lower() not in {"1", "true", "yes"},
+            admin_token=os.environ.get("TYB_ADMIN_TOKEN", "").strip(),
+            allow_unauthenticated_demo_admin=os.environ.get("TYB_ALLOW_UNAUTHENTICATED_DEMO_ADMIN", "").lower() in {"1", "true", "yes"},
         )

@@ -8,12 +8,14 @@ from pathlib import Path
 
 from core.building import Building, load_building
 from starter_agent.building_map import MapError
+from agent.budget import Budget
 
 from .serialize import serialize
 from .templates import parse_question
 
 LOGGER = logging.getLogger(__name__)
 PROMPT_VERSION = "templates-v1"
+_BUDGET: Budget | None = None
 
 
 @dataclass
@@ -27,6 +29,8 @@ class Prediction:
     tokens: dict[str, int] = field(default_factory=dict)
     cost: float = 0.0
     model: str | None = None
+    tool_calls: int = 0
+    constraint_overrides: dict = field(default_factory=dict)
 
 
 @lru_cache(maxsize=64)
@@ -49,8 +53,21 @@ def unanswered(reason: str) -> Prediction:
 
 
 def fallback(building: Building, question: str, reason: str) -> Prediction:
-    """L03 supplies bounded interpretation here; no provider calls in L01."""
-    return unanswered(reason)
+    import os
+
+    if _BUDGET is None or not os.environ.get("ANTHROPIC_API_KEY"):
+        return unanswered(reason)
+    if reason.startswith("Ambiguous"):
+        return unanswered(reason)
+    from .llm_fallback import interpret
+
+    return interpret(building, question, (_BUDGET, None))
+
+
+def configure_budget(dollars: float | None) -> None:
+    """Only a caller with a written allocation may enable paid interpretation."""
+    global _BUDGET
+    _BUDGET = Budget(dollars) if dollars is not None else None
 
 
 def predict(directory: Path, question: str, mode: str = "hybrid") -> Prediction:

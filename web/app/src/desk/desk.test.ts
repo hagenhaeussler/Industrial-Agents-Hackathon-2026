@@ -86,3 +86,31 @@ describe('routes', () => {
     expect(match('/nope/x')).toEqual({ name: 'missing' });
   });
 });
+
+describe('desk ask fallback (text chat not connected)', () => {
+  const model = buildModel(snapshot);
+  test('splits a spoken list into one phrase per item', async () => {
+    const { phrases } = await import('./matchParts');
+    expect(phrases('I need the 3D printer H-A3-A, the tool cabinet and the UPS unit upstairs.')).toEqual(['the 3d printer h-a3-a', 'the tool cabinet', 'the ups unit upstairs.']);
+  });
+  test('selects unique parts, asks once for an ambiguous one, reports a missing one', async () => {
+    const { fallbackReply } = await import('./matchParts');
+    const answer = fallbackReply(model, 'I need the 3D printer H-A3-A, the tool cabinet and a unicorn');
+    expect(answer.select.map(id => model.asset.get(id)?.name)).toEqual(['3D printer H-A3-A']);
+    expect(answer.candidates.length).toBeGreaterThan(1);
+    expect(answer.reply).toContain('searched the parts list');
+    expect(answer.reply).toContain('Nothing in this building matches “unicorn”');
+  });
+  test('the demo sentence selects exactly the scenario parts', async () => {
+    const { fallbackReply } = await import('./matchParts');
+    // the Vite glob loader does not run under bun test, so read the scenario file directly
+    const scenario = (await import('../../../../demo/scenario.json')).default as { say: string; items: string[] };
+    expect(new Set(fallbackReply(model, scenario.say).select)).toEqual(new Set(scenario.items));
+  });
+  test('a single question focuses the part and names its place', async () => {
+    const { fallbackReply } = await import('./matchParts');
+    const answer = fallbackReply(model, 'Where is the 3D printer H-A3-A?');
+    expect(answer.focus).toBe('proc-factory-dev-003-A00021');
+    expect(answer.reply).toContain('Additive zone H-A3');
+  });
+});
