@@ -1,10 +1,10 @@
-import type { BuildingEventRecord, BuildingSummary, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
+import type { BuildingEventRecord, BuildingSummary, Validation, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
 
 /** `?mock=1` serves the bundled fixtures from `src/mocks/` instead of the live API (CONTRACTS §15). */
 export const mockMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('mock') === '1';
 
 export class ApiError extends Error {
-  constructor(readonly status: number, readonly code: string, message: string) { super(message); }
+  constructor(readonly status: number, readonly code: string, message: string, readonly data?: unknown) { super(message); }
 }
 
 export type Transport = (method: string, path: string, body?: unknown, headers?: Record<string, string>) => Promise<unknown>;
@@ -14,7 +14,7 @@ const http: Transport = async (method, path, body, headers) => {
   const data: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const error = (data as { error?: { code?: string; message?: string }; detail?: unknown } | null);
-    throw new ApiError(response.status, error?.error?.code ?? 'internal', error?.error?.message ?? (typeof error?.detail === 'string' ? error.detail : `${method} ${path} failed with ${response.status}`));
+    throw new ApiError(response.status, error?.error?.code ?? 'internal', error?.error?.message ?? (typeof error?.detail === 'string' ? error.detail : `${method} ${path} failed with ${response.status}`), error?.error);
   }
   return data;
 };
@@ -40,6 +40,8 @@ export const api = {
   tool: (name: string, session_id: string, args: Record<string, unknown>) => send<ToolResponse>('POST', `/api/tools/${name}`, { session_id, args }),
   chat: (session_id: string, message: string) => send<ChatReply>('POST', '/api/chat', { session_id, message }),
   marker: (id: string) => send<Marker>('GET', `/api/markers/${encodeURIComponent(id)}`),
+  /** Admin upload of a kit-format building.json; the server validates it with the core validator. */
+  uploadBuilding: (raw: unknown, adminSessionId: string) => send<{ building_id: string; validation: Validation }>('POST', '/api/buildings', raw, { 'X-Session-ID': adminSessionId }),
   events: (buildingId: string) => send<BuildingEventRecord[]>('GET', `/api/buildings/${encodeURIComponent(buildingId)}/events`),
   /** Demo mode only (TYB_DEMO_MODE on the server); admin session in `X-Session-ID`. */
   demoReset: (buildingId: string, adminSessionId: string) => send<{ building_id: string; building_version: number }>('POST', '/api/demo/reset', { building_id: buildingId }, { 'X-Session-ID': adminSessionId }),

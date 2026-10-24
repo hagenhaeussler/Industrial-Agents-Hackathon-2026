@@ -269,3 +269,14 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .trace-legs span, .trace-calls span { display: block; color: var(--muted); }
 .trace-calls code { font-size: 11px; font-weight: 700; }
 .trace-calls li span { display: inline; margin-left: 4px; }
+.drop-zone { border: 1.5px dashed #c9cdc0; border-radius: 15px; padding: 14px; display: grid; gap: 10px; justify-items: start; font-size: 13px; }
+.drop-zone.over { border-color: var(--ink); background: #f3f6e9; }
+.drop-zone code, .validation code { font-size: 11px; }
+.upload-result { border-radius: 14px; padding: 12px; display: grid; gap: 8px; font-size: 13px; line-height: 1.5; }
+.upload-result.ok { background: #f3f6e9; }
+.upload-result.error { background: #fdf0ee; color: #6d1f1d; }
+.upload-result .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.validation .stats { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; }
+.validation h4 { font-size: 12px; margin: 6px 0 2px; }
+.validation ul { margin: 0; padding-left: 16px; font-size: 12px; display: grid; gap: 2px; }
+.validation summary { cursor: pointer; font-size: 12px; font-weight: 700; min-height: 32px; display: flex; align-items: center; }

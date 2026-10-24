@@ -13,6 +13,7 @@ import { humanSummary } from '../phone/guidance';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { TracePanel } from '../trace/TracePanel';
+import { Upload } from './Upload';
 
 type Target = { id: string; name: string; kind: 'lift' | 'stairs' | 'door' | 'room'; closed: boolean; detail: string };
 type Preview = EditPreview & { target: Target; opId: string };
@@ -222,6 +223,8 @@ export function Admin() {
             </li>)}
           </ol>
         </section>
+
+        <Upload sessionId={session?.session_id ?? null}/>
       </div>
 
       {demo && resetAvailable && <footer className="plan-bar admin-foot">

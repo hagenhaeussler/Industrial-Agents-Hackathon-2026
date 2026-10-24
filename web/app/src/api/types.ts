@@ -71,6 +71,8 @@ export type Marker = { marker_id: string; building_id: string; floor_id: string;
 
 export type BuildingEvent = { event_id: string; kind: string; edit: Record<string, unknown>; summary: string };
 export type BuildingEventRecord = BuildingEvent & { building_id: string; building_version: number; undoes: string | null; op_id: string | null; proposal_id: string | null; session_id: string; author_role: string; created_at: string };
+export type ValidationItem = { code: string; path: string; message: string };
+export type Validation = { ok: boolean; errors: ValidationItem[]; warnings: ValidationItem[]; stats: Record<string, number> };
 export type EditAction = 'close' | 'open' | 'add_door' | 'move_asset' | 'set_room_type';
 export type EditPreview = {
   proposal_id: string; edit: { action: EditAction; target: string; second_target?: string | null; value?: string | null }; summary: string; base_version: number;
