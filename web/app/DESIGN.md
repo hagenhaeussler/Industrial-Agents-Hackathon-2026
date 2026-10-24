@@ -57,6 +57,7 @@ The route panel uses a 20px radius. The minimap uses 14px. Buttons use 12–15px
 
 - Phone: route banner on top (turn symbol, instruction, next stop, metres to the next step), the map in the middle with the current leg bold and later legs as a quiet dashed line, the guidance dock at the thumb: avatar and status, progress dots (ink done, accent now, hatched red unreachable), one big primary action ("Next step", "Got it", "I have arrived"). Changes arrive as an accent notice that says what happened and what it means for this tour.
 - Start: "Are you at …?" first, with "Yes", "Scan a position code" and "Choose my room". Position is never claimed without one of them.
+- Camera mode (dock toggle): live camera in the map area, the minimap top right, one accent arrow disc in the middle, always labelled "Direction only". The arrow appears only after a position code is scanned in camera mode; on a new floor or without a code it asks to "Scan the next position code". Camera denied: one card, "Back to the map".
 - Admin: same plan-table layout as the desk. Every change shows an ink-bordered preview card first; Confirm is the only primary action. The admin code card appears before anything else when the server asks for it.
 
 ## Do's and Don'ts

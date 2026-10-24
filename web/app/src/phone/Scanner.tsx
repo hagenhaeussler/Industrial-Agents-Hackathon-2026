@@ -20,12 +20,14 @@ export function Scanner({ open, onMarker, onClose }: { open: boolean; onMarker: 
   cameraRef.current = camera;
   const [hint, setHint] = useState('Point the camera at the position code on the door.');
 
+  // symmetric open/close: a remount (React's development double-mount included) restarts the camera cleanly
   useEffect(() => {
     const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) { dialog.showModal(); setHint('Point the camera at the position code on the door.'); void camera.start(); }
-    if (!open && dialog.open) { dialog.close(); camera.stop(); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!dialog || !open) return;
+    if (!dialog.open) dialog.showModal();
+    setHint('Point the camera at the position code on the door.');
+    void cameraRef.current.start();
+    return () => { cameraRef.current.stop(); if (dialog.open) dialog.close(); };
   }, [open]);
 
   useEffect(() => {

@@ -1,22 +1,26 @@
 import { Blobatar } from '@blobatar/react';
 import { happy, idle } from 'blobatar/expression';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Check, CornerUpLeft, CornerUpRight, DoorOpen, Flag, Footprints, ListOrdered, LoaderCircle, MapPin, Mic, MicOff, MoveUpLeft, MoveUpRight, Navigation, ScanQrCode, TriangleAlert, Undo2, WifiOff, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Camera, Check, CornerUpLeft, CornerUpRight, DoorOpen, Flag, Footprints, ListOrdered, LoaderCircle, MapPin, Mic, MicOff, MoveUpLeft, MoveUpRight, Navigation, ScanQrCode, TriangleAlert, Undo2, WifiOff, X } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
 import type { Display, ManeuverKind, Marker, Position, ServerMessage, Session, Tour } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { StartPicker } from '../desk/StartPicker';
+import { FloorMap } from '../map/FloorMap';
 import { MapView } from '../map/MapView';
 import { anchorOf, buildModel, displayOrder, floorName, isProvisional, placeOf, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { ChatSheet } from './ChatSheet';
+import type { Anchor } from './cameraArrow';
 import { END_STOP, unavailableText, atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, isComplete, metresToNext, onFinalLeg, pendingStops, rerouteNotice, stepPosition } from './guidance';
 import { VoiceRoot, useVoiceSession } from './voice';
 
 const Scanner = lazy(() => import('./Scanner').then(module => ({ default: module.Scanner })));
+const CameraGuide = lazy(() => import('./CameraGuide').then(module => ({ default: module.CameraGuide })));
+const loadMotion = () => import('./CameraGuide').then(module => module.requestMotion());
 
 const ICONS: Record<ManeuverKind, typeof ArrowUp> = {
   depart: Navigation, straight: ArrowUp, enter: DoorOpen, turn_left: CornerUpLeft, turn_right: CornerUpRight,
@@ -56,6 +60,12 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const [sheet, setSheet] = useState<'steps' | 'chat' | null>(null);
   const [picker, setPicker] = useState(false);
   const [scanner, setScanner] = useState(false);
+  // camera mode (C04): direction-only arrow anchored by a scanned position code
+  const [mode, setMode] = useState<'map' | 'camera'>('map');
+  const [motion, setMotion] = useState(false);
+  const [anchor, setAnchor] = useState<Anchor | null>(null);
+  const alphaRef = useRef<number | null>(null);
+  const onAlpha = useCallback((alpha: number | null) => { alphaRef.current = alpha; }, []);
   const stepsRef = useRef<HTMLDialogElement>(null);
   /** a building change waiting for its replanned tour; whichever request delivers it shows the notice */
   const change = useRef<{ summary: string; before: Tour; at: number } | null>(null);
@@ -216,6 +226,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       const marker = await api.marker(markerId);
       if (marker.building_id !== tourRef.current?.building_id) { setNotice({ text: 'That position code belongs to another building.', blocked: false, tone: 'info' }); return; }
       await confirmAt({ space_id: marker.space_id, floor_id: marker.floor_id, point: marker.point, heading_deg: marker.heading_deg, source: 'marker', marker_id: marker.marker_id, confidence: 'high' }, marker);
+      // the code's standing point and facing direction anchor the camera arrow; the motion angle at this moment is its reference
+      setAnchor({ point: marker.point, heading_deg: marker.heading_deg, floor_id: marker.floor_id, alphaAtScan: alphaRef.current });
     } catch (reason) { setNotice({ text: `Unknown position code: ${message(reason)}`, blocked: false, tone: 'info' }); }
   }, [session, model, tour]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -311,8 +323,12 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const arrived = atStop(leg, shown);
 
   return <main className="journey">
-    <MapView model={model} floorId={floorId || tour.start.floor_id} onFloor={setFloorId} tour={done ? null : tour} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false}
-      highlightSpaceIds={highlight} frame={highlight.length ? 'space' : 'route'} frameSpaceIds={highlight} frameKey={highlight.length ? `find:${highlight[0]}` : `leg:${tour.revision}:${legIndex}:${floorId}`}/>
+    {mode === 'camera' && !done && confirmed
+      ? !scanner && <Suspense fallback={<div className="camera-guide"/>}><CameraGuide leg={leg} step={shown} position={you?.point ?? null} floorId={you?.floor_id ?? floorId} anchor={anchor} motion={motion} onAlpha={onAlpha}
+          onScan={() => setScanner(true)} onExit={text => { setMode('map'); if (text) setNotice({ text: `${text} The map still guides you.`, blocked: false, tone: 'info' }); }}
+          minimap={<FloorMap model={model} floorId={you?.floor_id || floorId || tour.start.floor_id} tour={tour} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false} compact/>}/></Suspense>
+      : <MapView model={model} floorId={floorId || tour.start.floor_id} onFloor={setFloorId} tour={done ? null : tour} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false}
+        highlightSpaceIds={highlight} frame={highlight.length ? 'space' : 'route'} frameSpaceIds={highlight} frameKey={highlight.length ? `find:${highlight[0]}` : `leg:${tour.revision}:${legIndex}:${floorId}`}/>}
 
     <div className="journey-top">
       {!done && confirmed && leg && maneuver && <button className="route-banner surface" onClick={() => setSheet('steps')} aria-label={`Current step: ${cleanText(maneuver.text)}. Open all steps`}>
@@ -363,6 +379,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
             <div className="progress-dots" aria-label={`${collected} of ${total} collected`}>{displayOrder(tour).map(id => <span key={id} className={tour.stops.find(stop => stop.stop_id === id)?.status === 'collected' ? 'done' : id === next?.stop_id ? 'now' : tour.unreachable_stops.some(item => item.stop_id === id) ? 'blocked' : ''}/>)}</div>
             <div className="dock-actions">
               <button className="icon-button" onClick={() => setSheet('steps')} aria-label="All steps"><ListOrdered size={20}/></button>
+              <button className={`icon-button ${mode === 'camera' ? 'on' : ''}`} aria-pressed={mode === 'camera'} aria-label={mode === 'camera' ? 'Show the map' : 'Camera view with a direction arrow'}
+                onClick={() => { if (mode === 'camera') setMode('map'); else void loadMotion().then(ok => { setMotion(ok); setMode('camera'); }); }}>{mode === 'camera' ? <MapPin size={20}/> : <Camera size={20}/>}</button>
               {shown > 0 && !arrived && <button className="icon-button" onClick={() => setStep(shown - 1)} aria-label="Previous step"><ArrowLeft size={20}/></button>}
               {finalLeg && arrived
                 ? <button className="primary-button got-it" disabled={busy} onClick={() => void arrive()}>{busy ? <LoaderCircle className="spin" size={18}/> : <Check size={20}/>}I have arrived</button>
