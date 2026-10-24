@@ -1,4 +1,4 @@
-import type { BuildingEventRecord, BuildingSummary, Constraints, Validation, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
+import type { BuildingEventRecord, BuildingSummary, TeamSummary, TeamBuildingResult, Constraints, Validation, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
 import { forgetAdminCode, readAdminCode } from './adminAccess';
 
 /** `?mock=1` serves the bundled fixtures from `src/mocks/` instead of the live API (CONTRACTS §15). */
@@ -28,6 +28,9 @@ const send = async <T>(method: string, path: string, body?: unknown, headers?: R
 };
 
 export const api = {
+  teams: () => send<TeamSummary[]>('GET', '/api/teams'),
+  teamBuildings: (teamId: string) => send<BuildingSummary[]>('GET', `/api/teams/${encodeURIComponent(teamId)}/buildings`),
+  createTeamBuilding: (teamId: string, floorPlan: Record<string, unknown>, equipmentCsv: string, code: string) => send<TeamBuildingResult>('POST', `/api/teams/${encodeURIComponent(teamId)}/buildings`, { floor_plan: floorPlan, equipment_csv: equipmentCsv }, { 'X-Admin-Token': code }),
   buildings: () => send<BuildingSummary[]>('GET', '/api/buildings'),
   building: (id: string, version?: number) => send<Snapshot>('GET', `/api/buildings/${encodeURIComponent(id)}${version === undefined ? '' : `?version=${version}`}`),
   createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }, adminCode?: string) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }, body.role === 'admin' && adminCode ? { 'X-Admin-Token': adminCode } : undefined),

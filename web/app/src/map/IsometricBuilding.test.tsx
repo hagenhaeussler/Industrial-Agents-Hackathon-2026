@@ -60,6 +60,10 @@ describe('exploded isometric building', () => {
     const content = parse(renderToStaticMarkup(<IsometricBuilding model={model} floorId={floor1}/>));
     expect(model.floors.length).toBe(3);
     expect(content.querySelectorAll('.isometric-floor').length).toBe(3);
+    expect(content.querySelector('.isometric-floor-label')).toBeNull();
+    expect(content.querySelector('.isometric-room-labels')).toBeNull();
+    expect(content.querySelector('.isometric-camera')!.lastElementChild!.getAttribute('data-floor-id')).toBe(floor1);
+    expect(content.querySelector('.isometric-floor.active')!.getAttribute('style')).toContain('scale(1.4)');
     expect(content.querySelectorAll('.map-rooms polygon').length).toBe(building.spaces.length);
     expect(content.querySelector('path[stroke-dasharray="3 3"]')).toBeNull();
     const patterns = [...content.querySelectorAll('pattern')].map(pattern => pattern.id);
@@ -102,7 +106,7 @@ describe('exploded isometric building', () => {
     }
   });
 
-  test('floor labels support keyboard selection and refocus without resizing the scene', async () => {
+  test('floor slabs support keyboard selection and refocus without resizing the camera frame', async () => {
     const calls: string[] = [];
     const screen = render(<IsometricBuilding model={model} floorId={floor0} onFloor={id => calls.push(id)}/>);
     const viewBox = screen.getByRole('group', { name: 'Exploded 3D building: 3 floors' }).getAttribute('viewBox');

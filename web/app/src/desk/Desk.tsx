@@ -9,7 +9,7 @@ import { useBuildingSocket } from '../api/ws';
 import { MapView } from '../map/MapView';
 import { RoutePreview } from '../map/RoutePreview';
 import { displayedRoute, displayedSpaces, routeIsCurrent } from '../map/toolDisplay';
-import { anchorOf, assetPlace, buildModel, floorName, isProvisional, placeOf, spaceName } from '../map/model';
+import { anchorOf, buildModel, floorName, isProvisional, placeOf, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
@@ -60,9 +60,6 @@ function DeskScreen() {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [frameSpaces, setFrameSpaces] = useState<string[]>([]);
   const [search, setSearch] = useState('');
-  const [keepOrder, setKeepOrder] = useState(false);
-  const [end, setEnd] = useState<string | null>(null);
-  const [endPicker, setEndPicker] = useState(false);
   const [tour, setTour] = useState<Tour | null>(null);
   const [requestedRoute, setRequestedRoute] = useState<ReachableRoute | null>(null);
   const [lastCalls, setLastCalls] = useState<ToolResponse[]>([]);
@@ -149,7 +146,7 @@ function DeskScreen() {
     if (!session || !items.length) return;
     setPlanning(true); setPlanError(null);
     const started = performance.now();
-    await latestTour(() => api.planTour({ session_id: session.session_id, items, keep_order: keepOrder, end }), next => {
+    await latestTour(() => api.planTour({ session_id: session.session_id, items, keep_order: false, end: null }), next => {
       if (!acceptTour(next)) return;
       setPlannedMs(performance.now() - started);
       setRequestedRoute(null); setOpenedOnPhone(false); setFocusId(null); setFrameSpaces([]);
@@ -250,7 +247,6 @@ function DeskScreen() {
 
   const you = model ? placeOf(model, tour?.start ?? session?.position) : null;
   const highlight = useMemo(() => (focusId && model?.asset.get(focusId) ? [model.asset.get(focusId)!.space_id] : frameSpaces), [focusId, model, frameSpaces]);
-  const focus = focusId ? model?.asset.get(focusId) : null;
   const provisional = isProvisional(tour);
   const route = routeIsCurrent(requestedRoute, model) ? requestedRoute : null;
 
@@ -260,8 +256,8 @@ function DeskScreen() {
   return <main className={`desk desk-planner${tour ? '' : ' is-selecting'}`}>
     <aside className="desk-panel surface" aria-label="Plan a collection tour">
       <header className="desk-brand">
-        <button className="brand-mark" onClick={() => navigate('/')} aria-label="Choose another building"><Building2 size={18}/></button>
-        <div><p className="product">Talk to Your Building</p><h1>{model.snapshot.building.building.name}</h1></div>
+        <button className="brand-mark" onClick={() => navigate(query.get('team') ? `/?team=${encodeURIComponent(query.get('team')!)}` : '/')} aria-label="Choose another building"><Building2 size={18}/></button>
+        <div><h1>{model.snapshot.building.building.name}</h1></div>
         {mockMode ? <DemoBadge reason="Mock mode: bundled kit data, not the live API"/> : provisional ? <DemoBadge label="Provisional route" reason="Route lines are straight provisional segments until the core publishes walk polylines"/> : null}
       </header>
 
@@ -298,31 +294,20 @@ function DeskScreen() {
       {tour
         ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}
             busy={planning} responses={lastCalls} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
-        : <TracePanel model={model} responses={lastCalls}/>}
+        : <><PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/><TracePanel model={model} responses={lastCalls}/></>}
     </aside>
 
     <section className="desk-map" aria-label="Building map">
-      <MapView isometric model={model} floorId={floorId} onFloor={setFloorId} tour={route ? null : tour} route={route} selected={selected} focusAssetId={focusId} highlightSpaceIds={highlight} you={you}
+      <MapView isometric showAssetLabels={false} model={model} floorId={floorId} onFloor={id => { setFloorId(id); setFocusId(null); setFrameSpaces([]); }} tour={route ? null : tour} route={route} selected={selected} focusAssetId={focusId} highlightSpaceIds={highlight} you={you}
         onAsset={id => { toggle(id); focusAsset(id); }} onSpace={picker ? id => void pickStart(id) : undefined}
         frame={route ? 'route' : tour && !frameSpaces.length && !focusId ? 'route' : highlight.length ? 'space' : tour ? 'route' : 'all'} frameSpaceIds={highlight}
         frameKey={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.length_m}` : tour && !frameSpaces.length && !focusId ? `tour:${tour.tour_id}:${tour.revision}` : focusId ? `focus:${focusId}` : highlight.join(',') || 'all'}/>
       {route && <RoutePreview route={route} model={model} collection={!!tour} onClose={() => setRequestedRoute(null)}/>}
-      {focus && !tour && !route && <div className="focus-card surface" role="status">
-        <div><strong>{focus.name}</strong><span>{assetPlace(model, focus)}</span></div>
-        <button className={selected.has(focus.id) ? 'secondary-button' : 'primary-button'} onClick={() => toggle(focus.id)}>{selected.has(focus.id) ? 'Remove' : 'Add to tour'}</button>
-      </div>}
       {link === 'offline' && <p className="link-status surface" role="status">Reconnecting to live updates…</p>}
     </section>
 
-    {!tour && <aside className="desk-parts-panel surface" aria-labelledby="parts-title">
-      <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>
-    </aside>}
     {!tour && <footer className="plan-bar desk-plan-bar surface" aria-label="Tour planning">
       {planError && <p className="plan-error" role="alert">{planError}</p>}
-      <div className="plan-options">
-        <label className="toggle"><input type="checkbox" checked={keepOrder} onChange={event => setKeepOrder(event.target.checked)}/><span>Keep my order</span></label>
-        <button className="link-button" onClick={() => setEndPicker(true)}>{end ? `Finish at ${spaceName(model, end)}` : 'Finish anywhere'}</button>
-      </div>
       <button className="primary-button" onClick={() => void plan()} disabled={!selected.size || planning || !session}>
         {planning ? <LoaderCircle className="spin" size={18}/> : <Route size={18}/>}
         {selected.size ? `Plan collection tour · ${selected.size} ${selected.size === 1 ? 'part' : 'parts'}` : 'Select parts to plan a tour'}
@@ -330,7 +315,6 @@ function DeskScreen() {
     </footer>}
 
     <StartPicker model={model} open={picker} current={you?.space_id ?? null} onPick={id => void pickStart(id)} onClose={() => setPicker(false)}/>
-    <StartPicker model={model} open={endPicker} current={end} title="Where should the tour end?" hint="The last leg leads here, for example back to your workplace." clearLabel="Finish anywhere" onClear={() => { setEnd(null); setEndPicker(false); }} onPick={id => { setEnd(id); setEndPicker(false); }} onClose={() => setEndPicker(false)}/>
     <HandoffDialog tour={tour} open={handoff} opened={openedOnPhone} onClose={() => setHandoff(false)}/>
   </main>;
 }

@@ -951,6 +951,133 @@
         "title": "SessionPatch",
         "type": "object"
       },
+      "TeamBuildingResult": {
+        "properties": {
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          },
+          "team_id": {
+            "title": "Team Id",
+            "type": "string"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/TeamValidation"
+          }
+        },
+        "required": [
+          "building_id",
+          "team_id",
+          "validation"
+        ],
+        "title": "TeamBuildingResult",
+        "type": "object"
+      },
+      "TeamBuildingUpload": {
+        "additionalProperties": false,
+        "properties": {
+          "equipment_csv": {
+            "maxLength": 2000000,
+            "minLength": 1,
+            "title": "Equipment Csv",
+            "type": "string"
+          },
+          "floor_plan": {
+            "additionalProperties": true,
+            "title": "Floor Plan",
+            "type": "object"
+          }
+        },
+        "required": [
+          "floor_plan",
+          "equipment_csv"
+        ],
+        "title": "TeamBuildingUpload",
+        "type": "object"
+      },
+      "TeamSummary": {
+        "properties": {
+          "building_count": {
+            "title": "Building Count",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "building_count"
+        ],
+        "title": "TeamSummary",
+        "type": "object"
+      },
+      "TeamValidation": {
+        "properties": {
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/TeamValidationNote"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "stats": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Stats",
+            "type": "object"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/TeamValidationNote"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ok",
+          "errors",
+          "warnings",
+          "stats"
+        ],
+        "title": "TeamValidation",
+        "type": "object"
+      },
+      "TeamValidationNote": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "path",
+          "message"
+        ],
+        "title": "TeamValidationNote",
+        "type": "object"
+      },
       "ToolCall": {
         "additionalProperties": false,
         "properties": {
@@ -2119,6 +2246,143 @@
         "summary": "Update Session",
         "tags": [
           "sessions"
+        ]
+      }
+    },
+    "/api/teams": {
+      "get": {
+        "operationId": "teams_api_teams_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TeamSummary"
+                  },
+                  "title": "Response Teams Api Teams Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Teams",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/api/teams/{team_id}/buildings": {
+      "get": {
+        "operationId": "team_buildings_api_teams__team_id__buildings_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "Team Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BuildingSummary"
+                  },
+                  "title": "Response Team Buildings Api Teams  Team Id  Buildings Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Team Buildings",
+        "tags": [
+          "teams"
+        ]
+      },
+      "post": {
+        "operationId": "create_team_building_api_teams__team_id__buildings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "Team Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamBuildingUpload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamBuildingResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Team Building",
+        "tags": [
+          "teams"
         ]
       }
     },

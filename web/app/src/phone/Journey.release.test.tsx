@@ -115,6 +115,20 @@ describe('actual screen shared text/voice display handlers', () => {
     expect(screen.getByTestId('route-map').getAttribute('data-selected')).toBe(asset.id);
   });
 
+  test('the desk keeps equipment in its left planning panel and removes redundant options and floating cards', async () => {
+    const screen = render(<Desk/>);
+    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Parts in this building' })).not.toBeNull());
+    const panel = screen.getByRole('complementary', { name: 'Plan a collection tour' });
+    expect(panel.contains(screen.getByRole('heading', { name: 'Parts in this building' }))).toBe(true);
+    expect(screen.queryByText('Talk to Your Building')).toBeNull();
+    expect(screen.queryByText('Keep my order')).toBeNull();
+    expect(screen.queryByText('Finish anywhere')).toBeNull();
+    expect(screen.container.querySelector('.desk-parts-panel')).toBeNull();
+    const part = screen.getAllByRole('button', { name: /^Show .+ on the map/ })[0]!;
+    await act(async () => { fireEvent.click(part); });
+    expect(screen.container.querySelector('.focus-card')).toBeNull();
+  });
+
   test('the desk renders standalone route geometry', async () => {
     const route = routeForSnapshot();
     const screen = render(<Desk/>);

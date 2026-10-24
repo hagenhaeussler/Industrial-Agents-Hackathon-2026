@@ -71,6 +71,13 @@ export const mockTransport: Transport = async (method, path, body) => {
   const [route] = path.split('?');
   const parts = (route ?? '').split('/').filter(Boolean).map(decodeURIComponent); // ['api', ...]
   const id = snapshot.building.building.id;
+  if (method === 'GET' && parts[1] === 'teams') {
+    const catalog = await mockTransport('GET', '/api/buildings') as BuildingSummary[];
+    const names: Record<string, string> = { production: 'Production & Assembly', engineering: 'Research & Engineering', facilities: 'Facilities & Maintenance', property: 'Property Operations', projects: 'New Projects' };
+    const group = (item: BuildingSummary) => item.source === 'procedural' ? item.id.includes('campus') ? 'engineering' : 'production' : item.source === 'osm_indoor' ? 'facilities' : ['resplan', 'swiss_dwellings'].includes(item.source) ? 'property' : 'projects';
+    if (parts.length === 2) return Object.entries(names).map(([id, name]) => ({ id, name, building_count: catalog.filter(item => group(item) === id).length }));
+    if (parts[3] === 'buildings' && names[parts[2]!]) return catalog.filter(item => group(item) === parts[2]);
+  }
   if (method === 'GET' && route === '/api/buildings') {
     const summary: BuildingSummary = { id, name: snapshot.building.building.name, source: 'procedural', split: 'dev', floors: snapshot.building.floors.length, has_lift: true, has_stairs: true };
     return [summary, ...(await kitManifest()).filter(item => item.id !== id)];

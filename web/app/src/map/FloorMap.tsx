@@ -17,6 +17,7 @@ export type FloorMapProps = {
   you?: Place | null;
   showParts?: boolean;
   compact?: boolean; // phone minimap: fewer labels, no asset dots
+  showAssetLabels?: boolean; // desk uses the equipment list instead of floating name pills
   showLabels?: boolean; // projected building views can place upright room labels separately
   onAsset?: (assetId: string) => void;
   onSpace?: (spaceId: string) => void;
@@ -172,7 +173,7 @@ function RouteLayer({ model, floorId, tour, route, focusLeg, onFloor }: { model:
   </g>;
 }
 
-export function FloorDrawing({ model, floorId, tour, route, selected, focusAssetId, highlightSpaceIds, you, showParts = true, showLabels = true, compact, onAsset, onSpace, onFloor, onOpening, focusLeg }: FloorMapProps) {
+export function FloorDrawing({ model, floorId, tour, route, selected, focusAssetId, highlightSpaceIds, you, showParts = true, showLabels = true, showAssetLabels = true, compact, onAsset, onSpace, onFloor, onOpening, focusLeg }: FloorMapProps) {
   const hatchId = `closed-${useId().replace(/:/g, '')}`;
   const marks = useMemo(() => (tour ? stopMarks(model, tour).filter(mark => mark.floorId === floorId) : []), [model, tour, floorId]);
   const closedSpaces = useMemo(() => {
@@ -203,7 +204,7 @@ export function FloorDrawing({ model, floorId, tour, route, selected, focusAsset
     {(route || tour) && <RouteLayer key={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.building_version}:${floorId}` : `${tour?.tour_id}:${tour?.revision}:${floorId}:${focusLeg ?? ''}`} model={model} floorId={floorId} tour={tour} route={route} focusLeg={focusLeg} onFloor={onFloor}/>}
     {chosen.map(asset => asset && <g key={asset.id} className="map-chosen" onClick={onAsset ? () => onAsset(asset.id) : undefined}>
       <circle cx={fmt(toSvg(asset.position)[0])} cy={fmt(toSvg(asset.position)[1])} r={u * 0.55} fill="#191c16" stroke="#fff" strokeWidth={u * 0.18}/>
-      {(asset.id === focusAssetId || chosen.length <= 6) && <Pill at={asset.position} text={asset.name} unit={u}/>}
+      {showAssetLabels && (asset.id === focusAssetId || chosen.length <= 6) && <Pill at={asset.position} text={asset.name} unit={u}/>}
     </g>)}
     {marks.map(mark => {
       const [x, y] = toSvg(mark.point);

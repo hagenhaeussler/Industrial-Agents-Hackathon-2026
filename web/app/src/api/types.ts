@@ -86,3 +86,6 @@ export type ServerMessage =
   | { type: 'building_reset'; building_id: string; building_version: number; building_state_id?: string | null }
   | { type: 'tour_updated'; tour_id: string; revision: number }
   | { type: 'tour_opened'; tour_id: string; session_id?: string; device: Device };
+
+export type TeamSummary = import('./schema.gen').components['schemas']['TeamSummary'];
+export type TeamBuildingResult = import('./schema.gen').components['schemas']['TeamBuildingResult'];
