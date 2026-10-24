@@ -16,6 +16,8 @@ The hook fetches `/api/voice/token?agent=navigator|admin` and starts WebRTC usin
 
 All eleven C1 client tools use `POST /api/tools/{name}` with `{session_id, args}`. A stable `op_id` is stored per session/proposal for `commit_edit`, including retries and page reloads. The server independently enforces roles and proposal idempotency. The callback receives `(display, fullResponse)` only after success. The agent receives valid JSON of at most 1,500 characters; large results keep key IDs and direct the user to the application. Failures remain `ok:false`. Configure every ElevenLabs client tool to **Wait for response**.
 
+The hook shares a `next_step` request generation across handler recreations. A newer `next_step` (including `no_route`), explicit stop or session/agent teardown suppresses an older instruction before display and speech; committed admin operations still report their real outcome. A retired session cannot repaint its replacement. Context updates alone do not cancel a sole instruction that has already advanced the server index. Pending token requests are aborted and invalidated on stop or teardown; late responses resolve quietly without starting voice or showing a stale error. This covers cancellation before the SDK starts, with the SDK retaining responsibility for its own connection lifecycle.
+
 Use `voice.sendContext(text)` after real application state changes; it wraps `sendContextualUpdate` while connected, which does not itself trigger a spoken reply. C1 phrasings:
 
 - `Position: <space name> (<floor name>), source <marker|manual|tour start>.`

@@ -20,7 +20,18 @@ type Options = {
   sessionId: string
   onDisplay?: (display: ToolDisplay, response: ToolResponse) => void
   fetcher?: Fetcher
+  navigationGuard?: NavigationRequestGuard
 }
+
+export function createNavigationRequestGuard(isActive = () => true) {
+  let generation = 0
+  return {
+    begin: () => ++generation,
+    isCurrent: (request: number) => isActive() && request === generation,
+    invalidate: () => { generation++ },
+  }
+}
+export type NavigationRequestGuard = ReturnType<typeof createNavigationRequestGuard>
 
 const opIds = new Map<string, string>()
 
@@ -64,13 +75,20 @@ export function serializeToolResponse(response: ToolResponse): string {
   return JSON.stringify({ ok: response.ok, speech: response.ok ? 'Done. Full details are in the application.' : 'The tool failed. Check the application for details.' })
 }
 
-export function createClientTools({ sessionId, onDisplay, fetcher = fetch }: Options): Record<BuildingToolName, (args?: unknown) => Promise<string>> {
+export function createClientTools({ sessionId, onDisplay, fetcher = fetch,
+  navigationGuard = createNavigationRequestGuard() }: Options): Record<BuildingToolName, (args?: unknown) => Promise<string>> {
   const execute = (name: BuildingToolName) => async (input?: unknown): Promise<string> => {
     if (!sessionId) return serializeToolResponse(failure('Choose a building and start a session first.', 'invalid_args'))
     if (input != null && (typeof input !== 'object' || Array.isArray(input))) {
       return serializeToolResponse(failure('Tool arguments must be an object.', 'invalid_args'))
     }
     const args = { ...(input as Record<string, unknown> | undefined) }
+    // next_step advances an index, but a superseded instruction must never be
+    // spoken or displayed. Committed admin writes retain their actual outcome.
+    const navigationRequest = name === 'next_step' ? navigationGuard.begin() : null
+    const superseded = () => navigationRequest !== null && !navigationGuard.isCurrent(navigationRequest)
+    const stale = () => serializeToolResponse(failure('That instruction was superseded. Use the latest directions response.', 'version_conflict'))
+    if (superseded()) return stale()
     if (name === 'commit_edit') {
       if (typeof args.proposal_id !== 'string' || !args.proposal_id) {
         return serializeToolResponse(failure('Preview the change before confirming it.', 'invalid_args'))
@@ -83,6 +101,7 @@ export function createClientTools({ sessionId, onDisplay, fetcher = fetch }: Opt
         body: JSON.stringify({ session_id: sessionId, args }),
       })
       const payload: unknown = await response.json()
+      if (superseded()) return stale()
       if (!payload || typeof payload !== 'object' || typeof (payload as ToolResponse).ok !== 'boolean') {
         return serializeToolResponse(failure('The tool returned an invalid response. Please try text chat.'))
       }
@@ -94,6 +113,7 @@ export function createClientTools({ sessionId, onDisplay, fetcher = fetch }: Opt
       }
       return serializeToolResponse(result)
     } catch {
+      if (superseded()) return stale()
       return serializeToolResponse(failure('The building server could not be reached. Please try again.'))
     }
   }
