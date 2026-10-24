@@ -696,7 +696,10 @@ export interface components {
              * @enum {string}
              */
             status: "collected" | "pending";
-            /** Stop Id */
+            /**
+             * Stop Id
+             * @description Collection stop ID, or reserved 'end' with status 'collected' to confirm final arrival.
+             */
             stop_id: string;
         };
         /** TourReplan */
