@@ -414,6 +414,51 @@ def preview_edit(building, edit, active_tours):
         "active_tours_affected": len(affected), "tours": affected, "newly_unreachable_spaces": len(lost), "_adapter": "kit"}}
 
 
+def replan_tour(building, tour, start):
+    """Retarget pending inventory by identity before computing any new legs."""
+    start = position(building, start)
+    fn = core_function("tour", "replan")
+    if building.core is not None and fn:
+        result = _call(fn, building.core, tour, start)
+    else:
+        from .state import identifier
+        pending = []
+        collected = []
+        used_ids = {stop["stop_id"] for stop in tour["stops"]}
+        for original in tour["stops"]:
+            if original["status"] == "collected":
+                collected.append(deepcopy(original))
+                continue
+            locations = {}
+            for asset_id in original["asset_ids"]:
+                asset = building.kit.assets.get(asset_id)
+                if asset is None:
+                    raise ServiceError("not_found", f"A pending part was removed: {asset_id}")
+                locations.setdefault(asset["space_id"], []).append(asset_id)
+            if not original["asset_ids"]:
+                locations[original["space_id"]] = []
+            for index, (space_id, asset_ids) in enumerate(locations.items()):
+                stop = {**original, "space_id": space_id, "target": space_id, "asset_ids": asset_ids}
+                if index:
+                    stop["stop_id"] = identifier("stop")
+                    while stop["stop_id"] in used_ids:
+                        stop["stop_id"] = identifier("stop")
+                    used_ids.add(stop["stop_id"])
+                space_name = building.kit.spaces[space_id]["name"]
+                stop["label"] = (", ".join(building.kit.assets[aid]["name"] for aid in asset_ids) + " · " + space_name) if asset_ids else space_name
+                pending.append(stop)
+        if tour["order_policy"] == "fixed":
+            by_id = {stop["stop_id"]: stop for stop in pending}
+            pending = [by_id[sid] for sid in tour["order"] if sid in by_id] + [stop for stop in pending if stop["stop_id"] not in tour["order"]]
+        result = plan_tour(building, start, pending, tour["constraints"], tour["order_policy"] == "fixed", tour.get("end"))
+        result["stops"] = collected + result["stops"]
+    # Target is additive server metadata. Keep it consistent with the canonical
+    # retargeted stop, rather than restoring the previous revision's room.
+    for stop in result["stops"]:
+        stop["target"] = stop["space_id"]
+    return result
+
+
 def plan_tour(building, start, stops, constraints, keep_order=False, end=None):
     start = position(building, start)
     end = position(building, end) if end else None
@@ -501,9 +546,13 @@ def plan_tour(building, start, stops, constraints, keep_order=False, end=None):
         legs.append(leg(previous, i))
         previous = i
     if end:
-        legs.append(leg(previous, n))
+        end_leg = leg(previous, n)
+        if end_leg["reachable"]:
+            legs.append(end_leg)
+        else:
+            unreachable.append({"stop_id": "end", "space_id": end_position["space_id"], "reason": end_leg["reason"]})
     return {
-        "status": "blocked" if unreachable else "active" if stops else "completed", "building_id": building.id,
+        "status": "blocked" if unreachable and not order else "active" if order else "completed", "building_id": building.id,
         "building_version": building.version, "content_hash": building.content_hash,
         "order_policy": policy, "start": start_position, "end": end_position,
         "stops": stops, "order": [stops[i]["stop_id"] for i in order], "legs": legs,

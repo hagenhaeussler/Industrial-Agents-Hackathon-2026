@@ -89,24 +89,21 @@ class PlatformService:
                 stop["label"] = ", ".join(assets) + " · " + stop["label"]
         return list(grouped.values())
 
-    def _plan(self, building, start, stops, constraints, keep_order=False, end=None):
-        pending = [stop for stop in stops if stop["status"] == "pending"]
-        result = adapter.plan_tour(building, start, pending, constraints, keep_order, end)
-        # Identity belongs to the session store, even when core emits its own
-        # presentation stop objects. Restore stable IDs by target space.
-        by_space = {s["space_id"]: s for s in stops}
-        core_stops = result.get("stops", pending)
-        id_map = {s["stop_id"]: by_space[s["space_id"]]["stop_id"] for s in core_stops if "stop_id" in s and s["space_id"] in by_space}
-        result["order"] = [id_map.get(i, i) for i in result.get("order", [])]
-        result["stops"] = deepcopy(stops)
-        for unreachable in result.get("unreachable_stops", []):
-            unreachable["stop_id"] = id_map.get(unreachable.get("stop_id"), unreachable.get("stop_id"))
+    def _plan(self, building, start, stops, constraints, keep_order=False, end=None, order=None):
+        previous = {
+            "stops": deepcopy(stops),
+            "order": list(order) if order is not None else [stop["stop_id"] for stop in stops],
+            "order_policy": "fixed" if keep_order else "optimized_exact",
+            "constraints": constraints,
+            "end": end,
+        }
+        result = adapter.replan_tour(building, previous, start)
         result["start"] = adapter.position(building, start)
         result["end"] = adapter.position(building, end) if end else None
         result["profile"] = self.profile
         result["constraints"] = constraints
         result["building_version"] = building.version
-        if not pending:
+        if not any(stop["status"] == "pending" for stop in result["stops"]) and not result["unreachable_stops"]:
             result["status"] = "completed"
         return result
 
@@ -140,7 +137,7 @@ class PlatformService:
         start = session["position"] if position is None else position
         if not start:
             raise ServiceError("invalid_args", "Confirm your current room before replanning.")
-        result = self._plan(building, start, tour["stops"], self.constraints(session, tour.get("constraints")), tour.get("keep_order", tour["order_policy"] == "fixed"), tour.get("end"))
+        result = self._plan(building, start, tour["stops"], self.constraints(session, tour.get("constraints")), tour.get("keep_order", tour["order_policy"] == "fixed"), tour.get("end"), order=tour["order"])
         result.update(tour_id=tour_id, session_id=session_id, keep_order=tour.get("keep_order", False), mobility_profile=session["profile"])
         events = self.store.events(tour["building_id"])
         result["changed_because"] = ({"event_id": events[-1]["event_id"], "summary": events[-1]["summary"]} if events else {"event_id": None, "summary": reason}) if reason or events else None
@@ -166,7 +163,7 @@ class PlatformService:
         session = caller or self.store.get_session(session_id)
         building = self.current(tour["building_id"])
         position = adapter.position(building, stop["space_id"]) if status == "collected" else session["position"] or tour["start"]
-        result = self._plan(building, position, stops, self.constraints(session, tour.get("constraints")), tour.get("keep_order", False), tour.get("end"))
+        result = self._plan(building, position, stops, self.constraints(session, tour.get("constraints")), tour.get("keep_order", False), tour.get("end"), order=tour["order"])
         result.update(tour_id=tour_id, session_id=session_id, keep_order=tour.get("keep_order", False), mobility_profile=session["profile"])
         result = self.store.save_tour(session_id, result, expected_revision=tour["revision"])
         if status == "collected":
