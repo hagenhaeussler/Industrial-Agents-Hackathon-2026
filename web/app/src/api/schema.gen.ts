@@ -501,6 +501,8 @@ export interface components {
         RouteResult: {
             /** Blocking Ids */
             blocking_ids?: string[];
+            /** Building Closed */
+            building_closed?: string[];
             /** Building Id */
             building_id: string;
             /** Building Version */
@@ -508,6 +510,11 @@ export interface components {
             constraints: components["schemas"]["Constraints"];
             /** Content Hash */
             content_hash: string;
+            /** Destination Position */
+            destination_position?: [
+                number,
+                number
+            ] | null;
             /** Element Path */
             element_path?: string[];
             /** From Space Id */
@@ -530,6 +537,11 @@ export interface components {
             segments?: components["schemas"]["RouteSegment"][];
             /** Space Path */
             space_path?: string[];
+            /** Start Position */
+            start_position?: [
+                number,
+                number
+            ] | null;
             /** To Space Id */
             to_space_id: string;
         } & {
@@ -539,8 +551,12 @@ export interface components {
         RouteSegment: {
             /** Element Id */
             element_id?: string | null;
+            /** Fallback */
+            fallback?: boolean | null;
             /** Floor Id */
             floor_id: string;
+            /** Geometry Length M */
+            geometry_length_m?: number | null;
             /** Kind */
             kind: string;
             /** Length M */
@@ -685,6 +701,7 @@ export interface components {
         };
         /** TourReplan */
         TourReplan: {
+            constraints?: components["schemas"]["Constraints"] | null;
             from: components["schemas"]["Position"];
             /** Reason */
             reason?: string | {
@@ -695,6 +712,8 @@ export interface components {
         };
         /** TourResult */
         TourResult: {
+            /** Building Closed */
+            building_closed?: string[];
             /** Building Id */
             building_id: string;
             /** Building Version */

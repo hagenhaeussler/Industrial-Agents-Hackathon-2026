@@ -14,7 +14,7 @@ import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { ChatSheet } from './ChatSheet';
 import { atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, metresToNext, pendingStops, rerouteNotice, stepPosition } from './guidance';
-import { VoiceProvider, useVoice } from './voice';
+import { VoiceRoot, useVoiceSession } from './voice';
 
 const Scanner = lazy(() => import('./Scanner').then(module => ({ default: module.Scanner })));
 
@@ -35,11 +35,13 @@ type Notice = { text: string; blocked: boolean; tone: 'change' | 'info' };
 /** `/go/:tourId`: the walking journey on the phone (UX J4b–J7). */
 export function Journey({ tourId }: { tourId: string }) {
   const [session, setSession] = useState<Session | null>(null);
-  return <VoiceProvider agent="navigator" sessionId={session?.session_id ?? null}><JourneyScreen tourId={tourId} session={session} setSession={setSession}/></VoiceProvider>;
+  return <VoiceRoot agent="navigator"><JourneyScreen tourId={tourId} session={session} setSession={setSession}/></VoiceRoot>;
 }
 
 function JourneyScreen({ tourId, session, setSession }: { tourId: string; session: Session | null; setSession: (session: Session) => void }) {
-  const voice = useVoice();
+  const displayRef = useRef<(display: Display | null) => void>(() => undefined);
+  const voice = useVoiceSession(session?.session_id ?? null, display => displayRef.current(display as Display));
+  const [highlight, setHighlight] = useState<string[]>([]);
   const latestTour = useLatest();
   const latestAction = useLatest();
   const [tour, setTourState] = useState<Tour | null>(null);
@@ -112,8 +114,21 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
         setStepState(clampStep(leg, savedStep));
         setFloorId(leg?.maneuvers[clampStep(leg, savedStep)]?.floor_id ?? loaded.start.floor_id);
         let phone = await ensureSession(loaded.building_id, 'phone');
-        if (phone.active_tour_id !== loaded.tour_id) phone = await api.updateSession(phone.session_id, { active_tour_id: loaded.tour_id });
+        // a tour this phone has not confirmed yet starts at the tour start (tour_start, low confidence; CONTRACTS §10)
+        const startHere = storage.get(`tyb.confirmed.${loaded.tour_id}`) !== '1';
+        if (phone.active_tour_id !== loaded.tour_id || (startHere && phone.position?.space_id !== loaded.start.space_id)) {
+          phone = await api.updateSession(phone.session_id, { active_tour_id: loaded.tour_id, ...(startHere ? { position: { ...loaded.start, source: 'tour_start' as const, confidence: 'low' as const, heading_deg: null, marker_id: null } } : {}) });
+        }
         if (live) setSession(phone);
+        if (live && snapshot.building_version > loaded.building_version && loaded.stops.some(stop => stop.status === 'pending')) {
+          const missed = (await api.events(loaded.building_id).catch(() => [])).filter(event => event.building_version > loaded.building_version);
+          change.current = { summary: missed.length === 1 ? missed[0]!.summary : 'The building changed since this tour was planned', before: loaded, at: performance.now() };
+          // before this phone confirmed a position for this tour, its session may still hold another tour's position
+          const confirmedHere = storage.get(`tyb.confirmed.${loaded.tour_id}`) === '1';
+          const from: Position = (confirmedHere && phone.position) || { ...loaded.start, source: 'tour_start', confidence: 'low' };
+          const after = await api.replan(loaded.tour_id, { session_id: phone.session_id, from, reason: 'building changed before the tour was opened' });
+          if (live) applyTour(after);
+        }
       } catch (reason) {
         if (live) setError(reason instanceof ApiError && reason.status === 404 ? 'This tour does not exist any more. Plan it again on the desk.' : message(reason));
       }
@@ -133,8 +148,9 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   /** Where the person is now: the shown step's point once they have started walking, else the session position. */
   const here = useCallback((): Position | null => {
     if (model && maneuver && shown > 0) { const position = stepPosition(model, maneuver); if (position) return position; }
-    return session?.position ?? (tour ? { ...tour.start, source: 'tour_start', confidence: 'low' } : null);
-  }, [model, maneuver, shown, session, tour]);
+    const start: Position | null = tour ? { ...tour.start, source: 'tour_start', confidence: 'low' } : null;
+    return (confirmed && session?.position) || start;
+  }, [model, maneuver, shown, session, tour, confirmed]);
 
   const replan = useCallback(async (from: Position, reason: string) => {
     if (!session || !tourRef.current) return;
@@ -159,10 +175,10 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     if (!current) return;
     try {
       const snapshot = await api.building(current.building_id);
-      const known = modelRef.current?.snapshot.building_version ?? snapshot.building_version;
+      const known = Math.min(modelRef.current?.snapshot.building_version ?? snapshot.building_version, current.building_version);
       setModel(buildModel(snapshot));
       const from = here();
-      if (snapshot.building_version !== known && from && !done) {
+      if (snapshot.building_version > known && from && !done) {
         const missed = (await api.events(current.building_id).catch(() => [])).filter(event => event.building_version > known);
         const summary = missed.length === 1 ? missed[0]!.summary : missed.length ? `${missed.length} changes while you were offline` : 'The building changed while you were offline';
         change.current = { summary, before: current, at: performance.now() };
@@ -217,13 +233,14 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     try {
       const updated = await api.updateSession(session.session_id, { profile: 'walk', constraints: { ...session.constraints, step_free: false } });
       setSession(updated);
+      if (updated.profile !== 'walk' || updated.constraints?.step_free) throw new Error('this phone still asks for step-free routes');
       const from = here();
       const before = tourRef.current;
       if (from) {
-        const after = await api.replan(before.tour_id, { session_id: session.session_id, from, reason: 'route with stairs requested' });
-        if (!after.unreachable_stops.length && !after.constraints.step_free) { change.current = { summary: 'Route with stairs', before, at: performance.now() }; applyTour(after); }
+        const after = await api.replan(before.tour_id, { session_id: session.session_id, from, reason: 'route with stairs requested', constraints: { step_free: false } });
+        if (!after.constraints.step_free) { change.current = { summary: 'Route with stairs', before, at: performance.now() }; applyTour(after); }
         else {
-          // the stored tour keeps its step-free constraint: plan the remaining parts again with stairs allowed
+          // a server without explicit replan constraints (before C6) keeps step-free: plan the remaining parts again
           const items = [...pendingStops(after), ...after.unreachable_stops.map(item => after.stops.find(stop => stop.stop_id === item.stop_id)).filter((stop): stop is TourStop => !!stop)]
             .flatMap(stop => (stop.asset_ids.length ? stop.asset_ids : [stop.space_id]));
           const fresh = await api.planTour({ session_id: session.session_id, items: [...new Set(items)], keep_order: false });
@@ -235,10 +252,19 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     setBusy(false);
   };
 
+  /** Tool displays from voice and text chat: a new tour opens, instructions refresh the step, found places light up. */
   const onDisplay = useCallback((display: Display | null) => {
     if (!display) return;
-    if (display.kind === 'instruction' || display.kind === 'tour') void latestTour(() => api.tour(tourId), loaded => applyTour(loaded, true));
+    if (display.kind === 'tour' && display.tour_id && display.tour_id !== tourRef.current?.tour_id) { storage.set(`tyb.confirmed.${display.tour_id}`, '1'); navigate(`/go/${display.tour_id}`); return; }
+    if (display.kind === 'instruction' || display.kind === 'tour' || display.kind === 'route') void latestTour(() => api.tour(tourId), loaded => applyTour(loaded, true));
+    const current = modelRef.current;
+    const space = display.space_id ?? display.space_ids?.[0] ?? (display.asset_ids?.[0] ? current?.asset.get(display.asset_ids[0])?.space_id : undefined);
+    if (current && space && current.space.has(space)) {
+      setHighlight([space]); setFloorId(current.space.get(space)!.floor_id);
+      setTimeout(() => setHighlight(ids => (ids[0] === space ? [] : ids)), 8000);
+    }
   }, [latestTour, applyTour, tourId]);
+  displayRef.current = onDisplay;
 
   useEffect(() => {
     const dialog = stepsRef.current;
@@ -250,8 +276,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const you = useMemo(() => {
     if (!model) return null;
     if (maneuver && shown > 0) return { space_id: '', floor_id: maneuver.floor_id, point: maneuver.at };
-    return placeOf(model, session?.position ?? tour?.start);
-  }, [model, maneuver, shown, session, tour]);
+    return placeOf(model, (confirmed && session?.position) || tour?.start);
+  }, [model, maneuver, shown, session, tour, confirmed]);
 
   if (error) return <main className="desk-message"><div className="surface notice"><h1>Tour not available</h1><p>{error}</p></div></main>;
   if (!tour || !model) return <main className="desk-message"><p className="loading"><LoaderCircle className="spin" size={20}/>Opening your tour…</p></main>;
@@ -264,7 +290,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
 
   return <main className="journey">
     <MapView model={model} floorId={floorId || tour.start.floor_id} onFloor={setFloorId} tour={done ? null : tour} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false}
-      frame="route" frameKey={`leg:${tour.revision}:${legIndex}:${floorId}`}/>
+      highlightSpaceIds={highlight} frame={highlight.length ? 'space' : 'route'} frameSpaceIds={highlight} frameKey={highlight.length ? `find:${highlight[0]}` : `leg:${tour.revision}:${legIndex}:${floorId}`}/>
 
     <div className="journey-top">
       {!done && confirmed && leg && maneuver && <button className="route-banner surface" onClick={() => setSheet('steps')} aria-label={`Current step: ${cleanText(maneuver.text)}. Open all steps`}>
@@ -307,7 +333,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
             <div className="agent-line">
               <button className="agent-presence" onClick={() => setSheet('chat')} aria-label="Ask the building">
                 <span className="avatar-wrap small"><Blobatar name="alain00" animate="always" size={72} expression={arrived ? happy : idle} title="Alain, your building guide"/></span>
-                <span className="agent-bubble surface"><strong>{arrived && next ? `Here: ${next.label.split(' · ')[0]}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voice.status === 'connected' ? (voice.isSpeaking ? 'Speaking…' : 'Listening') : 'Tap to ask'}</span></span>
+                <span className="agent-bubble surface"><strong>{!next ? 'No route right now' : arrived ? `Here: ${next.label.split(' · ')[0]}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voice.status === 'connected' ? (voice.isSpeaking ? 'Speaking…' : 'Listening') : 'Tap to ask'}</span></span>
               </button>
               {voice.available && <button className={`icon-button voice-toggle ${voice.status === 'connected' ? 'on' : ''}`} onClick={() => void (voice.status === 'connected' ? voice.stop() : voice.start().catch(() => setSheet('chat')))} aria-label={voice.status === 'connected' ? 'Stop voice guidance' : 'Start voice guidance'}>{voice.status === 'connected' ? <Mic size={20}/> : <MicOff size={20}/>}</button>}
             </div>
@@ -315,10 +341,13 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
             <div className="dock-actions">
               <button className="icon-button" onClick={() => setSheet('steps')} aria-label="All steps"><ListOrdered size={20}/></button>
               {shown > 0 && !arrived && <button className="icon-button" onClick={() => setStep(shown - 1)} aria-label="Previous step"><ArrowLeft size={20}/></button>}
-              {arrived || !leg
+              {!next && tour.unreachable_stops.length > 0
+                ? <button className="primary-button" onClick={() => setSheet('chat')}>Ask the building</button>
+                : arrived || !leg
                 ? <button className="primary-button got-it" disabled={busy || !next} onClick={() => void gotIt()}>{busy ? <LoaderCircle className="spin" size={18}/> : <Check size={20}/>}Got it{next ? `: ${next.label.split(' · ')[0]}` : ''}</button>
                 : <button className="primary-button" onClick={() => setStep(shown + 1)}>Next step<ArrowRight size={18}/></button>}
             </div>
+            {!next && tour.unreachable_stops.length > 0 && tour.constraints.step_free && <button className="link-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}
             {!arrived && leg && <button className="link-button" disabled={busy || !next} onClick={() => void gotIt()}>Already have it? Mark {next?.label.split(' · ')[0]} collected</button>}
           </>}
     </section>
