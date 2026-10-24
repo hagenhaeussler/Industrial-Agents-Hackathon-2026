@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Check, CornerUpLeft, Corne
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
-import type { Display, ManeuverKind, Marker, Position, ServerMessage, Session, Tour, TourStop } from '../api/types';
+import type { Display, ManeuverKind, Marker, Position, ServerMessage, Session, Tour } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { StartPicker } from '../desk/StartPicker';
 import { MapView } from '../map/MapView';
@@ -61,6 +61,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const change = useRef<{ summary: string; before: Tour; at: number } | null>(null);
   const voiceRef = useRef(voice);
   const modelRef = useRef<Model | null>(null);
+  const reconnectRef = useRef<() => Promise<void>>(async () => undefined);
   voiceRef.current = voice;
 
   /**
@@ -120,7 +121,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
           phone = await api.updateSession(phone.session_id, { active_tour_id: loaded.tour_id, ...(startHere ? { position: { ...loaded.start, source: 'tour_start' as const, confidence: 'low' as const, heading_deg: null, marker_id: null } } : {}) });
         }
         if (live) setSession(phone);
-        if (live && snapshot.building_version > loaded.building_version && loaded.stops.some(stop => stop.status === 'pending')) {
+        if (live && snapshot.building_version > loaded.building_version && !isComplete(loaded)) {
           const missed = (await api.events(loaded.building_id).catch(() => [])).filter(event => event.building_version > loaded.building_version);
           change.current = { summary: missed.length === 1 ? missed[0]!.summary : 'The building changed since this tour was planned', before: loaded, at: performance.now() };
           // before this phone confirmed a position for this tour, its session may still hold another tour's position
@@ -142,9 +143,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const shown = clampStep(leg, step);
   const maneuver = leg?.maneuvers[shown] ?? null;
   const next = tour ? pendingStops(tour)[0] ?? null : null;
-  const [finishedHere, setFinishedHere] = useState(false);
   const finalLeg = !!tour && onFinalLeg(tour);
-  const done = !!tour && (isComplete(tour) || (finishedHere && !pendingStops(tour).length));
+  const done = !!tour && isComplete(tour);
   const blocked = tour ? blockedReason(tour) : null;
 
   /** Where the person is now: the shown step's point once they have started walking, else the session position. */
@@ -170,6 +170,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       if (from && current && !done) { change.current = { summary, before: current, at: performance.now() }; void replan(from, summary); }
     }
     if (event.type === 'tour_updated' && current && event.tour_id === current.tour_id && event.revision > current.revision) void latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
+    // the first hello can already report a newer building than the one this screen loaded (CR-M-8)
+    if (event.type === 'hello' && current && event.building_version > Math.min(model?.snapshot.building_version ?? event.building_version, current.building_version)) void reconnectRef.current();
   }, [model, here, replan, done, latestTour, applyTour]);
   /** After a reconnect (U11): reload the snapshot; if the building changed while offline, replan from here. */
   const onReconnect = useCallback(async () => {
@@ -188,6 +190,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       } else await latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
     } catch { /* the next reconnect tries again */ }
   }, [here, done, replan, latestTour, applyTour]);
+  reconnectRef.current = onReconnect;
   const link = useBuildingSocket(tour?.building_id ?? null, onSocket, () => void onReconnect());
 
   // voice context when the tour loads
@@ -216,16 +219,27 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     } catch (reason) { setNotice({ text: `Unknown position code: ${message(reason)}`, blocked: false, tone: 'info' }); }
   }, [session, model, tour]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** C7: arriving at the end destination is reported with the reserved stop id `end`. */
+  /**
+   * C7: arriving at the end destination is reported with the reserved stop id `end`. The tour is complete
+   * only when the server says so (CR-M-7); a refusal (for example the finish just closed) is shown and the
+   * route is refreshed from here.
+   */
   const arrive = async () => {
     if (!tour || !session) return;
     setBusy(true);
-    await latestAction(() => api.progress(tour.tour_id, END_STOP, 'collected', session.session_id), updated => { applyTour(updated); setNotice(null); setFinishedHere(true); },
-      failure => {
-        // a server without C7 has no end stop to record: the walk is still finished on this phone
-        if (failure instanceof ApiError && [400, 404, 422].includes(failure.status)) setFinishedHere(true);
-        else setNotice({ text: `Could not record your arrival: ${message(failure)}`, blocked: false, tone: 'info' });
-      });
+    await latestAction(() => api.progress(tour.tour_id, END_STOP, 'collected', session.session_id), updated => {
+      applyTour(updated); setNotice(null);
+      if (updated.status === 'completed') voice.sendContext(`Final destination reached: ${updated.end ? spaceName(modelRef.current ?? model!, updated.end.space_id) : 'the finish point'}. Tour complete.`);
+    }, async failure => {
+      setNotice({ text: `Your arrival was not recorded: ${message(failure)}`, blocked: false, tone: 'info' });
+      const from = here();
+      if (from) {
+        const latest = (await api.events(tour.building_id).catch(() => [])).filter(event => event.building_version > tour.building_version).at(-1);
+        change.current = { summary: latest?.summary ?? 'The route changed', before: tour, at: performance.now() };
+        await replan(from, 'arrival refused');
+      }
+      else await latestTour(() => api.tour(tour.tour_id), loaded => applyTour(loaded, true));
+    });
     setBusy(false);
   };
 
@@ -253,15 +267,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       const before = tourRef.current;
       if (from) {
         const after = await api.replan(before.tour_id, { session_id: session.session_id, from, reason: 'route with stairs requested', constraints: { step_free: false } });
-        if (!after.constraints.step_free) { change.current = { summary: 'Route with stairs', before, at: performance.now() }; applyTour(after); }
-        else {
-          // a server without explicit replan constraints (before C6) keeps step-free: plan the remaining parts again
-          const items = [...pendingStops(after), ...after.unreachable_stops.map(item => after.stops.find(stop => stop.stop_id === item.stop_id)).filter((stop): stop is TourStop => !!stop)]
-            .flatMap(stop => (stop.asset_ids.length ? stop.asset_ids : [stop.space_id]));
-          const fresh = await api.planTour({ session_id: session.session_id, items: [...new Set(items)], keep_order: false });
-          storage.set(`tyb.confirmed.${fresh.tour_id}`, '1');
-          navigate(`/go/${fresh.tour_id}`, true);
-        }
+        if (after.constraints.step_free) throw new Error('the route still requires step-free access');
+        change.current = { summary: 'Route with stairs', before, at: performance.now() }; applyTour(after);
       }
     } catch (reason) { setNotice({ text: `Could not plan a route with stairs: ${message(reason)}`, blocked: false, tone: 'info' }); }
     setBusy(false);

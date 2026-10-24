@@ -19,7 +19,8 @@ type Props = { model: Model; tour: Tour; plannedMs: number | null; onHandoff: ()
 
 export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusStop, onRemoveStop, busy }: Props) {
   const stops = new Map(tour.stops.map(stop => [stop.stop_id, stop]));
-  const legTo = new Map(tour.legs.map(leg => [leg.to_space_id, leg]));
+  // legs follow the order (a part can share its room with the finish): map by position, not by room (Hagen's codex, e384c73)
+  const legToStop = new Map(tour.order.map((stopId, index) => [stopId, tour.legs[index]]));
   const provisional = isProvisional(tour);
   return <section className="tour-panel" aria-labelledby="tour-title">
     <div className="tour-head">
@@ -33,7 +34,7 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       {displayOrder(tour).map((stopId, index) => {
         const stop = stops.get(stopId);
         if (!stop) return null;
-        const leg = legTo.get(stop.space_id);
+        const leg = legToStop.get(stopId);
         const floorId = model.space.get(stop.space_id)?.floor_id ?? '';
         return <li key={stopId} className={`${stop.status} ${onRemoveStop ? 'removable' : ''}`}>
           <button onClick={() => onFocusStop(stop.space_id, floorId)} aria-label={`Stop ${index + 1}: ${stop.label}`}>
@@ -46,7 +47,8 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       })}
     </ol>
     {tour.end && (() => {
-      const last = tour.legs.find(leg => leg.to_space_id === tour.end!.space_id);
+      const candidate = tour.legs[tour.order.length];
+      const last = !tour.unreachable_stops.some(item => item.stop_id === 'end') && candidate?.to_space_id === tour.end!.space_id ? candidate : undefined;
       return <p className="finish-line"><span className="stop-n finish" aria-hidden="true">⚑</span><span className="stop-copy"><strong>Finish: {spaceName(model, tour.end.space_id)}</strong><span>{model.floor.get(tour.end.floor_id)?.name}</span></span>{last?.reachable && <span className="stop-m">{metres(last.length_m)}</span>}</p>;
     })()}
     {tour.unreachable_stops.length > 0 && <div className="unreachable" role="status">
