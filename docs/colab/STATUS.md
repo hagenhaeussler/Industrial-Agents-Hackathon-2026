@@ -71,6 +71,11 @@ benchmark labels and existing agent inference were not edited.
   main: **18 passed** in 2.98 seconds. `git diff --check` is clean.
 - The Vite build retains the existing large Three.js chunk warning. It builds
   successfully; the new Colab page is loaded as a separate route chunk.
+- Final browser previews are saved beside this file: `preview-desktop.jpg`,
+  `preview-all-levels.jpg` (1280×800), and `preview-phone.jpg` (390×844).
+  The temporary phone viewport was verified from DOM dimensions, including
+  after selecting the second tab; screenshot size is not inferred from an API
+  call alone. The default browser viewport is restored after verification.
 - No new cloud deployment is claimed here. PR/release verification is the place
   to record a later exact deployed SHA and Railway deployment ID. Real device
   calibration and positioning accuracy remain separate physical acceptance.
