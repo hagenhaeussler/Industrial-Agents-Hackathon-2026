@@ -41,11 +41,24 @@ describe('phone guidance', () => {
     expect(rerouteNotice('Close East lift', tour, after).text).toMatch(/^East lift is closed\. New route.*\(\+13 m\)\.$/);
     expect(humanSummary('Undo: Close Office staircase')).toBe('Office staircase is open again');
   });
+  test('a stop lost to a lift closure is named with the reason (UX J6b)', () => {
+    const after = structuredClone(tour); after.revision += 1;
+    after.constraints = { ...after.constraints, step_free: true };
+    const lostId = after.order[0]!;
+    after.order = after.order.slice(1); after.legs = after.legs.slice(1);
+    after.unreachable_stops = [{ stop_id: lostId, reason: 'blocked_by_closure' }];
+    const notice = rerouteNotice('Close Office lift', tour, after);
+    expect(notice.blocked).toBe(true);
+    expect(notice.text).toBe(`Office lift is closed. ${after.stops.find(stop => stop.stop_id === lostId)!.label.split(' · ')[0]} can no longer be reached step-free: the Office lift was the only step-free way there. The other stops are replanned.`);
+    expect(displayOrder(after)).toContain(lostId);
+  });
   test('an unreachable stop is reported, never silently dropped', () => {
     const after = structuredClone(tour);
-    after.unreachable_stops = [{ stop_id: pendingStops(after)[0]!.stop_id, reason: 'no_step_free_path' }];
+    const before = structuredClone(tour);
+    before.unreachable_stops = [{ stop_id: pendingStops(after)[0]!.stop_id, reason: 'no_step_free_path' }];
+    after.unreachable_stops = before.unreachable_stops;
     expect(blockedReason(after)?.reason).toBe('no_step_free_path');
-    expect(rerouteNotice('Close East lift', tour, after)).toEqual({ text: 'East lift is closed. There is no step-free route to the next stop any more.', blocked: true });
+    expect(rerouteNotice('Close East lift', before, after)).toEqual({ text: 'East lift is closed. There is no step-free route to the next stop any more.', blocked: true });
   });
   test('texts drop bracketed kit IDs; scanner accepts only position-code links', () => {
     expect(cleanText('Start in Office 0.30 [proc-factory-dev-003-F0-S030] on Ground floor.')).toBe('Start in Office 0.30 on Ground floor.');

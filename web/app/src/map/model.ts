@@ -70,7 +70,8 @@ export const reachableLegs = (tour: Tour | null): ReachableRoute[] => (tour?.leg
 /** All stops in display order: collected ones first (the server's `order` lists only pending stops after a replan). */
 export function displayOrder(tour: Tour): string[] {
   const pending = new Set(tour.order);
-  return [...tour.stops.filter(stop => !pending.has(stop.stop_id) && stop.status === 'collected').map(stop => stop.stop_id), ...tour.order];
+  const blocked = tour.unreachable_stops.map(item => item.stop_id).filter(id => !pending.has(id));
+  return [...tour.stops.filter(stop => !pending.has(stop.stop_id) && stop.status === 'collected').map(stop => stop.stop_id), ...tour.order, ...blocked];
 }
 
 /** Numbered stop positions: the end of the leg that arrives there (what the core drew), else the room anchor. */

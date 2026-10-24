@@ -1,9 +1,9 @@
-import { ArrowUp, Building2, LoaderCircle, MapPin, Route } from 'lucide-react';
+import { Accessibility, ArrowUp, Building2, LoaderCircle, MapPin, Route } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
-import type { Candidate, ChatReply, Display, ServerMessage, Session, Tour } from '../api/types';
+import type { Candidate, ChatReply, Display, MobilityProfile, ServerMessage, Session, Tour } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { MapView } from '../map/MapView';
 import { anchorOf, assetPlace, buildModel, floorName, isProvisional, placeOf, spaceName } from '../map/model';
@@ -175,6 +175,12 @@ export function Desk() {
     } catch (error) { setAgent({ text: `Could not change the start: ${message(error)}`, candidates: [], tone: 'error' }); }
   };
 
+  const setProfile = async (profile: MobilityProfile) => {
+    if (!session) return;
+    try { setSession(await api.updateSession(session.session_id, { profile })); setTour(null); }
+    catch (error) { setAgent({ text: `Could not change how you move: ${message(error)}`, candidates: [], tone: 'error' }); }
+  };
+
   const you = model ? placeOf(model, tour?.start ?? session?.position) : null;
   const highlight = useMemo(() => (focusId && model?.asset.get(focusId) ? [model.asset.get(focusId)!.space_id] : frameSpaces), [focusId, model, frameSpaces]);
   const focus = focusId ? model?.asset.get(focusId) : null;
@@ -209,6 +215,16 @@ export function Desk() {
         <span>{you ? <>You are at <strong>{spaceName(model, you.space_id)}</strong> · {floorName(model, you.floor_id)}</> : 'Where are you now?'}</span>
         <span className="link">Change</span>
       </button>
+      <label className="profile-chip">
+        <Accessibility size={17} aria-hidden="true"/>
+        <span>How do you move?</span>
+        <select value={session?.profile ?? 'walk'} disabled={!session} onChange={event => void setProfile(event.target.value as MobilityProfile)}>
+          <option value="walk">Walking, stairs are fine</option>
+          <option value="wheelchair">Wheelchair: step-free only</option>
+          <option value="pram">Pram: step-free only</option>
+          <option value="trolley">Trolley: step-free, wide doors</option>
+        </select>
+      </label>
 
       {tour
         ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => setTour(null)} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}/>

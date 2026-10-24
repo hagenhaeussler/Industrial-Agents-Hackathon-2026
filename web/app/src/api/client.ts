@@ -1,4 +1,4 @@
-import type { BuildingEventRecord, BuildingSummary, Validation, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
+import type { BuildingEventRecord, BuildingSummary, Constraints, Validation, ChatReply, Device, Marker, MobilityProfile, Position, Role, Session, Snapshot, StopStatus, ToolResponse, Tour } from './types';
 
 /** `?mock=1` serves the bundled fixtures from `src/mocks/` instead of the live API (CONTRACTS §15). */
 export const mockMode = typeof location !== 'undefined' && new URLSearchParams(location.search).get('mock') === '1';
@@ -31,7 +31,7 @@ export const api = {
   building: (id: string, version?: number) => send<Snapshot>('GET', `/api/buildings/${encodeURIComponent(id)}${version === undefined ? '' : `?version=${version}`}`),
   createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }),
   session: (id: string) => send<Session>('GET', `/api/sessions/${id}`),
-  updateSession: (id: string, patch: { position?: Position | null; profile?: MobilityProfile; active_tour_id?: string | null }) => send<Session>('PATCH', `/api/sessions/${id}`, patch),
+  updateSession: (id: string, patch: { position?: Position | null; profile?: MobilityProfile; constraints?: Partial<Constraints>; active_tour_id?: string | null }) => send<Session>('PATCH', `/api/sessions/${id}`, patch),
   planTour: (body: { session_id: string; items: string[]; keep_order: boolean; start?: { space_id: string; point?: [number, number] }; end?: null }) => send<Tour>('POST', '/api/tours', body),
   tour: (id: string) => send<Tour>('GET', `/api/tours/${encodeURIComponent(id)}`),
   /** `X-Session-ID` lets "Got it" advance the phone session's position (CONTRACTS C2). */

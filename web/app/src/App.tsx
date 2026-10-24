@@ -19,7 +19,7 @@ function Screen() {
   const route = match(path);
   if (route.name === 'home') return <Home/>;
   if (route.name === 'desk') return <Desk/>;
-  if (route.name === 'go') return route.tourId === 'demo' || query.get('prototype') === '1' ? <Guide/> : <Journey tourId={route.tourId}/>;
+  if (route.name === 'go') return route.tourId === 'demo' || query.get('prototype') === '1' ? <Guide/> : <Journey key={route.tourId} tourId={route.tourId}/>;
   if (route.name === 'admin') return <Admin/>;
   if (route.name === 'marker') return <MarkerPage markerId={route.markerId}/>;
   return <Placeholder title="This page does not exist" text="Check the link, or start from the building list."/>;

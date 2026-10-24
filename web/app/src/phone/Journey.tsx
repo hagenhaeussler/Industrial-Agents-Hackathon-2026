@@ -4,12 +4,13 @@ import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Check, CornerUpLeft, Corne
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
-import type { Display, ManeuverKind, Marker, Position, ServerMessage, Session, Tour } from '../api/types';
+import type { Display, ManeuverKind, Marker, Position, ServerMessage, Session, Tour, TourStop } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { StartPicker } from '../desk/StartPicker';
 import { MapView } from '../map/MapView';
 import { anchorOf, buildModel, displayOrder, floorName, isProvisional, placeOf, spaceName } from '../map/model';
 import type { Model } from '../map/model';
+import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { ChatSheet } from './ChatSheet';
 import { atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, metresToNext, pendingStops, rerouteNotice, stepPosition } from './guidance';
@@ -194,13 +195,29 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     setBusy(false);
   };
 
+  /** Explicit "route with stairs" for step-free profiles (UX J6b): never applied silently. */
   const withStairs = async () => {
-    if (!session) return;
+    if (!session || !tourRef.current) return;
+    setBusy(true);
     try {
-      setSession(await api.updateSession(session.session_id, { profile: 'walk' }));
+      const updated = await api.updateSession(session.session_id, { profile: 'walk', constraints: { ...session.constraints, step_free: false } });
+      setSession(updated);
       const from = here();
-      if (from && tourRef.current) { change.current = { summary: 'Route with stairs', before: tourRef.current, at: performance.now() }; await replan(from, 'route with stairs requested'); }
-    } catch (reason) { setNotice({ text: message(reason), blocked: false, tone: 'info' }); }
+      const before = tourRef.current;
+      if (from) {
+        const after = await api.replan(before.tour_id, { session_id: session.session_id, from, reason: 'route with stairs requested' });
+        if (!after.unreachable_stops.length && !after.constraints.step_free) { change.current = { summary: 'Route with stairs', before, at: performance.now() }; applyTour(after); }
+        else {
+          // the stored tour keeps its step-free constraint: plan the remaining parts again with stairs allowed
+          const items = [...pendingStops(after), ...after.unreachable_stops.map(item => after.stops.find(stop => stop.stop_id === item.stop_id)).filter((stop): stop is TourStop => !!stop)]
+            .flatMap(stop => (stop.asset_ids.length ? stop.asset_ids : [stop.space_id]));
+          const fresh = await api.planTour({ session_id: session.session_id, items: [...new Set(items)], keep_order: false });
+          storage.set(`tyb.confirmed.${fresh.tour_id}`, '1');
+          navigate(`/go/${fresh.tour_id}`, true);
+        }
+      }
+    } catch (reason) { setNotice({ text: `Could not plan a route with stairs: ${message(reason)}`, blocked: false, tone: 'info' }); }
+    setBusy(false);
   };
 
   const onDisplay = useCallback((display: Display | null) => {
@@ -242,10 +259,13 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       </button>}
       {notice && <div className={`journey-notice surface ${notice.tone}`} role="alert">
         <TriangleAlert size={20} aria-hidden="true"/>
-        <div><p>{notice.text}</p>{notice.blocked && tour.mobility_profile === 'wheelchair' && <button className="secondary-button" onClick={() => void withStairs()}>Show the route with stairs</button>}</div>
+        <div><p>{notice.text}</p>{notice.blocked && tour.constraints.step_free && <button className="secondary-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}</div>
         <button className="icon-button" onClick={() => setNotice(null)} aria-label="Dismiss"><X size={18}/></button>
       </div>}
-      {blocked && !notice && !done && <div className="journey-notice surface change" role="status"><TriangleAlert size={20} aria-hidden="true"/><div><p>{blocked.reason === 'no_step_free_path' ? 'There is no step-free route to the next stop.' : 'The next stop cannot be reached right now.'}</p>{tour.mobility_profile === 'wheelchair' && <button className="secondary-button" onClick={() => void withStairs()}>Show the route with stairs</button>}</div></div>}
+      {(blocked || tour.unreachable_stops.length > 0) && !notice && !done && <div className="journey-notice surface change" role="status"><TriangleAlert size={20} aria-hidden="true"/><div>
+        <p>{blocked ? (blocked.reason === 'no_step_free_path' || tour.constraints.step_free ? 'There is no step-free route to the next stop.' : 'The next stop cannot be reached right now.') : `${tour.unreachable_stops.map(item => tour.stops.find(stop => stop.stop_id === item.stop_id)?.label.split(' · ')[0] ?? 'A stop').join(', ')} cannot be reached${tour.constraints.step_free ? ' step-free' : ''} right now.`}</p>
+        {tour.constraints.step_free && <button className="secondary-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}
+      </div></div>}
       {link === 'offline' && <p className="journey-offline surface" role="status"><WifiOff size={15}/>Offline · reconnecting</p>}
       {(mockMode || provisional) && <div className="journey-badges">{mockMode ? <DemoBadge reason="Mock mode"/> : <DemoBadge label="Provisional route" reason="Route lines are straight provisional segments"/>}</div>}
     </div>
@@ -276,7 +296,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
               </button>
               {voice.available && <button className={`icon-button voice-toggle ${voice.status === 'connected' ? 'on' : ''}`} onClick={() => void (voice.status === 'connected' ? voice.stop() : voice.start().catch(() => setSheet('chat')))} aria-label={voice.status === 'connected' ? 'Stop voice guidance' : 'Start voice guidance'}>{voice.status === 'connected' ? <Mic size={20}/> : <MicOff size={20}/>}</button>}
             </div>
-            <div className="progress-dots" aria-label={`${collected} of ${total} collected`}>{displayOrder(tour).map(id => <span key={id} className={tour.stops.find(stop => stop.stop_id === id)?.status === 'collected' ? 'done' : id === next?.stop_id ? 'now' : ''}/>)}</div>
+            <div className="progress-dots" aria-label={`${collected} of ${total} collected`}>{displayOrder(tour).map(id => <span key={id} className={tour.stops.find(stop => stop.stop_id === id)?.status === 'collected' ? 'done' : id === next?.stop_id ? 'now' : tour.unreachable_stops.some(item => item.stop_id === id) ? 'blocked' : ''}/>)}</div>
             <div className="dock-actions">
               <button className="icon-button" onClick={() => setSheet('steps')} aria-label="All steps"><ListOrdered size={20}/></button>
               {shown > 0 && !arrived && <button className="icon-button" onClick={() => setStep(shown - 1)} aria-label="Previous step"><ArrowLeft size={20}/></button>}
@@ -307,6 +327,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
           </section>;
         })}
       </div>
+      {tour.unreachable_stops.length > 0 && <section><h3>Cannot be reached right now</h3><ul className="blocked-list">{tour.unreachable_stops.map(item => <li key={item.stop_id}>{tour.stops.find(stop => stop.stop_id === item.stop_id)?.label ?? item.stop_id}</li>)}</ul></section>}
       <p className="demo-explanation">Your position follows the steps you confirm and the position codes you scan. There is no automatic location tracking.</p>
     </dialog>
 

@@ -208,6 +208,8 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .progress-dots span { width: 28px; height: 6px; border-radius: 3px; background: #d9ddd1; }
 .progress-dots span.done { background: var(--ink); }
 .progress-dots span.now { background: var(--accent); box-shadow: 0 0 0 1.5px var(--ink) inset; }
+.progress-dots span.blocked { background: repeating-linear-gradient(45deg, #c83432 0 3px, #fbe9e7 3px 6px); }
+.blocked-list { margin: 0; padding-left: 18px; font-size: 12px; color: #6d1f1d; }
 .dock-actions { display: flex; gap: 8px; align-items: center; }
 .dock-actions .icon-button { width: 56px; height: 56px; border-radius: 16px; background: #fff; box-shadow: var(--shadow); }
 .dock-actions .primary-button { flex: 1; min-height: 56px; font-size: 16px; border-radius: 16px; }
@@ -280,3 +282,6 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .validation h4 { font-size: 12px; margin: 6px 0 2px; }
 .validation ul { margin: 0; padding-left: 16px; font-size: 12px; display: grid; gap: 2px; }
 .validation summary { cursor: pointer; font-size: 12px; font-weight: 700; min-height: 32px; display: flex; align-items: center; }
+.profile-chip { margin: 6px 20px 0; display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px 12px; min-height: 48px; border-radius: 14px; background: #f5f5f1; font-size: 13px; }
+.profile-chip > span { flex-shrink: 0; color: var(--muted); }
+.profile-chip select { flex: 1; min-width: 0; min-height: 40px; border: 0; border-radius: 10px; background: #fff; font: inherit; font-size: 13px; font-weight: 650; padding: 0 8px; color: var(--ink); }

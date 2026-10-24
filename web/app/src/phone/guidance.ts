@@ -69,15 +69,18 @@ export function stepPosition(model: Model, maneuver: Maneuver): Position | null 
   return { space_id: space.id, floor_id: maneuver.floor_id, point: maneuver.at, source: 'manual', confidence: 'low', heading_deg: null, marker_id: null };
 }
 
-/** The first landmark the new route leads through (a lift or stair first), for "New route via …". */
+/** The lift or stair the new route uses, for "New route via …" (only vertical connectors are named). */
 export function viaLandmark(tour: Tour, model?: Model): string | null {
   const leg = currentLeg(tour);
   if (!leg) return null;
   const vertical = leg.segments.find(segment => segment.kind === 'lift' || segment.kind === 'stairs');
   const connector = vertical?.kind === 'walk' ? undefined : vertical ? model?.connector.get(vertical.element_id)?.name : undefined;
-  return leg.maneuvers.find(item => item.kind === 'take_lift' || item.kind === 'take_stairs')?.landmark ?? connector
-    ?? leg.maneuvers.find(item => item.landmark && item.kind !== 'depart' && item.kind !== 'arrive')?.landmark ?? null;
+  return leg.maneuvers.find(item => item.kind === 'take_lift' || item.kind === 'take_stairs')?.landmark ?? connector ?? null;
 }
+
+const subjectOf = (summary: string) => /^(?:undo:\s*)?(?:close|open|reopen)\s+(.+?)\.?$/i.exec(summary)?.[1] ?? null;
+const list = (items: string[]) => items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+const stopName = (tour: Tour, stopId: string) => tour.stops.find(stop => stop.stop_id === stopId)?.label.split(' · ')[0] ?? 'A stop';
 
 /** "Close Office staircase" → "Office staircase is closed"; "Undo: Close X" → "X is open again". */
 export function humanSummary(summary: string): string {
@@ -94,11 +97,23 @@ export const remainingLength = (tour: Tour) => tour.legs.reduce((sum, leg) => su
 /** The banner text after a building change (UX J6/J6b). */
 export function rerouteNotice(rawSummary: string, before: Tour, after: Tour, model?: Model): { text: string; blocked: boolean } {
   const summary = humanSummary(rawSummary);
+  const stepFree = after.constraints.step_free;
+  const wasBlocked = new Set(before.unreachable_stops.map(item => item.stop_id));
+  const nowBlocked = new Set(after.unreachable_stops.map(item => item.stop_id));
+  const lost = [...nowBlocked].filter(id => !wasBlocked.has(id));
+  const regained = [...wasBlocked].filter(id => !nowBlocked.has(id));
+  if (lost.length) {
+    const subject = subjectOf(rawSummary);
+    const why = stepFree && subject && /^close/i.test(rawSummary) ? `: the ${subject} was the only step-free way there` : '';
+    const rest = pendingStops(after).length ? ' The other stops are replanned.' : '';
+    return { text: `${summary}. ${list(lost.map(id => stopName(after, id)))} can no longer be reached${stepFree ? ' step-free' : ''}${why}.${rest}`, blocked: true };
+  }
   const blocked = blockedReason(after);
   if (blocked) {
-    const why = blocked.reason === 'no_step_free_path' ? 'There is no step-free route to the next stop any more.' : 'The next stop cannot be reached any more.';
+    const why = blocked.reason === 'no_step_free_path' || stepFree ? 'There is no step-free route to the next stop any more.' : 'The next stop cannot be reached any more.';
     return { text: `${summary}. ${why}`, blocked: true };
   }
+  if (regained.length) return { text: `${summary}. ${list(regained.map(id => stopName(after, id)))} can be reached again and is back in the tour.`, blocked: false };
   const delta = Math.round(remainingLength(after) - remainingLength(before));
   const via = viaLandmark(after, model);
   return { text: `${summary}. New route${via ? ` via ${via}` : ''}${delta > 0 ? ` (+${delta} m)` : delta < 0 ? ` (${delta} m)` : ''}.`, blocked: false };
