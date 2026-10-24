@@ -13,7 +13,7 @@ import type { Model } from '../map/model';
 import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { ChatSheet } from './ChatSheet';
-import { END_STOP, atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, isComplete, metresToNext, onFinalLeg, pendingStops, rerouteNotice, stepPosition } from './guidance';
+import { END_STOP, unavailableText, atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, isComplete, metresToNext, onFinalLeg, pendingStops, rerouteNotice, stepPosition } from './guidance';
 import { VoiceRoot, useVoiceSession } from './voice';
 
 const Scanner = lazy(() => import('./Scanner').then(module => ({ default: module.Scanner })));
@@ -326,7 +326,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
         <button className="icon-button" onClick={() => setNotice(null)} aria-label="Dismiss"><X size={18}/></button>
       </div>}
       {(blocked || tour.unreachable_stops.length > 0) && !finalLeg && !notice && !done && <div className="journey-notice surface change" role="status"><TriangleAlert size={20} aria-hidden="true"/><div>
-        <p>{blocked ? (blocked.reason === 'no_step_free_path' || tour.constraints.step_free ? 'There is no step-free route to the next stop.' : 'The next stop cannot be reached right now.') : `${tour.unreachable_stops.map(item => tour.stops.find(stop => stop.stop_id === item.stop_id)?.label.split(' · ')[0] ?? 'A stop').join(', ')} cannot be reached${tour.constraints.step_free ? ' step-free' : ''} right now.`}</p>
+        <p>{blocked ? (blocked.reason === 'no_step_free_path' || tour.constraints.step_free ? 'There is no step-free route to the next stop.' : 'The next stop cannot be reached right now.') : unavailableText(tour)}</p>
         {tour.constraints.step_free && <button className="secondary-button" disabled={busy} onClick={() => void withStairs()}>Show the route with stairs</button>}
       </div></div>}
       {link === 'offline' && <p className="journey-offline surface" role="status"><WifiOff size={15}/>Offline · reconnecting</p>}

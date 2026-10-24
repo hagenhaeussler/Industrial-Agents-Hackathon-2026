@@ -139,6 +139,13 @@ export function rerouteNotice(rawSummary: string, before: Tour, after: Tour, mod
   return { text: `${summary}. New route${via ? ` via ${via}` : ''}${delta > 0 ? ` (+${delta} m)` : delta < 0 ? ` (${delta} m)` : ''}.`, blocked: false };
 }
 
+/** The persistent banner for stops (or the finish) that cannot be reached, with the change that caused it when known. */
+export function unavailableText(tour: Tour): string {
+  const cause = tour.changed_because?.summary ? `${humanSummary(tour.changed_because.summary)}. ` : '';
+  const names = capital(list(tour.unreachable_stops.map(item => stopName(tour, item.stop_id))));
+  return `${cause}${names} cannot be reached${tour.constraints.step_free ? ' step-free' : ''} right now.`;
+}
+
 const nextLabel = (tour: Tour) => pendingStops(tour)[0]?.label ?? (onFinalLeg(tour) ? 'the finish point' : 'none');
 
 /** CONTRACTS §8 context phrasings for the voice agent. */

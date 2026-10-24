@@ -4,7 +4,7 @@ import { displayOrder } from '../map/model';
 import blockedEndJson from '../mocks/data/tour_c7_blocked_end.json';
 import blockedStopJson from '../mocks/data/tour_c7_blocked_stop.json';
 import finalLegJson from '../mocks/data/tour_c7_final_leg.json';
-import { context, currentLeg, currentLegIndex, isComplete, onFinalLeg, pendingStops, rerouteNotice } from './guidance';
+import { context, currentLeg, currentLegIndex, isComplete, onFinalLeg, pendingStops, rerouteNotice, unavailableText } from './guidance';
 
 // real payloads captured from the C7 API (see each file's _fixture)
 const finalLeg = finalLegJson as unknown as Tour;
@@ -30,6 +30,11 @@ describe('C7 real payloads (CR-M-6)', () => {
     expect(context.replanned('Close Hall access 0.19.', blockedEnd)).toBe('Building changed: Hall access 0.19 is closed. No route is available any more: your finish point (blocked by a closure).');
     expect(rerouteNotice('Close Hall access 0.19.', finalLeg, blockedEnd)).toEqual({ text: 'Hall access 0.19 is closed. Your finish point can no longer be reached.', blocked: true });
     expect(rerouteNotice('Undo: Close Hall access 0.19.', blockedEnd, finalLeg).text).toBe('Hall access 0.19 is open again. Your finish point can be reached again and is back in the tour.');
+  });
+  test('the persistent banner names the finish point and the change behind it (cold open)', () => {
+    const cold = { ...blockedEnd, changed_because: { event_id: 'evt-5', summary: 'Close Hall access 0.19.' } };
+    expect(unavailableText(cold)).toBe('Hall access 0.19 is closed. Your finish point cannot be reached right now.');
+    expect(unavailableText({ ...blockedEnd, changed_because: null })).toBe('Your finish point cannot be reached right now.');
   });
   test('fully blocked stop (CR-M-3): no "0 m, next none" in any voice line', () => {
     const name = blockedStop.stops.find(stop => stop.stop_id === blockedStop.unreachable_stops[0]!.stop_id)!.label.split(' · ')[0];
