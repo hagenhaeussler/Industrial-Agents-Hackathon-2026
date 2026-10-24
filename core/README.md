@@ -25,7 +25,7 @@ preview = preview_edit(b, {'action': 'close', 'target': lift_id}, [tour])
 Core functions do not persist changes or authorize users. The server owns
 proposal expiry, admin permissions, atomic/idempotent commit, session/tour IDs,
 SQLite and realtime transport. `apply_events` deterministically materializes an
-event log; `what_if` and previews work on isolated copies. See canonical C4
+event log; `what_if` and previews work on isolated copies. See canonical C6
 contracts in `master prompt/CONTRACTS.md`.
 
 Routes retain selected door and connector identities, raw walk polylines,
@@ -35,6 +35,11 @@ claimed to be walkable. Tours use exact Held-Karp up to 12 pending stops and a
 labelled nearest-neighbor/2-opt heuristic beyond that. Replans preserve collected
 stops, relocate pending parts from the current inventory and apply current
 closures without retaining a reopened lift as a stale request constraint.
+Restoring a collected stop preserves its prescribed sequence, including moved-part
+splits. An optional final destination remains active until the person reaches it.
+Prepared geometry is locked per cached space while native predicates run, so
+concurrent point-route requests can share caches safely; other spaces remain
+independent. Identical explicit positions have zero length, including near walls.
 
 ## Checks
 

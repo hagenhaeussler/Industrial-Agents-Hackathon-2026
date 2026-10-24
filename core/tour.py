@@ -156,7 +156,8 @@ def plan_tour(b, start, stops, constraints=None, keep_order=False, end=None):
     elif end_route:
         unreachable.append({"stop_id":"end", "space_id":end_pos["space_id"],"reason":end_route["reason"]})
     exact = math.fsum(leg["length_m_exact"] for leg in legs)
-    return {"tour_id": None,"revision":1,"status":"blocked" if unreachable and not ordered else "active" if ordered else "completed",
+    end_pending = bool(end_route and end_route["reachable"] and end_route["length_m_exact"] > 1e-9)
+    return {"tour_id": None,"revision":1,"status":"blocked" if unreachable and not ordered else "active" if ordered or end_pending else "completed",
             "building_id":b.id,"building_version":b.version,"content_hash":b.content_hash,
             "profile":b.profile,"constraints":requested,"building_closed":sorted(b.closed),"order_policy":policy,
             "start":start_pos,"end":end_pos,"stops":grouped,"order":ordered,"legs":legs,
@@ -168,10 +169,12 @@ def replan(b, tour, from_position, reason_event=None):
     """Recompute pending work without losing collected stops or stable stop IDs."""
     old = copy.deepcopy(tour)
     pending = []
+    stable_sequence = []
     next_id = max((int(s["stop_id"][1:]) for s in old.get("stops",[])
                    if s.get("stop_id", "").startswith("s") and s["stop_id"][1:].isdigit()), default=0)+1
     for original in old.get("stops",[]):
         if original.get("status") == "collected":
+            stable_sequence.append(original["stop_id"])
             continue
         assets = original.get("asset_ids", [])
         locations = {}
@@ -191,10 +194,15 @@ def replan(b, tour, from_position, reason_event=None):
             if asset_ids:
                 stop["label"] = ", ".join(b.assets[a]["name"] for a in asset_ids) + " · " + b.spaces[sid]["name"]
             pending.append(stop)
+            stable_sequence.append(stop["stop_id"])
     # The retained stops carry the prescribed sequence, including blocked stops.
     # The previous reachable `order` omits them and must not become a new order.
     result = plan_tour(b,from_position,pending,old.get("constraints"),old.get("order_policy")=="fixed",old.get("end"))
-    result["stops"] = [s for s in old.get("stops",[]) if s.get("status")=="collected"] + result["stops"]
+    snapshots = {s["stop_id"]:s for s in old.get("stops",[]) if s.get("status")=="collected"}
+    snapshots.update({s["stop_id"]:s for s in result["stops"]})
+    # Collection is reversible via the progress API. Keep collected snapshots in
+    # their prescribed position, and put any new split directly after its parent.
+    result["stops"] = [snapshots[stop_id] for stop_id in stable_sequence]
     result["tour_id"] = old.get("tour_id")
     result["revision"] = old.get("revision",0)+1
     result["changed_because"] = reason_event
