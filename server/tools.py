@@ -37,7 +37,7 @@ class RouteArgs(Args):
 class SpatialArgs(Args):
     kind: Literal["largest_room", "floor_area_total", "errand", "wide_delivery_count", "step_free_reachable_count", "room_stacked", "shared_walls_count", "straight_line_3d", "what_if_door"]
     target: str | None = None
-    second_target: str | None = Field(default=None, description="For step_free_reachable_count, the connector, door or room to close; optional when the building or session already has closures. For other kinds, the second comparison target.")
+    second_target: str | None = Field(default=None, description="For step_free_reachable_count, an optional additional connector, door or room to close. With no current or requested closures, count the unmodified building. For other kinds, the second comparison target.")
     floor: str | None = None
     room_type: str | None = None
     asset_type: str | None = None
@@ -154,10 +154,16 @@ class ToolRegistry:
         candidates = []
         for kind in ("asset", "space"):
             candidates.extend(adapter.resolve(building, args["query"], kind)["candidates"])
-        candidates.sort(key=lambda c: (-c["score"], c["id"]))
         if not candidates:
             raise ServiceError("not_found", "No item or place matches that name.")
-        candidates = [c for c in candidates if c["score"] == candidates[0]["score"]]
+        # Scores are meaningful within a match stage: token-set fuzzy matches
+        # can score 1.0, which must never outrank an exact result in another kind.
+        stages = {"exact ID": 3, "exact name/ref": 2, "exact name/ref/label": 2,
+                  "exact ref/name": 2, "exact ref": 2, "exact name": 2, "exact label": 2,
+                  "normalized": 1}
+        rank = lambda candidate: (stages.get(candidate.get("why"), 0), candidate["score"])
+        best = max(map(rank, candidates))
+        candidates = sorted((candidate for candidate in candidates if rank(candidate) == best), key=lambda candidate: candidate["id"])
         if len(candidates) > 1:
             raise ServiceError("ambiguous", "Which of these did you mean?", candidates=candidates[:4])
         candidate = candidates[0]
@@ -249,7 +255,6 @@ class ToolRegistry:
                 entity_kind = "floor" if source == "floor" else source if source in {"room_type", "asset_type"} else "any"
                 value = adapter.require_id(building, value, entity_kind)
             inputs[target] = value
-        solve_building = building.core
         if kind == "step_free_reachable_count":
             closed = set(building.closed) | set(session["constraints"].get("closed", []))
             if args.get("second_target", "").strip():
@@ -257,16 +262,8 @@ class ToolRegistry:
             known = building.kit.spaces.keys() | building.kit.openings.keys() | building.kit.connectors.keys()
             if closed - known:
                 raise ServiceError("invalid_args", "Closed elements must be connectors, doors or rooms in this building.")
-            if not closed:
-                raise ServiceError("invalid_args", "Which connector, door or room should be closed for this count?")
-            # The official solver takes one required closure string. Preserve
-            # that interface while applying every live/session/explicit closure
-            # to an isolated materialisation, never to the cached live object.
-            load = adapter.core_function("building", "load_building")
-            solve_building = adapter._call(load, building.core)
-            solve_building.closed = set(closed)
-            inputs["closed"] = sorted(closed)[0]
-        result = adapter._call(solve, solve_building, kind, inputs)
+            inputs["closed"] = sorted(closed)
+        result = adapter._call(solve, building.core, kind, inputs)
         value = result.get("value", result.get("area_m2", result.get("space_id")))
         return result, f"The computed result is {value}.", {"kind": "spatial_result", "result": result}
 
