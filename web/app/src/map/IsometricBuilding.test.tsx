@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { Window } from 'happy-dom';
 import { renderToStaticMarkup } from 'react-dom/server';
-import buildingJson from '../../../../data/dev/proc-campus-dev-013/building.json';
+import buildingJson from './fixtures/campus-three-floor.json';
 import type { Building, ReachableRoute, Snapshot } from '../api/types';
 import { createIsometricLayout, isometricMatrix } from '../geo/isometric';
 import { FloorMap } from './FloorMap';

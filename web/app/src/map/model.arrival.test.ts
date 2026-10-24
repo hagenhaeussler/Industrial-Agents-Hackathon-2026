@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { Building, ReachableRoute, Snapshot, Tour } from '../api/types';
-import campus from '../../../../data/dev/proc-campus-dev-013/building.json';
+import campus from './fixtures/campus-three-floor.json';
 import factorySnapshot from '../mocks/data/building_proc-factory-dev-003.json';
 import factoryTour from '../mocks/data/tour_proc-factory-dev-003.json';
 import { anchorOf, buildModel, stopMarks } from './model';
