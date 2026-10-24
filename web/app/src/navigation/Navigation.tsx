@@ -9,10 +9,10 @@ export function TurnIcon({ turn, size = 36 }: { turn: Turn; size?: number }) {
 }
 
 export function RouteBanner({ destination, step, onOpen }: { destination: Destination; step: RouteStep; onOpen: () => void }) {
-  return <button className="route-banner surface" onClick={onOpen} aria-label="Route öffnen">
+  return <button className="route-banner surface" onClick={onOpen} aria-label="Open route">
     <span className="turn-icon"><TurnIcon turn={step.turn}/></span>
     <span className="route-copy"><span className="route-instruction">{step.instruction}</span><span className="route-destination">{destination.name} <span>· {destination.room}</span></span></span>
-    <span className="route-distance">{step.meters}<span>Meter</span></span>
+    <span className="route-distance">{step.meters}<span>metres</span></span>
     <ChevronDown size={18} className="route-chevron"/>
   </button>;
 }
@@ -20,9 +20,9 @@ export function RouteBanner({ destination, step, onOpen }: { destination: Destin
 export function FloorMap({ step, destination, onOpen }: { step: RouteStep; destination: Destination; onOpen: () => void }) {
   const endpoint = destination.steps[destination.steps.length - 1]?.position ?? step.position;
   const points = destination.steps.map(item => item.position.join(',')).join(' ');
-  return <button className="floor-map surface" onClick={onOpen} aria-label="Minimap vergrößern und Ziel ändern">
-    <span className="map-heading"><strong>Erdgeschoss</strong><MoveUpRight size={14}/></span>
-    <svg viewBox="10 11 170 123" aria-label={`Karte zur ${destination.name}`} role="img">
+  return <button className="floor-map surface" onClick={onOpen} aria-label="Enlarge map and change destination">
+    <span className="map-heading"><strong>Ground floor</strong><MoveUpRight size={14}/></span>
+    <svg viewBox="10 11 170 123" aria-label={`Map to the ${destination.name}`} role="img">
       <path d="M12 13h166v119H12z" fill="#f1f0ea" stroke="#c9cbc1" strokeWidth="1.3"/>
       <path d="M67 24h22v23h75v21H89v55H67V68H24V47h43z" fill="#fff"/>
       <g fill="none" stroke="#b9bdb0" strokeWidth="1.3"><path d="M12 47h55V13m22 0v34h89M12 68h55v64m22 0V68h89M50 13v34m70-34v34m35-34v34M12 94h55m22 0h89m31-26v64"/></g>

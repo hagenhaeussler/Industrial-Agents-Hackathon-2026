@@ -1,0 +1,10 @@
+{
+  "_about": "Demo scenario for /desk?demo=hero and /admin?demo=hero (owner: Manuel's Claude). Switch building_id to the hero building once Hagen's codex publishes demo/hero/; fallback is the kit factory (MASTER_PLAN §6 step 5).",
+  "building_id": "proc-factory-dev-003",
+  "fallback_building_id": "proc-factory-dev-003",
+  "persona": "Manfred",
+  "start": { "space_id": "proc-factory-dev-003-F0-S019", "label": "Hall access 0.19" },
+  "say": "I need the 3D printer H-A3-A, the tool cabinet and the UPS unit upstairs.",
+  "items": ["proc-factory-dev-003-A00021", "proc-factory-dev-003-A00006", "proc-factory-dev-003-A00325"],
+  "admin": { "say": "Close the office staircase.", "target": "Office staircase", "element_id": "proc-factory-dev-003-V01" }
+}

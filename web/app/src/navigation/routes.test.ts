@@ -9,13 +9,13 @@ describe('demo navigation', () => {
     expect(getStep(initialDestination, last).turn).toBe('arrived');
   });
   test('can navigate to a destination named in a natural question', () => {
-    expect(findDestination('Wo finde ich die CNC-Fräse?')?.id).toBe('workshop');
-    expect(findDestination('Bring mich zur Kaffeeküche')?.id).toBe('coffee');
-    expect(findDestination('Ich habe ein Meeting')?.id).toBe('meeting');
-    expect(findDestination('Nicht vorhandener Raum')).toBeUndefined();
+    expect(findDestination('Where is the CNC mill?')?.id).toBe('workshop');
+    expect(findDestination('Take me to the coffee kitchen')?.id).toBe('coffee');
+    expect(findDestination('I have a meeting')?.id).toBe('meeting');
+    expect(findDestination('A room that does not exist')).toBeUndefined();
   });
   test('does not claim that live localization or a language model is connected', () => {
-    expect(getDemoReply('Wo bin ich?')).toContain('noch nicht erkannt');
-    expect(getDemoReply('Was kannst du?')).toContain('Sprachmodell ist noch nicht verbunden');
+    expect(getDemoReply('Where am I?')).toContain('not detected yet');
+    expect(getDemoReply('What can you do?')).toContain('No language model is connected');
   });
 });
