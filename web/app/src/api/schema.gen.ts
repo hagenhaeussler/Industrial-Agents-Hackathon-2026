@@ -366,6 +366,41 @@ export interface paths {
         patch: operations["update_session_api_sessions__session_id__patch"];
         trace?: never;
     };
+    "/api/teams": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Teams */
+        get: operations["teams_api_teams_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/teams/{team_id}/buildings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Team Buildings */
+        get: operations["team_buildings_api_teams__team_id__buildings_get"];
+        put?: never;
+        /** Create Team Building */
+        post: operations["create_team_building_api_teams__team_id__buildings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tools/{name}": {
         parameters: {
             query?: never;
@@ -986,6 +1021,54 @@ export interface components {
         Switch: {
             /** Running */
             running: boolean;
+        };
+        /** TeamBuildingResult */
+        TeamBuildingResult: {
+            /** Building Id */
+            building_id: string;
+            /** Team Id */
+            team_id: string;
+            validation: components["schemas"]["TeamValidation"];
+        };
+        /** TeamBuildingUpload */
+        TeamBuildingUpload: {
+            /** Equipment Csv */
+            equipment_csv: string;
+            /** Floor Plan */
+            floor_plan: {
+                [key: string]: unknown;
+            };
+        };
+        /** TeamSummary */
+        TeamSummary: {
+            /** Building Count */
+            building_count: number;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** TeamValidation */
+        TeamValidation: {
+            /** Errors */
+            errors: components["schemas"]["TeamValidationNote"][];
+            /** Ok */
+            ok: boolean;
+            /** Stats */
+            stats: {
+                [key: string]: number;
+            };
+            /** Warnings */
+            warnings: components["schemas"]["TeamValidationNote"][];
+        };
+        /** TeamValidationNote */
+        TeamValidationNote: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /** Path */
+            path: string;
         };
         /** ToolCall */
         ToolCall: {
@@ -1944,6 +2027,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Session"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teams_api_teams_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamSummary"][];
+                };
+            };
+        };
+    };
+    team_buildings_api_teams__team_id__buildings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                team_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuildingSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_team_building_api_teams__team_id__buildings_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Admin-Token"?: string | null;
+            };
+            path: {
+                team_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeamBuildingUpload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamBuildingResult"];
                 };
             };
             /** @description Validation Error */

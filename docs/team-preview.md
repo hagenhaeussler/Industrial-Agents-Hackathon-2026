@@ -4,6 +4,14 @@ The shared HTTPS test app is [Talk to Your Building](https://hagen-core-test-tes
 For the prepared factory scenario, [open the desk](https://hagen-core-test-testing.up.railway.app/desk?demo=hero).
 No account is needed to browse, plan a tour, or open its phone link.
 
+## Home, teams and uploads
+
+Open the preview root, click the orb, then choose your team. Its building picker slides in beside the team list. Select a building to open its desk; the desk's building icon returns to that team's list. Teams are organizational groups for this shared preview, not separate authorization boundaries.
+
+Choose **Create a new building** for two upload boxes: an equipment CSV and a structured JSON floor plan. Both files are required. The private access code is requested when needed; browsing and route planning remain open. Upload validation reports mismatched rooms or coordinates before creation. A successful import persists in the selected team and offers **Open building**. See [building-import.md](building-import.md) for formats and limits. PDF/image plans are deferred until a geometry and scale review can establish measured routes.
+
+The desktop keeps parts, conversation, position and mobility on the left. The selected isometric floor is enlarged in the map, with smaller floor controls at the upper right. The extra order/end controls, repeated floor labels and floating equipment card are removed. Phone guidance and explicit final arrival for existing end-destination tours retain their behavior.
+
 ## Try the journey
 
 1. Open the prepared desk scenario. It selects the 3D printer, tool cabinet and UPS on two floors. Confirm your starting room and travel profile.

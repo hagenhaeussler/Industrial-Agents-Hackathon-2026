@@ -79,6 +79,8 @@ class StateStore:
                     PRIMARY KEY(tour_id, revision));
                 CREATE TABLE IF NOT EXISTS markers(
                     marker_id TEXT PRIMARY KEY, building_id TEXT NOT NULL, body_json TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS building_teams(
+                    building_id TEXT PRIMARY KEY, team_id TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS derived_cache(
                     content_hash TEXT NOT NULL, key TEXT NOT NULL, blob BLOB NOT NULL,
                     PRIMARY KEY(content_hash, key));

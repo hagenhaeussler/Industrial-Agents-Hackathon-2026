@@ -58,7 +58,7 @@ describe('isometric exploded floor projection', () => {
     pointClose(centers[0]!, [0, 0]);
     pointClose(centers[1]!, [0, -layout.gap]);
     pointClose(centers[2]!, [0, -2 * layout.gap]);
-    expect(layout.gap).toBeCloseTo(15 * 1.05 + layout.slab, 10);
+    expect(layout.gap).toBeCloseTo(15 * 1.01 + layout.slab, 10);
   });
 
   test('scene bounds include all floor planes, slabs and a small camera focus pan', () => {

@@ -28,6 +28,7 @@ from .markers import MarkerService
 from .ws import BuildingHub
 from .routes_live import router as live_router
 from .voice import router as voice_router
+from .teams import router as teams_router
 from .colab import ColabRuntime, router as colab_router
 
 logger = logging.getLogger(__name__)
@@ -161,6 +162,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     application.include_router(live_router)
     application.include_router(voice_router)
+    application.include_router(teams_router)
     application.include_router(colab_router)
 
     @application.websocket('/ws/buildings/{building_id}')

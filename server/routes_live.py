@@ -178,6 +178,11 @@ def marker_sheet(building_id: str, request: Request):
 def upload_building(request: Request, raw: dict = Body(...),
                     session_id: str | None = Header(default=None, alias='X-Session-ID')) -> dict:
     admin_session(request, session_id)
+    return save_uploaded_building(request, raw)
+
+
+def save_uploaded_building(request: Request, raw: dict, *, team_id: str | None = None) -> dict:
+    """Shared validated persistence; callers authenticate before using this helper."""
     try:
         validate = importlib.import_module('core.validate').validate_building
     except ModuleNotFoundError as exc:
@@ -212,6 +217,8 @@ def upload_building(request: Request, raw: dict = Body(...),
     snapshot = state.service.snapshot(building_id)
     with state.store.connect(write=True) as db:
         db.execute('INSERT INTO buildings VALUES(?,?,?,?,?,?)', (building_id, 'upload', str(path), snapshot.content_hash, raw['building']['name'], now()))
+        if team_id is not None:
+            db.execute('INSERT INTO building_teams(building_id, team_id) VALUES(?, ?)', (building_id, team_id))
     return {'building_id': building_id, 'validation': validation}
 
 

@@ -48,7 +48,7 @@ export function createIsometricLayout(box: Box, floorCount: number): IsometricLa
   const halfHeight = ISOMETRIC_SIN * (width + height) / 2;
   const footprint = { minX: -halfWidth, minY: -halfHeight, maxX: halfWidth, maxY: halfHeight };
   const slab = maxSpan * 0.025;
-  const gap = Math.max(halfHeight * 2, 1) * 1.05 + slab;
+  const gap = Math.max(halfHeight * 2, 1) * 1.01 + slab;
   const padX = Math.max(halfWidth * 2 * 0.16, slab * 3, 1);
   const padY = Math.max(halfHeight * 2 * 0.38, slab * 3, 1);
   const scene = { minX: footprint.minX - padX, minY: footprint.minY - (count - 1) * gap - padY, maxX: footprint.maxX + padX, maxY: footprint.maxY + slab + padY };
@@ -83,4 +83,11 @@ export function isometricMatrix(layout: IsometricLayout, rank: number): string {
 export function isometricViewBox(layout: IsometricLayout): string {
   const { minX, minY, maxX, maxY } = layout.scene;
   return `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+}
+
+/** A focused camera frame keeps the selected slab broad and the other levels as context. */
+export function isometricFocusViewBox(layout: IsometricLayout): string {
+  const width = (layout.footprint.maxX - layout.footprint.minX) * 1.62;
+  const height = (layout.footprint.maxY - layout.footprint.minY) * 2.15;
+  return `${-width / 2} ${-height / 2} ${width} ${height}`;
 }
