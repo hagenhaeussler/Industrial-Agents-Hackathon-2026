@@ -25,3 +25,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["starter_agent", "benchmark", "core", "server", "bench", "agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

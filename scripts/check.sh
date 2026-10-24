@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+uv run pytest -q
+uv run python -m starter_agent.evaluate data/dev --oracle
+
+if [[ -f core/evaluate.py ]]; then
+    uv run python -m core.evaluate data/dev --check text
+else
+    echo 'WARNING: core.evaluate is not published yet; skipping the H01 text check.' >&2
+fi
+
+if ! command -v bun >/dev/null 2>&1; then
+    echo 'WARNING: Bun is not installed; skipping the frontend build. Docker builds it with Bun.' >&2
+elif [[ -f web/app/package.json ]]; then
+    (cd web/app && bun run build)
+else
+    echo 'WARNING: web/app is not published yet; skipping the C01 frontend build.' >&2
+fi
