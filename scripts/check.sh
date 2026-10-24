@@ -15,7 +15,13 @@ fi
 if ! command -v bun >/dev/null 2>&1; then
     echo 'WARNING: Bun is not installed; skipping the frontend build. Docker builds it with Bun.' >&2
 elif [[ -f web/app/package.json ]]; then
-    (cd web/app && bun run build)
+    (cd web/app && bun test src && bun run build)
+    if [[ -f web/app/src/camera/ar/deviceGatePage.ts ]]; then
+        bun scripts/build-device-gate.ts
+    fi
 else
+    if [[ -d web/app/src/voice && -d web/app/src/camera/ar ]]; then
+        bun test web/app/src/voice web/app/src/camera/ar
+    fi
     echo 'WARNING: web/app is not published yet; skipping the C01 frontend build.' >&2
 fi

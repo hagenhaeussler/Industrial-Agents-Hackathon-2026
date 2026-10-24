@@ -1,0 +1,2304 @@
+{
+  "components": {
+    "schemas": {
+      "BuildingSnapshot": {
+        "properties": {
+          "building": {
+            "additionalProperties": true,
+            "title": "Building",
+            "type": "object"
+          },
+          "building_version": {
+            "title": "Building Version",
+            "type": "integer"
+          },
+          "closed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Closed",
+            "type": "array"
+          },
+          "content_hash": {
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "derived": {
+            "$ref": "#/components/schemas/DerivedGeometry"
+          }
+        },
+        "required": [
+          "building",
+          "building_version",
+          "content_hash",
+          "closed",
+          "derived"
+        ],
+        "title": "BuildingSnapshot",
+        "type": "object"
+      },
+      "BuildingSummary": {
+        "properties": {
+          "floors": {
+            "title": "Floors",
+            "type": "integer"
+          },
+          "has_lift": {
+            "title": "Has Lift",
+            "type": "boolean"
+          },
+          "has_stairs": {
+            "title": "Has Stairs",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "split": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "source",
+          "split",
+          "floors",
+          "has_lift",
+          "has_stairs"
+        ],
+        "title": "BuildingSummary",
+        "type": "object"
+      },
+      "ChatInput": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "message"
+        ],
+        "title": "ChatInput",
+        "type": "object"
+      },
+      "ChatResponse": {
+        "properties": {
+          "display": {
+            "additionalProperties": true,
+            "title": "Display",
+            "type": "object"
+          },
+          "reply": {
+            "title": "Reply",
+            "type": "string"
+          },
+          "tool_calls": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Tool Calls",
+            "type": "array"
+          }
+        },
+        "required": [
+          "reply",
+          "tool_calls",
+          "display"
+        ],
+        "title": "ChatResponse",
+        "type": "object"
+      },
+      "Constraints": {
+        "additionalProperties": false,
+        "properties": {
+          "closed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Closed",
+            "type": "array"
+          },
+          "min_door_width_m": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Min Door Width M",
+            "type": "number"
+          },
+          "no_transit_room_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "No Transit Room Types",
+            "type": "array"
+          },
+          "step_free": {
+            "default": false,
+            "title": "Step Free",
+            "type": "boolean"
+          }
+        },
+        "title": "Constraints",
+        "type": "object"
+      },
+      "DemoReset": {
+        "additionalProperties": false,
+        "properties": {
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "building_id"
+        ],
+        "title": "DemoReset",
+        "type": "object"
+      },
+      "DerivedGeometry": {
+        "properties": {
+          "anchors": {
+            "additionalProperties": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Anchors",
+            "type": "object"
+          },
+          "areas_m2": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Areas M2",
+            "type": "object"
+          }
+        },
+        "required": [
+          "anchors",
+          "areas_m2"
+        ],
+        "title": "DerivedGeometry",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "buildings": {
+            "title": "Buildings",
+            "type": "integer"
+          },
+          "commit": {
+            "title": "Commit",
+            "type": "string"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "state_dir_writable": {
+            "title": "State Dir Writable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "commit",
+          "profile",
+          "state_dir_writable",
+          "buildings"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "Maneuver": {
+        "additionalProperties": true,
+        "properties": {
+          "at": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "At",
+            "type": "array"
+          },
+          "distance_m": {
+            "title": "Distance M",
+            "type": "number"
+          },
+          "element_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Element Id"
+          },
+          "floor_id": {
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "i": {
+            "title": "I",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "landmark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Landmark"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "i",
+          "kind",
+          "floor_id",
+          "at",
+          "distance_m",
+          "text"
+        ],
+        "title": "Maneuver",
+        "type": "object"
+      },
+      "MarkerCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "markers": {
+            "items": {
+              "$ref": "#/components/schemas/MarkerInput"
+            },
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Markers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "markers"
+        ],
+        "title": "MarkerCreate",
+        "type": "object"
+      },
+      "MarkerInput": {
+        "additionalProperties": false,
+        "properties": {
+          "heading_deg": {
+            "title": "Heading Deg",
+            "type": "number"
+          },
+          "label": {
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "point": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Point",
+            "type": "array"
+          },
+          "space_id": {
+            "title": "Space Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "space_id",
+          "point",
+          "heading_deg",
+          "label"
+        ],
+        "title": "MarkerInput",
+        "type": "object"
+      },
+      "Position": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "default": "low",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "floor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floor Id"
+          },
+          "heading_deg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heading Deg"
+          },
+          "marker_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marker Id"
+          },
+          "point": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point"
+          },
+          "source": {
+            "default": "manual",
+            "enum": [
+              "desk",
+              "tour_start",
+              "marker",
+              "manual"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "space_id": {
+            "title": "Space Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "space_id"
+        ],
+        "title": "Position",
+        "type": "object"
+      },
+      "RouteResult": {
+        "additionalProperties": true,
+        "properties": {
+          "blocking_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Blocking Ids",
+            "type": "array"
+          },
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          },
+          "building_version": {
+            "title": "Building Version",
+            "type": "integer"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/Constraints"
+          },
+          "content_hash": {
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "element_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Element Path",
+            "type": "array"
+          },
+          "from_space_id": {
+            "title": "From Space Id",
+            "type": "string"
+          },
+          "length_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length M"
+          },
+          "length_m_exact": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length M Exact"
+          },
+          "maneuvers": {
+            "items": {
+              "$ref": "#/components/schemas/Maneuver"
+            },
+            "title": "Maneuvers",
+            "type": "array"
+          },
+          "node_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Node Path",
+            "type": "array"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "reachable": {
+            "title": "Reachable",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/RouteSegment"
+            },
+            "title": "Segments",
+            "type": "array"
+          },
+          "space_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Space Path",
+            "type": "array"
+          },
+          "to_space_id": {
+            "title": "To Space Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reachable",
+          "from_space_id",
+          "to_space_id",
+          "building_id",
+          "building_version",
+          "content_hash",
+          "constraints",
+          "profile"
+        ],
+        "title": "RouteResult",
+        "type": "object"
+      },
+      "RouteSegment": {
+        "additionalProperties": true,
+        "properties": {
+          "element_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Element Id"
+          },
+          "floor_id": {
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "length_m": {
+            "title": "Length M",
+            "type": "number"
+          },
+          "points": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "space_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Space Id"
+          },
+          "to_floor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Floor Id"
+          }
+        },
+        "required": [
+          "floor_id",
+          "kind",
+          "points",
+          "length_m"
+        ],
+        "title": "RouteSegment",
+        "type": "object"
+      },
+      "Session": {
+        "properties": {
+          "active_tour_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Tour Id"
+          },
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          },
+          "constraints": {
+            "additionalProperties": true,
+            "title": "Constraints",
+            "type": "object"
+          },
+          "device": {
+            "title": "Device",
+            "type": "string"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "building_id",
+          "device",
+          "role",
+          "profile",
+          "constraints",
+          "position",
+          "active_tour_id",
+          "updated_at"
+        ],
+        "title": "Session",
+        "type": "object"
+      },
+      "SessionCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          },
+          "device": {
+            "default": "desk",
+            "enum": [
+              "desk",
+              "phone"
+            ],
+            "title": "Device",
+            "type": "string"
+          },
+          "profile": {
+            "default": "walk",
+            "enum": [
+              "walk",
+              "wheelchair",
+              "pram",
+              "trolley"
+            ],
+            "title": "Profile",
+            "type": "string"
+          },
+          "role": {
+            "default": "navigator",
+            "enum": [
+              "navigator",
+              "admin"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "building_id"
+        ],
+        "title": "SessionCreate",
+        "type": "object"
+      },
+      "SessionPatch": {
+        "additionalProperties": false,
+        "properties": {
+          "active_tour_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Tour Id"
+          },
+          "constraints": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Constraints"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Position"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "walk",
+                  "wheelchair",
+                  "pram",
+                  "trolley"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile"
+          }
+        },
+        "title": "SessionPatch",
+        "type": "object"
+      },
+      "ToolCall": {
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "additionalProperties": true,
+            "title": "Args",
+            "type": "object"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id"
+        ],
+        "title": "ToolCall",
+        "type": "object"
+      },
+      "ToolResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "building_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Building Id"
+          },
+          "building_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Building Version"
+          },
+          "display": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "speech": {
+            "title": "Speech",
+            "type": "string"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          },
+          "trace": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Trace",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ok",
+          "tool",
+          "request_id",
+          "speech"
+        ],
+        "title": "ToolResponse",
+        "type": "object"
+      },
+      "TourCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "keep_order": {
+            "default": false,
+            "title": "Keep Order",
+            "type": "boolean"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          }
+        },
+        "required": [
+          "session_id",
+          "items"
+        ],
+        "title": "TourCreate",
+        "type": "object"
+      },
+      "TourProgress": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "enum": [
+              "collected",
+              "pending"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "stop_id": {
+            "title": "Stop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stop_id",
+          "status"
+        ],
+        "title": "TourProgress",
+        "type": "object"
+      },
+      "TourReplan": {
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/Position"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "from"
+        ],
+        "title": "TourReplan",
+        "type": "object"
+      },
+      "TourResult": {
+        "additionalProperties": true,
+        "properties": {
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          },
+          "building_version": {
+            "title": "Building Version",
+            "type": "integer"
+          },
+          "changed_because": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Changed Because"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/Constraints"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "legs": {
+            "items": {
+              "$ref": "#/components/schemas/RouteResult"
+            },
+            "title": "Legs",
+            "type": "array"
+          },
+          "length_m": {
+            "title": "Length M",
+            "type": "number"
+          },
+          "mobility_profile": {
+            "default": "walk",
+            "enum": [
+              "walk",
+              "wheelchair",
+              "pram",
+              "trolley"
+            ],
+            "title": "Mobility Profile",
+            "type": "string"
+          },
+          "order": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Order",
+            "type": "array"
+          },
+          "order_policy": {
+            "title": "Order Policy",
+            "type": "string"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "start": {
+            "additionalProperties": true,
+            "title": "Start",
+            "type": "object"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "stops": {
+            "items": {
+              "$ref": "#/components/schemas/TourStop"
+            },
+            "title": "Stops",
+            "type": "array"
+          },
+          "tour_id": {
+            "title": "Tour Id",
+            "type": "string"
+          },
+          "unreachable_stops": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Unreachable Stops",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tour_id",
+          "revision",
+          "status",
+          "building_id",
+          "building_version",
+          "order_policy",
+          "start",
+          "end",
+          "stops",
+          "order",
+          "legs",
+          "length_m",
+          "unreachable_stops",
+          "changed_because",
+          "profile",
+          "constraints"
+        ],
+        "title": "TourResult",
+        "type": "object"
+      },
+      "TourStop": {
+        "additionalProperties": true,
+        "properties": {
+          "asset_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Asset Ids",
+            "type": "array"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "space_id": {
+            "title": "Space Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "collected",
+              "pending"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "stop_id": {
+            "title": "Stop Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stop_id",
+          "space_id",
+          "asset_ids",
+          "label",
+          "status"
+        ],
+        "title": "TourStop",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VoiceToken": {
+        "properties": {
+          "agent_id": {
+            "title": "Agent Id",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "agent_id"
+        ],
+        "title": "VoiceToken",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Talk to Your Building",
+    "version": "C2"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/buildings": {
+      "get": {
+        "operationId": "buildings_api_buildings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BuildingSummary"
+                  },
+                  "title": "Response Buildings Api Buildings Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Buildings"
+      },
+      "post": {
+        "operationId": "upload_building_api_buildings_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Session-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "title": "Raw",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Upload Building Api Buildings Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload Building",
+        "tags": [
+          "buildings"
+        ]
+      }
+    },
+    "/api/buildings/{building_id}": {
+      "get": {
+        "operationId": "snapshot_api_buildings__building_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "building_id",
+            "required": true,
+            "schema": {
+              "title": "Building Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Snapshot"
+      }
+    },
+    "/api/buildings/{building_id}/events": {
+      "get": {
+        "operationId": "get_events_api_buildings__building_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "building_id",
+            "required": true,
+            "schema": {
+              "title": "Building Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Since",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Get Events Api Buildings  Building Id  Events Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Events",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/buildings/{building_id}/markers": {
+      "post": {
+        "operationId": "create_markers_api_buildings__building_id__markers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "building_id",
+            "required": true,
+            "schema": {
+              "title": "Building Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Session-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkerCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Create Markers Api Buildings  Building Id  Markers Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Markers",
+        "tags": [
+          "markers"
+        ]
+      }
+    },
+    "/api/buildings/{building_id}/markers/sheet": {
+      "get": {
+        "operationId": "marker_sheet_api_buildings__building_id__markers_sheet_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "building_id",
+            "required": true,
+            "schema": {
+              "title": "Building Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Marker Sheet",
+        "tags": [
+          "markers"
+        ]
+      }
+    },
+    "/api/buildings/{building_id}/plan-import": {
+      "post": {
+        "operationId": "plan_import_api_buildings__building_id__plan_import_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "building_id",
+            "required": true,
+            "schema": {
+              "title": "Building Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Session-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Plan Import Api Buildings  Building Id  Plan Import Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Plan Import",
+        "tags": [
+          "buildings"
+        ]
+      }
+    },
+    "/api/chat": {
+      "post": {
+        "operationId": "chat_api_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Chat",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/demo/reset": {
+      "post": {
+        "operationId": "demo_reset_api_demo_reset_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Session-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoReset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Demo Reset Api Demo Reset Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Demo Reset",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/markers/{marker_id}": {
+      "get": {
+        "operationId": "get_marker_api_markers__marker_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "marker_id",
+            "required": true,
+            "schema": {
+              "title": "Marker Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Marker Api Markers  Marker Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Marker",
+        "tags": [
+          "markers"
+        ]
+      }
+    },
+    "/api/sessions": {
+      "post": {
+        "operationId": "create_session_api_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Session",
+        "tags": [
+          "sessions"
+        ]
+      }
+    },
+    "/api/sessions/{session_id}": {
+      "get": {
+        "operationId": "get_session_api_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Session",
+        "tags": [
+          "sessions"
+        ]
+      },
+      "patch": {
+        "operationId": "update_session_api_sessions__session_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Session",
+        "tags": [
+          "sessions"
+        ]
+      }
+    },
+    "/api/tools/{name}": {
+      "post": {
+        "operationId": "call_tool_api_tools__name__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolCall"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Call Tool",
+        "tags": [
+          "tools"
+        ]
+      }
+    },
+    "/api/tours": {
+      "post": {
+        "operationId": "create_tour_api_tours_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TourCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TourResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Tour",
+        "tags": [
+          "tours"
+        ]
+      }
+    },
+    "/api/tours/{tour_id}": {
+      "get": {
+        "operationId": "get_tour_api_tours__tour_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tour_id",
+            "required": true,
+            "schema": {
+              "title": "Tour Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TourResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tour",
+        "tags": [
+          "tours"
+        ]
+      }
+    },
+    "/api/tours/{tour_id}/progress": {
+      "post": {
+        "operationId": "progress_tour_api_tours__tour_id__progress_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tour_id",
+            "required": true,
+            "schema": {
+              "title": "Tour Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Session-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Session-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TourProgress"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TourResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Progress Tour",
+        "tags": [
+          "tours"
+        ]
+      }
+    },
+    "/api/tours/{tour_id}/replan": {
+      "post": {
+        "operationId": "replan_tour_api_tours__tour_id__replan_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tour_id",
+            "required": true,
+            "schema": {
+              "title": "Tour Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TourReplan"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TourResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replan Tour",
+        "tags": [
+          "tours"
+        ]
+      }
+    },
+    "/api/voice/token": {
+      "get": {
+        "description": "Mint a fresh short-lived token; provider configuration remains server-side.",
+        "operationId": "conversation_token_api_voice_token_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "agent",
+            "required": false,
+            "schema": {
+              "default": "navigator",
+              "enum": [
+                "navigator",
+                "admin"
+              ],
+              "title": "Agent",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceToken"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "description": "Voice unavailable; use text chat."
+          }
+        },
+        "summary": "Conversation Token",
+        "tags": [
+          "voice"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    }
+  }
+}
