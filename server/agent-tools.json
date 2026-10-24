@@ -1,0 +1,963 @@
+[
+  {
+    "description": "Discover this building's floors, entity types, counts and current session constraints.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "title": "InfoArgs",
+      "type": "object"
+    },
+    "name": "building_info",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "List and filter building objects with complete paginated results. Use real types and IDs from building_info.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "cursor": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cursor"
+        },
+        "floor_id": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Floor Id"
+        },
+        "kind": {
+          "default": "asset",
+          "enum": [
+            "asset",
+            "space",
+            "floor",
+            "connector",
+            "opening"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "limit": {
+          "default": 25,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "query": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Query"
+        },
+        "space_id": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Space Id"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact asset type or room type, for asset or space searches.",
+          "title": "Type"
+        }
+      },
+      "title": "SearchArgs",
+      "type": "object"
+    },
+    "name": "search_entities",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Fetch details for stable entity IDs. Unknown IDs fail explicitly.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "ids": {
+          "items": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ids"
+      ],
+      "title": "GetEntitiesArgs",
+      "type": "object"
+    },
+    "name": "get_entities",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Compare actual routes to candidate IDs under mobility constraints. Returns the nearest reachable destination and unreachable reasons without changing navigation.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "closed": {
+          "items": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Closed",
+          "type": "array"
+        },
+        "destination_ids": {
+          "items": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Destination Ids",
+          "type": "array"
+        },
+        "min_door_width_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Door Width M"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "step_free": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Free"
+        }
+      },
+      "required": [
+        "destination_ids"
+      ],
+      "title": "CompareRoutesArgs",
+      "type": "object"
+    },
+    "name": "compare_routes",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Calculate a route from an explicit start or session position, with temporary closures. Does not save navigation or mobility. Unreachable routes include reasons.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "closed": {
+          "items": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Closed",
+          "type": "array"
+        },
+        "destination": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Destination",
+          "type": "string"
+        },
+        "min_door_width_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Door Width M"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "step_free": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Free"
+        }
+      },
+      "required": [
+        "destination"
+      ],
+      "title": "RouteQueryArgs",
+      "type": "object"
+    },
+    "name": "query_route",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Calculate a multi-stop tour without saving navigation. Accepts explicit start, final destination, stop order and temporary closures.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "closed": {
+          "items": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Closed",
+          "type": "array"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "items": {
+          "items": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "keep_order": {
+          "default": false,
+          "title": "Keep Order",
+          "type": "boolean"
+        },
+        "min_door_width_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Door Width M"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        },
+        "step_free": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Free"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "TourQueryArgs",
+      "type": "object"
+    },
+    "name": "query_tour",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Find a named item or place; ask once if ambiguous.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Query",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "FindArgs",
+      "type": "object"
+    },
+    "name": "find",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Plan a tour through an array of entity IDs, with optional final destination and mobility constraints.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "items": {
+          "description": "Stable asset or space IDs to visit. The core chooses the route and stop order.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "keep_order": {
+          "default": false,
+          "title": "Keep Order",
+          "type": "boolean"
+        },
+        "min_door_width_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Door Width M"
+        },
+        "step_free": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Free"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "TourArgs",
+      "type": "object"
+    },
+    "name": "plan_tour",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Compute a route from the session position, respecting mobility constraints.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "destination": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Destination",
+          "type": "string"
+        },
+        "min_door_width_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Door Width M"
+        },
+        "step_free": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Free"
+        }
+      },
+      "required": [
+        "destination"
+      ],
+      "title": "RouteArgs",
+      "type": "object"
+    },
+    "name": "route",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Return the next instruction of the active tour, including final destination directions and an explicit arrival confirmation.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "title": "Args",
+      "type": "object"
+    },
+    "name": "next_step",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Compute areas, counts, asset locations, adjacency, 3D distances, reachability or a hypothetical door. Use IDs and types from discovery. Temporary closures do not save edits.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asset Type"
+        },
+        "closed": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Closed",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "above",
+                "below"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "floor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Floor"
+        },
+        "kind": {
+          "enum": [
+            "largest_room",
+            "floor_area_total",
+            "errand",
+            "wide_delivery_count",
+            "step_free_reachable_count",
+            "room_stacked",
+            "shared_walls_count",
+            "straight_line_3d",
+            "what_if_door",
+            "count",
+            "locate"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "min_width_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Width M"
+        },
+        "room_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Room Type"
+        },
+        "second_target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For step_free_reachable_count, an optional additional connector, door or room to close. With no current or requested closures, count the unmodified building. For other kinds, the second comparison target.",
+          "title": "Second Target"
+        },
+        "step_free": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Free"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "SpatialArgs",
+      "type": "object"
+    },
+    "name": "spatial_query",
+    "roles": [
+      "admin",
+      "navigator"
+    ]
+  },
+  {
+    "description": "Preview an edit without changing the building.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "close",
+            "open",
+            "add_door",
+            "move_asset",
+            "set_room_type"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "op_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Op Id"
+        },
+        "second_target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Second Target"
+        },
+        "target": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "title": "EditArgs",
+      "type": "object"
+    },
+    "name": "propose_edit",
+    "roles": [
+      "admin"
+    ]
+  },
+  {
+    "description": "Commit a confirmed proposal exactly once.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_version": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Version"
+        },
+        "op_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Op Id"
+        },
+        "proposal_id": {
+          "minLength": 1,
+          "title": "Proposal Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proposal_id"
+      ],
+      "title": "CommitArgs",
+      "type": "object"
+    },
+    "name": "commit_edit",
+    "roles": [
+      "admin"
+    ]
+  },
+  {
+    "description": "Undo the last own change or a specified event.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Id"
+        },
+        "op_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Op Id"
+        }
+      },
+      "title": "UndoArgs",
+      "type": "object"
+    },
+    "name": "undo",
+    "roles": [
+      "admin"
+    ]
+  },
+  {
+    "description": "Preview a hypothetical edit without saving it.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "close",
+            "open",
+            "add_door",
+            "move_asset",
+            "set_room_type"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "op_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Op Id"
+        },
+        "second_target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Second Target"
+        },
+        "target": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "action",
+        "target"
+      ],
+      "title": "EditArgs",
+      "type": "object"
+    },
+    "name": "what_if",
+    "roles": [
+      "admin"
+    ]
+  },
+  {
+    "description": "Set the scale of an imported floor plan when import is available.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "length_m": {
+          "exclusiveMinimum": 0,
+          "title": "Length M",
+          "type": "number"
+        },
+        "reference": {
+          "title": "Reference",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference",
+        "length_m"
+      ],
+      "title": "ScaleArgs",
+      "type": "object"
+    },
+    "name": "set_scale",
+    "roles": [
+      "admin"
+    ]
+  },
+  {
+    "description": "Create position markers and return a printable sheet URL.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "title": "Args",
+      "type": "object"
+    },
+    "name": "generate_markers",
+    "roles": [
+      "admin"
+    ]
+  }
+]

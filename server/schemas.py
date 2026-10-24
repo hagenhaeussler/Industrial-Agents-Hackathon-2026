@@ -68,6 +68,7 @@ class ToolResponse(BaseModel):
     speech: str
     display: dict[str, Any] | None = None
     trace: list[dict[str, Any]] = Field(default_factory=list)
+    model_result: dict[str, Any] | None = None
 
 
 class TourCreate(Input):
@@ -111,6 +112,23 @@ class ChatResponse(BaseModel):
     reply: str
     tool_calls: list[dict[str, Any]]
     display: dict[str, Any]
+    status: Literal['completed', 'incomplete', 'unavailable', 'superseded'] = 'completed'
+    stop_reason: str | None = None
+    usage: dict[str, int] = Field(default_factory=dict)
+    cost_usd: float = 0
+    sources: list[str] = Field(default_factory=list)
+
+
+class AgentTurnInput(ChatInput):
+    pass
+
+
+class AgentTurnResponse(BaseModel):
+    turn_id: str
+
+
+class AgentToolCall(ToolCall):
+    turn_id: str = Field(min_length=1, max_length=100)
 
 
 class DemoReset(Input):

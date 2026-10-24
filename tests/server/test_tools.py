@@ -43,11 +43,11 @@ def platform(tmp_path, monkeypatch):
     return service, ToolRegistry(service), admin["session_id"], nav["session_id"], messages
 
 
-def test_registry_schema_contains_exact_eleven_names(platform):
+def test_registry_exposes_structured_discovery_and_navigation(platform):
     service, tools, *_ = platform
     schemas = tools.json_schemas()
     assert {schema["name"] for schema in schemas} == set(REGISTRY)
-    assert len(schemas) == 11
+    assert {"building_info", "search_entities", "get_entities", "compare_routes", "route", "plan_tour"} <= {schema["name"] for schema in schemas}
     assert next(s for s in schemas if s["name"] == "find")["input_schema"]["required"] == ["query"]
     registry.configure(service)
     assert registry.call("find", platform[3], {"query": "Press 4"})["ok"] is True

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useConversation } from '@elevenlabs/react'
-import { createClientTools, createNavigationRequestGuard, serializeToolResponse, TOOL_NAMES } from './clientTools'
+import { createClientTools, createNavigationRequestGuard, serializeToolResponse } from './clientTools'
 import type { ToolDisplay, ToolResponse } from './clientTools'
 
 const VOICE_UNAVAILABLE = 'Voice is unavailable. Please use text chat.'
@@ -8,6 +8,7 @@ const CONNECTION_FAILED = 'The voice connection could not start. Check your conn
 const VOICE_LIMIT = 'Voice has reached its provider limit. Try again later or use text chat.'
 const VOICE_CLOSING = 'Voice is still closing. Try again in a moment.'
 const VOICE_RELOAD = 'Voice could not finish closing. Reload this page before starting again.'
+const TRANSCRIPT_UNAVAILABLE = 'Your voice request could not be registered. Say it again or use text chat.'
 const TYPED_ECHO_MS = 3000
 export type VoiceMessage = { id: string; role: 'user' | 'agent'; text: string }
 export type VoiceClientTool = (args: Record<string, unknown>) => Promise<string> | string
@@ -44,13 +45,20 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
   additionalTools.current = clientTools
   const sdkEnd = useRef<(() => void) | null>(null)
   const scope = useMemo(() => {
-    const state = { active: true, starting: false, attempt: 0, controller: null as AbortController | null,
-      sdkStarted: false, userStopped: false, phase: null as string | null, serial: 0, messageIds: new Map<string, string>(),
-      pendingTyped: [] as { id: string; text: string; at: number }[],
-      startTimer: null as ReturnType<typeof setTimeout> | null,
-      closing: false, closeTimedOut: false, closeTimer: null as ReturnType<typeof setTimeout> | null,
-      settledTimer: null as ReturnType<typeof setTimeout> | null }
-    return { state, emptyMessages: [] as VoiceMessage[], navigation: createNavigationRequestGuard(() => state.active) }
+    const state: {
+      active: boolean; acceptingMessages: boolean; starting: boolean; attempt: number;
+      controller: AbortController | null; transcriptController: AbortController | null; turn: Promise<string> | null;
+      sdkStarted: boolean; sdkAttempt: number | null; userStopped: boolean; phase: string | null;
+      serial: number; messageIds: Map<string, string>; userEvents: Map<string, string>;
+      pendingTyped: { id: string; text: string; at: number }[];
+      startTimer: ReturnType<typeof setTimeout> | null; closing: boolean; closeTimedOut: boolean;
+      closeTimer: ReturnType<typeof setTimeout> | null; settledTimer: ReturnType<typeof setTimeout> | null;
+    } = { active: true, acceptingMessages: false, starting: false, attempt: 0,
+      controller: null, transcriptController: null, turn: null, sdkStarted: false, sdkAttempt: null,
+      userStopped: false, phase: null, serial: 0, messageIds: new Map(), userEvents: new Map(), pendingTyped: [],
+      startTimer: null, closing: false, closeTimedOut: false, closeTimer: null, settledTimer: null }
+    const emptyMessages: VoiceMessage[] = []
+    return { state, emptyMessages, navigation: createNavigationRequestGuard(() => state.active), turns: createNavigationRequestGuard() }
   }, [agent, sessionId])
   const [failure, setFailure] = useState<{ scope: typeof scope; message: string | null }>({ scope, message: null })
   const [phase, setPhase] = useState<{ scope: typeof scope; status: string | null }>({ scope, status: null })
@@ -99,33 +107,70 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
     scope.state.attempt++
     scope.state.controller?.abort()
     scope.state.controller = null
+    scope.state.transcriptController?.abort()
+    scope.state.transcriptController = null
+    scope.state.turn = null
+    scope.state.acceptingMessages = false
     scope.state.starting = false
     scope.state.pendingTyped = []
     if (scope.state.startTimer) clearTimeout(scope.state.startTimer)
     scope.state.startTimer = null
     scope.navigation.invalidate()
   }, [scope])
-  const tools = useMemo(() => {
-    const base = Object.fromEntries(TOOL_NAMES.map(name => [name, async (args?: unknown) => {
-      if (!scope.state.active || scope.state.userStopped) return serializeToolResponse({ ok: false, speech: 'This voice session has ended.', error: { code: 'not_available' } })
-      const attempt = scope.state.attempt
-      const current = () => scope.state.active && !scope.state.userStopped && scope.state.attempt === attempt
-      const invocation = createClientTools({ sessionId, navigationGuard: scope.navigation,
-        onResponse: response => { if (current()) responseHandler.current?.(response) },
-        onDisplay: (payload, response) => { if (current()) display.current?.(payload, response) } })
-      // Suppress retired view callbacks, not an already committed server outcome.
-      return invocation[name](args)
-    }]))
-    const extra = Object.fromEntries(Object.keys(clientTools ?? {}).filter(name => !TOOL_NAMES.includes(name as typeof TOOL_NAMES[number])).map(name => [name,
+  const registerTranscript = useCallback((message: string, attempt: number) => {
+    if (!scope.state.active || !scope.state.acceptingMessages || scope.state.attempt !== attempt || !message.trim()) return
+    scope.turns.invalidate()
+    scope.navigation.invalidate()
+    scope.state.transcriptController?.abort()
+    const controller = new AbortController()
+    scope.state.transcriptController = controller
+    const current = () => scope.state.active && scope.state.acceptingMessages && scope.state.attempt === attempt
+      && !controller.signal.aborted && scope.state.turn === turn
+    const turn = (async () => {
+      const response = await fetch('/api/agent/turns', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+        body: JSON.stringify({ session_id: sessionId, message: message.trim() }),
+      })
+      const body: unknown = await response.json()
+      if (!current() || !response.ok || !body || typeof body !== 'object' || !('turn_id' in body)
+        || typeof body.turn_id !== 'string' || !body.turn_id.trim()) throw new Error(TRANSCRIPT_UNAVAILABLE)
+      return body.turn_id
+    })()
+    scope.state.turn = turn
+    void turn.catch(() => { if (current()) showError(TRANSCRIPT_UNAVAILABLE) })
+    showError(null)
+  }, [sessionId, scope, showError])
+  const toolsForAttempt = useCallback((attempt: number) => {
+    const current = () => scope.state.active && scope.state.acceptingMessages && scope.state.attempt === attempt
+    const getTurnId = async () => {
+      const turn = scope.state.turn
+      if (!current() || !turn) throw new Error(TRANSCRIPT_UNAVAILABLE)
+      const id = await turn
+      if (!current() || scope.state.turn !== turn) throw new Error(TRANSCRIPT_UNAVAILABLE)
+      return id
+    }
+    const base = createClientTools({ sessionId, getTurnId, isActive: current,
+      navigationGuard: scope.navigation, turnGuard: scope.turns,
+      onResponse: response => { if (current()) responseHandler.current?.(response) },
+      onDisplay: (payload, response) => { if (current()) display.current?.(payload, response) } })
+    const extra = Object.fromEntries(Object.keys(additionalTools.current ?? {}).filter(name => !Object.hasOwn(base, name)).map(name => [name,
       async (args: Record<string, unknown>) => {
-        if (!scope.state.active || scope.state.userStopped) return serializeToolResponse({ ok: false, speech: 'This voice session has ended.', error: { code: 'not_available' } })
+        const turn = scope.turns.capture()
+        const active = () => current() && scope.turns.isCurrent(turn)
+        const stale = () => serializeToolResponse({ ok: false, speech: 'Use the latest user request in the current voice conversation.', error: { code: 'version_conflict' } })
+        if (!active()) return stale()
+        try { await getTurnId() } catch { return serializeToolResponse({ ok: false, speech: TRANSCRIPT_UNAVAILABLE, error: { code: 'not_available' } }) }
+        if (!active()) return stale()
         const handler = additionalTools.current?.[name]
         if (!handler) return serializeToolResponse({ ok: false, speech: 'This action is unavailable.', error: { code: 'not_available' } })
-        try { return await handler(args) } catch { return serializeToolResponse({ ok: false, speech: 'The application action failed. Please try again.', error: { code: 'internal' } }) }
+        try {
+          const result = await handler(args)
+          return active() ? result : stale()
+        } catch { return serializeToolResponse({ ok: false, speech: 'The application action failed. Please try again.', error: { code: 'internal' } }) }
       },
     ]))
     return { ...extra, ...base }
-  }, [sessionId, scope, Object.keys(clientTools ?? {}).sort().join('\0')])
+  }, [sessionId, scope])
   const onError = useCallback((message?: unknown, detail?: unknown) => {
     if (!scope.state.active || scope.state.userStopped) return
     invalidate()
@@ -169,20 +214,28 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
     }
   }, [scope, invalidate, changePhase, showError, finishClosing])
   const onMessage = useCallback((payload: { role?: string; source?: string; message?: string; event_id?: number; response_id?: string }) => {
-    if (!scope.state.active || scope.state.userStopped || !payload.message?.trim()) return
+    if (!scope.state.active || !scope.state.acceptingMessages || scope.state.userStopped || !payload.message?.trim()) return
     const role = payload.role === 'agent' || payload.source === 'ai' ? 'agent' : payload.role === 'user' || payload.source === 'user' ? 'user' : null
     if (!role) return
     const key = typeof payload.response_id === 'string' ? `${role}:${payload.response_id.slice(0, 200)}`
       : typeof payload.event_id === 'number' ? `${role}:${payload.event_id}` : null
     let id = key ? scope.state.messageIds.get(key) : undefined
     const text = payload.message.trim()
+    let typedEcho = false
     if (role === 'agent') scope.state.pendingTyped = []
     else if (!id) {
       const now = Date.now()
       scope.state.pendingTyped = scope.state.pendingTyped.filter(row => now - row.at < TYPED_ECHO_MS)
       const echo = scope.state.pendingTyped.findIndex(row => row.text === text)
-      if (echo >= 0) id = scope.state.pendingTyped.splice(echo, 1)[0]!.id
+      if (echo >= 0) { id = scope.state.pendingTyped.splice(echo, 1)[0]!.id; typedEcho = true }
       else scope.state.pendingTyped = []
+    }
+    if (payload.source === 'user' && !typedEcho && (!key || scope.state.userEvents.get(key) !== text)) {
+      registerTranscript(text, scope.state.attempt)
+    }
+    if (payload.source === 'user' && key) {
+      scope.state.userEvents.set(key, text)
+      if (scope.state.userEvents.size > 180) scope.state.userEvents.delete(scope.state.userEvents.keys().next().value!)
     }
     if (!id) {
       id = `voice-${++scope.state.serial}`
@@ -195,9 +248,9 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
       const exists = rows.some(message => message.id === row.id)
       return { scope, messages: (exists ? rows.map(message => message.id === row.id ? row : message) : [...rows, row]).slice(-60) }
     })
-  }, [scope])
+  }, [scope, registerTranscript])
   const { status: sdkStatus, isSpeaking, isMuted, setMuted: sdkSetMuted, startSession, endSession,
-    sendContextualUpdate, sendUserMessage, getInputVolume, getOutputVolume } = useConversation({ clientTools: tools, onError, onConnect, onDisconnect, onMessage, onStatusChange })
+    sendContextualUpdate, sendUserMessage, getInputVolume, getOutputVolume } = useConversation()
   sdkEnd.current = endSession
   const status = phase.scope === scope && phase.status !== null ? phase.status : sdkStatus
   const currentStatus = useRef(status)
@@ -247,13 +300,15 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
       showError(message)
       throw new Error(message)
     }
-    const attempt = ++scope.state.attempt
+    invalidate()
+    const attempt = scope.state.attempt
     const controller = new AbortController()
     scope.state.controller = controller
     scope.state.starting = true
     scope.state.userStopped = false
     scope.state.pendingTyped = []
     scope.state.messageIds.clear() // Provider event IDs may restart on a new call.
+    scope.state.userEvents.clear()
     const current = () => scope.state.active && scope.state.attempt === attempt && !controller.signal.aborted
     changePhase('connecting')
     showError(null)
@@ -270,14 +325,28 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
       if (!current()) return
       const payload: unknown = await response.json()
       if (!current()) return
-      const body = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {}
-      if (!response.ok || typeof body.token !== 'string' || !body.token) {
-        const code = body.error && typeof body.error === 'object' ? (body.error as Record<string, unknown>).code : undefined
+      const body = payload && typeof payload === 'object' ? payload : {}
+      if (!response.ok || !('token' in body) || typeof body.token !== 'string' || !body.token) {
+        const code = 'error' in body && body.error && typeof body.error === 'object' && 'code' in body.error ? body.error.code : undefined
         throw new Error(response.status === 429 ? 'Voice quota exceeded' : typeof code === 'string' ? code : VOICE_UNAVAILABLE)
       }
       scope.state.sdkStarted = true
+      scope.state.sdkAttempt = attempt
+      scope.state.acceptingMessages = true
       // React SDK returns void; onConnect/onError/onDisconnect finish the handshake.
-      startSession({ conversationToken: body.token, connectionType: 'webrtc' })
+      startSession({ conversationToken: body.token, connectionType: 'webrtc', clientTools: toolsForAttempt(attempt),
+        onMessage: payload => { if (current()) onMessage(payload) },
+        onError: (message, detail) => { if (current()) onError(message, detail) },
+        onConnect: () => {
+          if (current()) onConnect()
+          else if (scope.state.active && scope.state.sdkAttempt === attempt && scope.state.closing) closeSdk()
+        },
+        onStatusChange: event => { if (scope.state.sdkAttempt === attempt) onStatusChange(event) },
+        onDisconnect: details => {
+          if (current()) onDisconnect(details)
+          else if (scope.state.active && scope.state.sdkAttempt === attempt && scope.state.closing) finishClosing()
+        },
+      })
     } catch (reason) {
       if (!current()) return
       invalidate()
@@ -286,7 +355,7 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
       showError(message)
       throw new Error(message)
     }
-  }, [agent, sessionId, startSession, scope, changePhase, showError, invalidate, closeSdk])
+  }, [agent, sessionId, startSession, scope, changePhase, showError, invalidate, closeSdk, toolsForAttempt, onMessage, onError, onConnect, onStatusChange, onDisconnect, finishClosing])
 
   const stop = useCallback(async () => {
     if (!scope.state.active) return
@@ -307,6 +376,7 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
     try {
       const accepted = text.trim().slice(0, 10000)
       sendUserMessage(accepted)
+      registerTranscript(accepted, scope.state.attempt)
       // This is the user's actual accepted submission, not a generated reply.
       // SDK sendUserMessage does not guarantee a local onMessage echo.
       const row: VoiceMessage = { id: `voice-${++scope.state.serial}`, role: 'user', text: accepted.slice(0, 4000) }
@@ -316,7 +386,7 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
       setTranscript(previous => ({ scope, messages: [...(previous.scope === scope ? previous.messages : []), row].slice(-60) }))
       return true
     } catch { showError(CONNECTION_FAILED); return false }
-  }, [scope, sendUserMessage, showError])
+  }, [scope, sendUserMessage, showError, registerTranscript])
   const setMuted = useCallback((muted: boolean) => {
     if (!scope.state.active || (scope.state.phase ?? currentStatus.current) !== 'connected') return
     try { sdkSetMuted(muted) } catch { showError(CONNECTION_FAILED) }

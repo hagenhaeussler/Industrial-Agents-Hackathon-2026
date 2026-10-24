@@ -19,7 +19,6 @@ import { createDeskVoiceTools } from '../voice/uiTools';
 import { deskVoiceContext } from '../voice/deskContext';
 import { VoiceConversation } from '../voice/VoiceConversation';
 import { HandoffDialog } from './HandoffDialog';
-import { fallbackReply } from './matchParts';
 import { PartsList } from './PartsList';
 import { StartPicker } from './StartPicker';
 import { TourPanel } from './TourPanel';
@@ -66,7 +65,6 @@ function DeskScreen() {
   const [ask, setAsk] = useState('');
   const [asking, setAsking] = useState(false);
   const [agent, setAgent] = useState<Agent>(null);
-  const [chatOffline, setChatOffline] = useState(false);
   const [picker, setPicker] = useState(false);
   const [handoff, setHandoff] = useState(false);
   const [openedOnPhone, setOpenedOnPhone] = useState(false);
@@ -188,15 +186,6 @@ function DeskScreen() {
   const voiceContext = model && session?.building_id === buildingId ? deskVoiceContext(model, session, floorId, selected, tour) : '';
   useEffect(() => { if (voice.status === 'connected' && voiceContext) voice.sendContext(voiceContext); }, [voice.status, voice.sendContext, voiceContext]);
 
-  const localAnswer = (text: string) => {
-    if (!model) return;
-    const answer = fallbackReply(model, text);
-    setAgent({ text: answer.reply, candidates: answer.candidates, tone: 'info' });
-    if (answer.select.length) setSelected(current => new Set([...current, ...answer.select]));
-    if (answer.focus) focusAsset(answer.focus);
-    setAsk('');
-  };
-
   const sendAsk = async (text: string) => {
     if (!session || !text.trim()) return;
     if (voice.status === 'connected') {
@@ -205,16 +194,16 @@ function DeskScreen() {
       return;
     }
     if (voice.status === 'connecting') return;
-    if (chatOffline) { localAnswer(text.trim()); return; }
     setAsking(true);
     await latest(() => api.chat(session.session_id, text.trim()), (reply: ChatReply) => {
       const failed = reply.tool_calls.find(call => !call.ok && call.error?.candidates?.length);
-      setAgent({ text: reply.reply, candidates: failed?.error?.candidates?.slice(0, 4) ?? [], tone: 'info' });
-      applyDisplay(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display);
-      setAsk('');
+      const incomplete = reply.status !== undefined && reply.status !== 'completed';
+      setAgent({ text: reply.reply, candidates: failed?.error?.candidates?.slice(0, 4) ?? [], tone: incomplete ? 'error' : 'info' });
+      if (reply.status !== 'superseded') applyDisplay(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display);
+      if (!incomplete) setAsk('');
     }, error => {
-      if (error instanceof ApiError && [404, 501, 503].includes(error.status)) { setChatOffline(true); localAnswer(text.trim()); }
-      else setAgent({ text: message(error), candidates: [], tone: 'error' });
+      setAsk(current => current.trim() ? current : text.trim());
+      setAgent({ text: `Chat failed: ${message(error)} Your request is still in the input. Try again.`, candidates: [], tone: 'error' });
     });
     setAsking(false);
   };
@@ -263,7 +252,7 @@ function DeskScreen() {
       <VoiceConversation key={session?.session_id} voice={voice}/>
       {agent && <div className={`agent-reply ${agent.tone}`} role="status" aria-live="polite">
         <p>{agent.text}</p>
-        {agent.candidates.length > 0 && <div className="chips">{agent.candidates.map(candidate => <button key={candidate.id} onClick={() => { if (model.asset.has(candidate.id)) focusAsset(candidate.id); if (chatOffline) { setSelected(current => new Set([...current, candidate.id])); setAgent(null); } else void sendAsk(candidate.name); }}>{candidate.name}{candidate.floor_id ? <span> · {floorName(model, candidate.floor_id)}</span> : null}</button>)}</div>}
+        {agent.candidates.length > 0 && <div className="chips">{agent.candidates.map(candidate => <button key={candidate.id} onClick={() => { if (model.asset.has(candidate.id)) focusAsset(candidate.id); void sendAsk(candidate.name); }}>{candidate.name}{candidate.floor_id ? <span> · {floorName(model, candidate.floor_id)}</span> : null}</button>)}</div>}
       </div>}
 
       <button className="start-chip" onClick={() => setPicker(true)} disabled={!session}>

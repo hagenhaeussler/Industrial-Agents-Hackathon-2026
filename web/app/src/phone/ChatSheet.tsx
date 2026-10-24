@@ -1,7 +1,8 @@
 import { LoaderCircle, Send, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ApiError, api } from '../api/client';
+import { createLatest } from '../api/latest';
 import type { Display } from '../api/types';
 import { VoiceConversation } from '../voice/VoiceConversation';
 import type { Voice } from './voice';
@@ -15,22 +16,21 @@ export function ChatSheet({ open, sessionId, onClose, onDisplay, voice, voiceErr
   const ref = useRef<HTMLDialogElement>(null);
   const history = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  const requests = useMemo(() => createLatest(), [sessionId]);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [lines, setLines] = useState<Line[]>([{ id: 0, role: 'agent', text: 'Ask me about your route or anything in this building.' }]);
-  const generation = useRef(0);
   const connected = voice?.status === 'connected';
   const connecting = voice?.status === 'connecting';
   // The shared conversation renders provider errors; keep local delivery errors separate.
   const error = deliveryError ?? (voice ? null : voiceError);
 
   useEffect(() => {
-    generation.current++;
+    setBusy(false); setText(''); setDeliveryError(null);
     setLines([{ id: 0, role: 'agent', text: 'Ask me about your route or anything in this building.' }]);
-    setText(''); setBusy(false); setDeliveryError(null);
-    return () => { generation.current++; };
-  }, [sessionId]);
+    return () => requests.cancel();
+  }, [requests]);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -56,18 +56,17 @@ export function ChatSheet({ open, sessionId, onClose, onDisplay, voice, voiceErr
       else setDeliveryError('That message was not sent. Reconnect voice or end it to use text chat.');
       return;
     }
-    const request = generation.current;
     add('user', value.trim()); setText(''); setBusy(true);
-    try {
-      const reply = await api.chat(sessionId, value.trim());
-      if (request !== generation.current) return;
+    await requests.run(() => api.chat(sessionId, value.trim()), reply => {
       add('agent', reply.reply);
-      onDisplay?.(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display ?? null);
-    } catch (error) {
-      if (request !== generation.current) return;
-      add('agent', error instanceof ApiError && [404, 501, 503].includes(error.status) ? 'Text chat is not connected yet. The map and the step list still guide you.' : `That did not work: ${error instanceof Error ? error.message : 'unknown error'}`);
-    }
-    if (request === generation.current) setBusy(false);
+      if (reply.status !== 'superseded') onDisplay?.(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display ?? null);
+      if (reply.status && reply.status !== 'completed') setText(current => current.trim() ? current : value.trim());
+      setBusy(false);
+    }, error => {
+      add('agent', error instanceof ApiError && [404, 501, 503].includes(error.status) ? 'Text chat is unavailable. Your request is still in the input. Try again or use the map.' : `That did not work: ${error instanceof Error ? error.message : 'unknown error'}`);
+      setText(current => current.trim() ? current : value.trim());
+      setBusy(false);
+    });
   };
   const submit = (event: FormEvent) => { event.preventDefault(); void send(text); };
 

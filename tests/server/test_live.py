@@ -155,11 +155,11 @@ def test_markers_sheet_and_demo_reset(settings, raw):
 
 def test_chat_adapter_uses_contract_constructor(settings, raw, monkeypatch):
     class ChatAgent:
-        def __init__(self, registry, session_provider):
-            self.registry, self.session_provider = registry, session_provider
+        def __init__(self, execution):
+            self.execution = execution
         def reply(self, session_id, message):
-            assert self.session_provider(session_id)['building_id'] == raw['building']['id']
-            assert len(self.registry.json_schemas()) == 11
+            assert self.execution.context(session_id)['building_id'] == raw['building']['id']
+            assert "search_entities" in {tool["name"] for tool in self.execution.definitions(session_id)}
             return {'reply': 'Ready.', 'tool_calls': [], 'display': {}}
     monkeypatch.setenv('ANTHROPIC_API_KEY', 'test-only-not-used')
     monkeypatch.setitem(sys.modules, 'agent.chat', SimpleNamespace(ChatAgent=ChatAgent))

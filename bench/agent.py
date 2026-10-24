@@ -2,13 +2,14 @@
 
 import json
 import logging
+import os
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 
+from agent.budget import Budget
 from core.building import Building, load_building
 from starter_agent.building_map import MapError
-from agent.budget import Budget
 
 from .serialize import serialize
 from .templates import parse_question
@@ -46,22 +47,23 @@ def load_base(directory: Path) -> Building:
 
 def unanswered(reason: str) -> Prediction:
     return Prediction(
-        reply=f"I could not determine a unique answer: {reason}. Please name the exact room.",
+        reply=f"I could not answer this question: {reason}.",
         error=reason,
         method="unanswered",
     )
 
 
-def fallback(building: Building, question: str, reason: str) -> Prediction:
-    import os
-
-    if _BUDGET is None or not os.environ.get("ANTHROPIC_API_KEY"):
-        return unanswered(reason)
-    if reason.startswith("Ambiguous"):
-        return unanswered(reason)
+def llm_prediction(building: Building, question: str, *, constraints: dict | None = None) -> Prediction:
+    budget = _BUDGET
+    if budget is None:
+        return unanswered("An approved benchmark budget is required. Configure an explicit max-cost allocation")
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return unanswered("ANTHROPIC_API_KEY is not configured")
     from .llm_fallback import interpret
 
-    return interpret(building, question, (_BUDGET, None))
+    if constraints is not None:
+        return interpret(building, question, (budget, None), constraints=constraints)
+    return interpret(building, question, (budget, None))
 
 
 def configure_budget(dollars: float | None) -> None:
@@ -70,16 +72,22 @@ def configure_budget(dollars: float | None) -> None:
     _BUDGET = Budget(dollars) if dollars is not None else None
 
 
-def predict(directory: Path, question: str, mode: str = "hybrid") -> Prediction:
+def validate_mode(mode: str) -> None:
+    if mode not in {"llm", "template"}:
+        raise ValueError("Mode must be 'llm' or 'template'. The 'hybrid' mode was removed")
+
+
+def predict(directory: Path, question: str, mode: str = "llm", *, constraints: dict | None = None) -> Prediction:
     """Keep failures local to a question and retain computed data for evaluation."""
     try:
+        validate_mode(mode)
         building = load_base(directory)
         if mode == "llm":
-            return fallback(building, question, "The language model fallback is not available")
+            return llm_prediction(building, question, constraints=constraints)
         try:
             kind, inputs = parse_question(building, question)
         except MapError as error:
-            return fallback(building, question, str(error)) if mode == "hybrid" else unanswered(str(error))
+            return unanswered(str(error))
         from core.spatial import solve
 
         result = solve(building, kind, inputs)

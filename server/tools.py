@@ -3,19 +3,21 @@
 from dataclasses import dataclass
 import logging
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from typing import Literal
 
 from . import core_adapter as adapter
 from .errors import ServiceError
-from .state import encode, identifier, now
+from .route_queries import RouteQuery, RouteQueryArgs, TourQueryArgs
+from .state import identifier
 from .public import public_payload
+from .agent_queries import AgentQueries, InfoArgs, SearchArgs, GetEntitiesArgs, CompareRoutesArgs
 
 logger = logging.getLogger(__name__)
 
 
 class Args(BaseModel):
-    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False, strict=True)
 
 
 class FindArgs(Args):
@@ -23,9 +25,26 @@ class FindArgs(Args):
 
 
 class TourArgs(Args):
-    items: str = Field(min_length=1, max_length=4000)
+    items: list[str] = Field(min_length=1, max_length=100, description="Stable asset or space IDs to visit. The core chooses the route and stop order.")
     keep_order: bool = False
     step_free: bool | None = None
+    min_door_width_m: float | None = Field(default=None, ge=0)
+    end: str | None = None
+
+    @field_validator("items", mode="before")
+    @classmethod
+    def legacy_items(cls, value):
+        """Accept existing hosted voice configurations during their migration."""
+        if isinstance(value, str):
+            return [item.strip() for item in value.split(",") if item.strip()]
+        return value
+
+    @field_validator("items")
+    @classmethod
+    def nonempty_ids(cls, value):
+        if any(not item.strip() or len(item) > 1000 for item in value):
+            raise ValueError("Every destination must be a nonempty entity ID.")
+        return value
 
 
 class RouteArgs(Args):
@@ -35,7 +54,7 @@ class RouteArgs(Args):
 
 
 class SpatialArgs(Args):
-    kind: Literal["largest_room", "floor_area_total", "errand", "wide_delivery_count", "step_free_reachable_count", "room_stacked", "shared_walls_count", "straight_line_3d", "what_if_door"]
+    kind: Literal["largest_room", "floor_area_total", "errand", "wide_delivery_count", "step_free_reachable_count", "room_stacked", "shared_walls_count", "straight_line_3d", "what_if_door", "count", "locate"]
     target: str | None = None
     second_target: str | None = Field(default=None, description="For step_free_reachable_count, an optional additional connector, door or room to close. With no current or requested closures, count the unmodified building. For other kinds, the second comparison target.")
     floor: str | None = None
@@ -43,6 +62,8 @@ class SpatialArgs(Args):
     asset_type: str | None = None
     direction: Literal["above", "below"] | None = None
     min_width_m: float | None = Field(default=None, ge=0)
+    step_free: bool | None = None
+    closed: list[str] = Field(default_factory=list, max_length=100)
 
 
 class EditArgs(Args):
@@ -83,11 +104,17 @@ class Tool:
 
 
 _DEFINITIONS = [
+    Tool("building_info", "Discover this building's floors, entity types, counts and current session constraints.", InfoArgs, "_building_info"),
+    Tool("search_entities", "List and filter building objects with complete paginated results. Use real types and IDs from building_info.", SearchArgs, "_search_entities"),
+    Tool("get_entities", "Fetch details for stable entity IDs. Unknown IDs fail explicitly.", GetEntitiesArgs, "_get_entities"),
+    Tool("compare_routes", "Compare actual routes to candidate IDs under mobility constraints. Returns the nearest reachable destination and unreachable reasons without changing navigation.", CompareRoutesArgs, "_compare_routes"),
+    Tool("query_route", "Calculate a route from an explicit start or session position, with temporary closures. Does not save navigation or mobility. Unreachable routes include reasons.", RouteQueryArgs, "_query_route"),
+    Tool("query_tour", "Calculate a multi-stop tour without saving navigation. Accepts explicit start, final destination, stop order and temporary closures.", TourQueryArgs, "_query_tour"),
     Tool("find", "Find a named item or place; ask once if ambiguous.", FindArgs, "_find"),
-    Tool("plan_tour", "Plan a tour from the session position through comma-separated items.", TourArgs, "_tour"),
+    Tool("plan_tour", "Plan a tour through an array of entity IDs, with optional final destination and mobility constraints.", TourArgs, "_tour"),
     Tool("route", "Compute a route from the session position, respecting mobility constraints.", RouteArgs, "_route"),
     Tool("next_step", "Return the next instruction of the active tour, including final destination directions and an explicit arrival confirmation.", Args, "_next_step"),
-    Tool("spatial_query", "Answer a spatial question through the deterministic core.", SpatialArgs, "_spatial"),
+    Tool("spatial_query", "Compute areas, counts, asset locations, adjacency, 3D distances, reachability or a hypothetical door. Use IDs and types from discovery. Temporary closures do not save edits.", SpatialArgs, "_spatial"),
     Tool("propose_edit", "Preview an edit without changing the building.", EditArgs, "_propose", frozenset({"admin"})),
     Tool("commit_edit", "Commit a confirmed proposal exactly once.", CommitArgs, "_commit", frozenset({"admin"})),
     Tool("undo", "Undo the last own change or a specified event.", UndoArgs, "_undo", frozenset({"admin"})),
@@ -103,11 +130,44 @@ class ToolRegistry:
 
     def __init__(self, service, notify=None):
         self.service = service
+        self.queries = AgentQueries(service)
+        self.route_queries = RouteQuery(service)
         if notify is not None:
             self.service.notify = notify
 
-    def json_schemas(self):
-        return [{"name": t.name, "description": t.description, "input_schema": t.json_schema} for t in REGISTRY.values()]
+    def json_schemas(self, role=None):
+        return [{"name": t.name, "description": t.description, "input_schema": t.json_schema}
+                for t in REGISTRY.values() if role is None or role in t.roles]
+
+    def _building_info(self, session, args):
+        return self.queries.building_info(session, args)
+
+    def _search_entities(self, session, args):
+        return self.queries.search_entities(session, args)
+
+    def _get_entities(self, session, args):
+        return self.queries.get_entities(session, args)
+
+    def _compare_routes(self, session, args):
+        return self.queries.compare_routes(session, args)
+
+    def _query_route(self, session, args):
+        result, speech, display = self.route_queries.route(session, args)
+        start = args.get("start") or result["start"]["space_id"]
+        result["calculation"] = {"kind": "route", "inputs": {
+            "start": start, "destination": args["destination"],
+            **{key: result["constraints"][key] for key in ("step_free", "closed", "min_door_width_m")},
+        }}
+        return result, speech, display
+
+    def _query_tour(self, session, args):
+        result, speech, display = self.route_queries.tour(session, args)
+        start = args.get("start") or result["start"]["space_id"]
+        stops = [start, *args["items"], *([args["end"]] if args.get("end") else [])]
+        result["calculation"] = {"kind": "tour", "inputs": {
+            "stops": stops, "keep_order": args.get("keep_order", False),
+        }}
+        return result, speech, display
 
     def call(self, name, session_id, args=None):
         # Reserved envelope field stays empty: calculation explanations are disabled.
@@ -173,22 +233,7 @@ class ToolRegistry:
 
     def _persist_mobility(self, session, args):
         """Merge validated intent atomically with the latest shared session."""
-        store = self.service.store
-        with store.connect(write=True) as db:
-            current = store._session(db.execute("SELECT * FROM sessions WHERE session_id=?", (session["session_id"],)).fetchone())
-            constraints = dict(current["constraints"])
-            profile = current["profile"]
-            if args.get("step_free") is True:
-                constraints["step_free"] = True
-                if profile == "walk":
-                    profile = "wheelchair"
-            if "min_door_width_m" in args:
-                constraints["min_door_width_m"] = args["min_door_width_m"]
-            if profile != current["profile"] or constraints != current["constraints"]:
-                db.execute("UPDATE sessions SET profile=?,constraints_json=?,updated_at=? WHERE session_id=?", (
-                    profile, encode(constraints), now(), current["session_id"]))
-                return store._session(db.execute("SELECT * FROM sessions WHERE session_id=?", (current["session_id"],)).fetchone())
-            return current
+        return self.service.store.merge_mobility(session["session_id"], args)
 
     def _route(self, session, args):
         if not session["position"]:
@@ -205,7 +250,7 @@ class ToolRegistry:
         return result, f"The route is about {result['length_m']:.0f} metres.", {"kind": "route", "route": result}
 
     def _tour(self, session, args):
-        items = [item.strip() for item in args["items"].split(",") if item.strip()]
+        items = args["items"]
         if not items:
             raise ServiceError("invalid_args", "Choose at least one item or place.")
         if not session["position"]:
@@ -215,9 +260,12 @@ class ToolRegistry:
         for item in items:
             adapter.position(building, item)
         adapter.position(building, session["position"])
+        if args.get("end") is not None:
+            args["end"] = adapter.require_id(building, args["end"])
+            adapter.position(building, args["end"])
         session = self._persist_mobility(session, args)
-        overrides = {"step_free": args["step_free"]} if "step_free" in args else None
-        result = self.service.create_tour(session["session_id"], items, keep_order=args["keep_order"], constraints=overrides)
+        overrides = {key: args[key] for key in ("step_free", "min_door_width_m") if key in args}
+        result = self.service.create_tour(session["session_id"], items, keep_order=args["keep_order"], end=args.get("end"), constraints=overrides)
         blocked = result.get("unreachable_stops", [])
         speech = f"The tour has {len(result['stops'])} stops, about {result['length_m']:.0f} metres."
         if blocked:
@@ -235,6 +283,8 @@ class ToolRegistry:
             raise ServiceError("not_available", "Spatial question tools are waiting for the core integration.")
         kind = args["kind"]
         fields = {
+            "locate": {"target": "asset"},
+            "count": {"asset_type": "asset_type", "floor": "floor_id"},
             "largest_room": {"floor": "floor_id", "room_type": "room_type"},
             "floor_area_total": {"floor": "floor_id", "room_type": "room_type"},
             "errand": {"target": "start", "asset_type": "asset_type", "floor": "floor_id", "room_type": "room_type"},
@@ -254,15 +304,26 @@ class ToolRegistry:
                 entity_kind = "floor" if source == "floor" else source if source in {"room_type", "asset_type"} else "any"
                 value = adapter.require_id(building, value, entity_kind)
             inputs[target] = value
+        constraints = self.service.constraints(session, {
+            "step_free": args.get("step_free"), "min_door_width_m": args.get("min_width_m"),
+            "closed": args.get("closed", []),
+        })
+        constraints["closed"] = sorted(set(constraints["closed"]) | building.kit.closed)
+        if kind in {"step_free_reachable_count", "wide_delivery_count"}:
+            constraints["step_free"] = True
+        if kind == "step_free_reachable_count" and args.get("second_target", "").strip():
+            constraints["closed"] = sorted(set(constraints["closed"]) | {adapter.require_id(building, args["second_target"])})
+        known = building.kit.spaces.keys() | building.kit.openings.keys() | building.kit.connectors.keys()
+        if set(constraints["closed"]) - known:
+            raise ServiceError("invalid_args", "Closed elements must be connectors, doors or rooms in this building.")
+        if kind == "locate" and inputs["asset"] not in building.kit.assets:
+            raise ServiceError("invalid_args", "Location requires an asset ID.")
         if kind == "step_free_reachable_count":
-            closed = set(building.closed) | set(session["constraints"].get("closed", []))
-            if args.get("second_target", "").strip():
-                closed.add(adapter.require_id(building, args["second_target"]))
-            known = building.kit.spaces.keys() | building.kit.openings.keys() | building.kit.connectors.keys()
-            if closed - known:
-                raise ServiceError("invalid_args", "Closed elements must be connectors, doors or rooms in this building.")
-            inputs["closed"] = sorted(closed)
-        result = adapter._call(solve, building.core, kind, inputs)
+            inputs["closed"] = constraints["closed"]
+        result = adapter._call(solve, building.core, kind, inputs, constraints=constraints)
+        result["calculation"] = {"kind": kind, "inputs": inputs}
+        result["constraints"] = constraints
+        result["building_state_id"] = self.service.building_state_id(building)
         value = result.get("value", result.get("area_m2", result.get("space_id")))
         return result, f"The computed result is {value}.", {"kind": "spatial_result", "result": result}
 
@@ -309,8 +370,9 @@ class _RegistryProxy:
             raise ServiceError("not_available", "The platform service has not started.")
         return self.target.call(name, session_id, args)
 
-    def json_schemas(self):
-        return [{"name": t.name, "description": t.description, "input_schema": t.json_schema} for t in REGISTRY.values()]
+    def json_schemas(self, role=None):
+        return [{"name": t.name, "description": t.description, "input_schema": t.json_schema}
+                for t in REGISTRY.values() if role is None or role in t.roles]
 
 
 registry = _RegistryProxy()

@@ -81,3 +81,66 @@ L01 is on main at G2 (`0e89243`). C5 resolves all three owner-side integration r
 - Human relay to Manuel's codex: fetch this L03 checkpoint and `cd03324`. All owner-side regressions are green after C5; review/merge chat and Sunday adapter code through the captain. Configure `TYB_CHAT_BUDGET_USD` only after a written allocation. H4 can use prompt files. H4/H9 setup and a written budget are required for live chat/A-B measurements.
 - Hagen: review fallback kind/input schemas and provisional constraint scope (CR-L-4). Sunday rehearsal command is ready in BENCHMARK.md.
 - L04: rerun on captain's fresh Linux clone and release tag, validate/regenerate official CSV, then use actual organizer inputs when released. No main merge or deployment performed by this builder.
+
+## LLM agent rebuild, 25 Oct 2026, local verification
+
+User authorized rebuilding the LLM agent. Current branch: `t3/llm-agent-refactor`, based on main `8b0db81`. Changes are local, with no commit or push. Query, benchmark and frontend child work is integrated.
+
+- Replaced the duplicate provider loops with `agent.runtime.AgentLoop`. Text defaults to 24 requests, 128 attempted tools and 90 seconds. Benchmark retains eight total requests, Haiku up to four, then Sonnet with the remainder, one 60-second deadline and 128 tools. Limits stop before extra requests/reservations. Completed submissions stop later tools in the batch. Truncated calls never execute.
+- Added structured discovery, paged search, details and real route comparison. Unknown IDs and stale cursors fail explicitly. Tour arguments now support arrays, final destination and door width. Session constraints cannot be weakened by tool overrides.
+- Added shared text/voice execution policy, SQLite history, active turns, later-user-message edit confirmation and persistent budget reservations. Superseded turns stop further tools and model requests. Hosted ElevenLabs retains its own model loop.
+- Removed the desk's hidden local-answer fallback. Desk, phone and admin retain incomplete requests. Voice registers user transcripts, waits for registration and drops retired callbacks. Server-generated tool names and exported schemas replace the manual browser name list.
+- Updated `agent/README.md` with the architecture diagram, tool semantics, settings, voice migration and acceptance limits. Base building entities remain JSON plus materialized edit events; the agent has no raw SQL access.
+
+Checks actually run on this local tree:
+
+- `scripts/check.sh`: Python **590 passed**; oracle **369/369**; core text **138/138**. Frontend **197 passed, 1 failed**. The full script exits at that frontend failure.
+- The failure is unchanged `web/app/src/camera/ar/ArSession.test.ts:23`: Bun's containment assertion distinguishes `-0` from `0`. That file and its implementation match HEAD. `cd web/app && bun test src/camera/ar/ArSession.test.ts` reproduces **11 passed, 1 failed** alone. This is outside the agent refactor and remains open.
+- `cd web/app && bun run build`: passed, with the existing Three.js chunk-size warning.
+- `bun scripts/build-device-gate.ts`: passed.
+- `PYTHON_DOTENV_DISABLED=1 uv run python -m server.export_openapi` and `cd web/app && bun run gen:api`: passed. Exports include `model_result`, chat status/usage/cost and agent turn endpoints.
+- `git diff --check`: passed. Kit files and active instructions are unchanged.
+- Real browser check on isolated ports 8007/5197, isolated SQLite state and empty provider keys: the desk shows the actual HTTP 503, retains the request, and has no horizontal overflow at desktop and 390px widths. Screenshots: `output/playwright/agent-refactor-desk-no-provider-desktop.png` and `agent-refactor-desk-no-provider-phone.png`.
+- Native preview snapshots timed out twice. Used the Playwright skill with an existing cached Chromium executable. No installed application was replaced.
+
+No paid calls, commits, pushes, live account edits or deployment. Offline SDK responses test orchestration, not language understanding. Live model quality, microphone behavior and hosted ElevenLabs tool migration remain unverified. The full repository gate remains blocked by the unchanged AR assertion. The agent changes are ready for code review, not a claimed release. Reconcile any old process-only budget before enabling a new persistent allocation.
+
+- Additional running-phone check: created an isolated tour, confirmed the start, opened the actual chat sheet, sent a request with providers disabled, and verified the visible error, retained input and no horizontal overflow. Screenshot: `output/playwright/agent-refactor-phone-chat-no-provider.png`.
+
+## Common product/submission core, 25 Oct 2026, local verification
+
+This phase supersedes the benchmark-specific loop/model policy described in the earlier local rebuild entry. The user approved sharing the agent core while keeping small interaction/output adapters.
+
+- `agent.core.BuildingAgent` now owns the shared prompt, original question, current context, history, role-filtered platform tools, execution policy and model loop. Chat handles HTTP output and its persistent allocation. Submission handles only isolated session setup, explicit allocation and result formatting.
+- The default benchmark uses the common agent and `TYB_AGENT_*` model/limit settings: Sonnet, 24 requests, 128 tools and 90 seconds by default. There is no benchmark Haiku/Sonnet escalation or hidden parser fallback. `template` is an explicit offline baseline; `hybrid` is rejected. Both runners record the actual model, options, prompts and source hash.
+- Submission accepts only `submit_answer(request_id)` for a successful calculation observed in the current run. The serializer formats that stored result without calling another solver. Model prose cannot create an answer. Each question receives a fresh temporary navigator session built from the supplied building, with constraints set before inference.
+- Added pure route/tour queries with explicit starts and temporary closures. The shared spatial solver preserves supplied mobility, width, closure and room transit restrictions. Spatial result metadata includes effective building closures and implicit step-free requirements.
+- Independent read-only review found one endpoint defect: restricted room types were blocked even when they were a start or destination. Fixed endpoint exceptions per candidate and route leg. Tests also ensure restricted rooms cannot become transit shortcuts, including vertical connector spaces. No room type is globally exempted.
+- Updated `agent/README.md` and `BENCHMARK.md`. Historical measured scores remain labelled by their version. Current common-agent language quality is not inferred from old template or fallback results.
+
+Commands actually run:
+
+- `scripts/check.sh > /tmp/tyb-common-agent-check-final.log 2>&1`: 773 Python tests passed; kit oracle 369/369; core text 138/138. The script stopped at frontend tests. It exposed the known AR signed-zero assertion and a timing error in the new desk chat test. The latter now waits for a ready session before sending input.
+- After the final endpoint/connector and test changes, `PYTHON_DOTENV_DISABLED=1 ANTHROPIC_API_KEY='' uv run pytest -q`: **774 passed in 60.26 s**. Log: `/tmp/tyb-common-agent-pytest-final.log`.
+- Final `cd web/app && bun test src`: **197 passed, 1 failed**. Only unchanged `src/camera/ar/ArSession.test.ts:23` fails on `-0` versus `0`. Log: `/tmp/tyb-common-agent-frontend-final.log`.
+- `cd web/app && bun run build`: passed. Log: `/tmp/tyb-common-agent-build-final.log`. The existing Three.js chunk warning remains. `bun scripts/build-device-gate.ts`: passed.
+- `PYTHON_DOTENV_DISABLED=1 uv run python -m server.export_openapi` and `cd web/app && bun run gen:api`: passed. Registry export now includes 17 admin tools, 11 navigator tools and the pure queries.
+- Independent review checks: 227 core/route/submission/entrypoint tests and 148 state/budget/isolation/discovery tests passed; six factory registry/submission cases scored correctly with scripted SDK responses. These are offline integration checks, not model accuracy measurements.
+- `git diff --check`: passed. `git diff --exit-code -- data starter_agent benchmark AGENTS.md web/app/AGENTS.md`: passed.
+
+The full repository gate remains blocked by the existing AR assertion. Current code is local only, with no commit, push, merge or deployment. No paid requests or live account changes. Current provider schema acceptance, model tool choices, final prose accuracy and microphone behavior remain unverified. Hosted ElevenLabs tool definitions still need a separately authorized account update. The architecture/check artifact is `output/common-agent-core.html`.
+
+## Main integration and pull request preparation, 25 Oct 2026
+
+The user approved integrating latest main, fixing the existing AR assertion, running combined checks and independent reviews, then committing, pushing and opening a real pull request. Merge and deployment are excluded.
+
+- Rebased the unpublished refactor onto main `96cc8cd`. Integration preserves team entry, Colab initialization, the focused/isometric desktop, parts panel and the newer conversational voice UI. Calculation explainability remains removed. Agent calculation metadata remains for submission result selection.
+- The combined voice bridge retains typed messages, real transcripts, orb/mute/end/retry and browser desk actions. It adds registered server turns and guards for server and browser tools. The AR depth assertion now treats signed zero as the same coordinate; geometry code is unchanged.
+- Regenerated OpenAPI, tool definitions and TypeScript contracts after combining the server. The offline CI Sunday rehearsal now selects `--mode template` explicitly. The default benchmark remains the LLM agent.
+- First combined Python run: 826 passed; only the still-conflicted navigator prompt failed its length check. After prompt resolution, `tests/agent/test_prompts_budget.py`: 17 passed. Combined frontend run: 312 passed; production build passed with the existing Three.js chunk warning.
+- `core.check_geometry data/dev`: passed. `core.evaluate data/dev data/train --check structured`: 517/517. Submission CSV validation passed. Explicit template Sunday rehearsal answered 15/15 without errors.
+- First HTTP/WebSocket/restart rehearsal completed its application assertions, then failed its final source-stability assertion because concurrent frontend integration changed the checkout. It must be repeated on a fixed tree.
+- Browser checks use real local API and isolated state with empty provider keys. Desktop 1280x800 and phone 390x844 show the actual unavailable-service error and retain the request for retry. Phone retry makes another HTTP request. No horizontal overflow was found. Evidence is in `docs/agent-ui/` for upload with the PR.
+- Native preview snapshot failed twice with a 15000ms timeout. Playwright used existing cached Chromium; no installed app was replaced. Docker is not running locally; the production image build/smoke must run in CI.
+
+Final repository gate, fixed-tree HTTP rehearsal and independent review remain in progress. No paid calls, live account edits, merge or deployment.

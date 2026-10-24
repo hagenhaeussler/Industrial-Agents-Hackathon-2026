@@ -52,7 +52,7 @@ jobs:
         run: |
           mkdir -p agent_output/reports/ci-sunday
           uv run python -m bench.run_benchmark --make-questions data/dev/proc-factory-dev-003 agent_output/reports/ci-sunday/questions.json
-          uv run python -m bench.run_benchmark data/dev/proc-factory-dev-003 agent_output/reports/ci-sunday/questions.json agent_output/reports/ci-sunday/answers.json --csv agent_output/reports/ci-sunday/answers.csv
+          uv run python -m bench.run_benchmark data/dev/proc-factory-dev-003 agent_output/reports/ci-sunday/questions.json agent_output/reports/ci-sunday/answers.json --csv agent_output/reports/ci-sunday/answers.csv --mode template
           python - <<'PY'
           import json
           from pathlib import Path

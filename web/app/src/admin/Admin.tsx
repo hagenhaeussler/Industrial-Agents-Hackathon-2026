@@ -162,11 +162,13 @@ function AdminScreen() {
     if (voice.status === 'connecting') return;
     try {
       const reply = await api.chat(session.session_id, ask.trim());
-      setNotice({ text: reply.reply, tone: 'ok' });
+      const incomplete = reply.status !== undefined && reply.status !== 'completed';
+      setNotice({ text: reply.reply, tone: incomplete ? 'error' : 'ok' });
+      if (reply.status === 'superseded') return;
       const proposal = reply.tool_calls.find(call => call.ok && call.tool === 'propose_edit')?.result as unknown as EditPreview | undefined;
       if (proposal && model) { const target = targetOf(model, proposal.edit.target); if (target) setPreview({ ...proposal, target, opId: uuid() }); }
       if (reply.tool_calls.some(call => call.ok && (call.tool === 'commit_edit' || call.tool === 'undo'))) { setPreview(null); void reload(); }
-      setAsk('');
+      if (!incomplete) setAsk('');
     } catch (error) {
       setNotice({ text: error instanceof ApiError && [404, 501, 503].includes(error.status) ? 'Text and voice commands are not connected yet. Use the controls below or click a lift, stair or door on the map.' : message(error), tone: 'error' });
     }

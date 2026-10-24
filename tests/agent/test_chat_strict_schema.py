@@ -7,7 +7,8 @@ from types import SimpleNamespace
 import anthropic
 import httpx2
 
-from agent.chat import ChatAgent, MODEL, strict_schema
+from agent.chat import ChatAgent, MODEL
+from agent.schema import strict_schema
 from server.tools import REGISTRY, ToolRegistry
 
 
@@ -56,20 +57,7 @@ def test_required_nullable_fields_remain_nullable_and_property_names_survive():
     assert adapted["properties"]["nullable"]["anyOf"][1] == {"type": "null"}
 
 
-def schema_counts(schema):
-    if isinstance(schema, list):
-        counts = [schema_counts(item) for item in schema]
-    elif isinstance(schema, dict):
-        counts = [schema_counts(value) for value in schema.values()]
-        optional = len(set(schema.get("properties", {})) - set(schema.get("required", []))) if schema.get("type") == "object" else 0
-        unions = int("anyOf" in schema or isinstance(schema.get("type"), list))
-        counts.append((optional, unions))
-    else:
-        return 0, 0
-    return tuple(sum(count[index] for count in counts) for index in range(2))
-
-
-def test_actual_sdk_payload_uses_supported_strict_tools_and_registry_rejects_bad_width():
+def test_actual_sdk_payload_keeps_domain_schemas_and_registry_rejects_bad_width(execution_factory):
     # The bad width fails in the real registry's Pydantic model before any
     # geometry operation, so only its session/version read seam needs a stub.
     session = {"session_id": "offline", "building_id": "unit", "role": "navigator",
@@ -81,14 +69,10 @@ def test_actual_sdk_payload_uses_supported_strict_tools_and_registry_rejects_bad
     def respond(request):
         payload = json.loads(request.content)
         requests.append(payload)
-        assert len(payload["tools"]) == 11
+        assert {tool["name"] for tool in payload["tools"]} == {definition.name for definition in REGISTRY.values() if "navigator" in definition.roles}
         for tool in payload["tools"]:
-            assert tool["strict"] is True
-            assert_supported(tool["input_schema"])
-        optional, unions = schema_counts([tool["input_schema"] for tool in payload["tools"]])
-        assert optional <= 24
-        assert unions <= 16
-        assert unions == 0
+            assert tool["strict"] is False
+            assert tool["input_schema"] == REGISTRY[tool["name"]].json_schema
         first = len(requests) == 1
         content = ([{"type": "tool_use", "id": "offline-route", "name": "route",
                      "input": {"destination": "a", "step_free": False, "min_door_width_m": -1}}]
@@ -100,7 +84,7 @@ def test_actual_sdk_payload_uses_supported_strict_tools_and_registry_rejects_bad
 
     with httpx2.Client(transport=httpx2.MockTransport(respond)) as transport:
         sdk = anthropic.Anthropic(api_key="offline-test-only", max_retries=0, http_client=transport)
-        result = ChatAgent(registry, store.get_session, client=sdk).reply("offline", "Use a negative door width.")
+        result = ChatAgent(execution_factory(registry, store.get_session), client=sdk).reply("offline", "Use a negative door width.")
     assert len(requests) == 2
     assert len(result["tool_calls"]) == 1
     assert result["tool_calls"][0]["ok"] is False

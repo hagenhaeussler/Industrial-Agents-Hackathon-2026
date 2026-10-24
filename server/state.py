@@ -212,6 +212,23 @@ class StateStore:
     def _version(db, building_id):
         return db.execute("SELECT COALESCE(MAX(building_version),0) FROM events WHERE building_id=? AND archived=0", (building_id,)).fetchone()[0]
 
+    def merge_mobility(self, session_id: str, requested: dict) -> dict:
+        """Persist validated navigation needs without losing concurrent session updates."""
+        with self.connect(write=True) as db:
+            current = self._session(db.execute("SELECT * FROM sessions WHERE session_id=?", (session_id,)).fetchone())
+            constraints, profile = dict(current["constraints"]), current["profile"]
+            if requested.get("step_free") is True:
+                constraints["step_free"] = True
+                if profile == "walk":
+                    profile = "wheelchair"
+            if "min_door_width_m" in requested:
+                constraints["min_door_width_m"] = max(constraints.get("min_door_width_m", 0), requested["min_door_width_m"])
+            if profile != current["profile"] or constraints != current["constraints"]:
+                db.execute("UPDATE sessions SET profile=?,constraints_json=?,updated_at=? WHERE session_id=?",
+                           (profile, encode(constraints), now(), session_id))
+                return self._session(db.execute("SELECT * FROM sessions WHERE session_id=?", (session_id,)).fetchone())
+            return current
+
     def version(self, building_id):
         with self.connect() as db:
             return self._version(db, building_id)

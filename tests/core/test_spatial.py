@@ -190,3 +190,92 @@ def test_plain_building_spatial_solves_reuse_walk_cache(monkeypatch):
     assert solve(building, "errand", inputs) == first
     assert computations == []
     assert building.walks == {}
+
+
+def test_shared_solver_preserves_saved_width_for_reachable_counts():
+    building = load_building(fixture())
+    inputs = {'start': 'a', 'floor_id': 'f0', 'min_width': 0.1}
+    assert solve(building, 'wide_delivery_count', inputs)['value'] == 2
+    assert solve(building, 'wide_delivery_count', inputs,
+                 constraints={'min_door_width_m': 1.0})['value'] == 1
+
+
+def test_shared_solver_preserves_closures_for_errands():
+    building = load_building(fixture())
+    inputs = {'start': 'a', 'asset_type': 'desk', 'floor_id': 'f0', 'room_type': 'office'}
+    assert solve(building, 'errand', inputs)['via'] == 'b'
+    with pytest.raises(CoreError, match='No reachable desk'):
+        solve(building, 'errand', inputs, constraints={'closed': ['ab']})
+    assert building.closed == set()
+
+
+def test_shared_solver_uses_no_transit_restrictions_for_reachability():
+    building = load_building(fixture())
+    inputs = {'start': 'a', 'floor_id': 'f1', 'closed': []}
+    assert solve(building, 'step_free_reachable_count', inputs)['value'] == 1
+    assert solve(building, 'step_free_reachable_count', inputs,
+                 constraints={'no_transit_room_types': ['lobby']})['value'] == 0
+
+
+def test_hypothetical_door_preserves_saved_width_and_source_data():
+    building = load_building(fixture())
+    before = copy.deepcopy(building.data)
+    result = solve(building, 'what_if_door', {'first': 'a', 'second': 'b', 'floor_id': 'f0'},
+                   constraints={'min_door_width_m': 1.0})
+    assert result['value'] == 0  # The proposed 0.9 m door cannot admit this load.
+    assert building.data == before
+
+
+@pytest.mark.parametrize('start', ['a', 'h'])
+def test_restricted_room_types_remain_valid_reachability_endpoints(start):
+    building = load_building(fixture())
+    result = solve(building, 'step_free_reachable_count',
+                   {'start': start, 'floor_id': 'f1', 'closed': []},
+                   constraints={'no_transit_room_types': ['office']})
+    assert result['space_ids'] == ['c']
+
+
+def test_reachability_does_not_use_other_restricted_destinations_for_transit():
+    building = load_building(fixture())
+    result = solve(building, 'step_free_reachable_count',
+                   {'start': 'h', 'floor_id': 'f0', 'closed': []},
+                   constraints={'no_transit_room_types': ['office']})
+    assert result['space_ids'] == ['a']  # Reaching b would require transit through a.
+
+
+def test_errand_allows_restricted_start_pickup_and_target():
+    raw = fixture()
+    raw['assets'][0].update(space_id='c', floor_id='f1', position=[2, 2])
+    building = load_building(raw)
+    inputs = {'start': 'a', 'asset_type': 'desk', 'floor_id': 'f3', 'room_type': 'office'}
+    result = solve(building, 'errand', inputs, constraints={'no_transit_room_types': ['office']})
+    assert (result['via'], result['target']) == ('c', 'd')
+    assert result['length_m'] == solve(building, 'errand', inputs)['length_m']
+
+
+def test_errand_keeps_restricted_transit_blocked_on_second_leg():
+    building = load_building(fixture())
+    with pytest.raises(CoreError, match='unreachable from pickup'):
+        solve(building, 'errand', {'start': 'a', 'asset_type': 'desk', 'floor_id': 'f1', 'room_type': 'office'},
+              constraints={'no_transit_room_types': ['office']})
+
+
+def test_hypothetical_door_allows_restricted_entrance_and_destination():
+    raw = fixture()
+    raw['openings'] = [opening for opening in raw['openings'] if opening['id'] != 'ab']
+    result = solve(load_building(raw), 'what_if_door', {'first': 'a', 'second': 'b', 'floor_id': 'f0'},
+                   constraints={'no_transit_room_types': ['office']})
+    assert result['improved_space_ids'] == ['b']
+
+
+def test_restricted_connector_spaces_cannot_be_used_for_vertical_transit():
+    raw = fixture()
+    for space in raw['spaces']:
+        if space['id'] == 'l1':
+            space['room_type'] = 'restricted'
+    raw['vertical_connectors'] = [connector for connector in raw['vertical_connectors'] if connector['kind'] == 'stairs']
+    core = SpatialCore(raw)
+    constraints = Constraints(no_transit_room_types={'restricted'})
+    assert core.constrained_route('a', 'l1', constraints)['length_m'] > 0
+    with pytest.raises(MapError, match='No route'):
+        core.constrained_route('a', 'd', constraints)

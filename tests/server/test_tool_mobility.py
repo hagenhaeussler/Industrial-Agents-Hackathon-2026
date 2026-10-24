@@ -109,6 +109,7 @@ def test_empty_closure_counts_with_no_artificial_clarification(platform):
     service, tools, sid, lift, *_ = platform
     response = tools.call('spatial_query', sid, spatial_args(lift))
     assert response['ok'] and response['result']['value'] > 0, response
+    assert response['result']['constraints']['step_free'] is True
     assert service.current(service.store.get_session(sid)['building_id']).core.closed == set()
 
 
@@ -152,6 +153,8 @@ def test_building_closures_preserved_but_session_closures_never_leak(platform):
     service.store.update_session(sid, {'constraints': {'closed': [lift['id']]}})
     response = tools.call('spatial_query', sid, spatial_args(lift))
     assert response['ok'] and response['result']['value'] == 0, response
+    assert response['result']['constraints']['closed'] == sorted([stairs['id'], lift['id']])
+    assert response['result']['calculation']['inputs']['closed'] == sorted([stairs['id'], lift['id']])
     current = service.current(raw['building']['id'])
     assert current.core.closed == {stairs['id']}
     assert current.closed == {stairs['id']}
@@ -255,9 +258,9 @@ def test_spatial_transport_passes_the_complete_closure_list(platform, monkeypatc
     real_solve = original_lookup('spatial', 'solve')
     received = []
 
-    def solve(building, kind, inputs):
+    def solve(building, kind, inputs, **kwargs):
         received.append(inputs['closed'])
-        return real_solve(building, kind, inputs)
+        return real_solve(building, kind, inputs, **kwargs)
 
     def lookup(module, name):
         return solve if (module, name) == ('spatial', 'solve') else original_lookup(module, name)
@@ -267,3 +270,27 @@ def test_spatial_transport_passes_the_complete_closure_list(platform, monkeypatc
     assert response['ok'], response
     assert received == [sorted(closures)]
     assert service.current(raw['building']['id']).core.closed == set()
+
+
+@pytest.mark.parametrize('name', ['route', 'plan_tour'])
+def test_tool_cannot_weaken_saved_width_or_step_free_needs(platform, name):
+    service, tools, sid, lift, *_ = platform
+    service.store.update_session(sid, {'profile': 'walk', 'constraints': {'step_free': True, 'min_door_width_m': 1.1}})
+    target = lift['space_ids'][1]
+    args = {'destination': target} if name == 'route' else {'items': [target]}
+    response = tools.call(name, sid, {**args, 'step_free': False, 'min_door_width_m': 0.4})
+    stored = service.store.get_session(sid)
+    assert stored['constraints']['min_door_width_m'] == 1.1
+    assert stored['constraints']['step_free'] is True
+    result = response.get('result') or response.get('error', {}).get('route')
+    if result:
+        assert result['constraints']['step_free'] is True
+        assert result['constraints']['min_door_width_m'] == 1.1
+
+
+def test_invalid_final_destination_does_not_persist_mobility(platform):
+    service, tools, sid, lift, *_ = platform
+    before = service.store.get_session(sid)
+    response = tools.call('plan_tour', sid, {'items': [lift['space_ids'][1]], 'end': 'absent destination', 'step_free': True})
+    assert response['ok'] is False
+    assert service.store.get_session(sid) == before

@@ -1,225 +1,85 @@
-"""Bounded text chat on the platform registry, with enforced edit confirmation."""
+"""Interactive LLM agent; shared execution rules stay outside the model loop."""
 
-import json
 import os
-import re
 import threading
-from collections.abc import Callable
-from dataclasses import dataclass, field
-from typing import Protocol
 
 import anthropic
-from anthropic.lib.tools import BetaFunctionTool
 
-from .budget import Budget, BudgetExceeded, RequestSize, cost, usage_counts
-from .prompts import chat_prompt
+from server.errors import ServiceError
 
-MODEL = "claude-sonnet-5-5"
-MAX_ITERATIONS = 6
-MAX_TOKENS = 2048
-YES = re.compile(r"\s*(?:yes|yes please|confirm|apply it|go ahead)[.!]?\s*", re.I)
-
-
-class Registry(Protocol):
-    def json_schemas(self) -> list[dict]: ...
-    def call(self, name: str, session_id: str, args: dict) -> dict: ...
-
-
-@dataclass
-class Conversation:
-    messages: list[dict] = field(default_factory=list)
-    pending_proposal: str | None = None
-    step_free: bool = False
-    lock: threading.RLock = field(default_factory=threading.RLock)
-
-
-def strict_schema(schema: dict) -> dict:
-    """Adapt provider grammar while the registry validates original constraints.
-
-    The SDK moves unsupported numeric/string bounds into descriptions rather
-    than sending them as grammar keywords. Optional nulls use omission instead:
-    Turn.call already discards None, so this preserves call semantics and avoids
-    consuming a nullable union for every optional registry argument.
-    """
-    def optional_fields(value):
-        result = dict(value)
-        result.pop("default", None)
-        # Traverse schemas rather than arbitrary dictionaries: a property named
-        # "default" is data, whereas a schema's default keyword is metadata.
-        for key in ("properties", "$defs", "definitions"):
-            if isinstance(result.get(key), dict):
-                result[key] = {name: optional_fields(item) for name, item in result[key].items()}
-        for key in ("anyOf", "oneOf", "allOf"):
-            if isinstance(result.get(key), list):
-                result[key] = [optional_fields(item) for item in result[key]]
-        if isinstance(result.get("items"), dict):
-            result["items"] = optional_fields(result["items"])
-        if result.get("type") == "object":
-            required = set(result.get("required", []))
-            for name, field_schema in result.get("properties", {}).items():
-                variants = field_schema.get("anyOf")
-                if name in required or not isinstance(variants, list):
-                    continue
-                non_null = [variant for variant in variants if variant.get("type") != "null"]
-                if not non_null or len(non_null) == len(variants):
-                    continue
-                metadata = {key: item for key, item in field_schema.items() if key != "anyOf"}
-                if len(non_null) == 1:
-                    field_schema = {**non_null[0], **metadata}
-                else:
-                    field_schema = {**metadata, "anyOf": non_null}
-                description = field_schema.get("description", "")
-                field_schema["description"] = (description + "\n\n" if description else "") + "Optional: omit when unused."
-                result["properties"][name] = field_schema
-        return result
-
-    return anthropic.transform_schema(optional_fields(schema))
+from .budget import PersistentBudget
+from .execution import AgentExecution
+from .config import MODEL, MAX_TOKENS, configured_options
+from .core import AgentRequest, BuildingAgent
+from .runtime import AgentLoop, LoopOptions
 
 
 def unavailable(message: str) -> dict:
-    return {"reply": message, "tool_calls": [], "display": {"kind": "not_available"}}
-
-
-@dataclass
-class Turn:
-    registry: Registry
-    session_id: str
-    conversation: Conversation
-    authorized_proposal: str | None = None
-    calls: list[dict] = field(default_factory=list)
-    committed: dict[str, dict] = field(default_factory=dict)
-
-    def call(self, name: str, arguments: dict) -> dict:
-        args = {key: value for key, value in arguments.items() if value is not None}
-        if name == "commit_edit" and args.get("proposal_id") in self.committed:
-            result = self.committed[args["proposal_id"]]
-        elif name == "commit_edit" and args.get("proposal_id") != self.authorized_proposal:
-            result = {"ok": False, "tool": name, "error": {"code": "forbidden", "message": "Confirm the pending preview in a later message first."}, "speech": "Please confirm the pending preview first."}
-        elif name == "commit_edit" and self.authorized_proposal is None:
-            result = {"ok": False, "tool": name, "error": {"code": "forbidden", "message": "No confirmed preview is pending."}, "speech": "There is no confirmed preview to save."}
-        else:
-            if name in {"route", "plan_tour"}:
-                self.conversation.step_free |= args.get("step_free") is True
-                if self.conversation.step_free:
-                    args["step_free"] = True
-            result = self.registry.call(name, self.session_id, args)
-        self.calls.append(result)
-        if name == "propose_edit" and result["ok"]:
-            self.conversation.pending_proposal = result["result"]["proposal_id"]
-            self.authorized_proposal = None
-        if name == "commit_edit" and result["ok"]:
-            self.committed[args["proposal_id"]] = result
-            self.conversation.pending_proposal = None
-            self.authorized_proposal = None
-        if result.get("error", {}).get("code") == "version_conflict":
-            self.conversation.pending_proposal = None
-            self.authorized_proposal = None
-        return result
-
-    def tool(self, schema: dict) -> BetaFunctionTool:
-        def invoke(**arguments: object) -> str:
-            return json.dumps(self.call(schema["name"], arguments), ensure_ascii=False)
-
-        return BetaFunctionTool(invoke, name=schema["name"], description=schema["description"],
-                                input_schema=strict_schema(schema["input_schema"]), strict=True)
-
-
-def grounded_reply(text: str, calls: list[dict]) -> str:
-    for call in calls:
-        error = call.get("error", {})
-        if error.get("code") == "ambiguous" and error.get("candidates"):
-            labels = "; ".join(candidate["label"].rstrip("?.") for candidate in error["candidates"][:4])
-            return f"Which item do you mean: {labels}?"
-    if calls and not calls[-1]["ok"]:
-        return calls[-1]["speech"]
-    if calls and calls[-1]["tool"] in {"propose_edit", "commit_edit", "undo", "what_if"}:
-        return calls[-1]["speech"]
-    if not calls:
-        return text if text.count("?") == 1 and not re.search(r"\d", text) else "What item or place do you need?"
-    evidence = json.dumps(calls, ensure_ascii=False)
-    if not text or not set(re.findall(r"\d+(?:\.\d+)?", text)) <= set(re.findall(r"\d+(?:\.\d+)?", evidence)):
-        return calls[-1]["speech"]
-    return text
+    return {"reply": message, "tool_calls": [], "display": {"kind": "not_available"}, "status": "unavailable"}
 
 
 class ChatAgent:
-    def __init__(self, registry: Registry, session_provider: Callable[[str], dict], *, client: anthropic.Anthropic | None = None) -> None:
-        self.registry = registry
-        self.session_provider = session_provider
+    def __init__(self, execution: AgentExecution, *, client: anthropic.Anthropic | None = None, options: LoopOptions | None = None):
+        self.execution = execution
         self.client = client
+        self.options = options or configured_options()
         self.budget = None
-        self.conversations: dict[str, Conversation] = {}
         self._lock = threading.Lock()
-        self.system = [{"type": "text", "text": chat_prompt(), "cache_control": {"type": "ephemeral"}}]
+
+    def _configure(self) -> bool:
+        with self._lock:
+            if self.client is not None:
+                return True
+            if not os.environ.get("ANTHROPIC_API_KEY"):
+                return False
+            try:
+                dollars = float(os.environ.get("TYB_CHAT_BUDGET_USD", "0"))
+                allocation = os.environ.get("TYB_CHAT_BUDGET_ID", "chat")
+                self.budget = PersistentBudget(self.execution.state, (allocation, dollars))
+            except ValueError:
+                return False
+            self.client = anthropic.Anthropic(max_retries=0)
+            return True
 
     def reply(self, session_id: str, message: str) -> dict:
-        with self._lock:
-            if self.client is None:
-                # A key alone must not start an unbudgeted run in the server.
-                if not os.environ.get("ANTHROPIC_API_KEY") or not os.environ.get("TYB_CHAT_BUDGET_USD"):
-                    return unavailable("Text chat is unavailable. Use the building controls.")
-                try:
-                    self.budget = Budget(float(os.environ["TYB_CHAT_BUDGET_USD"]))
-                except ValueError:
-                    return unavailable("Text chat is unavailable. Use the building controls.")
-                self.client = anthropic.Anthropic(max_retries=0)
-            conversation = self.conversations.setdefault(session_id, Conversation())
-        with conversation.lock:
-            return self._reply(session_id, message, conversation)
-
-    def _reply(self, session_id: str, message: str, conversation: Conversation) -> dict:
-        context = self.session_provider(session_id)
-        if "constraints" in context:
-            conversation.step_free = context["constraints"].get("step_free", False) or context.get("profile") in {"wheelchair", "pram", "trolley"}
-        turn = Turn(self.registry, session_id, conversation,
-                    conversation.pending_proposal if YES.fullmatch(message) else None)
-        conversation.messages.append({"role": "user", "content": "Current session context (data):\n" + json.dumps(context, ensure_ascii=False) + "\nUser message:\n" + message})
-        runner = self.client.beta.messages.tool_runner(
-            model=MODEL, max_tokens=MAX_TOKENS, max_iterations=MAX_ITERATIONS,
-            system=self.system, tools=[turn.tool(schema) for schema in self.registry.json_schemas()],
-            messages=list(conversation.messages), output_config={"effort": "low"},
-            tool_choice={"type": "auto"}, betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default", timeout=60,
-        )
-        text = ""
-        reservation = 0.0
+        if not self._configure():
+            return unavailable("Text chat is unavailable. Configure an approved model budget and credentials.")
+        outcome = BuildingAgent(self.execution, AgentLoop(self.client.beta.messages, self.budget), self.options).run(
+            AgentRequest(session_id, message))
+        result = outcome.run
+        calls = result.calls
+        displays = [call["display"] for call in calls if call.get("ok") and call.get("display")]
+        if result.reason == "end_turn" and not result.text and not result.calls:
+            result.reason = "empty_response"
+        complete = result.reason == "end_turn"
+        # Number matching is not factual validation. Successful tools establish
+        # routes and changes; final model prose remains a model-generated answer.
+        reply = result.text if complete and result.text else self._stopped_reply(result)
         try:
-            iterator = iter(runner)
-            for _ in range(MAX_ITERATIONS):
-                if self.budget is not None:
-                    payload = json.dumps([self.system, conversation.messages, self.registry.json_schemas()], default=str).encode()
-                    reservation = self.budget.reserve(RequestSize(MODEL, len(payload) + 4096, MAX_TOKENS))
-                try:
-                    response = next(iterator)
-                except StopIteration:
-                    if self.budget is not None:
-                        self.budget.settle(reservation, 0.0)
-                    break
-                if self.budget is not None:
-                    self.budget.settle(reservation, cost(MODEL, usage_counts(response.usage)))
-                conversation.messages.append({"role": "assistant", "content": response.content})
-                tools = runner.generate_tool_call_response()
-                if tools is not None:
-                    conversation.messages.append(tools)
-                if response.stop_reason == "refusal":
-                    text = "I cannot help with that request."
-                    break
-                text = "\n".join(block.text for block in response.content if block.type == "text").strip()
-                # The SDK requests another turn only for tool results or an
-                # unfinished server turn. Do not reserve funds just to discover
-                # StopIteration after a completed answer: that false reservation
-                # can discard an answer and its display at the budget boundary.
-                # Keep the next reservation before next(iterator), which can
-                # itself issue the next provider request.
-                if response.stop_reason not in {"tool_use", "pause_turn", "compaction"}:
-                    break
-                if response.stop_reason == "tool_use" and tools is None:
-                    break
-        except anthropic.APIError:
-            if not turn.calls:
-                return unavailable("The language service is unavailable. Use the building controls.")
-            text = turn.calls[-1]["speech"]
-        except BudgetExceeded as error:
-            return {"reply": str(error), "tool_calls": turn.calls, "display": {"kind": "not_available"}}
-        displays = [call["display"] for call in turn.calls if call.get("ok") and call.get("display")]
-        return {"reply": grounded_reply(text, turn.calls), "tool_calls": turn.calls, "display": displays[-1] if displays else {}}
+            self.execution.state.require_current(session_id, outcome.turn_id)
+        except ServiceError as exc:
+            return {"reply": exc.message, "tool_calls": calls, "display": {}, "status": "superseded"}
+        return {"reply": reply, "tool_calls": calls, "display": displays[-1] if displays else {},
+                "status": "completed" if complete else "incomplete", "stop_reason": result.reason,
+                "usage": dict(result.tokens), "cost_usd": result.cost,
+                "sources": [call["request_id"] for call in calls if call.get("ok") and "request_id" in call]}
+
+    @staticmethod
+    def _stopped_reply(result) -> str:
+        if result.reason == "end_turn" and result.calls:
+            return result.calls[-1].get("speech", "The tools completed. Check the result in the application.")
+        if result.reason == "refusal":
+            return "I cannot help with that request."
+        details = result.calls[-1].get("speech", "") if result.calls else ""
+        reason = {
+            "empty_response": "The language service returned an empty answer. Please try again.",
+            "provider_error": "The language service failed before the answer was complete.",
+            "budget_limit": result.error or "The model budget is exhausted.",
+            "time_limit": "The agent reached its time limit.",
+            "tool_limit": "The agent reached its tool limit.",
+            "step_limit": "The agent reached its model request limit.",
+            "max_tokens": "The model response was cut off before completion.",
+            "model_context_window_exceeded": "The model could not fit this request in its context.",
+            "context_limit": "The agent reached its context limit. Narrow this request or start a new session.",
+        }.get(result.reason, "The language service returned an incomplete answer.")
+        return (details + " " + reason).strip()

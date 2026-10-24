@@ -123,6 +123,24 @@ def call_tool(name: str, body: schemas.ToolCall, request: Request):
     return request.app.state.registry.call(name, body.session_id, body.args)
 
 
+@router.post('/agent/turns', response_model=schemas.AgentTurnResponse, tags=['agent'])
+def begin_voice_turn(body: schemas.AgentTurnInput, request: Request):
+    """Register a user transcript outside the model-callable tool catalogue."""
+    turn = request.app.state.agent_execution.begin(body.session_id, body.message, 'voice')
+    return {'turn_id': turn.turn_id}
+
+
+@router.get('/agent/tools', tags=['agent'])
+def agent_tool_definitions(session_id: str, request: Request):
+    return request.app.state.agent_execution.definitions(session_id)
+
+
+@router.post('/agent/tools/{name}', response_model=schemas.ToolResponse, response_model_exclude_none=True, tags=['agent'])
+def call_agent_tool(name: str, body: schemas.AgentToolCall, request: Request):
+    from agent.execution import AgentCall
+    return request.app.state.agent_execution.call(AgentCall(body.session_id, body.turn_id, name, body.args))
+
+
 @router.get('/buildings/{building_id}/events', tags=['events'])
 def get_events(building_id: str, request: Request, since: int = Query(default=0, ge=0)) -> list[dict]:
     service, store = components(request)
@@ -248,7 +266,7 @@ async def chat(body: schemas.ChatInput, request: Request):
     import anyio
     state = request.app.state
     await anyio.to_thread.run_sync(state.store.get_session, body.session_id)
-    if not os.environ.get('ANTHROPIC_API_KEY'):
+    if state.chat_agent is None and not os.environ.get('ANTHROPIC_API_KEY'):
         raise ServiceError('not_available', 'Text chat is not configured. Use the building controls.', status=503)
     if state.chat_agent is None:
         try:
@@ -257,7 +275,10 @@ async def chat(body: schemas.ChatInput, request: Request):
             if exc.name not in ('agent', 'agent.chat'):
                 raise
             raise ServiceError('not_available', 'Text chat is not available yet. Use the building controls.', status=503) from exc
-        state.chat_agent = ChatAgent(state.registry, state.store.get_session)
+        try:
+            state.chat_agent = ChatAgent(state.agent_execution)
+        except ValueError as exc:
+            raise ServiceError('not_available', 'The agent configuration is invalid. Check the server settings.', status=503) from exc
     reply = state.chat_agent.reply
     if inspect.iscoroutinefunction(reply):
         return await reply(body.session_id, body.message)

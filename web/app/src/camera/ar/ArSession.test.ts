@@ -20,7 +20,7 @@ describe('exact current-floor route ribbon', () => {
     for (let i = 0; i < vertices.length; i += 3) {
       expect(Math.abs(vertices[i]!)).toBeCloseTo(0.08)
       expect(vertices[i + 1]).toBeCloseTo(-1.38)
-      expect([0, -10]).toContain(vertices[i + 2]!)
+      expect([0, -10].some(depth => depth === vertices[i + 2]!)).toBe(true)
     }
   })
   test('stops at the first vertical connector, including a return to the same floor', () => {

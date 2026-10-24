@@ -68,8 +68,12 @@ class PlatformService:
         constraints = {"step_free": session["profile"] in {"wheelchair", "step_free", "pram", "trolley"}, "min_door_width_m": 0.0,
                        "closed": [], "no_transit_room_types": [], **session.get("constraints", {})}
         original_closed = set(constraints.get("closed", []))
+        original_width = constraints["min_door_width_m"]
+        original_step_free = constraints["step_free"]
         constraints.update({k: v for k, v in (overrides or {}).items() if v is not None})
         constraints["closed"] = sorted(original_closed | set(constraints.get("closed", [])))
+        constraints["min_door_width_m"] = max(original_width, constraints["min_door_width_m"])
+        constraints["step_free"] = original_step_free or constraints["step_free"]
         if session["profile"] in {"wheelchair", "pram", "trolley", "step_free"}:
             constraints["step_free"] = True
         return constraints

@@ -1,6 +1,25 @@
 # Reproduce the building answers
 
-The deterministic agent answers the published English templates from question text and `building.json`. It needs no API key. The solver uses the unchanged kit 1.1.0 route model, profile `kit_1_1_0`.
+The default benchmark uses the same building agent as text chat. The LLM receives the original question and chooses platform tools. The serializer writes the final answer from a successful calculation selected by `request_id`.
+
+## Current behavior, 25 Oct 2026
+
+- Chat and submission share `BuildingAgent`, `AgentLoop`, model settings, the building prompt, navigator tools and execution policy. Submission adds only result selection and output formatting. Each question gets a fresh temporary SQLite session and the supplied building. Scoring stays outside inference.
+- Defaults: `claude-sonnet-5-5`, 24 model requests, 128 tool calls, 90 seconds per turn and 4,096 output tokens per request. `TYB_AGENT_*` settings apply to both paths. The Sunday worker has a separate 120-second hard timeout.
+- `query_route` and `query_tour` accept explicit starts and temporary closures. Supplied benchmark constraints enter the session before inference. Shared calculations preserve mobility, minimum width, closures and room transit restrictions. Restricted room types remain valid endpoints for a route leg.
+- `answer()` and `predict()` default to `llm`. A missing approved allocation or key returns an explicit unanswered result. A key alone cannot enable a paid run. There is no template fallback, `hybrid` mode or benchmark-specific model escalation.
+- The old parser is available only through explicit `--mode template`. Its historical scores below do not measure the current default agent. Historical live measurements also describe the earlier agent, not this refactor.
+
+Offline baseline commands:
+
+```sh
+PYTHON_DOTENV_DISABLED=1 ANTHROPIC_API_KEY='' uv run python -m bench.run data/dev --name dev-template --mode template
+PYTHON_DOTENV_DISABLED=1 ANTHROPIC_API_KEY='' uv run python -m bench.run_benchmark BUILDING_DIR QUESTIONS_FILE submissions/sunday_answers.json --csv submissions/sunday_answers.csv --mode template
+```
+
+For a separately authorized model run, use `--mode llm --max-cost DOLLARS` with server-side `ANTHROPIC_API_KEY`. Write the allocation in STATUS before execution. The official evaluator's `bench.agent:answer` entry point also requires an explicitly configured budget; its old no-key commands below are historical reproduction records.
+
+Current code and acceptance limits: [`agent/README.md`](agent/README.md). Offline tests verify control flow and calculations. Live language choices, provider acceptance of the current schemas, latency and answer quality remain unverified for this version.
 
 ## Completion audit, 24 Oct 2026
 
@@ -13,7 +32,7 @@ Rechecked the integrated `16d64cc` base with the fallback compatibility and Sund
 
 The fallback, adapter, submission and authored 48-question paraphrase set are present. Live fallback accuracy/cache measurements and the three-model human voice A/B comparison remain unmeasured. Organizer schema, unseen Sunday building/questions and the final freeze/release run require the actual event inputs. Existing live app/provider smoke evidence is separate in [`docs/live-provider-setup.md`](docs/live-provider-setup.md); the historical measurements below describe their own dated revisions.
 
-## Test submission
+## Historical test submission, 24 Oct 2026
 
 From the repository root:
 
@@ -90,10 +109,10 @@ The Sunday input format remains provisional. L04 must rerun the submission on th
 
 ## Sunday adapter
 
-This command uses only the template path when no budget is configured. A key alone cannot enable model calls.
+Select the offline baseline explicitly. The default is the common LLM agent and requires an approved allocation and credentials.
 
 ```sh
-env -u ANTHROPIC_API_KEY uv run python -m bench.run_benchmark BUILDING_DIR QUESTIONS_FILE submissions/sunday_answers.json --csv submissions/sunday_answers.csv
+env -u ANTHROPIC_API_KEY uv run python -m bench.run_benchmark BUILDING_DIR QUESTIONS_FILE submissions/sunday_answers.json --csv submissions/sunday_answers.csv --mode template
 ```
 
 Rehearsal commands actually run on 24 Oct 2026, after integrating C5 main `a8be9ec` at local merge `50b16ea`:
@@ -105,11 +124,13 @@ env -u ANTHROPIC_API_KEY uv run python -m bench.run_benchmark data/dev/proc-fact
 
 Result: 15 answered, 0 unanswered, 0 errors. Independently compared all seven route/tour legs with warm-up gold: exact `space_path` and `element_path`, lengths within 0.01 m. Converter output has only ID, text and kind. The adapter discards supplied gold `answer` and `inputs` fields.
 
-Inputs can be a JSON list, a questions object, JSONL (including one record), or the kit CSV. Outputs follow provisional CONTRACTS §12. Routes carry node, space and element paths, plus length. Tours include legs. Unreachable routes have empty paths and null length. Each question runs in a separate process with a hard timeout, 60 seconds by default; one failed question does not stop the batch. Output JSON is written atomically. Completed questions are checkpointed beside the output file.
+Inputs can be a JSON list, a questions object, JSONL (including one record), or the kit CSV. Outputs follow provisional CONTRACTS §12. Routes carry node, space and element paths, plus length. Tours include legs. Unreachable routes have empty paths and null length. Each question runs in a separate process with a hard timeout, 120 seconds by default; one failed question does not stop the batch. Output JSON is written atomically. Completed questions are checkpointed beside the output file.
 
-Explicit route/tour constraints override parsed constraints and are recorded under `constraint_overrides`. Unknown fields or invalid values are rejected by core. **Limit:** explicit constraints on other spatial kinds return an unanswered error. Their meaning is not defined by the current solver interface; no constraint is silently ignored. The organizers' final schema may need a change here.
+In LLM mode, constraints are validated and stored in the isolated session before the question reaches the model. Tool calls can add restrictions but cannot weaken them. In template mode, the legacy adapter applies explicit route/tour overrides after parsing and records `constraint_overrides`. That baseline still rejects constraints on other spatial kinds. The organizers' final schema remains provisional.
 
-## New wording and fallback
+## Historical wording and fallback, 24 Oct 2026
+
+This section records the earlier template/fallback design. The current common agent replaces that inference path. Commands and model limits in this section describe the historical version.
 
 The authored set has 48 paraphrases across all 15 kinds: four per benchmark kind and two per warm-up kind. Each source link preserves the building, rooms, floors and constraints. Only the evaluator joins the source answer. Inference receives the new question text and the building.
 
@@ -139,7 +160,7 @@ Measured on 24 Oct 2026, after merge `50b16ea`, with this checkpoint's source co
 
 The fallback is implemented and tested offline. It starts with `claude-haiku-5-5`, then permits one `claude-sonnet-5-5` attempt. Both use low effort and automatic tool choice. Tools are `building_facts`, `resolve`, `solve` and `submit_answer`. Only a validated `submit_answer` calls the solver and serializer to store the final answer. Model prose cannot create an answer. There are at most eight model responses, 4,000 output tokens per request, deadline checks at 60 seconds and a 7.5-second request timeout. The Sunday process supplies the hard wall-clock timeout; the plain in-process fallback has deadline checks between calls.
 
-System and tool cache markers are configured. Cache hits have not been measured. Current prompt version: `benchmark-fallback-v2` (small JSON-string envelope with typed local validation), templates `templates-v1`, chat `chat-v1`. Historical results above used fallback v1. Haiku is the planned first attempt, not a measured winner.
+System and tool cache markers are configured. Cache hits have not been measured. Historical prompt version: `benchmark-fallback-v2` (small JSON-string envelope with typed local validation), templates `templates-v1`, chat `chat-v1`. Historical results above used fallback v1. Haiku is the planned first attempt, not a measured winner.
 
 | Required live measurement | Status |
 |---|---|
@@ -149,7 +170,7 @@ System and tool cache markers are configured. Cache hits have not been measured.
 | Cache read on the second request | Not measured |
 | Voice model comparison with a human | Not run; provider setup and human pending |
 
-For a future authorized run, `bench.run` supports `--mode hybrid` or `--mode llm`, `--max-cost DOLLARS`, `--paraphrases PATH` and `--per-kind 2`. Run original benchmark and `--warmup` selections separately. The available dev set has only one step-free reachability source question. Reports break down kind, method and final model, with usage and cost retained across escalation. No paid run is approved or included here.
+For that earlier version, `bench.run` supported `--mode hybrid` or `--mode llm`, `--max-cost DOLLARS`, `--paraphrases PATH` and `--per-kind 2`. Run original benchmark and `--warmup` selections separately. The available dev set has only one step-free reachability source question. Reports break down kind, method and final model, with usage and cost retained across escalation. No paid run is approved or included here.
 
 A paid batch needs both `ANTHROPIC_API_KEY` and an explicit positive `--max-cost`, with its allocation written in STATUS before execution. Workers share a conservative budget; Sunday process workers receive fixed shares. Completed checkpoint cost is deducted before new work. Failed API calls without usage retain their reservation. Timed-out or crashed Sunday workers retain their full allocation as an upper bound, not a measured charge. SDK retries are disabled.
 

@@ -30,6 +30,8 @@ from .routes_live import router as live_router
 from .voice import router as voice_router
 from .teams import router as teams_router
 from .colab import ColabRuntime, router as colab_router
+from agent.execution import AgentExecution
+from agent.state import AgentState
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(application: FastAPI):
         try:
             await anyio.to_thread.run_sync(application.state.store.initialize)
+            await anyio.to_thread.run_sync(application.state.agent_state.initialize)
             if application.state.colab is not None:
                 await anyio.to_thread.run_sync(application.state.colab.initialize)
             application.state.state_dir_writable = True
@@ -101,6 +104,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.hub = BuildingHub()
     application.state.service = PlatformService(catalog, application.state.store, settings.profile, application.state.hub.notify)
     application.state.registry = ToolRegistry(application.state.service, application.state.hub.notify)
+    application.state.agent_state = AgentState(application.state.store)
+    application.state.agent_execution = AgentExecution(application.state.registry,
+        application.state.store.get_session, application.state.agent_state)
     application.state.markers = MarkerService(application.state.service, settings.public_base_url)
     application.state.service.marker_generator = application.state.markers.generate
     application.state.chat_agent = None

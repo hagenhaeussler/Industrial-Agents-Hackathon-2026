@@ -16,8 +16,7 @@ from agent.budget import paid_run_guard
 from core.building import content_hash
 from core.profiles import current_profile
 
-from .agent import PROMPT_VERSION, configure_budget, predict
-from .llm_fallback import PROMPT_VERSION as FALLBACK_PROMPT_VERSION
+from .agent import PROMPT_VERSION, configure_budget, predict, validate_mode
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "agent_output" / "bench"
@@ -30,7 +29,7 @@ class RunConfig:
     name: str
     csv: Path | None = None
     workers: int = 4
-    mode: str = "hybrid"
+    mode: str = "llm"
     kinds: tuple[str, ...] = ()
     limit: int | None = None
     warmup: bool = False
@@ -45,11 +44,30 @@ def revision() -> str:
 
 def source_hash() -> str:
     digest = hashlib.sha256()
-    for directory in ("bench", "agent", "core", "starter_agent"):
+    for directory in ("bench", "agent", "core", "server", "starter_agent"):
         for path in sorted((ROOT / directory).rglob("*.py")):
             digest.update(str(path.relative_to(ROOT)).encode())
             digest.update(path.read_bytes())
+    for path in sorted((ROOT / "agent" / "skills").glob("*.md")):
+        digest.update(str(path.relative_to(ROOT)).encode())
+        digest.update(path.read_bytes())
     return digest.hexdigest()
+
+
+def execution_context(mode: str) -> dict:
+    """Use the same model settings and prompt versions as inference."""
+    validate_mode(mode)
+    if mode == "template":
+        return {"mode": mode, "model": None, "agent_options": None,
+                "prompt_version": PROMPT_VERSION, "prompt_versions": {"template": PROMPT_VERSION}}
+    from agent.config import configured_options
+    from agent.prompts import PROMPT_VERSION as AGENT_PROMPT_VERSION
+    from .llm_fallback import PROMPT_VERSION as SUBMISSION_PROMPT_VERSION
+
+    options = asdict(configured_options())
+    versions = {"agent": AGENT_PROMPT_VERSION, "submission": SUBMISSION_PROMPT_VERSION}
+    return {"mode": mode, "model": options["model"], "agent_options": options,
+            "prompt_version": "+".join(versions.values()), "prompt_versions": versions}
 
 
 def load_questions(config: RunConfig) -> list[tuple[Path, dict]]:
@@ -158,9 +176,10 @@ def predictions(config: RunConfig, questions: list[tuple[Path, dict]], context: 
     directory.mkdir(parents=True, exist_ok=True)
     checkpoint = directory / "checkpoint.jsonl"
     previous = load_checkpoint(checkpoint)
+    remaining = None
     if config.max_cost is not None:
         remaining = config.max_cost - sum(row.get("cost", 0.0) for row in previous.values())
-        configure_budget(remaining if remaining > 0 else None)
+    configure_budget(remaining if remaining is not None and remaining > 0 else None)
     hashes = {path: content_hash(json.loads((path / "building.json").read_text(encoding="utf-8"))) for path in {path for path, _ in questions}}
     keys = [checkpoint_key(question, hashes[path], context) for path, question in questions]
     records = {}
@@ -251,6 +270,7 @@ def group_metrics(rows: list[dict]) -> dict:
 
 
 def run(config: RunConfig) -> dict:
+    execution = execution_context(config.mode)
     if config.workers < 1 or config.limit is not None and config.limit < 0:
         raise ValueError("Workers must be positive and limit must be nonnegative.")
     if config.per_kind is not None and config.per_kind < 1:
@@ -261,9 +281,7 @@ def run(config: RunConfig) -> dict:
     if not questions:
         raise ValueError("No questions selected.")
     context = {"commit": revision(), "source_hash": source_hash(), "profile": current_profile(),
-               "model": ["claude-haiku-5-5", "claude-sonnet-5-5"] if config.max_cost else None,
-               "prompt_version": PROMPT_VERSION + "+" + FALLBACK_PROMPT_VERSION if config.max_cost else PROMPT_VERSION,
-               "mode": config.mode, "budget_limit": config.max_cost}
+               **execution, "budget_limit": config.max_cost}
     configure_budget(config.max_cost)
     start = time.perf_counter()
     with paid_run_guard(OUTPUT / config.name / "paid-run.lock", config.max_cost):
@@ -293,7 +311,7 @@ def main() -> None:
     parser.add_argument("--name", required=True)
     parser.add_argument("--csv", type=Path)
     parser.add_argument("--workers", type=int, default=4)
-    parser.add_argument("--mode", choices=["hybrid", "template", "llm"], default="hybrid")
+    parser.add_argument("--mode", choices=["template", "llm"], default="llm")
     parser.add_argument("--kinds", nargs="+", default=())
     parser.add_argument("--limit", type=int)
     parser.add_argument("--per-kind", type=int, help="Select the first N source questions of each kind")

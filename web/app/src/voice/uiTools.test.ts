@@ -197,7 +197,7 @@ describe('desk voice context', () => {
   it('keeps browser-only tools separate from the server contract', () => {
     const h = harness()
     expect(Object.keys(h.tools)).toEqual(['update_selection', 'focus_floor'])
-    expect(TOOL_NAMES).toHaveLength(11)
+    expect(TOOL_NAMES).toHaveLength(17)
     expect(TOOL_NAMES as readonly string[]).not.toContain('update_selection')
     expect(TOOL_NAMES as readonly string[]).not.toContain('focus_floor')
   })

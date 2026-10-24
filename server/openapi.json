@@ -1,6 +1,66 @@
 {
   "components": {
     "schemas": {
+      "AgentToolCall": {
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "additionalProperties": true,
+            "title": "Args",
+            "type": "object"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "turn_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Turn Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "turn_id"
+        ],
+        "title": "AgentToolCall",
+        "type": "object"
+      },
+      "AgentTurnInput": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "message"
+        ],
+        "title": "AgentTurnInput",
+        "type": "object"
+      },
+      "AgentTurnResponse": {
+        "properties": {
+          "turn_id": {
+            "title": "Turn Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "turn_id"
+        ],
+        "title": "AgentTurnResponse",
+        "type": "object"
+      },
       "BuildingSnapshot": {
         "properties": {
           "building": {
@@ -161,6 +221,11 @@
       },
       "ChatResponse": {
         "properties": {
+          "cost_usd": {
+            "default": 0,
+            "title": "Cost Usd",
+            "type": "number"
+          },
           "display": {
             "additionalProperties": true,
             "title": "Display",
@@ -170,6 +235,35 @@
             "title": "Reply",
             "type": "string"
           },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "status": {
+            "default": "completed",
+            "enum": [
+              "completed",
+              "incomplete",
+              "unavailable",
+              "superseded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          },
           "tool_calls": {
             "items": {
               "additionalProperties": true,
@@ -177,6 +271,13 @@
             },
             "title": "Tool Calls",
             "type": "array"
+          },
+          "usage": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Usage",
+            "type": "object"
           }
         },
         "required": [
@@ -1594,6 +1695,18 @@
             ],
             "title": "Error"
           },
+          "model_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Result"
+          },
           "ok": {
             "title": "Ok",
             "type": "boolean"
@@ -2127,6 +2240,140 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/agent/tools": {
+      "get": {
+        "operationId": "agent_tool_definitions_api_agent_tools_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agent Tool Definitions",
+        "tags": [
+          "agent"
+        ]
+      }
+    },
+    "/api/agent/tools/{name}": {
+      "post": {
+        "operationId": "call_agent_tool_api_agent_tools__name__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentToolCall"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Call Agent Tool",
+        "tags": [
+          "agent"
+        ]
+      }
+    },
+    "/api/agent/turns": {
+      "post": {
+        "description": "Register a user transcript outside the model-callable tool catalogue.",
+        "operationId": "begin_voice_turn_api_agent_turns_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentTurnInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentTurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Begin Voice Turn",
+        "tags": [
+          "agent"
+        ]
+      }
+    },
     "/api/buildings": {
       "get": {
         "operationId": "buildings_api_buildings_get",

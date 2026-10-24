@@ -50,12 +50,12 @@ def normalise_constraints(constraints=None):
                        constraints.get("closed", frozenset()), constraints.get("no_transit_room_types", frozenset()))
 
 
-def constrained_graph(building, constraints=None):
+def constrained_graph(building, constraints=None, *, endpoints=()):
     """Fresh kit graph with closures, width limits and forbidden transit spaces.
 
     A space is represented by its walking edges as well as its anchor node;
     deleting only the node would still permit a door-to-door transit shortcut.
-    Routing may exempt a forbidden start/end type before calling this helper.
+    Endpoint exceptions apply to exact spaces, never to an entire room type.
     """
     constraints = normalise_constraints(constraints)
     closed = constraints.closed | building.closed
@@ -63,8 +63,9 @@ def constrained_graph(building, constraints=None):
     if closed - known:
         raise CoreError("not_found", f"Unknown closed elements: {sorted(closed - known)}")
     graph = building.graph(constraints.step_free)
-    forbidden = {sid for sid, space in building.spaces.items() if sid in closed or space["room_type"] in constraints.no_transit_room_types}
-    graph.remove_nodes_from(sid for sid in closed if sid in building.spaces)
+    forbidden = {sid for sid, space in building.spaces.items() if sid in closed or
+                 (space["room_type"] in constraints.no_transit_room_types and sid not in endpoints)}
+    graph.remove_nodes_from(forbidden)
     graph.remove_nodes_from(DOOR_PREFIX + oid for oid, opening in building.openings.items()
                             if opening["width_m"] < constraints.min_width or oid in closed)
     graph.remove_edges_from([(a, b, key) for a, b, key, data in graph.edges(keys=True, data=True)
@@ -138,12 +139,12 @@ class SpatialCore(Building):
             return p.x, p.y, self.floors[self.spaces[sid]["floor_id"]]["elevation_m"]
         return math.dist(position(first), position(second))
 
-    def constrained_graph(self, constraints: Constraints = Constraints()) -> nx.MultiGraph:
-        return constrained_graph(self, constraints)
+    def constrained_graph(self, constraints: Constraints = Constraints(), *, endpoints=()) -> nx.MultiGraph:
+        return constrained_graph(self, constraints, endpoints=endpoints)
 
     def constrained_route(self, start: str, destination: str, constraints: Constraints = Constraints()) -> dict:
         start, destination = self.resolve_space(start), self.resolve_space(destination)
-        graph = self.constrained_graph(constraints)
+        graph = self.constrained_graph(constraints, endpoints=(start, destination))
         try:
             length, nodes = nx.single_source_dijkstra(graph, start, destination, weight="weight")
         except (nx.NetworkXNoPath, nx.NodeNotFound) as error:
@@ -166,29 +167,43 @@ class SpatialCore(Building):
         """
         start = self.resolve_space(start)
         rooms = self.floor_rooms(floor_id)
-        graph = self.constrained_graph(constraints)
-        reachable = nx.node_connected_component(graph, start) if start in graph else set()
+        reachable = self._destination_lengths(start, [room["id"] for room in rooms], constraints)
         # The delivery/reachability benchmark counts rooms, excluding hall circulation.
         return [s["id"] for s in rooms if s["type"] == "room" and s["id"] in reachable]
 
-    def errand(self, start: str, asset_type: str, floor_id: str, room_type: str) -> dict:
+    def _destination_lengths(self, start, destinations, constraints):
+        """Allow each destination separately so it cannot open a transit shortcut."""
+        constraints = normalise_constraints(constraints)
+        if not constraints.no_transit_room_types:
+            graph = self.constrained_graph(constraints)
+            return nx.single_source_dijkstra_path_length(graph, start, weight="weight") if start in graph else {}
+        lengths = {}
+        for destination in destinations:
+            graph = self.constrained_graph(constraints, endpoints=(start, destination))
+            try:
+                lengths[destination] = nx.shortest_path_length(graph, start, destination, weight="weight")
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
+                continue
+        return lengths
+
+    def errand(self, start: str, asset_type: str, floor_id: str, room_type: str, *, constraints=None) -> dict:
         start = self.resolve_space(start)
-        graph = self.constrained_graph()
-        if start not in graph:
+        constraints = normalise_constraints(constraints)
+        closed = self.closed | constraints.closed
+        if start in closed:
             raise MapError("Errand start space is closed.")
-        lengths = nx.single_source_dijkstra_path_length(graph, start, weight="weight")
         candidates = {a["space_id"] for a in self.assets.values() if a["type"] == asset_type}
+        lengths = self._destination_lengths(start, candidates, constraints)
         reachable = candidates & lengths.keys()
         if not reachable:
             raise MapError(f"No reachable {asset_type}")
         via = min(reachable, key=lambda sid: (lengths[sid], sid))
         target = self.largest_room(floor_id, room_type)["space_id"]
-        if target not in graph:
+        if target in closed:
             raise MapError("Largest target room is closed.")
-        try:
-            second = nx.shortest_path_length(graph, via, target, weight="weight")
-        except (nx.NetworkXNoPath, nx.NodeNotFound) as error:
-            raise MapError("Largest target room is unreachable from pickup.") from error
+        second = self._destination_lengths(via, [target], constraints).get(target)
+        if second is None:
+            raise MapError("Largest target room is unreachable from pickup.")
         return {"length_m": lengths[via] + second, "via": via, "target": target}
 
     def shared_wall_midpoint(self, first: str, second: str) -> tuple[float, float]:
@@ -236,17 +251,18 @@ class SpatialCore(Building):
         point = ((position.x + other.x) / 2, (position.y + other.y) / 2)
         return point
 
-    def compare_exit_distances_with_door(self, first: str, second: str, floor_id: str) -> dict:
+    def compare_exit_distances_with_door(self, first: str, second: str, floor_id: str, *, constraints=None) -> dict:
         first, second = self.resolve_space(first), self.resolve_space(second)
         point = self.shared_wall_midpoint(first, second)
-        graph = self.constrained_graph()
+        constraints = normalise_constraints(constraints)
+        graph = self.constrained_graph(constraints)
         entrances = [DOOR_PREFIX + oid for oid, opening in self.openings.items()
                      if OUTSIDE in opening["space_ids"] and DOOR_PREFIX + oid in graph]
         if not entrances:
             raise MapError("Building has no entrance.")
-        before = nx.multi_source_dijkstra_path_length(graph, entrances, weight="weight")
+        before = self._entrance_lengths(floor_id, constraints)
         for sid in (first, second):
-            if sid not in graph:
+            if sid in self.closed | constraints.closed:
                 raise MapError("Cannot connect a closed space.")
         hypothetical = type(self)(copy.deepcopy(self.data), version=self.version)
         hypothetical.walks = dict(self.walks)
@@ -258,18 +274,37 @@ class SpatialCore(Building):
         materialised.walks = dict(hypothetical.walks)
         materialised.closed = set(hypothetical.closed)
         hypothetical = materialised
-        after = nx.multi_source_dijkstra_path_length(hypothetical.constrained_graph(), entrances, weight="weight")
+        after = hypothetical._entrance_lengths(floor_id, constraints)
         improved = [s["id"] for s in self.floor_rooms(floor_id)
                     if s["id"] in after and (s["id"] not in before or before[s["id"]] - after[s["id"]] > 1.0)]
         return {"count": len(improved), "improved_space_ids": improved,
                 "door_position": list(point)}
 
-    def solve(self, kind: str, inputs: dict) -> dict:
+    def _entrance_lengths(self, floor_id, constraints):
+        graph = self.constrained_graph(constraints)
+        entrances = [opening for opening in self.openings.values() if OUTSIDE in opening["space_ids"]
+                     and DOOR_PREFIX + opening["id"] in graph]
+        if not constraints.no_transit_room_types:
+            return nx.multi_source_dijkstra_path_length(graph, [DOOR_PREFIX + item["id"] for item in entrances], weight="weight")
+        lengths = {}
+        for room in self.floor_rooms(floor_id):
+            destination = room["id"]
+            for entrance in entrances:
+                start = next(sid for sid in entrance["space_ids"] if sid != OUTSIDE)
+                graph = self.constrained_graph(constraints, endpoints=(start, destination))
+                try:
+                    length = nx.shortest_path_length(graph, DOOR_PREFIX + entrance["id"], destination, weight="weight")
+                except (nx.NetworkXNoPath, nx.NodeNotFound):
+                    continue
+                lengths[destination] = min(lengths.get(destination, math.inf), length)
+        return lengths
+
+    def solve(self, kind: str, inputs: dict, *, constraints=None) -> dict:
         """Typed dispatch, usable directly by an agent without any benchmark metadata."""
         if not isinstance(kind, str) or not kind:
             raise CoreError("invalid_args", "kind must be a nonempty string.")
         if kind in {"locate", "count", "route", "route_step_free", "route_with_closure", "tour"}:
-            return self._solve_warmup(kind, inputs)
+            return self._solve_warmup(kind, inputs, constraints=constraints)
         required = {
             "largest_room": {"floor_id", "room_type"},
             "floor_area_total": {"floor_id", "room_type"},
@@ -313,23 +348,24 @@ class SpatialCore(Building):
         if kind == "room_stacked":
             return self.stacked_room(inputs["start"], inputs["direction"])
         if kind == "errand":
-            result = self.errand(inputs["start"], inputs["asset_type"], inputs["floor_id"], inputs["room_type"])
+            result = self.errand(inputs["start"], inputs["asset_type"], inputs["floor_id"], inputs["room_type"], constraints=constraints)
             return {"value": result["length_m"], **result}
         if kind in {"wide_delivery_count", "step_free_reachable_count"}:
             closed = inputs.get("closed", [])
             closed = [closed] if isinstance(closed, str) else closed
-            constraints = Constraints(step_free=True, min_width=inputs.get("min_width", 0),
-                                      closed=frozenset(closed))
+            saved = normalise_constraints(constraints)
+            constraints = Constraints(step_free=True, min_width=max(inputs.get("min_width", 0), saved.min_width),
+                                      closed=frozenset(closed) | saved.closed, no_transit_room_types=saved.no_transit_room_types)
             rooms = self.reachable_rooms(inputs["start"], inputs["floor_id"], constraints)
             return {"value": len(rooms), "space_ids": rooms}
         if kind == "what_if_door":
             if "door_floor_id" in inputs and self.spaces[self.resolve_space(inputs["first"])]["floor_id"] != inputs["door_floor_id"]:
                 raise MapError("door_floor_id does not match the door's spaces.")
-            result = self.compare_exit_distances_with_door(inputs["first"], inputs["second"], inputs["floor_id"])
+            result = self.compare_exit_distances_with_door(inputs["first"], inputs["second"], inputs["floor_id"], constraints=constraints)
             return {"value": result["count"], **result}
         raise AssertionError("Missing implementation for a validated question kind")
 
-    def _solve_warmup(self, kind: str, inputs: dict) -> dict:
+    def _solve_warmup(self, kind: str, inputs: dict, *, constraints=None) -> dict:
         if not isinstance(inputs, dict):
             raise CoreError("invalid_args", "Inputs must be an object.")
         required = {"locate": {"asset"}, "count": {"asset_type", "floor_id"},
@@ -361,7 +397,7 @@ class SpatialCore(Building):
             if inputs["keep_order"] is not True:
                 raise CoreError("invalid_args", "The warm-up tour requires keep_order: true.")
             from .tour import plan_tour
-            result = plan_tour(self, stops[0], [{"stop_id": f"s{index}", "target": stop} for index, stop in enumerate(stops[1:], 1)], keep_order=True)
+            result = plan_tour(self, stops[0], [{"stop_id": f"s{index}", "target": stop} for index, stop in enumerate(stops[1:], 1)], keep_order=True, constraints=constraints)
             return {"reachable": not result.get("unreachable_stops"), **result}
         if "step_free" in inputs and not isinstance(inputs["step_free"], bool):
             raise CoreError("invalid_args", "step_free must be a boolean.")
@@ -369,8 +405,13 @@ class SpatialCore(Building):
         if not isinstance(closed, list) or any(not isinstance(item, str) or not item for item in closed):
             raise CoreError("invalid_args", "closed must be a list of element IDs.")
         from .routing import route
-        result = route(self, inputs["start"], inputs["destination"],
-                       {"step_free": kind == "route_step_free" or inputs.get("step_free", False), "closed": closed})
+        saved = normalise_constraints(constraints)
+        effective = Constraints(step_free=saved.step_free or kind == "route_step_free" or inputs.get("step_free", False),
+                                min_width=saved.min_width, closed=saved.closed | frozenset(closed),
+                                no_transit_room_types=saved.no_transit_room_types)
+        result = route(self, inputs["start"], inputs["destination"], {"step_free": effective.step_free,
+                       "min_door_width_m": effective.min_width, "closed": sorted(effective.closed),
+                       "no_transit_room_types": sorted(effective.no_transit_room_types)})
         return {"route": result, "reachable": result["reachable"]}
 
     def format_answer(self, result: dict) -> str:
@@ -413,15 +454,15 @@ def shared_wall_midpoint(building, first, second):
         raise CoreError("invalid_args", str(error)) from error
 
 
-def solve(building, kind: str, inputs: dict) -> dict:
+def solve(building, kind: str, inputs: dict, *, constraints=None) -> dict:
     """Public pure solver interface shared by app, agents and benchmark."""
     try:
         # Warm-up dispatch uses only the Building read API and the pure routing
         # and tour functions. Avoid copying every polygon and asset merely to
         # count or locate an item in a large building.
         if isinstance(building, Building) and isinstance(kind, str) and kind in {"locate", "count", "route", "route_step_free", "route_with_closure", "tour"}:
-            return SpatialCore._solve_warmup(building, kind, inputs)
-        return _as_spatial(building).solve(kind, inputs)
+            return SpatialCore._solve_warmup(building, kind, inputs, constraints=constraints)
+        return _as_spatial(building).solve(kind, inputs, constraints=constraints)
     except CoreError:
         raise
     except MapError as error:

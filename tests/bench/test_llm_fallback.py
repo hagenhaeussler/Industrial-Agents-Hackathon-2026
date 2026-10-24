@@ -1,243 +1,254 @@
-import copy
+"""Submission uses real platform tools through the product agent and SDK transport."""
+
 import json
 from pathlib import Path
-from types import SimpleNamespace
 
-import anthropic
-import httpx2
 import pytest
 
 from agent.budget import Budget
+from agent.chat import ChatAgent
+from agent.execution import AgentCall
+from agent.prompts import chat_prompt
 from bench.agent import load_base
-from bench.llm_fallback import FIELDS, Interpretation, interpret
+from bench.llm_fallback import interpret
+from bench.session import submission_session
+from bench.submission import Submission
+
+QUESTION = 'How many toilet items are on floor two?'
+COUNT = {'kind': 'count', 'asset_type': 'toilet', 'floor': 'osm-way22744230-F2'}
 
 
-class OfflineRunner:
-    def __init__(self, options, submit):
-        self.tools = {tool.name: tool for tool in options["tools"]}
-        self.submit = submit
-        self.done = False
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.done:
-            raise StopIteration
-        self.done = True
-        return SimpleNamespace(content=[SimpleNamespace(type="text", text="Answer: 999999")], stop_reason="end_turn", usage=SimpleNamespace(input_tokens=0, output_tokens=0))
-
-    def generate_tool_call_response(self):
-        if self.submit:
-            self.tools["submit_answer"].call({"kind": "count", "inputs_json": json.dumps({"asset_type": "toilet", "floor_id": "osm-way22744230-F2"})})
-        return None
+@pytest.fixture
+def building():
+    return load_base(Path('data/dev/osm-way22744230'))
 
 
-def client_for(submit):
-    return SimpleNamespace(beta=SimpleNamespace(messages=SimpleNamespace(tool_runner=lambda **options: OfflineRunner(options, submit))))
+def last_result(payload):
+    return json.loads(payload['messages'][-1]['content'][-1]['content'])
 
 
-def test_model_prose_cannot_create_a_committed_answer():
-    result = interpret(load_base(Path("data/dev/osm-way22744230")), "Count toilets on floor two", (Budget(1), client_for(False)))
-    assert "Answer:" not in result.reply
+def submit_result(payload):
+    source = last_result(payload)
+    return {'calls': [('submit_answer', {'request_id': source['request_id']})]}
 
 
-def test_only_solver_and_serializer_write_the_answer():
-    result = interpret(load_base(Path("data/dev/osm-way22744230")), "Count toilets on floor two", (Budget(1), client_for(True)))
-    assert result.reply == "Answer: 3"
+def test_submission_and_chat_use_the_same_agent_tools_and_prompt(building, model):
+    chat_sdk, chat_requests = model([{'calls': [('spatial_query', COUNT)]}, {'text': 'There are three toilets.'}])
+    with submission_session(building) as (execution, session_id):
+        chat = ChatAgent(execution, client=chat_sdk).reply(session_id, QUESTION)
+    sdk, requests = model([{'calls': [('spatial_query', COUNT)]}, submit_result])
+    result = interpret(building, QUESTION, (Budget(1), sdk))
+    assert result.reply == 'Answer: 3'
+    assert result.result['value'] == chat['tool_calls'][0]['result']['value']
+    chat_tools = {tool['name']: tool['input_schema'] for tool in chat_requests[0]['tools']}
+    submission_tools = {tool['name']: tool['input_schema'] for tool in requests[0]['tools'] if tool['name'] != 'submit_answer'}
+    assert submission_tools == chat_tools
+    assert requests[0]['system'][0]['text'].startswith(chat_prompt())
+    assert requests[0]['model'] == chat_requests[0]['model']
+    assert requests[0]['max_tokens'] == chat_requests[0]['max_tokens']
+    assert requests[0]['messages'][0]['content'].endswith(QUESTION)
 
 
-def test_invalid_submission_cannot_set_the_result():
-    interpretation = Interpretation(load_base(Path("data/dev/osm-way22744230")))
-    interpretation.submit("count", {"asset_type": "toilet", "floor_id": "not-a-floor"})
-    assert interpretation.submitted is None
+def test_only_the_serializer_can_commit_an_answer(building, model):
+    sdk, requests = model([{'text': 'Answer: 999999'}])
+    result = interpret(building, QUESTION, (Budget(1), sdk))
+    assert not result.reply.startswith('Answer:')
+    assert result.method == 'unanswered'
+    assert len(requests) == 1
 
 
-def assert_provider_schema(schema):
-    if isinstance(schema, dict):
-        unsupported = {"minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
-                       "minLength", "maxLength", "minItems", "maxItems", "minProperties", "maxProperties", "const"}
-        assert not unsupported.intersection(schema)
-        if schema.get("type") == "object":
-            assert schema["additionalProperties"] is False
-            assert set(schema.get("required", [])) == set(schema["properties"])
-        for value in schema.values():
-            assert_provider_schema(value)
-    elif isinstance(schema, list):
-        for value in schema:
-            assert_provider_schema(value)
-
-
-def test_strict_fallback_tools_adapt_bounds_without_mutating_solver_input_catalogue():
-    original = copy.deepcopy(FIELDS)
-    tools = Interpretation(load_base(Path("data/dev/osm-way22744230"))).tools()
-    definitions = {tool.name: tool.to_dict() for tool in tools}
-    for definition in definitions.values():
-        assert definition["strict"] is True
-        assert_provider_schema(definition["input_schema"])
-    assert FIELDS == original
-    for name in ("solve", "submit_answer"):
-        schema = definitions[name]["input_schema"]
-        assert set(schema["properties"]) == {"kind", "inputs_json"}
-        assert schema["properties"]["inputs_json"]["type"] == "string"
-        assert "anyOf" not in json.dumps(schema)
-        assert len(json.dumps(schema)) < 1000
-    assert definitions["submit_answer"]["cache_control"] == {"type": "ephemeral"}
-
-
-@pytest.mark.parametrize(("kind", "inputs"), [
-    ("wide_delivery_count", {"start": "absent", "floor_id": "absent", "min_width": -1}),
-    ("count", {"asset_type": "", "floor_id": "osm-way22744230-F2"}),
-    ("tour", {"stops": ["only-one"], "keep_order": True}),
-    ("tour", {"stops": ["a", "b"], "keep_order": False}),
+@pytest.mark.parametrize('arguments', [
+    {}, {'request_id': 'invented'}, {'request_id': 7},
+    {'request_id': 'x', 'answer': 'Answer: 3'},
+    {'kind': 'count', 'inputs_json': json.dumps(COUNT)},
 ])
-def test_solver_rejects_bounds_removed_from_provider_grammar(kind, inputs):
-    interpretation = Interpretation(load_base(Path("data/dev/osm-way22744230")))
-    response = json.loads(interpretation.submit(kind, inputs))
-    assert response["ok"] is False
-    assert interpretation.submitted is None
+def test_submission_rejects_unobserved_or_model_supplied_values(building, arguments):
+    submission = Submission(building)
+    assert submission.submit(arguments)['ok'] is False
+    assert not submission.done()
 
 
-@pytest.mark.parametrize("inputs_json", ["not json", "[]", "null", '"text"', "7", "x" * 65_537])
-def test_json_tool_envelope_rejects_invalid_and_nonobject_inputs(inputs_json):
-    interpretation = Interpretation(load_base(Path("data/dev/osm-way22744230")))
-    response = json.loads(interpretation.submit_json("count", inputs_json))
-    assert response["ok"] is False
-    assert "Invalid inputs_json" in response["error"]
-    assert interpretation.submitted is None
-    assert interpretation.invalid_inputs == 1
+def test_result_references_cannot_cross_runs(building):
+    with submission_session(building) as (execution, session_id):
+        turn = execution.begin(session_id, QUESTION)
+        reply = execution.call(AgentCall(session_id, turn.turn_id, 'spatial_query', COUNT))
+        first, second = Submission(building), Submission(building)
+        first.observe(reply)
+        assert second.submit({'request_id': reply['request_id']})['ok'] is False
+        assert first.submit({'request_id': reply['request_id']})['ok'] is True
 
 
-def test_json_envelope_uses_the_same_typed_solver_before_committing():
-    interpretation = Interpretation(load_base(Path("data/dev/osm-way22744230")))
-    invalid = json.loads(interpretation.submit_json("count", json.dumps({"start": "irrelevant"})))
-    assert invalid["ok"] is False
-    assert interpretation.submitted is None
-    valid = json.loads(interpretation.submit_json("count", json.dumps({"asset_type": "toilet", "floor_id": "osm-way22744230-F2"})))
-    assert valid["ok"] is True
-    assert interpretation.submitted.reply == "Answer: 3"
-    assert interpretation.submitted.inputs == {"asset_type": "toilet", "floor_id": "osm-way22744230-F2"}
+def test_discovery_is_not_a_submittable_calculation(building, model):
+    sdk, _ = model([{'calls': [('building_info', {})]}, submit_result, {}])
+    result = interpret(building, QUESTION, (Budget(1), sdk))
+    assert result.method == 'unanswered'
 
 
-def test_invalid_json_and_invalid_typed_inputs_share_the_single_repair_limit():
-    interpretation = Interpretation(load_base(Path("data/dev/osm-way22744230")))
-    interpretation.compute_json("count", "not json")
-    interpretation.compute_json("count", json.dumps({"start": "irrelevant"}))
-    response = json.loads(interpretation.submit_json("count", json.dumps({"asset_type": "toilet", "floor_id": "osm-way22744230-F2"})))
-    assert response == {"ok": False, "error": "Input repair limit reached."}
-    assert interpretation.submitted is None
+def test_invalid_arguments_can_be_repaired_through_the_shared_registry(building, model):
+    def repaired(payload):
+        assert last_result(payload)['error']['code'] == 'invalid_args'
+        return {'calls': [('spatial_query', COUNT)]}
+    sdk, _ = model([{'calls': [('spatial_query', {**COUNT, 'floor': 7})]}, repaired, submit_result])
+    result = interpret(building, QUESTION, (Budget(1), sdk))
+    assert result.reply == 'Answer: 3'
+    assert result.tool_calls == 3
 
 
-class ScriptClient:
-    def __init__(self, attempts):
-        self.attempts = iter(attempts)
-        self.options = []
-        self.requests = 0
-        self.beta = SimpleNamespace(messages=SimpleNamespace(tool_runner=self.runner))
-
-    def runner(self, **options):
-        self.options.append(options)
-        return ScriptRunner(self, options, next(self.attempts))
-
-
-class ScriptRunner:
-    def __init__(self, client, options, steps):
-        self.client = client
-        self.tools = {tool.name: tool for tool in options["tools"]}
-        self.steps = iter(steps)
-        self.step = {}
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        self.step = next(self.steps)
-        self.client.requests += 1
-        if "error" in self.step:
-            raise self.step["error"]
-        return SimpleNamespace(content=[], stop_reason=self.step.get("stop_reason", "tool_use"),
-                               usage=SimpleNamespace(input_tokens=10, output_tokens=2, cache_read_input_tokens=3))
-
-    def generate_tool_call_response(self):
-        for name, args in self.step.get("calls", []):
-            self.tools[name].call(args)
-        return None
+def test_submit_does_not_recompute_the_observed_result(building, monkeypatch):
+    with submission_session(building) as (execution, session_id):
+        turn = execution.begin(session_id, QUESTION)
+        reply = execution.call(AgentCall(session_id, turn.turn_id, 'spatial_query', COUNT))
+        sink = Submission(building)
+        sink.observe(reply)
+        reply['result']['value'] = 999
+        monkeypatch.setattr('core.spatial.solve', lambda *_args, **_kwargs: pytest.fail('Submission must only format'))
+        assert sink.submit({'request_id': reply['request_id']})['ok'] is True
+        assert sink.prediction.reply == 'Answer: 3'
 
 
-def submit_step():
-    return {"calls": [("submit_answer", {"kind": "count", "inputs_json": json.dumps({"asset_type": "toilet", "floor_id": "osm-way22744230-F2"})})]}
+def test_post_submit_calls_do_not_execute_or_reserve_again(building, model, monkeypatch):
+    executed = []
+    from agent.execution import AgentExecution
+    call = AgentExecution.call
+    def record(self, request):
+        executed.append(request.name)
+        return call(self, request)
+    monkeypatch.setattr(AgentExecution, 'call', record)
+    def submit_batch(payload):
+        return {'calls': [('submit_answer', {'request_id': last_result(payload)['request_id']}), ('building_info', {})]}
+    sdk, requests = model([{'calls': [('spatial_query', COUNT)]}, submit_batch])
+    budget = TrackingBudget()
+    result = interpret(building, QUESTION, (budget, sdk))
+    assert result.reply == 'Answer: 3'
+    assert executed == ['spatial_query']
+    assert len(requests) == budget.reservations == 2
+    assert result.tool_calls == 2
 
 
-def run_script(client, budget=None):
-    return interpret(load_base(Path("data/dev/osm-way22744230")), "Count toilets on floor two", (budget or Budget(1), client))
+class TrackingBudget(Budget):
+    def __init__(self):
+        super().__init__(1)
+        self.reservations = 0
+    def reserve(self, request):
+        self.reservations += 1
+        return super().reserve(request)
 
 
-def test_exhausted_budget_refuses_before_any_request():
-    client = ScriptClient([[submit_step()]])
-    run_script(client, Budget(0.000000001))
-    assert client.requests == 0
-
-
-def test_unsubmitted_haiku_attempt_escalates_once():
-    client = ScriptClient([[{}], [submit_step()]])
-    run_script(client)
-    assert [options["model"] for options in client.options] == ["claude-haiku-5-5", "claude-sonnet-5-5"]
-
-
-def test_usage_includes_both_model_attempts():
-    result = run_script(ScriptClient([[{}], [submit_step()]]))
-    assert result.tokens == {"input_tokens": 20, "output_tokens": 4, "cache_read_input_tokens": 6, "cache_creation_input_tokens": 0}
-
-
-def test_eight_response_limit_applies_across_models():
-    client = ScriptClient([[{}] * 20, [{}] * 20])
-    run_script(client)
-    assert client.requests == 8
-
-
-def test_refusal_can_escalate_without_committing_prose():
-    client = ScriptClient([[{"stop_reason": "refusal"}], [submit_step()]])
-    assert run_script(client).reply == "Answer: 3"
-
-
-def test_api_errors_keep_the_reservation_when_usage_is_unknown():
-    error = anthropic.APIConnectionError(request=httpx2.Request("POST", "https://offline.invalid"))
-    budget = Budget(1)
-    result = run_script(ScriptClient([[{"error": error}], [{"error": error}]]), budget)
+@pytest.mark.parametrize('stop', ['end_turn', 'max_tokens', 'refusal', 'model_context_window_exceeded'])
+def test_terminal_output_stops_without_escalation_or_extra_reservation(building, model, stop):
+    sdk, requests = model([{'stop_reason': stop}])
+    budget = TrackingBudget()
+    result = interpret(building, QUESTION, (budget, sdk))
+    assert len(requests) == budget.reservations == 1
+    assert not result.reply.startswith('Answer:')
     assert result.cost == pytest.approx(budget.spent)
+    assert result.tokens['input_tokens'] == 100
 
 
-def test_tool_repair_is_limited_to_one_retry():
-    interpretation = Interpretation(load_base(Path("data/dev/osm-way22744230")))
+def test_truncated_submission_is_not_executed(building, model):
+    def truncated(payload):
+        return {**submit_result(payload), 'stop_reason': 'max_tokens'}
+    sdk, requests = model([{'calls': [('spatial_query', COUNT)]}, truncated])
+    result = interpret(building, QUESTION, (Budget(1), sdk))
+    assert result.method == 'unanswered'
+    assert len(requests) == 2
+
+
+def test_tool_limit_stops_at_the_completed_batch(building, model, monkeypatch):
+    monkeypatch.setenv('TYB_AGENT_MAX_TOOL_CALLS', '2')
+    sdk, requests = model([{'calls': [('building_info', {}), ('building_info', {}), ('building_info', {})]}])
+    budget = TrackingBudget()
+    result = interpret(building, QUESTION, (budget, sdk))
+    assert len(requests) == budget.reservations == 1
+    assert result.tool_calls == 2
+    assert 'tool_limit' in result.error
+
+
+def test_budget_stops_before_a_request(building, model):
+    sdk, requests = model([])
+    result = interpret(building, QUESTION, (Budget(.00000001), sdk))
+    assert requests == []
+    assert 'budget_limit' in result.error
+
+
+def test_provider_failure_keeps_prior_usage_and_uncertain_reservation(building, model):
+    sdk, requests = model([{'calls': [('building_info', {})]}, {'http_status': 500}])
+    budget = TrackingBudget()
+    result = interpret(building, QUESTION, (budget, sdk))
+    assert result.cost == pytest.approx(budget.spent)
+    assert result.cost > 0
+    assert result.tokens['input_tokens'] == 100
+    assert result.method == 'unanswered'
+    assert len(requests) == 2
+
+
+def test_each_question_has_a_new_session_without_previous_turns(building, model):
+    sdk, requests = model([{'text': 'first'}, {'text': 'second'}])
     for _ in range(2):
-        interpretation.submit("count", {"asset_type": "toilet", "floor_id": "absent"})
-    interpretation.submit("count", {"asset_type": "toilet", "floor_id": "osm-way22744230-F2"})
-    assert interpretation.submitted is None
+        interpret(building, QUESTION, (Budget(1), sdk))
+    assert [len(request['messages']) for request in requests] == [1, 1]
+    assert all('"position": null' in request['messages'][0]['content'] for request in requests)
 
 
-def test_deadline_prevents_new_requests(monkeypatch):
-    from bench import llm_fallback
+def test_common_configuration_selects_model_and_request_limit(building, model, monkeypatch):
+    monkeypatch.setenv('TYB_AGENT_MODEL', 'claude-haiku-5-5')
+    monkeypatch.setenv('TYB_AGENT_MAX_STEPS', '1')
+    sdk, requests = model([{'calls': [('building_info', {})]}])
+    result = interpret(building, QUESTION, (Budget(1), sdk))
+    assert result.model == requests[0]['model'] == 'claude-haiku-5-5'
+    assert len(requests) == 1
+    assert 'step_limit' in result.error
 
-    clock = iter([0, 61, 61])
-    monkeypatch.setattr(llm_fallback.time, "monotonic", lambda: next(clock))
-    client = ScriptClient([[submit_step()]])
-    run_script(client)
-    assert client.requests == 0
+
+def route_pair(building):
+    opening = next(item for item in building.openings.values()
+                   if len(item['space_ids']) == 2 and all(sid in building.spaces for sid in item['space_ids']))
+    return opening['space_ids']
 
 
-def test_real_sdk_tool_loop_commits_only_the_computed_result():
-    def respond(request):
-        payload = json.loads(request.content)
-        for tool in payload["tools"]:
-            assert_provider_schema(tool["input_schema"])
-        return httpx2.Response(200, json={
-            "id": "offline-message", "type": "message", "role": "assistant", "model": payload["model"],
-            "content": [{"type": "tool_use", "id": "offline-call", "name": "submit_answer",
-                         "input": {"kind": "count", "inputs_json": json.dumps({"asset_type": "toilet", "floor_id": "osm-way22744230-F2"})}}],
-            "stop_reason": "tool_use", "stop_sequence": None, "usage": {"input_tokens": 10, "output_tokens": 2},
-        })
+def test_explicit_route_can_submit_without_a_session_position(building, model):
+    start, destination = route_pair(building)
+    sdk, _ = model([{'calls': [('query_route', {'start': start, 'destination': destination})]}, submit_result])
+    result = interpret(building, 'How do I get between these rooms?', (Budget(1), sdk))
+    assert result.result['route']['reachable'] is True
+    assert result.inputs['start'] == start
+    assert result.inputs['destination'] == destination
+    assert result.reply.startswith('Answer: ')
 
-    with httpx2.Client(transport=httpx2.MockTransport(respond)) as http:
-        client = anthropic.Anthropic(api_key="offline-placeholder", http_client=http, max_retries=0)
-        result = run_script(client)
-    assert result.reply == "Answer: 3"
+
+def test_supplied_constraints_enter_the_common_session_before_tools(building, model):
+    start, destination = route_pair(building)
+    def query(payload):
+        assert '"min_door_width_m": 100' in payload['messages'][0]['content']
+        return {'calls': [('query_route', {'start': start, 'destination': destination, 'min_door_width_m': 0})]}
+    sdk, _ = model([query, submit_result])
+    result = interpret(building, 'Get there with this load', (Budget(1), sdk), constraints={'min_door_width_m': 100})
+    assert result.reply == 'Answer: no route'
+    assert result.result['route']['constraints']['min_door_width_m'] == 100
+
+
+def test_temporary_closures_are_computed_and_submitted_without_an_edit(building, model):
+    start, destination = route_pair(building)
+    sdk, _ = model([{'calls': [('query_route', {'start': start, 'destination': destination, 'closed': [destination]})]}, submit_result])
+    result = interpret(building, 'Could I go there if that room were closed?', (Budget(1), sdk))
+    assert result.reply == 'Answer: no route'
+    assert result.result['route']['constraints']['closed'] == [destination]
+    assert building.closed == set()
+
+
+def test_fixed_tour_submits_the_actual_shared_plan(building, model):
+    start, destination = route_pair(building)
+    sdk, _ = model([{'calls': [('query_tour', {'start': start, 'items': [destination], 'keep_order': True})]}, submit_result])
+    result = interpret(building, 'Visit this room from there', (Budget(1), sdk))
+    assert result.kind == 'tour'
+    assert result.result['reachable'] is True
+    assert result.result['order_policy'] == 'fixed'
+    assert result.result['legs']
+    assert result.inputs['stops'] == [start, destination]
+
+
+def test_invalid_supplied_constraints_stop_before_model_request(building, model):
+    sdk, requests = model([])
+    with pytest.raises(ValueError):
+        interpret(building, QUESTION, (Budget(1), sdk), constraints={'closed': ['missing']})
+    assert requests == []

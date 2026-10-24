@@ -53,7 +53,7 @@ def test_unreachable_route_schema_is_explicit():
 
 def test_explicit_route_constraints_override_the_text():
     task = Task(Path("data/dev/proc-factory-dev-003"),
-                "How do I get from Hall access 0.19 (Ground floor) to Office 1.01 (Floor 1)?", {"min_door_width_m": 100})
+                "How do I get from Hall access 0.19 (Ground floor) to Office 1.01 (Floor 1)?", {"min_door_width_m": 100}, mode="template")
     prediction = constrained_prediction(task)
     assert prediction.result["route"]["reachable"] is False, prediction.reply
 
@@ -70,7 +70,7 @@ def test_timeout_retains_the_allocated_budget_when_usage_is_unknown():
 
 def test_spatial_constraints_are_reported_instead_of_ignored():
     task = Task(Path("data/dev/proc-factory-dev-003"),
-                "Which is the largest kitchen on the floor 1, and how big is it in m²?", {"step_free": True})
+                "Which is the largest kitchen on the floor 1, and how big is it in m²?", {"step_free": True}, mode="template")
     prediction = constrained_prediction(task)
     assert prediction.error == "Explicit constraints require a route or tour question."
 
@@ -82,7 +82,7 @@ def test_rejected_constraints_keep_paid_interpretation_cost_for_checkpoint_resum
                           tokens={"input_tokens": 123, "output_tokens": 45}, cost=0.0123,
                           model="claude-haiku-5-5", tool_calls=2)
     monkeypatch.setattr(run_benchmark, "predict", lambda *_: computed)
-    prediction = constrained_prediction(Task(Path("unused"), "Count the items", {"step_free": True}))
+    prediction = constrained_prediction(Task(Path("unused"), "Count the items", {"step_free": True}, mode="template"))
     assert prediction.error == "Explicit constraints require a route or tour question."
     assert "Answer:" not in prediction.reply
     assert prediction.result == {}

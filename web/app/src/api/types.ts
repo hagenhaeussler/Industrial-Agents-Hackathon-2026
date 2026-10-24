@@ -1,3 +1,5 @@
+import type { components } from './schema.gen';
+
 /**
  * Payload types from CONTRACTS C1 (§5, §7, §8, §9, §10).
  * The generated OpenAPI types (`schema.gen.ts`) keep most payloads as open dictionaries; these are the
@@ -58,10 +60,11 @@ export type Display = { kind: string; tour_id?: string; asset_ids?: string[]; sp
 export type TraceStep = { fn: string; args: Record<string, unknown>; ms: number };
 export type ToolResponse = {
   ok: boolean; tool: string; request_id: string; building_id?: string; building_version: number;
-  result?: Record<string, unknown>; speech?: string; display?: Display; trace?: TraceStep[];
+  result?: Record<string, unknown>; model_result?: Record<string, unknown> | null; speech?: string; display?: Display; trace?: TraceStep[];
   error?: { code: ErrorCode; message: string; candidates?: Candidate[] };
 };
-export type ChatReply = { reply: string; tool_calls: ToolResponse[]; display: Display | null };
+export type ChatReply = { reply: string; tool_calls: ToolResponse[]; display: Display | null }
+  & Partial<Pick<components['schemas']['ChatResponse'], 'status' | 'stop_reason' | 'usage' | 'cost_usd' | 'sources'>>;
 
 export type MobilityProfile = 'walk' | 'wheelchair' | 'pram' | 'trolley';
 export type PositionSource = 'desk' | 'tour_start' | 'marker' | 'manual';

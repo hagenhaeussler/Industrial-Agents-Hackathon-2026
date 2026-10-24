@@ -13,9 +13,8 @@ from agent.budget import paid_run_guard
 from core.routing import route
 from core.tour import plan_tour
 
-from .agent import PROMPT_VERSION, Prediction, configure_budget, load_base, predict
-from .llm_fallback import PROMPT_VERSION as FALLBACK_PROMPT_VERSION
-from .run import checkpoint_key, load_checkpoint, revision, source_hash
+from .agent import Prediction, configure_budget, load_base, predict
+from .run import checkpoint_key, execution_context, load_checkpoint, revision, source_hash
 from .serialize import serialize
 
 
@@ -25,6 +24,7 @@ class Task:
     text: str
     constraints: dict | None = None
     max_cost: float | None = None
+    mode: str = "llm"
 
 
 def load_input(path: Path) -> list[dict]:
@@ -81,7 +81,9 @@ def make_questions(building: Path, output: Path) -> None:
 
 
 def constrained_prediction(task: Task) -> Prediction:
-    prediction = predict(task.building, task.text)
+    if task.mode == "llm":
+        return predict(task.building, task.text, task.mode, constraints=task.constraints)
+    prediction = predict(task.building, task.text, task.mode)
     if not task.constraints or prediction.error:
         return prediction
     if prediction.kind not in {"route", "route_step_free", "route_with_closure", "tour"}:
@@ -90,9 +92,20 @@ def constrained_prediction(task: Task) -> Prediction:
         # paid batch cannot mistakenly reclaim that allocation.
         return replace(prediction, reply="I cannot apply route constraints to this spatial question.", result={},
                        error="Explicit constraints require a route or tour question.")
+    try:
+        return apply_constraints(task, prediction)
+    except Exception as error:
+        return replace(prediction, reply=f"I could not apply the supplied route constraints: {error}", result={},
+                       error=f"{type(error).__name__}: {error}")
+
+
+def apply_constraints(task: Task, prediction: Prediction) -> Prediction:
+    """Recompute with explicit constraints and retain the interpretation's usage."""
     building, inputs = load_base(task.building), prediction.inputs
+    computed = prediction.result.get("route", prediction.result)
     parsed = {"step_free": prediction.kind == "route_step_free" or inputs.get("step_free", False),
-              "closed": inputs.get("closed", []), "min_door_width_m": 0.0}
+              "closed": inputs.get("closed", []), "min_door_width_m": inputs.get("min_door_width_m", 0.0),
+              **computed.get("constraints", {})}
     constraints = {**parsed, **task.constraints}
     if prediction.kind == "tour":
         stops = inputs["stops"]
@@ -100,10 +113,10 @@ def constrained_prediction(task: Task) -> Prediction:
         result = {**result, "reachable": not result.get("unreachable_stops")}
     else:
         result = {"route": route(building, inputs["start"], inputs["destination"], constraints)}
-    prediction.result = result
-    prediction.reply = serialize(building, prediction.kind, result)
-    prediction.constraint_overrides = {key: {"parsed": parsed.get(key), "supplied": value} for key, value in task.constraints.items() if parsed.get(key) != value}
-    return prediction
+    overrides = {key: {"parsed": parsed.get(key), "supplied": value}
+                 for key, value in task.constraints.items() if parsed.get(key) != value}
+    return replace(prediction, result=result, reply=serialize(building, prediction.kind, result),
+                   constraint_overrides={**prediction.constraint_overrides, **overrides})
 
 
 def child_infer(connection, task: Task) -> None:
@@ -182,11 +195,13 @@ class Options:
     output: Path
     csv: Path | None = None
     workers: int = 4
-    timeout: float = 60
+    timeout: float = 120
     max_cost: float | None = None
+    mode: str = "llm"
 
 
 def run(options: Options) -> dict:
+    execution = execution_context(options.mode)
     if options.workers < 1 or not math.isfinite(options.timeout) or options.timeout <= 0:
         raise ValueError("Workers and timeout must be positive.")
     if options.max_cost is not None:
@@ -196,7 +211,7 @@ def run(options: Options) -> dict:
     questions = load_input(options.questions)
     metadata = {"profile": building.profile, "commit": revision(), "building_id": building.id,
                 "content_hash": building.content_hash, "source_hash": source_hash(),
-                "prompt_version": PROMPT_VERSION + "+" + FALLBACK_PROMPT_VERSION, "model": ["claude-haiku-5-5", "claude-sonnet-5-5"] if options.max_cost else None,
+                **execution,
                 "max_cost": options.max_cost, "timeout": options.timeout}
     checkpoint = options.output.with_name(options.output.name + ".checkpoint.jsonl")
     checkpoint.parent.mkdir(parents=True, exist_ok=True)
@@ -216,7 +231,7 @@ def run(options: Options) -> dict:
                 handle.write(json.dumps({"key": key, **records[key]}, ensure_ascii=False) + "\n")
                 handle.flush()
                 continue
-            task = Task(options.building, question["question"], question["constraints"], allocation or None)
+            task = Task(options.building, question["question"], question["constraints"], allocation or None, options.mode)
             futures[pool.submit(isolated_infer, task, options.timeout)] = key
         for future in as_completed(futures):
             key = futures[future]
@@ -248,7 +263,8 @@ def main() -> None:
     parser.add_argument("output", type=Path, nargs="?")
     parser.add_argument("--csv", type=Path)
     parser.add_argument("--workers", type=int, default=4)
-    parser.add_argument("--timeout", type=float, default=60)
+    parser.add_argument("--timeout", type=float, default=120)
+    parser.add_argument("--mode", choices=["template", "llm"], default="llm")
     parser.add_argument("--max-cost", type=float)
     parser.add_argument("--make-questions", type=Path, nargs=2, metavar=("BUILDING", "OUTPUT"))
     arguments = parser.parse_args()

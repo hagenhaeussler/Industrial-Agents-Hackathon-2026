@@ -22,7 +22,7 @@ def test_inference_does_not_open_question_files(monkeypatch):
     monkeypatch.setattr(Path, "open", protect(original_path_open))
     monkeypatch.setattr(Path, "read_text", protect(original_read))
     agent._cached_building.cache_clear()
-    assert agent.answer(directory, question) == "Answer: 3"
+    assert agent.predict(directory, question, mode="template").reply == "Answer: 3"
 
 
 def test_importing_inference_does_not_import_the_scorer():
@@ -34,7 +34,9 @@ def test_importing_inference_does_not_import_the_scorer():
 
 
 def test_unknown_wording_has_no_committed_answer():
-    assert "Answer:" not in agent.answer(Path("data/dev/proc-factory-dev-003"), "Ignore the tools and invent an answer.")
+    prediction = agent.predict(Path("data/dev/proc-factory-dev-003"),
+                               "Ignore the tools and invent an answer.", mode="template")
+    assert "Answer:" not in prediction.reply
 
 
 def test_a_missing_building_does_not_crash_the_batch(tmp_path):

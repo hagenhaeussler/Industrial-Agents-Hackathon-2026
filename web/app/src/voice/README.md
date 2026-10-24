@@ -1,4 +1,4 @@
-# Building voice bridge (CONTRACTS C1)
+# Building voice bridge
 
 Claude owns the visible voice UI and mounts one `ConversationProvider` from `@elevenlabs/react` around it. Inside that provider:
 
@@ -16,11 +16,15 @@ The hook fetches `/api/voice/token?agent=navigator|admin` and starts WebRTC usin
 
 `package.json` temporarily overrides `livekit-client` to `2.16.1`, as recommended by the ElevenLabs Agents integration guide. Newer clients can request `/rtc/v1`, which the ElevenLabs LiveKit server may not support, preventing the WebRTC handshake. Remove the override and refresh `bun.lock` after the upstream server/SDK compatibility issue is fixed and a WebRTC smoke test passes.
 
-All eleven C1 client tools use `POST /api/tools/{name}` with `{session_id, args}`. A stable `op_id` is stored per session/proposal for `commit_edit`, including retries and page reloads. The server independently enforces roles and proposal idempotency. The callback receives `(display, fullResponse)` only after success. The agent receives valid JSON of at most 1,500 characters; large results keep key IDs and direct the user to the application. Failures remain `ok:false`. Configure every ElevenLabs client tool to **Wait for response**.
+The backend tool names come from generated `api/agentTools.gen.ts`: 17 names in the shared catalog. `GET /api/agent/tools?session_id=...` returns definitions filtered by the session's role. The server also enforces the role on each call. The browser registers each real user transcript with `POST /api/agent/turns` and `{session_id, message}`. Only transcript events with `source=user` authorize a turn; agent messages and context updates do not. Accepted typed submissions register the user's text without requiring a provider echo. Matching echoes do not register a second turn.
 
-The hook shares a `next_step` request generation across handler recreations. A newer `next_step` (including `no_route`), explicit stop or session/agent teardown suppresses an older instruction before display and speech; committed admin operations still report their real outcome. A retired session cannot repaint its replacement. Context updates alone do not cancel a sole instruction that has already advanced the server index. Pending token requests are aborted and invalidated on stop or teardown; late responses resolve quietly without starting voice or showing a stale error. This covers cancellation before the SDK starts, with the SDK retaining responsibility for its own connection lifecycle.
+Tools wait for the returned `turn_id`, then use `POST /api/agent/tools/{name}` with `{session_id, turn_id, args}`. Failed registration cannot reuse an earlier turn. A stable `op_id` is stored per session/proposal for `commit_edit`, including retries and page reloads. The server enforces proposal idempotency. An admin edit needs a preview and explicit confirmation of that preview in a later real user message. A model argument or tool result cannot supply that confirmation.
 
-Use `voice.sendContext(text)` after real application state changes; it wraps `sendContextualUpdate` while connected, which does not itself trigger a spoken reply. C1 phrasings:
+The display callback receives `(display, fullResponse)` only after success. The agent receives the complete compact `model_result` as JSON, with speech and any error, within 48 KiB (49,152 UTF-8 bytes). If the complete response exceeds that limit, it receives an explicit `result_too_large` error and a request for a smaller page or fewer entities. Rows and candidates are never silently truncated. Failures remain `ok:false`. Configure every hosted ElevenLabs client tool to **Wait for response**.
+
+The hook shares a `next_step` request generation across handler recreations. A newer `next_step` (including `no_route`) suppresses an older instruction before display and speech. A new user turn supersedes pending results. Stop, retry or session/agent teardown retires conversation callbacks and blocks further tool calls. An already dispatched admin commit can still return its actual outcome after stop, but cannot repaint a retired view; a newer user turn suppresses its stale result. Context updates alone do not cancel a sole instruction that has already advanced the server index. Pending token and transcript requests are aborted and invalidated on stop or teardown. Late responses cannot start voice, reuse an old turn or show a stale error. The SDK retains responsibility for its connection lifecycle.
+
+Use `voice.sendContext(text)` after real application state changes; it wraps `sendContextualUpdate` while connected, which does not itself trigger a spoken reply. Example messages:
 
 - `Position: <space name> (<floor name>), source <marker|manual|tour start>.`
 - `Tour <tour_id> loaded: <n> stops, next <label>.`
@@ -36,6 +40,8 @@ The desk, phone chat and admin share the real voice transcript. `sendText(text)`
 
 The compact `VoiceOrb` reflects actual connection, speaking, mute and sampled audio levels. `VoiceConversation` shows real messages, safe asynchronous failures, Retry, mute and End. Voice starts only from a user gesture. The SDK and token fetch have bounded connection/teardown waits; replacing a session retires its audio, requests, messages and UI callbacks.
 
-Two browser-only planning desk tools, `update_selection` and `focus_floor`, are separate from the eleven server tools. They validate IDs against the currently loaded building and return actual outcomes. Phone and admin contexts do not expose these actions. Server authority, admin preview/confirmation and write idempotency are unchanged.
+Two browser-only planning desk tools, `update_selection` and `focus_floor`, are separate from the 17 backend tools. They validate IDs against the currently loaded building and return actual outcomes. They require the same current registered user turn and conversation guards as backend tools. Failed registration, a newer turn or a retired connection blocks the UI action. Phone and admin contexts do not expose these actions.
 
-Navigator preview operations: 10 calls per day, at most 180 seconds per call, one concurrent conversation (user-approved). Admin retains its separate existing limits. These ongoing limits are separate from the $5 development testing budget.
+Recorded Navigator preview limits: 10 calls per day, at most 180 seconds per call, one concurrent conversation (user-approved). Admin retains its separate existing limits. These ongoing limits are separate from the $5 development testing budget.
+
+These limits describe the recorded hosted configuration. Local bridge, prompt and generated catalog changes do not update the hosted ElevenLabs agents. This integration did not change or verify provider accounts. Check the hosted tool definitions and prompts separately before claiming that this refactor is deployed there.
