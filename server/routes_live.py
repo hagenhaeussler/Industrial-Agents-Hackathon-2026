@@ -135,7 +135,8 @@ def replan_tour(tour_id: str, body: schemas.TourReplan, request: Request) -> dic
     service, store = components(request)
     session = store.get_session(body.session_id)
     position = checked_position(service, store, session['building_id'], body.position)
-    result = service.replan_tour(tour_id, body.session_id, position, body.reason)
+    constraints = body.constraints.model_dump(exclude_unset=True) if body.constraints is not None else None
+    result = service.replan_tour(tour_id, body.session_id, position, body.reason, constraints=constraints)
     store.update_session(body.session_id, {'position': position, 'active_tour_id': tour_id})
     return result
 

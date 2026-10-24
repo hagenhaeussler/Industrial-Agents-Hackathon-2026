@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C5** (24 Oct 2026; reconciles concurrent C4 core closure-list support and platform mobility transport; C2/C3 definitions preserved). Section owners:
+Contract version: **C6** (24 Oct 2026; additive explicit replan constraints; C2–C5 definitions preserved). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -240,7 +240,7 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `POST /api/tours` | `{"session_id", "start"?, "items": ["asset or space ids"], "keep_order": false, "end": null}` | TourResult with `tour_id` |
 | `GET /api/tours/{id}` | – | TourResult (latest revision) |
 | `POST /api/tours/{id}/progress` | `{"stop_id", "status": "collected|pending"}` | TourResult |
-| `POST /api/tours/{id}/replan` | `{"session_id", "from": {"space_id", "point"?}, "reason"}` | TourResult revision + 1 |
+| `POST /api/tours/{id}/replan` | `{"session_id", "from": {"space_id", "point"?}, "reason", "constraints"?: <partial constraints>}` | TourResult revision + 1 |
 | `GET /api/markers/{id}` | – | marker §10 |
 | `POST /api/buildings/{id}/markers` | `{"markers": [{"space_id", "point", "heading_deg", "label"}]}` (admin) | `[marker]` |
 | `GET /api/buildings/{id}/markers/sheet` | – | printable HTML with QR codes (URL form §10) |
@@ -249,6 +249,8 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `POST /api/demo/reset` | `{"building_id"}` (admin; demo mode) | archives the building's event log, restarts it at version 0 and broadcasts `building_reset`; never available outside demo mode |
 
 **Session header and handoff metadata (C2, additive):** Administrative raw-HTTP requests (building upload, marker creation, demo reset, plan import) carry `X-Session-ID: <admin session_id>`; tools already carry `session_id` in their JSON body. `POST /api/tours/{id}/progress` accepts optional `X-Session-ID` to advance the calling phone's position; include it on the phone. Without it, the stored tour session is used for compatibility. The caller must belong to the same building and have opened that tour. Server tours also carry `mobility_profile` (`walk|wheelchair|pram|trolley`) separately from the cost `profile`; the phone copies it and `constraints` when opening the handoff. `TYB_DEMO_MODE=true` is required to enable demo reset; it is disabled by default. `GET /devtest` serves the unlinked device-gate page after the frontend build.
+
+**Explicit replan constraints (C6, CR-M-4):** optional `constraints` on replan overrides only the fields explicitly present, retaining other saved tour constraints, stop IDs and collected progress. Omitted or null means preserve existing behavior. A non-walk session profile still enforces step-free routing even if an override says false. For the deliberate “Show the route with stairs” action, the UI must explicitly PATCH the session to `profile: "walk"` with its existing constraints plus `step_free: false`, then replan with `constraints: {"step_free": false}`. This changes the stored tour constraint; it does not silently downgrade mobility on reconnect or a building event. The session PATCH and replan remain separate requests; report a failure if either fails. Session closure constraints remain combined with tour closures. The eleven voice tools are unchanged.
 
 Front-end routes served by the SPA: `/` (building picker), `/desk`, `/admin`, `/go/{tour_id}`, `/m/{marker_id}`. Query `?demo=hero` loads the demo scenario.
 
@@ -399,4 +401,5 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C4 platform — 24 Oct 2026, Manuel's codex, CR-L-1/CR-L-2:** §8 persistent affirmative mobility and explicit closure bridge; C2/C3 preserved.
 - **C4 core — 24 Oct 2026, Hagen's codex, CR-L-2 accepted:** §4 accepts original single closure strings and live empty/single/multiple lists; original benchmark inputs remain supported.
 - **C5 — 24 Oct 2026, Manuel's codex (captain):** reconciled both C4 handoffs; §8 follows the core's closure-list support (including no closures) and preserves match-stage precedence across asset/space find candidates (CR-L-3). Tool names and required arguments unchanged.
+- **C6 — 24 Oct 2026, Manuel's codex, CR-M-4:** §7 adds optional partial replan constraints for an explicit mobility change while preserving tour identity/progress and profile safeguards. No changes to core interfaces or the eleven tools.
 
