@@ -1,0 +1,63 @@
+{
+  "_fixture": {
+    "producer": "Manuel's codex",
+    "contract": "C2",
+    "generated_by": "uv run python scripts/generate_server_fixtures.py",
+    "replace_by": "GET /api/buildings/proc-factory-dev-003/events; WS /ws/buildings/proc-factory-dev-003",
+    "kind": "contract example with real building IDs and geometry; not live server state"
+  },
+  "building_id": "proc-factory-dev-003",
+  "events": [
+    {
+      "event_id": "evt-1",
+      "building_id": "proc-factory-dev-003",
+      "building_version": 1,
+      "kind": "close",
+      "edit": {
+        "action": "close",
+        "target": "proc-factory-dev-003-V02",
+        "second_target": null,
+        "value": null
+      },
+      "undoes": null,
+      "op_id": "d348444a-7a98-4f56-96ec-25e742b32d9b",
+      "proposal_id": "prp_fixtureclose",
+      "session_id": "1b037bf2fcbf4b4693abc81ce7b760dd",
+      "author_role": "admin",
+      "summary": "Office lift closed",
+      "created_at": "2026-10-24T20:00:00Z"
+    }
+  ],
+  "messages": [
+    {
+      "type": "hello",
+      "building_id": "proc-factory-dev-003",
+      "building_version": 0
+    },
+    {
+      "type": "building_changed",
+      "building_id": "proc-factory-dev-003",
+      "building_version": 1,
+      "event": {
+        "event_id": "evt-1",
+        "building_id": "proc-factory-dev-003",
+        "building_version": 1,
+        "kind": "close",
+        "edit": {
+          "action": "close",
+          "target": "proc-factory-dev-003-V02",
+          "second_target": null,
+          "value": null
+        },
+        "undoes": null,
+        "op_id": "d348444a-7a98-4f56-96ec-25e742b32d9b",
+        "proposal_id": "prp_fixtureclose",
+        "session_id": "1b037bf2fcbf4b4693abc81ce7b760dd",
+        "author_role": "admin",
+        "summary": "Office lift closed",
+        "created_at": "2026-10-24T20:00:00Z"
+      },
+      "at": "2026-10-24T20:00:00Z"
+    }
+  ]
+}
