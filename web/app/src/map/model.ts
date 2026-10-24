@@ -67,6 +67,13 @@ export const isProvisional = (tour: Tour | null) => !!tour && ((tour as { _fixtu
 
 export const reachableLegs = (tour: Tour | null): ReachableRoute[] => (tour?.legs ?? []).filter((leg): leg is ReachableRoute => leg.reachable);
 
+/** All stops in display order: collected ones first (the server's `order` lists only pending stops after a replan). */
+export function displayOrder(tour: Tour): string[] {
+  const pending = new Set(tour.order);
+  const blocked = tour.unreachable_stops.map(item => item.stop_id).filter(id => !pending.has(id));
+  return [...tour.stops.filter(stop => !pending.has(stop.stop_id) && stop.status === 'collected').map(stop => stop.stop_id), ...tour.order, ...blocked];
+}
+
 /** Numbered stop positions: the end of the leg that arrives there (what the core drew), else the room anchor. */
 export function stopMarks(model: Model, tour: Tour | null): StopMark[] {
   if (!tour) return [];
@@ -77,7 +84,7 @@ export function stopMarks(model: Model, tour: Tour | null): StopMark[] {
     const last = walk?.points[walk.points.length - 1];
     if (walk && last) arrivals.set(leg.to_space_id, { point: last, floorId: walk.floor_id });
   }
-  return tour.order.flatMap((stopId, index) => {
+  return displayOrder(tour).flatMap((stopId, index) => {
     const stop = byId.get(stopId);
     if (!stop) return [];
     const arrival = arrivals.get(stop.space_id);
@@ -87,11 +94,14 @@ export function stopMarks(model: Model, tour: Tour | null): StopMark[] {
 }
 
 /** Building-space box of everything the tour draws on one floor (for "fit to route"). */
-export function routeBox(model: Model, tour: Tour | null, floorId: string): Box | null {
+export function routeBox(model: Model, tour: Tour | null, floorId: string, legIndex?: number): Box | null {
   const points: Point[] = [];
-  for (const leg of reachableLegs(tour)) for (const segment of leg.segments) if (segment.floor_id === floorId) points.push(...segment.points);
-  if (tour?.start.floor_id === floorId) points.push(tour.start.point);
-  for (const mark of stopMarks(model, tour)) if (mark.floorId === floorId) points.push(mark.point);
+  const legs = legIndex === undefined ? reachableLegs(tour) : [tour?.legs[legIndex]].filter((leg): leg is ReachableRoute => !!leg?.reachable);
+  for (const leg of legs) for (const segment of leg.segments) if (segment.floor_id === floorId) points.push(...segment.points);
+  if (legIndex === undefined) {
+    if (tour?.start.floor_id === floorId) points.push(tour.start.point);
+    for (const mark of stopMarks(model, tour)) if (mark.floorId === floorId) points.push(mark.point);
+  }
   return bounds(points);
 }
 

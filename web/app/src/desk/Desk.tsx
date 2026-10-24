@@ -1,9 +1,9 @@
-import { ArrowUp, Building2, LoaderCircle, MapPin, Route } from 'lucide-react';
+import { Accessibility, ArrowUp, Building2, LoaderCircle, MapPin, Route } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
-import type { Candidate, ChatReply, Display, ServerMessage, Session, Tour } from '../api/types';
+import type { Candidate, ChatReply, Display, MobilityProfile, ServerMessage, Session, Tour } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { MapView } from '../map/MapView';
 import { anchorOf, assetPlace, buildModel, floorName, isProvisional, placeOf, spaceName } from '../map/model';
@@ -12,6 +12,7 @@ import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { scenario } from '../demo/scenario';
 import { HandoffDialog } from './HandoffDialog';
+import { fallbackReply } from './matchParts';
 import { PartsList } from './PartsList';
 import { StartPicker } from './StartPicker';
 import { TourPanel } from './TourPanel';
@@ -51,6 +52,7 @@ export function Desk() {
   const [ask, setAsk] = useState('');
   const [asking, setAsking] = useState(false);
   const [agent, setAgent] = useState<Agent>(null);
+  const [chatOffline, setChatOffline] = useState(false);
   const [picker, setPicker] = useState(false);
   const [handoff, setHandoff] = useState(false);
   const [openedOnPhone, setOpenedOnPhone] = useState(false);
@@ -138,15 +140,28 @@ export function Desk() {
     else if (display.space_id && model.space.has(display.space_id)) { setFrameSpaces([display.space_id]); setFloorId(model.space.get(display.space_id)!.floor_id); }
   };
 
+  const localAnswer = (text: string) => {
+    if (!model) return;
+    const answer = fallbackReply(model, text);
+    setAgent({ text: answer.reply, candidates: answer.candidates, tone: 'info' });
+    if (answer.select.length) setSelected(current => new Set([...current, ...answer.select]));
+    if (answer.focus) focusAsset(answer.focus);
+    setAsk('');
+  };
+
   const sendAsk = async (text: string) => {
     if (!session || !text.trim()) return;
+    if (chatOffline) { localAnswer(text.trim()); return; }
     setAsking(true);
     await latest(() => api.chat(session.session_id, text.trim()), (reply: ChatReply) => {
       const failed = reply.tool_calls.find(call => !call.ok && call.error?.candidates?.length);
       setAgent({ text: reply.reply, candidates: failed?.error?.candidates?.slice(0, 4) ?? [], tone: 'info' });
       applyDisplay(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display);
       setAsk('');
-    }, error => setAgent({ text: error instanceof ApiError && (error.status === 404 || error.status === 501 || error.status === 503) ? 'Text chat is not connected yet. Pick parts from the list instead.' : message(error), candidates: [], tone: 'error' }));
+    }, error => {
+      if (error instanceof ApiError && [404, 501, 503].includes(error.status)) { setChatOffline(true); localAnswer(text.trim()); }
+      else setAgent({ text: message(error), candidates: [], tone: 'error' });
+    });
     setAsking(false);
   };
   const submitAsk = (event: FormEvent) => { event.preventDefault(); void sendAsk(ask); };
@@ -158,6 +173,12 @@ export function Desk() {
       setSession(await api.updateSession(session.session_id, { position: { space_id: spaceId, floor_id: model.space.get(spaceId)?.floor_id, point: anchorOf(model, spaceId), source: 'desk', confidence: 'medium', heading_deg: null, marker_id: null } }));
       setTour(null);
     } catch (error) { setAgent({ text: `Could not change the start: ${message(error)}`, candidates: [], tone: 'error' }); }
+  };
+
+  const setProfile = async (profile: MobilityProfile) => {
+    if (!session) return;
+    try { setSession(await api.updateSession(session.session_id, { profile })); setTour(null); }
+    catch (error) { setAgent({ text: `Could not change how you move: ${message(error)}`, candidates: [], tone: 'error' }); }
   };
 
   const you = model ? placeOf(model, tour?.start ?? session?.position) : null;
@@ -186,7 +207,7 @@ export function Desk() {
       </form>
       {agent && <div className={`agent-reply ${agent.tone}`} role="status" aria-live="polite">
         <p>{agent.text}</p>
-        {agent.candidates.length > 0 && <div className="chips">{agent.candidates.map(candidate => <button key={candidate.id} onClick={() => { if (model.asset.has(candidate.id)) focusAsset(candidate.id); void sendAsk(candidate.name); }}>{candidate.name}{candidate.floor_id ? <span> · {floorName(model, candidate.floor_id)}</span> : null}</button>)}</div>}
+        {agent.candidates.length > 0 && <div className="chips">{agent.candidates.map(candidate => <button key={candidate.id} onClick={() => { if (model.asset.has(candidate.id)) focusAsset(candidate.id); if (chatOffline) { setSelected(current => new Set([...current, candidate.id])); setAgent(null); } else void sendAsk(candidate.name); }}>{candidate.name}{candidate.floor_id ? <span> · {floorName(model, candidate.floor_id)}</span> : null}</button>)}</div>}
       </div>}
 
       <button className="start-chip" onClick={() => setPicker(true)} disabled={!session}>
@@ -194,6 +215,16 @@ export function Desk() {
         <span>{you ? <>You are at <strong>{spaceName(model, you.space_id)}</strong> · {floorName(model, you.floor_id)}</> : 'Where are you now?'}</span>
         <span className="link">Change</span>
       </button>
+      <label className="profile-chip">
+        <Accessibility size={17} aria-hidden="true"/>
+        <span>How do you move?</span>
+        <select value={session?.profile ?? 'walk'} disabled={!session} onChange={event => void setProfile(event.target.value as MobilityProfile)}>
+          <option value="walk">Walking, stairs are fine</option>
+          <option value="wheelchair">Wheelchair: step-free only</option>
+          <option value="pram">Pram: step-free only</option>
+          <option value="trolley">Trolley: step-free, wide doors</option>
+        </select>
+      </label>
 
       {tour
         ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => setTour(null)} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}/>
