@@ -1147,7 +1147,9 @@ export interface operations {
     create_session_api_sessions_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "X-Admin-Token"?: string | null;
+            };
             path?: never;
             cookie?: never;
         };

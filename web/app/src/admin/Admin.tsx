@@ -19,6 +19,7 @@ import { Upload } from './Upload';
 type Target = { id: string; name: string; kind: 'lift' | 'stairs' | 'door' | 'room'; closed: boolean; detail: string };
 type Preview = EditPreview & { target: Target; opId: string };
 
+const CODE_KEY = 'tyb.adminCode';
 const message = (error: unknown) => error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'Something went wrong.';
 const uuid = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`);
 const time = (iso: string) => { try { return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); } catch { return ''; } };
@@ -64,11 +65,26 @@ function AdminScreen() {
   }, error => setNotice({ text: `The building did not load: ${message(error)}`, tone: 'error' })), [buildingId, latest]);
 
   useEffect(() => { void reload(); }, [reload]);
-  useEffect(() => {
-    let live = true;
-    ensureSession(buildingId, 'desk', 'admin').then(next => { if (live) setSession(next); }, error => { if (live) setNotice({ text: `Could not start an admin session: ${message(error)}`, tone: 'error' }); });
-    return () => { live = false; };
+  // CR-C-2: the server opens an admin session only with the admin code (or for a client on its own machine)
+  const [code, setCode] = useState<'checking' | 'needed' | 'wrong' | 'ok'>('checking');
+  const [codeInput, setCodeInput] = useState('');
+  const connect = useCallback(async (adminCode?: string) => {
+    try {
+      const next = await ensureSession(buildingId, 'desk', 'admin', adminCode);
+      setSession(next); setCode('ok');
+      if (adminCode) { try { sessionStorage.setItem(CODE_KEY, adminCode); } catch { /* tab-only convenience */ } }
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 403) {
+        setCode(adminCode ? 'wrong' : 'needed');
+        if (adminCode) { try { sessionStorage.removeItem(CODE_KEY); } catch { /* ignore */ } }
+      } else setNotice({ text: `Could not start an admin session: ${message(error)}`, tone: 'error' });
+    }
   }, [buildingId]);
+  useEffect(() => {
+    let stored: string | null = null;
+    try { stored = sessionStorage.getItem(CODE_KEY); } catch { /* storage blocked */ }
+    void connect(stored ?? undefined);
+  }, [connect]);
 
   const onSocket = useCallback((event: ServerMessage) => {
     if (event.type === 'building_changed' || event.type === 'building_reset') void reload();
@@ -175,6 +191,15 @@ function AdminScreen() {
         <div><p className="product">Admin · building changes</p><h1>{model.snapshot.building.building.name}</h1></div>
         {mockMode && <DemoBadge reason="Mock mode"/>}
       </header>
+
+      {!session && (code === 'needed' || code === 'wrong') && <form className="code-card" onSubmit={event => { event.preventDefault(); if (codeInput.trim()) void connect(codeInput.trim()); setCodeInput(''); }}>
+        <h2>Building changes need the admin code</h2>
+        <p>Ask the facility team for it. It stays in this browser tab and is only sent to this server.</p>
+        <label htmlFor="admin-code">Admin code</label>
+        <input id="admin-code" type="password" autoComplete="off" value={codeInput} onChange={event => setCodeInput(event.target.value)} aria-invalid={code === 'wrong'} aria-describedby={code === 'wrong' ? 'admin-code-error' : undefined}/>
+        {code === 'wrong' && <p id="admin-code-error" className="plan-error" role="alert">That code is not right. Try again.</p>}
+        <button className="primary-button" type="submit" disabled={!codeInput.trim()}>Unlock changes</button>
+      </form>}
 
       <form className="ask" onSubmit={event => void sendAsk(event)}>
         <label htmlFor="admin-ask">What changed?</label>

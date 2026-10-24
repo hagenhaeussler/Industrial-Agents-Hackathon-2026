@@ -29,7 +29,8 @@ const send = async <T>(method: string, path: string, body?: unknown, headers?: R
 export const api = {
   buildings: () => send<BuildingSummary[]>('GET', '/api/buildings'),
   building: (id: string, version?: number) => send<Snapshot>('GET', `/api/buildings/${encodeURIComponent(id)}${version === undefined ? '' : `?version=${version}`}`),
-  createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }),
+  /** An admin session needs the admin code in `X-Admin-Token` (CR-C-2). */
+  createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }, adminCode?: string) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }, adminCode ? { 'X-Admin-Token': adminCode } : undefined),
   session: (id: string) => send<Session>('GET', `/api/sessions/${id}`),
   updateSession: (id: string, patch: { position?: Position | null; profile?: MobilityProfile; constraints?: Partial<Constraints>; active_tour_id?: string | null }) => send<Session>('PATCH', `/api/sessions/${id}`, patch),
   planTour: (body: { session_id: string; items: string[]; keep_order: boolean; start?: { space_id: string; point?: [number, number] }; end?: string | null }) => send<Tour>('POST', '/api/tours', body),
@@ -48,7 +49,7 @@ export const api = {
 };
 
 /** Reuses the stored session for this building and device, or creates one (CONTRACTS §10). */
-export async function ensureSession(building_id: string, device: Device, role: Role = 'navigator'): Promise<Session> {
+export async function ensureSession(building_id: string, device: Device, role: Role = 'navigator', adminCode?: string): Promise<Session> {
   const key = `tyb.session.${building_id}.${device}.${role}${mockMode ? '.mock' : ''}`;
   let stored: string | null = null;
   try { stored = localStorage.getItem(key); } catch { /* storage blocked: a fresh session per load */ }
@@ -58,7 +59,7 @@ export async function ensureSession(building_id: string, device: Device, role: R
       if (session.building_id === building_id) return session;
     } catch { /* expired or unknown: create a new one */ }
   }
-  const session = await api.createSession({ building_id, device, role });
+  const session = await api.createSession({ building_id, device, role }, adminCode);
   try { localStorage.setItem(key, session.session_id); } catch { /* ignore */ }
   return session;
 }
