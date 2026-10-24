@@ -2,7 +2,9 @@
 
 import math
 import threading
+from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 
 # Prices are the first-party rates recorded in MASTER_PLAN §4.2.
 PRICES = {
@@ -13,6 +15,23 @@ PRICES = {
 
 class BudgetExceeded(ValueError):
     pass
+
+
+@contextmanager
+def paid_run_guard(path: Path, dollars: float | None):
+    """An interrupted paid batch needs reconciliation before another allocation."""
+    if dollars is None:
+        yield
+        return
+    Budget(dollars)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open("x", encoding="utf-8") as handle:
+            handle.write(f"Allocated USD {dollars}. Incomplete paid batch.\n")
+    except FileExistsError as error:
+        raise ValueError(f"Paid run is active or was interrupted: {path}. Reconcile its spend before using a new written allocation and run name/output.") from error
+    yield
+    path.unlink()
 
 
 def cost(model: str, usage: dict[str, int]) -> float:
