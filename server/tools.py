@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 import logging
-import time
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from typing import Literal
@@ -111,10 +110,10 @@ class ToolRegistry:
         return [{"name": t.name, "description": t.description, "input_schema": t.json_schema} for t in REGISTRY.values()]
 
     def call(self, name, session_id, args=None):
+        # Reserved envelope field stays empty: calculation explanations are disabled.
         request_id = identifier("req")
         version = 0
         building_id = None
-        started = time.perf_counter()
         try:
             if name not in REGISTRY:
                 raise ServiceError("invalid_args", "Unknown tool.")
@@ -130,12 +129,10 @@ class ToolRegistry:
                 raise ServiceError("invalid_args", "Check the tool's required fields and argument types.", fields=[".".join(map(str, e["loc"])) for e in exc.errors()]) from exc
             result, speech, display = getattr(self, tool.handler)(session, dict(values))
             version = self.service.store.version(building_id)
-            building = self.service.current(building_id)
-            source = result.get("_adapter", building.adapter) if isinstance(result, dict) else building.adapter
             return public_payload({"ok": True, "tool": name, "request_id": request_id,
                     "building_id": building_id, "building_version": version,
                     "result": result, "speech": speech, "display": display,
-                    "trace": [{"fn": name, "args": values, "ms": round((time.perf_counter() - started) * 1000, 2), "_adapter": source}]})
+                    "trace": []})
         except ServiceError as exc:
             error = exc.payload()
             if isinstance(error.get("candidates"), list):
@@ -143,7 +140,7 @@ class ToolRegistry:
                                        if isinstance(candidate, dict) else candidate for candidate in error["candidates"]]
             return public_payload({"ok": False, "tool": name, "request_id": request_id, "building_id": building_id,
                     "building_version": version, "error": error, "speech": exc.message,
-                    "trace": [{"fn": name, "args": {}, "ms": round((time.perf_counter() - started) * 1000, 2)}]})
+                    "trace": []})
         except Exception:
             logger.exception("Tool failed request_id=%s tool=%s", request_id, name)
             return {"ok": False, "tool": name, "request_id": request_id, "building_id": building_id,

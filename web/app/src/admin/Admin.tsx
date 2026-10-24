@@ -13,7 +13,6 @@ import type { Model } from '../map/model';
 import { humanSummary } from '../phone/guidance';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
-import { TracePanel } from '../trace/TracePanel';
 import { VoiceButton, VoiceRoot, useVoiceSession } from '../phone/voice';
 import { Upload } from './Upload';
 import { VoiceConversation } from '../voice/VoiceConversation';
@@ -58,7 +57,6 @@ function AdminScreen() {
   const [notice, setNotice] = useState<{ text: string; tone: 'ok' | 'error' | 'conflict' } | null>(null);
   const [ask, setAsk] = useState('');
   const [resetAvailable, setResetAvailable] = useState(true);
-  const [lastCalls, setLastCalls] = useState<ToolResponse[]>([]);
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   const reload = useCallback(() => latest(() => Promise.all([api.building(buildingId), api.events(buildingId)]), ([snapshot, log]) => {
@@ -85,7 +83,7 @@ function AdminScreen() {
     const next = await ensureSession(buildingId, 'desk', 'admin', code);
     rememberAdminCode(code); setSession(next); setAccessError(null);
   };
-  const lock = () => { clearAdminSession(buildingId); setSession(null); setPreview(null); setLastCalls([]); setAsk(''); setAccessError(null); };
+  const lock = () => { clearAdminSession(buildingId); setSession(null); setPreview(null); setAsk(''); setAccessError(null); };
 
   const onSocket = useCallback((event: ServerMessage) => {
     if (event.type === 'building_changed' || event.type === 'building_reset') void reload();
@@ -97,7 +95,6 @@ function AdminScreen() {
     let response: ToolResponse;
     try { response = await api.tool(name, session.session_id, args); }
     catch (error) { if (error instanceof ApiError && error.status === 403) { lock(); setAccessError('Admin access expired. Enter the current code to continue.'); } throw error; }
-    setLastCalls(current => [response, ...current].slice(0, 3));
     if (!response.ok && response.error?.code === 'forbidden') { lock(); setAccessError('Admin access expired. Enter the current code to continue.'); }
     if (!response.ok) throw Object.assign(new ApiError(200, response.error?.code ?? 'internal', response.error?.message ?? response.speech ?? 'The change failed.'), { response });
     return response;
@@ -184,7 +181,6 @@ function AdminScreen() {
     }
     if (display.kind === 'edit_committed') { setPreview(null); void reload(); }
   }, { onToolResponse: response => {
-    if ('request_id' in response && 'tool' in response) setLastCalls(current => [response as ToolResponse, ...current].slice(0, 3));
     if (!response.ok) {
       if (response.error?.code === 'forbidden') { lock(); setAccessError('Admin access expired. Enter the current code to continue.'); }
       else setNotice({ text: response.speech ?? response.error?.message ?? 'That action could not complete.', tone: 'error' });
@@ -243,8 +239,6 @@ function AdminScreen() {
             <button ref={confirmRef} className="primary-button" onClick={() => void commit()} disabled={!!busy}>{busy === 'commit' ? <LoaderCircle className="spin" size={18}/> : <Check size={18}/>}Confirm: {preview.edit.action === 'close' ? 'close' : preview.edit.action === 'open' ? 'reopen' : 'apply'}</button>
           </div>
         </section>}
-
-        <TracePanel model={model} responses={lastCalls}/>
 
         <section className="admin-section" aria-labelledby="vertical-title">
           <h2 id="vertical-title">Lifts and stairs</h2>

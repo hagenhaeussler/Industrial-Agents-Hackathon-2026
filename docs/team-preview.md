@@ -15,7 +15,7 @@ The desktop keeps parts, conversation, position and mobility on the left. The se
 ## Try the journey
 
 1. Open the prepared desk scenario. It selects the 3D printer, tool cabinet and UPS on two floors. Confirm your starting room and travel profile.
-2. Choose **Plan collection tour**. Inspect the route, collection order, distance and calculation explanation.
+2. Choose **Plan collection tour**. Inspect the route, collection order, distance.
 3. Choose **Send to phone** and scan its QR code, or copy the link into another browser. Confirm the starting room on the phone. The phone uses this confirmation, position markers and manual progress; it does not automatically know your indoor location.
 4. Follow the map/directions and mark each part collected. Reload once to check that progress survives. A selected final destination requires its own explicit arrival after the collection stops.
 5. To try a building change, an authorized teammate opens [Admin](https://hagen-core-test-testing.up.railway.app/admin?demo=hero), enters the private admin code, previews a closure, and confirms it. An active phone tour should replan. Undo the test change afterwards. A wheelchair tour must stay blocked when no step-free alternative exists; stairs require an explicit profile change.

@@ -4,7 +4,7 @@ import type { FormEvent } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
 import { sameBuildingState } from '../api/buildingState';
-import type { Candidate, ChatReply, Display, MobilityProfile, ReachableRoute, ServerMessage, Session, ToolResponse, Tour } from '../api/types';
+import type { Candidate, ChatReply, Display, MobilityProfile, ReachableRoute, ServerMessage, Session, Tour } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { MapView } from '../map/MapView';
 import { RoutePreview } from '../map/RoutePreview';
@@ -23,7 +23,6 @@ import { fallbackReply } from './matchParts';
 import { PartsList } from './PartsList';
 import { StartPicker } from './StartPicker';
 import { TourPanel } from './TourPanel';
-import { TracePanel } from '../trace/TracePanel';
 
 type Agent = { text: string; candidates: Candidate[]; tone: 'info' | 'error' } | null;
 
@@ -62,8 +61,6 @@ function DeskScreen() {
   const [search, setSearch] = useState('');
   const [tour, setTour] = useState<Tour | null>(null);
   const [requestedRoute, setRequestedRoute] = useState<ReachableRoute | null>(null);
-  const [lastCalls, setLastCalls] = useState<ToolResponse[]>([]);
-  const [plannedMs, setPlannedMs] = useState<number | null>(null);
   const [planning, setPlanning] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
   const [ask, setAsk] = useState('');
@@ -145,13 +142,10 @@ function DeskScreen() {
   const plan = async (items: string[] = [...selected]) => {
     if (!session || !items.length) return;
     setPlanning(true); setPlanError(null);
-    const started = performance.now();
     await latestTour(() => api.planTour({ session_id: session.session_id, items, keep_order: false, end: null }), next => {
       if (!acceptTour(next)) return;
-      setPlannedMs(performance.now() - started);
       setRequestedRoute(null); setOpenedOnPhone(false); setFocusId(null); setFrameSpaces([]);
       setFloorId(next.start.floor_id);
-      console.info(`[timing] plan → route visible: ${Math.round(performance.now() - started)} ms (tour ${next.tour_id})`);
       requestAnimationFrame(() => document.getElementById('tour-title')?.focus());
     }, error => setPlanError(message(error)));
     setPlanning(false);
@@ -165,8 +159,7 @@ function DeskScreen() {
       return;
     }
     if (display.kind === 'tour' && display.tour_id) {
-      const started = performance.now();
-      void latestTour(() => api.tour(display.tour_id!), next => { if (!acceptTour(next)) return; setRequestedRoute(null); setFocusId(null); setFrameSpaces([]); setPlannedMs(performance.now() - started); setFloorId(next.start.floor_id); setSelected(new Set(next.stops.flatMap(stop => stop.asset_ids))); });
+      void latestTour(() => api.tour(display.tour_id!), next => { if (!acceptTour(next)) return; setRequestedRoute(null); setFocusId(null); setFrameSpaces([]); setFloorId(next.start.floor_id); setSelected(new Set(next.stops.flatMap(stop => stop.asset_ids))); });
       return;
     }
     const assets = (display.asset_ids ?? []).filter(id => model.asset.has(id));
@@ -186,7 +179,6 @@ function DeskScreen() {
   const voice = useVoiceSession(session?.building_id === buildingId ? session.session_id : null, display => applyDisplay(display as Display), {
     clientTools: voiceTools,
     onToolResponse: response => {
-      if ('request_id' in response && 'tool' in response) setLastCalls(current => [response as ToolResponse, ...current].slice(0, 5));
       if (!response.ok) {
         const candidates = (response.error?.candidates ?? []).filter((item): item is Candidate => !!item && typeof item === 'object' && 'id' in item && 'name' in item && typeof item.id === 'string' && typeof item.name === 'string');
         setAgent({ text: response.speech ?? response.error?.message ?? 'That action could not complete.', candidates: candidates.slice(0, 4), tone: candidates.length ? 'info' : 'error' });
@@ -216,7 +208,6 @@ function DeskScreen() {
     if (chatOffline) { localAnswer(text.trim()); return; }
     setAsking(true);
     await latest(() => api.chat(session.session_id, text.trim()), (reply: ChatReply) => {
-      setLastCalls(reply.tool_calls.slice(-5));
       const failed = reply.tool_calls.find(call => !call.ok && call.error?.candidates?.length);
       setAgent({ text: reply.reply, candidates: failed?.error?.candidates?.slice(0, 4) ?? [], tone: 'info' });
       applyDisplay(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display);
@@ -292,9 +283,9 @@ function DeskScreen() {
       </label>
 
       {tour
-        ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}
-            busy={planning} responses={lastCalls} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
-        : <><PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/><TracePanel model={model} responses={lastCalls}/></>}
+        ? <TourPanel model={model} tour={tour} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}
+            busy={planning} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
+        : <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>}
     </aside>
 
     <section className="desk-map" aria-label="Building map">

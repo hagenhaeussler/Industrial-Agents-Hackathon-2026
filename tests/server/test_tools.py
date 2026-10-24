@@ -60,10 +60,11 @@ def test_find_never_confuses_numbers_and_ambiguity_changes_nothing(platform):
     assert response["result"]["id"] == "asset4"
     assert response["display"]["asset_ids"] == ["asset4"]
     assert response["display"]["floor_id"] == "ground"
-    assert response["trace"][0]["_adapter"] == "kit"
+    assert response["trace"] == []
     response = tools.call("find", nav, {"query": "Press 5"})
     assert response["ok"] is False
     assert response["error"]["code"] == "not_found"
+    assert response["trace"] == []
     response = tools.call("find", nav, {"query": "Spare drill"})
     assert response["ok"] is False
     assert response["error"]["code"] == "ambiguous"
