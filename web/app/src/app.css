@@ -175,3 +175,57 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
   .route-draw { animation: none; stroke-dashoffset: 0; }
   .spin, .pulse { animation: none; }
 }
+
+/* phone journey: banner on top, map in the middle, guidance dock at the thumb */
+.journey { height: 100svh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
+.journey > .map-view { grid-row: 2; position: relative; inset: auto; min-height: 0; }
+.journey .floor-switch { top: 10px; right: 12px; padding: 4px; }
+.journey .floor-switch button { min-width: 0; min-height: 40px; font-size: 12px; }
+.journey .map-controls { right: 12px; bottom: 10px; }
+.journey-top { grid-row: 1; padding: max(12px, env(safe-area-inset-top)) 12px 6px; display: grid; gap: 8px; max-width: 620px; width: 100%; margin: 0 auto; z-index: 2; }
+.journey-top .route-banner { min-height: 76px; }
+.journey-notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 8px 12px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45; font-weight: 650; }
+.journey-notice > div { flex: 1; display: grid; gap: 8px; }
+.journey-notice.change { background: var(--accent); }
+.journey-notice .icon-button { width: 36px; height: 36px; background: transparent; }
+.journey-notice .secondary-button { justify-self: start; min-height: 40px; background: #fff; }
+.journey-offline { justify-self: center; display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 12px; border-radius: 20px; }
+.journey-badges { justify-self: start; }
+.journey-dock { grid-row: 3; padding: 6px 12px max(12px, env(safe-area-inset-bottom)); display: grid; gap: 10px; max-width: 520px; width: 100%; margin: 0 auto; z-index: 2; }
+.agent-line { display: flex; align-items: flex-end; gap: 8px; }
+.agent-line .agent-presence { flex: 1; min-width: 0; padding: 0; }
+.avatar-wrap.small { width: 76px; height: 70px; }
+.avatar-wrap.small svg { width: 80px; height: 80px; }
+.agent-bubble { display: grid; gap: 2px; text-align: left; min-width: 0; }
+.agent-bubble strong { font-size: 14px; }
+.agent-bubble > span { font-size: 11px; color: var(--muted); }
+.voice-toggle { width: 48px; height: 48px; background: #fff; box-shadow: var(--shadow); }
+.voice-toggle.on { background: var(--ink); color: var(--accent); }
+.progress-dots { display: flex; gap: 6px; justify-content: center; }
+.progress-dots span { width: 28px; height: 6px; border-radius: 3px; background: #d9ddd1; }
+.progress-dots span.done { background: var(--ink); }
+.progress-dots span.now { background: var(--accent); box-shadow: 0 0 0 1.5px var(--ink) inset; }
+.dock-actions { display: flex; gap: 8px; align-items: center; }
+.dock-actions .icon-button { width: 56px; height: 56px; border-radius: 16px; background: #fff; box-shadow: var(--shadow); }
+.dock-actions .primary-button { flex: 1; min-height: 56px; font-size: 16px; border-radius: 16px; }
+.got-it { background: var(--ink); color: var(--accent); }
+.link-button { background: transparent; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; min-height: 32px; justify-self: center; }
+.confirm-card, .done-card { border-radius: 24px; padding: 20px; display: grid; gap: 10px; }
+.confirm-card h1, .done-card h1 { font-size: 24px; font-weight: 750; letter-spacing: -.8px; line-height: 1.2; }
+.confirm-card .primary-button { min-height: 56px; font-size: 16px; }
+.confirm-alt { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.confirm-alt .secondary-button { font-size: 13px; padding: 10px; }
+.done-card { justify-items: center; text-align: center; }
+.done-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; text-align: left; font-size: 13px; }
+.done-card li { display: flex; gap: 8px; align-items: center; }
+.route-steps section { margin-bottom: 14px; }
+.step-jump { background: transparent; padding: 0; text-align: left; font-size: 12px; font-weight: 650; min-height: 32px; }
+.route-steps li strong { font-size: 12px; }
+.scanner-sheet .scanner-view { position: relative; aspect-ratio: 3 / 4; max-height: 56svh; border-radius: 18px; overflow: hidden; background: #20251b; }
+.scanner-view video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scanner-frame { position: absolute; inset: 18%; border: 3px solid var(--accent); border-radius: 18px; box-shadow: 0 0 0 999px #0006; }
+.marker-notice { justify-items: start; }
+.marker-notice .brand-mark { width: 48px; height: 48px; }
+@media (min-width: 900px) {
+  .journey-dock { padding-bottom: 20px; }
+}

@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import type { Point, Space, Tour } from '../api/types';
+import type { Point, ReachableRoute, Segment, Space, Tour } from '../api/types';
 import { svgPoints, toSvg, viewBox, wallDirection } from '../geo/transform';
 import type { Box } from '../geo/transform';
 import { anchorOf, floorName, isPart, reachableLegs, stopMarks } from './model';
@@ -19,6 +19,8 @@ export type FloorMapProps = {
   onSpace?: (spaceId: string) => void;
   onFloor?: (floorId: string) => void;
   fit?: { id: string; box: Box | null };
+  /** phone: index into `tour.legs` drawn bold; the other legs are drawn quietly */
+  focusLeg?: number;
 };
 
 const CIRCULATION = new Set(['corridor', 'lobby', 'hallway', 'entrance_hall', 'foyer', 'hall_access']);
@@ -115,23 +117,29 @@ function Pill({ at, text, unit, dark = true, onClick }: { at: Point; text: strin
   </g>;
 }
 
-function RouteLayer({ model, floorId, tour, onFloor }: { model: Model; floorId: string; tour: Tour; onFloor?: (id: string) => void }) {
-  const legs = reachableLegs(tour);
-  const walks = legs.flatMap(leg => leg.segments).filter(segment => segment.kind === 'walk' && segment.floor_id === floorId);
+function walkPath(segments: Segment[], floorId: string): string {
   // contiguous segments continue one subpath, so the line has no caps or gaps at room boundaries
   let d = '';
   let last: Point | undefined;
-  for (const segment of walks) {
+  for (const segment of segments) {
+    if (segment.kind !== 'walk' || segment.floor_id !== floorId) { last = undefined; continue; }
     const [first, ...rest] = segment.points;
     if (!first) continue;
     const joined = last && Math.abs(last[0] - first[0]) < 1e-6 && Math.abs(last[1] - first[1]) < 1e-6;
     d += `${joined ? 'L' : 'M'}${svgPoints(joined ? rest : segment.points)}`;
     last = segment.points[segment.points.length - 1];
   }
-  d = d.replace(/L(?=M|$)/g, '');
+  return d.replace(/L(?=M|$)/g, '');
+}
+
+function RouteLayer({ model, floorId, tour, focusLeg, onFloor }: { model: Model; floorId: string; tour: Tour; focusLeg?: number; onFloor?: (id: string) => void }) {
+  const focused = focusLeg === undefined ? reachableLegs(tour) : [tour.legs[focusLeg]].filter((leg): leg is ReachableRoute => !!leg?.reachable);
+  const others = focusLeg === undefined ? [] : tour.legs.filter((leg, index): leg is ReachableRoute => index !== focusLeg && leg.reachable);
+  const d = walkPath(focused.flatMap(leg => leg.segments), floorId);
+  const rest = others.map(leg => walkPath(leg.segments, floorId)).join('');
   // one pill per connector and other floor: "Stairs to Floor 1", "Stairs from Floor 1" or "Stairs to and from Floor 1"
   const pills = new Map<string, { at: Point; kind: string; other: string; to: boolean; from: boolean }>();
-  for (const segment of legs.flatMap(leg => leg.segments)) {
+  for (const segment of focused.flatMap(leg => leg.segments)) {
     if (segment.kind === 'walk') continue;
     const connector = model.connector.get(segment.element_id);
     const kind = segment.kind === 'lift' ? 'Lift' : 'Stairs';
@@ -149,6 +157,7 @@ function RouteLayer({ model, floorId, tour, onFloor }: { model: Model; floorId: 
   const vertical = [...pills.values()].map(pill => ({ at: pill.at, go: pill.other, text: `${pill.kind} ${pill.to && pill.from ? 'to and from' : pill.to ? 'to' : 'from'} ${floorName(model, pill.other)}` }));
   const w = model.unit * 0.5;
   return <g className="map-route" pointerEvents="none">
+    {rest && <path d={rest} fill="none" stroke="#8f9485" strokeWidth={w * 0.55} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={`${w} ${w * 1.2}`} opacity={0.8}/>}
     {d && <>
       <path d={d} pathLength={1} className="route-draw" fill="none" stroke="#2b3420" strokeWidth={w * 1.9} strokeLinecap="round" strokeLinejoin="round"/>
       <path d={d} pathLength={1} className="route-draw" fill="none" stroke="#dcff58" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round"/>
@@ -157,7 +166,7 @@ function RouteLayer({ model, floorId, tour, onFloor }: { model: Model; floorId: 
   </g>;
 }
 
-export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, fit }: FloorMapProps) {
+export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, fit, focusLeg }: FloorMapProps) {
   const vb = useMemo(() => viewBox(model.box, model.unit * 3), [model]);
   const marks = useMemo(() => (tour ? stopMarks(model, tour).filter(mark => mark.floorId === floorId) : []), [model, tour, floorId]);
   const closedSpaces = useMemo(() => {
@@ -187,7 +196,7 @@ export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlig
     <Doors model={model} floorId={floorId}/>
     <Labels model={model} floorId={floorId} compact={compact}/>
     {showParts && !compact && <Parts model={model} floorId={floorId} onAsset={onAsset}/>}
-    {tour && <RouteLayer key={`${tour.tour_id}:${tour.revision}:${floorId}`} model={model} floorId={floorId} tour={tour} onFloor={onFloor}/>}
+    {tour && <RouteLayer key={`${tour.tour_id}:${tour.revision}:${floorId}:${focusLeg ?? ''}`} model={model} floorId={floorId} tour={tour} focusLeg={focusLeg} onFloor={onFloor}/>}
     {chosen.map(asset => asset && <g key={asset.id} className="map-chosen" onClick={onAsset ? () => onAsset(asset.id) : undefined}>
       <circle cx={fmt(toSvg(asset.position)[0])} cy={fmt(toSvg(asset.position)[1])} r={u * 0.55} fill="#191c16" stroke="#fff" strokeWidth={u * 0.18}/>
       {(asset.id === focusAssetId || chosen.length <= 6) && <Pill at={asset.position} text={asset.name} unit={u}/>}

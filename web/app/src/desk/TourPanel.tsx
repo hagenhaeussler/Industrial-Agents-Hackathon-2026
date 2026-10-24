@@ -1,6 +1,6 @@
 import { ArrowLeft, Smartphone, TriangleAlert } from 'lucide-react';
 import type { Tour, UnreachableReason } from '../api/types';
-import { isProvisional, spaceName } from '../map/model';
+import { displayOrder, isProvisional, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 
 export const policyLabel = (tour: Tour) => tour.order_policy === 'optimized_exact' ? 'Optimal order' : tour.order_policy === 'optimized_heuristic' ? 'Good order · heuristic' : 'Your order';
@@ -24,12 +24,12 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
     <div className="tour-head">
       <div>
         <p className="policy">{policyLabel(tour)}</p>
-        <h2 id="tour-title">{tour.order.length} {tour.order.length === 1 ? 'stop' : 'stops'} · {metres(tour.length_m)}</h2>
+        <h2 id="tour-title">{tour.stops.length} {tour.stops.length === 1 ? 'stop' : 'stops'} · {metres(tour.length_m)}</h2>
         <p className="muted">From {spaceName(model, tour.start.space_id)}{plannedMs !== null ? ` · planned in ${(plannedMs / 1000).toFixed(1)} s` : ''}</p>
       </div>
     </div>
     <ol className="stop-list">
-      {tour.order.map((stopId, index) => {
+      {displayOrder(tour).map((stopId, index) => {
         const stop = stops.get(stopId);
         if (!stop) return null;
         const leg = legTo.get(stop.space_id);

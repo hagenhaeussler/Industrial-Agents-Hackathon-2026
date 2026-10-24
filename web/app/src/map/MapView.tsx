@@ -22,10 +22,10 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, ...map }: Prop
   const ref = useRef<ReactZoomPanPinchRef>(null);
   const fitId = `fit-${useId().replace(/:/g, '')}`;
   const box: Box | null = useMemo(() => {
-    if (frame === 'route' && tour) return routeBox(model, tour, floorId);
+    if (frame === 'route' && tour) return routeBox(model, tour, floorId, map.focusLeg);
     if (frame === 'space' && frameSpaceIds?.length) return bounds(frameSpaceIds.flatMap(id => (model.space.get(id)?.floor_id === floorId ? model.space.get(id)?.polygon ?? [] : [])));
     return null;
-  }, [frame, tour, model, floorId, frameSpaceIds]);
+  }, [frame, tour, model, floorId, frameSpaceIds, map.focusLeg]);
 
   const fitNow = (animate = true) => {
     const controls = ref.current;
@@ -41,10 +41,28 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, ...map }: Prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frameKey, floorId, box ? 1 : 0]);
 
+  // re-frame when the visible map area changes size (phone dock grows or shrinks, rotation)
+  const view = useRef<HTMLDivElement>(null);
+  const fitRef = useRef(fitNow);
+  fitRef.current = fitNow;
+  useEffect(() => {
+    const element = view.current;
+    if (!element || typeof ResizeObserver === 'undefined') return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let first = true;
+    const observer = new ResizeObserver(() => {
+      if (first) { first = false; return; }
+      clearTimeout(timer);
+      timer = setTimeout(() => fitRef.current(false), 120);
+    });
+    observer.observe(element);
+    return () => { observer.disconnect(); clearTimeout(timer); };
+  }, []);
+
   const stopsOn = (id: string) => stopMarks(model, tour ?? null).filter(mark => mark.floorId === id).length;
   const floors = [...model.floors].reverse();
 
-  return <div className="map-view">
+  return <div className="map-view" ref={view}>
     <TransformWrapper ref={ref} minScale={0.6} maxScale={12} limitToBounds={false} doubleClick={{ mode: 'zoomIn', step: 0.7 }} wheel={{ step: 0.12 }} centerOnInit>
       <TransformComponent wrapperClass="map-wrapper" contentClass="map-content">
         <FloorMap {...map} fit={{ id: fitId, box }}/>
