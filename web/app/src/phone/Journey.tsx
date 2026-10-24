@@ -1,22 +1,29 @@
 import { Blobatar } from '@blobatar/react';
 import { happy, idle } from 'blobatar/expression';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Check, CornerUpLeft, CornerUpRight, DoorOpen, Flag, Footprints, ListOrdered, LoaderCircle, MapPin, Mic, MicOff, MoveUpLeft, MoveUpRight, Navigation, ScanQrCode, TriangleAlert, Undo2, WifiOff, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Camera, Check, CornerUpLeft, CornerUpRight, DoorOpen, Flag, Footprints, ListOrdered, LoaderCircle, MapPin, Mic, MicOff, MoveUpLeft, MoveUpRight, Navigation, ScanQrCode, TriangleAlert, Undo2, WifiOff, X } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
-import type { Display, ManeuverKind, Marker, Position, ServerMessage, Session, Tour, TourStop } from '../api/types';
+import { sameBuildingState } from '../api/buildingState';
+import type { Display, ManeuverKind, Marker, Position, ReachableRoute, ServerMessage, Session, Tour, TourStop } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { StartPicker } from '../desk/StartPicker';
 import { MapView } from '../map/MapView';
+import { FloorMap } from '../map/FloorMap';
+import { RoutePreview } from '../map/RoutePreview';
+import { displayedRoute, displayedSpaces, routeIsCurrent } from '../map/toolDisplay';
 import { anchorOf, buildModel, displayOrder, floorName, isProvisional, placeOf, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { ChatSheet } from './ChatSheet';
+import type { Anchor } from './cameraArrow';
+import { requestMotion } from './cameraMotion';
 import { atStop, blockedReason, cleanText, clampStep, collectedCount, context, currentLeg, currentLegIndex, currentTarget, destinationLabel, finalDestinationPending, metresToNext, pendingStops, rerouteNotice, stepPosition, stopLabel, tourDone } from './guidance';
 import { VoiceRoot, useVoiceSession } from './voice';
 
 const Scanner = lazy(() => import('./Scanner').then(module => ({ default: module.Scanner })));
+const CameraGuide = lazy(() => import('./CameraGuide').then(module => ({ default: module.CameraGuide })));
 
 const ICONS: Record<ManeuverKind, typeof ArrowUp> = {
   depart: Navigation, straight: ArrowUp, enter: DoorOpen, turn_left: CornerUpLeft, turn_right: CornerUpRight,
@@ -41,9 +48,11 @@ export function Journey({ tourId }: { tourId: string }) {
 function JourneyScreen({ tourId, session, setSession }: { tourId: string; session: Session | null; setSession: (session: Session) => void }) {
   const displayRef = useRef<(display: Display | null) => void>(() => undefined);
   const voice = useVoiceSession(session?.session_id ?? null, display => displayRef.current(display as Display));
+  const voiceAttempted = useRef(false);
   const [highlight, setHighlight] = useState<string[]>([]);
   const latestTour = useLatest();
   const latestAction = useLatest();
+  const latestBuilding = useLatest();
   const [tour, setTourState] = useState<Tour | null>(null);
   const tourRef = useRef<Tour | null>(null);
   const [model, setModel] = useState<Model | null>(null);
@@ -56,6 +65,14 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const [sheet, setSheet] = useState<'steps' | 'chat' | null>(null);
   const [picker, setPicker] = useState(false);
   const [scanner, setScanner] = useState(false);
+  // The SDK reports microphone/connection failures asynchronously after start() returns.
+  useEffect(() => { if (voiceAttempted.current && voice.error) setSheet('chat'); }, [voice.error]);
+  const [requestedRoute, setRequestedRoute] = useState<ReachableRoute | null>(null);
+  const [mode, setMode] = useState<'map' | 'camera'>('map');
+  const [motion, setMotion] = useState(false);
+  const [anchor, setAnchor] = useState<Anchor | null>(null);
+  const alphaRef = useRef<number | null>(null);
+  const onAlpha = useCallback((alpha: number | null) => { alphaRef.current = alpha; }, []);
   const stepsRef = useRef<HTMLDialogElement>(null);
   /** a building change waiting for its replanned tour; whichever request delivers it shows the notice */
   const change = useRef<{ summary: string; before: Tour; at: number } | null>(null);
@@ -120,7 +137,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
           phone = await api.updateSession(phone.session_id, { active_tour_id: loaded.tour_id, ...(startHere ? { position: { ...loaded.start, source: 'tour_start' as const, confidence: 'low' as const, heading_deg: null, marker_id: null } } : {}) });
         }
         if (live) setSession(phone);
-        if (live && snapshot.building_version > loaded.building_version && !tourDone(loaded)) {
+        if (live && !sameBuildingState(snapshot, loaded) && !tourDone(loaded)) {
           const missed = (await api.events(loaded.building_id).catch(() => [])).filter(event => event.building_version > loaded.building_version);
           change.current = { summary: missed.length === 1 ? missed[0]!.summary : 'The building changed since this tour was planned', before: loaded, at: performance.now() };
           // before this phone confirmed a position for this tour, its session may still hold another tour's position
@@ -137,7 +154,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   }, [tourId, setSession]);
 
   modelRef.current = model;
-  const leg = tour ? currentLeg(tour) : null;
+  const navigationReady = !!tour && !!model && sameBuildingState(model.snapshot, tour);
+  const leg = tour && navigationReady ? currentLeg(tour) : null;
   const legIndex = tour ? currentLegIndex(tour) : -1;
   const shown = clampStep(leg, step);
   const maneuver = leg?.maneuvers[shown] ?? null;
@@ -152,6 +170,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     const start: Position | null = tour ? { ...tour.start, source: 'tour_start', confidence: 'low' } : null;
     return (confirmed && session?.position) || start;
   }, [model, maneuver, shown, session, tour, confirmed]);
+  const hereRef = useRef(here);
+  hereRef.current = here;
 
   const replan = useCallback(async (from: Position, reason: string) => {
     if (!session || !tourRef.current) return;
@@ -160,40 +180,40 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       failure => setNotice({ text: `Could not update the route: ${message(failure)}`, blocked: false, tone: 'info' }));
   }, [session, latestAction, applyTour]);
 
-  const onSocket = useCallback((event: ServerMessage) => {
-    const current = tourRef.current;
-    if ((event.type === 'building_changed' || event.type === 'building_reset') && model && event.building_version !== model.snapshot.building_version) {
-      void api.building(event.building_id).then(snapshot => setModel(buildModel(snapshot)));
-      const from = here();
-      const summary = event.type === 'building_changed' ? event.event.summary : 'The building was reset';
-      if (from && current && !done) { change.current = { summary, before: current, at: performance.now() }; void replan(from, summary); }
-    }
-    if (event.type === 'tour_updated' && current && event.tour_id === current.tour_id && event.revision > current.revision) void latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
-  }, [model, here, replan, done, latestTour, applyTour]);
-  /** After a reconnect (U11): reload the snapshot; if the building changed while offline, replan from here. */
-  const onReconnect = useCallback(async () => {
+  /** Refetch before deduplicating: reset can lower/reuse a numeric version (C9). */
+  const refreshBuilding = useCallback(async (summary?: string) => {
     const current = tourRef.current;
     if (!current) return;
-    try {
-      const snapshot = await api.building(current.building_id);
-      const known = Math.min(modelRef.current?.snapshot.building_version ?? snapshot.building_version, current.building_version);
-      setModel(buildModel(snapshot));
-      const from = here();
-      if (snapshot.building_version > known && from && !done) {
-        const missed = (await api.events(current.building_id).catch(() => [])).filter(event => event.building_version > known);
-        const summary = missed.length === 1 ? missed[0]!.summary : missed.length ? `${missed.length} changes while you were offline` : 'The building changed while you were offline';
-        change.current = { summary, before: current, at: performance.now() };
-        await replan(from, summary);
-      } else await latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
-    } catch { /* the next reconnect tries again */ }
-  }, [here, done, replan, latestTour, applyTour]);
-  const link = useBuildingSocket(tour?.building_id ?? null, onSocket, () => void onReconnect());
+    await latestBuilding(async () => ({ snapshot: await api.building(current.building_id), events: summary ? [] : await api.events(current.building_id).catch(() => []) }), ({ snapshot, events }) => {
+      const active = tourRef.current;
+      const nextModel = buildModel(snapshot);
+      modelRef.current = nextModel; setModel(nextModel);
+      setRequestedRoute(route => routeIsCurrent(route, nextModel) ? route : null);
+      const from = hereRef.current();
+      if (active && !tourDone(active) && !sameBuildingState(snapshot, active) && from) {
+        const missed = events.filter(event => event.building_version > active.building_version);
+        const reason = summary ?? (missed.length === 1 ? missed[0]!.summary : 'The building changed while you were offline');
+        change.current = { summary: reason, before: active, at: performance.now() };
+        void replan(from, reason);
+      } else if (active) void latestTour(() => api.tour(active.tour_id), loaded => applyTour(loaded, true));
+    }, failure => setNotice({ text: `Could not refresh the building: ${message(failure)}`, blocked: false, tone: 'info' }));
+  }, [latestBuilding, replan, latestTour, applyTour]);
+  const onSocket = useCallback((event: ServerMessage) => {
+    const current = tourRef.current;
+    if (event.type === 'building_changed' || event.type === 'building_reset' || event.type === 'hello') {
+      // Drop a route preview immediately; it may belong to a prior edit-history epoch.
+      setRequestedRoute(null);
+      void refreshBuilding(event.type === 'building_changed' ? event.event.summary : event.type === 'building_reset' ? 'The building was reset' : undefined);
+    }
+    if (event.type === 'tour_updated' && current && event.tour_id === current.tour_id && event.revision > current.revision) void latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
+  }, [refreshBuilding, latestTour, applyTour]);
+  const link = useBuildingSocket(tour?.building_id ?? null, onSocket, () => void refreshBuilding());
 
   // voice context when the tour loads
   useEffect(() => { if (tour && voice.status === 'connected') voice.sendContext(context.tourLoaded(tour, model ?? undefined)); }, [voice.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const confirmAt = async (position: Position, from?: Marker) => {
-    if (!session || !model || !tour) return;
+    if (!session || !model || !tour) return false;
     setBusy(true);
     try {
       const updated = await api.updateSession(session.session_id, { position });
@@ -201,17 +221,19 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       setConfirmed(true); storage.set(`tyb.confirmed.${tourId}`, '1');
       voice.sendContext(context.position(model, position));
       if (position.space_id !== tour.start.space_id || from) await replan(position, from ? `marker ${from.marker_id}` : 'position confirmed');
-    } catch (reason) { setNotice({ text: `Could not save your position: ${message(reason)}`, blocked: false, tone: 'info' }); }
-    setBusy(false);
+      return true;
+    } catch (reason) { setNotice({ text: `Could not save your position: ${message(reason)}`, blocked: false, tone: 'info' }); return false; }
+    finally { setBusy(false); }
   };
   const confirmStart = () => tour && model && void confirmAt({ space_id: tour.start.space_id, floor_id: tour.start.floor_id, point: tour.start.point, source: 'manual', confidence: 'medium', heading_deg: null, marker_id: null });
-  const chooseRoom = (spaceId: string) => { setPicker(false); if (model) void confirmAt({ space_id: spaceId, floor_id: model.space.get(spaceId)?.floor_id, point: anchorOf(model, spaceId), source: 'manual', confidence: 'medium', heading_deg: null, marker_id: null }); };
+  const chooseRoom = (spaceId: string) => { setPicker(false); setAnchor(null); if (model) void confirmAt({ space_id: spaceId, floor_id: model.space.get(spaceId)?.floor_id, point: anchorOf(model, spaceId), source: 'manual', confidence: 'medium', heading_deg: null, marker_id: null }); };
   const onMarker = useCallback(async (markerId: string) => {
     setScanner(false);
     try {
       const marker = await api.marker(markerId);
       if (marker.building_id !== tourRef.current?.building_id) { setNotice({ text: 'That position code belongs to another building.', blocked: false, tone: 'info' }); return; }
-      await confirmAt({ space_id: marker.space_id, floor_id: marker.floor_id, point: marker.point, heading_deg: marker.heading_deg, source: 'marker', marker_id: marker.marker_id, confidence: 'high' }, marker);
+      const saved = await confirmAt({ space_id: marker.space_id, floor_id: marker.floor_id, point: marker.point, heading_deg: marker.heading_deg, source: 'marker', marker_id: marker.marker_id, confidence: 'high' }, marker);
+      if (saved) setAnchor({ point: marker.point, heading_deg: marker.heading_deg, floor_id: marker.floor_id, alphaAtScan: alphaRef.current });
     } catch (reason) { setNotice({ text: `Unknown position code: ${message(reason)}`, blocked: false, tone: 'info' }); }
   }, [session, model, tour]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -249,12 +271,20 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   /** Tool displays from voice and text chat: a new tour opens, instructions refresh the step, found places light up. */
   const onDisplay = useCallback((display: Display | null) => {
     if (!display) return;
+    if (display.kind === 'route') {
+      const current = modelRef.current;
+      const route = current && displayedRoute(display, current);
+      if (route) { setRequestedRoute(route); setMode('map'); setHighlight([]); setSheet(null); setFloorId(route.maneuvers[0]?.floor_id ?? current!.space.get(route.from_space_id)!.floor_id); }
+      return;
+    }
+    setRequestedRoute(null);
     if (display.kind === 'tour' && display.tour_id && display.tour_id !== tourRef.current?.tour_id) { storage.set(`tyb.confirmed.${display.tour_id}`, '1'); navigate(`/go/${display.tour_id}`); return; }
-    if (display.kind === 'instruction' || display.kind === 'tour' || display.kind === 'route') void latestTour(() => api.tour(tourId), loaded => applyTour(loaded, true));
+    if (display.kind === 'instruction' || display.kind === 'tour') void latestTour(() => api.tour(tourId), loaded => applyTour(loaded, true));
     const current = modelRef.current;
-    const space = display.space_id ?? display.space_ids?.[0] ?? (display.asset_ids?.[0] ? current?.asset.get(display.asset_ids[0])?.space_id : undefined);
+    const spaces = current ? displayedSpaces(display, current) : [];
+    const space = spaces[0];
     if (current && space && current.space.has(space)) {
-      setHighlight([space]); setFloorId(current.space.get(space)!.floor_id);
+      setHighlight(spaces); setFloorId(current.space.get(space)!.floor_id);
       setTimeout(() => setHighlight(ids => (ids[0] === space ? [] : ids)), 8000);
     }
   }, [latestTour, applyTour, tourId]);
@@ -281,16 +311,22 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const startLabel = `${spaceName(model, tour.start.space_id)}`;
   const provisional = isProvisional(tour);
   const arrived = atStop(leg, shown);
+  const route = routeIsCurrent(requestedRoute, model) ? requestedRoute : null;
   const routeTargets: TourStop[] = [...pendingStops(tour)];
   if (tour.end && !done) routeTargets.push({ stop_id: 'end', space_id: tour.end.space_id, asset_ids: [], status: 'pending', label: destinationLabel(tour, model) });
   const unavailable = tour.unreachable_stops.map(item => stopLabel(tour, item.stop_id, model).split(' · ')[0]).join(', ');
 
   return <main className="journey">
-    <MapView model={model} floorId={floorId || tour.start.floor_id} onFloor={setFloorId} tour={done ? null : tour} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false}
-      highlightSpaceIds={highlight} frame={highlight.length ? 'space' : 'route'} frameSpaceIds={highlight} frameKey={highlight.length ? `find:${highlight[0]}` : `leg:${tour.revision}:${legIndex}:${floorId}`}/>
+    {mode === 'camera' && !route && !done && confirmed && navigationReady
+      ? !scanner && <Suspense fallback={<div className="camera-guide"/>}><CameraGuide leg={leg} step={shown} position={you?.point ?? null} floorId={you?.floor_id ?? floorId} anchor={anchor} motion={motion} onAlpha={onAlpha}
+          onScan={() => setScanner(true)} onExit={text => { setMode('map'); setAnchor(null); if (text) setNotice({ text: `${text} The map still guides you.`, blocked: false, tone: 'info' }); }}
+          minimap={<FloorMap model={model} floorId={you?.floor_id || floorId || tour.start.floor_id} tour={tour} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false} compact/>}/></Suspense>
+      : <MapView model={model} floorId={floorId || tour.start.floor_id} onFloor={setFloorId} tour={done || route || !navigationReady ? null : tour} route={route} focusLeg={legIndex >= 0 ? legIndex : undefined} you={you} showParts={false}
+          highlightSpaceIds={highlight} frame={highlight.length ? 'space' : 'route'} frameSpaceIds={highlight} frameKey={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.length_m}` : highlight.length ? `find:${highlight[0]}` : `leg:${tour.revision}:${legIndex}:${floorId}`}/>}
 
     <div className="journey-top">
-      {!done && confirmed && leg && maneuver && <button className="route-banner surface" onClick={() => setSheet('steps')} aria-label={`Current step: ${cleanText(maneuver.text)}. Open all steps`}>
+      {!navigationReady && !done && !notice && <p className="journey-notice surface" role="status">The building changed. Updating your route before giving directions…</p>}
+      {!route && !done && confirmed && leg && maneuver && <button className="route-banner surface" onClick={() => setSheet('steps')} aria-label={`Current step: ${cleanText(maneuver.text)}. Open all steps`}>
         <span className="turn-icon"><ManeuverIcon kind={maneuver.kind}/></span>
         <span className="route-copy"><span className="route-instruction">{cleanText(maneuver.text)}</span><span className="route-destination">{next?.label.split(' · ')[0]} <span>· {next ? floorName(model, model.space.get(next.space_id)?.floor_id ?? '') : ''}</span></span></span>
         {!arrived && metresToNext(leg, shown) > 0 && <span className="route-distance">{metresToNext(leg, shown)}<span>metres</span></span>}
@@ -309,7 +345,8 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     </div>
 
     <section className="journey-dock" aria-label="Guidance">
-      {done
+      {route ? <RoutePreview route={route} model={model} collection onClose={() => setRequestedRoute(null)}/>
+        : done
         ? <div className="done-card surface">
           <span className="avatar-wrap"><Blobatar name="alain00" animate="always" size={116} expression={happy} title="Alain, your building guide"/></span>
           <h1>{total === 1 ? 'Your part is collected' : `All ${total} parts collected`}</h1>
@@ -333,11 +370,13 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
                 <span className="avatar-wrap small"><Blobatar name="alain00" animate="always" size={72} expression={arrived ? happy : idle} title="Alain, your building guide"/></span>
                 <span className="agent-bubble surface"><strong>{!next || !leg ? 'No route right now' : arrived ? `Here: ${next.label.split(' · ')[0]}` : finalLeg ? `Final destination: ${next.label}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voice.status === 'connected' ? (voice.isSpeaking ? 'Speaking…' : 'Listening') : 'Tap to ask'}</span></span>
               </button>
-              {voice.available && <button className={`icon-button voice-toggle ${voice.status === 'connected' ? 'on' : ''}`} onClick={() => void (voice.status === 'connected' ? voice.stop() : voice.start().catch(() => setSheet('chat')))} aria-label={voice.status === 'connected' ? 'Stop voice guidance' : 'Start voice guidance'}>{voice.status === 'connected' ? <Mic size={20}/> : <MicOff size={20}/>}</button>}
+              {voice.available && <button className={`icon-button voice-toggle ${voice.status === 'connected' ? 'on' : ''}`} disabled={voice.status === 'connecting'} onClick={() => { if (voice.status === 'connected') void voice.stop(); else { voiceAttempted.current = true; void voice.start().catch(() => setSheet('chat')); } }} aria-label={voice.status === 'connected' ? 'Stop voice guidance' : 'Start voice guidance'}>{voice.status === 'connected' ? <Mic size={20}/> : <MicOff size={20}/>}</button>}
             </div>
             <div className="progress-dots" aria-label={`${collected} of ${total} parts collected${tour.end ? '; final destination remains' : ''}`}>{displayOrder(tour).filter(id => id !== 'end').map(id => <span key={id} className={tour.stops.find(stop => stop.stop_id === id)?.status === 'collected' ? 'done' : id === next?.stop_id ? 'now' : tour.unreachable_stops.some(item => item.stop_id === id) ? 'blocked' : ''}/>)}{tour.end && <span aria-label="Final destination" className={tour.unreachable_stops.some(item => item.stop_id === 'end') ? 'blocked' : finalLeg ? 'now' : ''}/>}</div>
             <div className="dock-actions">
               <button className="icon-button" onClick={() => setSheet('steps')} aria-label="All steps"><ListOrdered size={20}/></button>
+              <button className={`icon-button ${mode === 'camera' ? 'on' : ''}`} aria-pressed={mode === 'camera'} aria-label={mode === 'camera' ? 'Show the map' : 'Camera view with a direction arrow'}
+                onClick={() => { if (mode === 'camera') setMode('map'); else void requestMotion().then(ok => { setMotion(ok); setMode('camera'); }); }}>{mode === 'camera' ? <MapPin size={20}/> : <Camera size={20}/>}</button>
               {shown > 0 && !arrived && <button className="icon-button" onClick={() => setStep(shown - 1)} aria-label="Previous step"><ArrowLeft size={20}/></button>}
               {(!next || !leg) && tour.unreachable_stops.length > 0
                 ? <button className="primary-button" onClick={() => setSheet('chat')}>Ask the building</button>
@@ -373,6 +412,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       </div>
       {tour.unreachable_stops.length > 0 && <section><h3>Cannot be reached right now</h3><ul className="blocked-list">{tour.unreachable_stops.map(item => <li key={item.stop_id}>{stopLabel(tour, item.stop_id, model)} · {item.reason.replaceAll('_', ' ')}</li>)}</ul></section>}
       <p className="demo-explanation">Your position follows the steps you confirm and the position codes you scan. There is no automatic location tracking.</p>
+      <p className="fineprint">Position source: {session?.position?.source === 'marker' ? 'scanned position code' : session?.position?.source === 'manual' ? 'room confirmed by you' : session?.position?.source === 'desk' ? 'desk planning' : 'planned tour start, awaiting confirmation'}.</p>
     </dialog>
 
     <ChatSheet open={sheet === 'chat'} sessionId={session?.session_id ?? null} onClose={() => setSheet(null)} onDisplay={onDisplay} voiceError={voice.error}/>

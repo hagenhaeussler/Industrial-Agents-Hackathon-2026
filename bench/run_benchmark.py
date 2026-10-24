@@ -6,14 +6,15 @@ import json
 import math
 import multiprocessing
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 
 from agent.budget import paid_run_guard
 from core.routing import route
 from core.tour import plan_tour
 
-from .agent import Prediction, configure_budget, load_base, predict
+from .agent import PROMPT_VERSION, Prediction, configure_budget, load_base, predict
+from .llm_fallback import PROMPT_VERSION as FALLBACK_PROMPT_VERSION
 from .run import checkpoint_key, load_checkpoint, revision, source_hash
 from .serialize import serialize
 
@@ -84,8 +85,11 @@ def constrained_prediction(task: Task) -> Prediction:
     if not task.constraints or prediction.error:
         return prediction
     if prediction.kind not in {"route", "route_step_free", "route_with_closure", "tour"}:
-        return Prediction(reply="I cannot apply route constraints to this spatial question.", kind=prediction.kind,
-                          error="Explicit constraints require a route or tour question.")
+        # Interpretation can already have incurred a charge. Retain its usage
+        # and cost when rejecting unsupported constraint semantics so a resumed
+        # paid batch cannot mistakenly reclaim that allocation.
+        return replace(prediction, reply="I cannot apply route constraints to this spatial question.", result={},
+                       error="Explicit constraints require a route or tour question.")
     building, inputs = load_base(task.building), prediction.inputs
     parsed = {"step_free": prediction.kind == "route_step_free" or inputs.get("step_free", False),
               "closed": inputs.get("closed", []), "min_door_width_m": 0.0}
@@ -192,7 +196,7 @@ def run(options: Options) -> dict:
     questions = load_input(options.questions)
     metadata = {"profile": building.profile, "commit": revision(), "building_id": building.id,
                 "content_hash": building.content_hash, "source_hash": source_hash(),
-                "prompt_version": "templates-v1+benchmark-fallback-v1", "model": ["claude-haiku-5-5", "claude-sonnet-5-5"] if options.max_cost else None,
+                "prompt_version": PROMPT_VERSION + "+" + FALLBACK_PROMPT_VERSION, "model": ["claude-haiku-5-5", "claude-sonnet-5-5"] if options.max_cost else None,
                 "max_cost": options.max_cost, "timeout": options.timeout}
     checkpoint = options.output.with_name(options.output.name + ".checkpoint.jsonl")
     checkpoint.parent.mkdir(parents=True, exist_ok=True)

@@ -149,6 +149,7 @@ class RouteResult(BaseModel):
     to_space_id: str
     building_id: str
     building_version: int
+    building_state_id: str | None = Field(default=None, description="Opaque content/edit-history identity; reject a displayed route when the current snapshot differs, including reused numeric versions after a reset.")
     content_hash: str
     constraints: Constraints
     profile: str

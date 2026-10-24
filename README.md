@@ -298,6 +298,15 @@ A reply with no `Answer:` line is wrong. So is an answer line with a range or se
 
 The data comes under several licences: CC BY 4.0 (Swiss Dwellings, ResPlan), ODbL 1.0 (the OpenStreetMap buildings) and CC0 (procedural). See `ATTRIBUTION.md`. If you publish anything built from the OSM buildings, it must stay under the ODbL and credit OpenStreetMap contributors.
 
+## Team preview
+
+Open the [live desk preview](https://hagen-core-test-testing.up.railway.app/desk?demo=hero),
+or [choose a building](https://hagen-core-test-testing.up.railway.app/).
+It runs the integrated app on Railway with persistent state. The factory demo is
+the supplied dataset, not a measured model of the venue. See the
+[preview guide](docs/team-preview.md) for phone handoff, admin access and iteration,
+and the [readiness checklist](docs/project-readiness.md) for remaining acceptance work.
+
 ## Run it locally
 
 The Talk to Your Building service needs Python 3.12+, [uv](https://docs.astral.sh/uv/), and [Bun](https://bun.sh/) for the frontend. The building list, snapshots, routing and deterministic benchmark checks run without API keys. Copy the environment template before starting:
@@ -324,7 +333,7 @@ Run the integration checks from the repository root before requesting a merge:
 scripts/check.sh
 ```
 
-The script runs pytest, the unchanged kit oracle, the core text evaluation, and the frontend tests/build when Bun is available. Skipped checks print warnings. For isolated live HTTP/WebSocket, restart, two-cycle demo-reset and reused-version recovery checks, run:
+The script disables dotenv/provider credentials and sets the chat budget to zero, then runs pytest, the unchanged kit oracle, the core text evaluation, and the frontend tests/build when Bun is available. Skipped checks print warnings. For isolated live HTTP/WebSocket, restart, two-cycle demo-reset and reused-version recovery checks, run:
 
 ```bash
 uv run python scripts/check_live_integration.py --output agent_output/reports/live-integration.json
@@ -357,4 +366,4 @@ uv run python -m bench.validate_submission submissions/test_answers.csv data/tes
 
 See [BENCHMARK.md](BENCHMARK.md) for measured results and the Sunday handoff. [Attribution and dataset licences](ATTRIBUTION.md) apply to the included building data.
 
-Platform endpoints, phone handoff, admin headers and current adapter limits are documented in [`server/README.md`](server/README.md). Set a server-only `TYB_ADMIN_TOKEN` to create admin sessions using `X-Admin-Token`; missing configuration fails closed. The pending admin UI asks for this code. Chat/voice need their server-side provider configuration; chat also needs an approved positive budget as described in the server documentation. Set `TYB_DEMO_MODE=true` only for the rehearsed demo reset; its default is off.
+Platform endpoints, phone handoff, admin headers and current adapter limits are documented in [`server/README.md`](server/README.md). Set a server-only `TYB_ADMIN_TOKEN` to create admin sessions using `X-Admin-Token`; missing configuration fails closed. The admin UI asks for this code. Chat/voice need their server-side provider configuration; chat also needs an approved positive budget as described in the server documentation. Set `TYB_DEMO_MODE=true` only for the rehearsed demo reset; its default is off.

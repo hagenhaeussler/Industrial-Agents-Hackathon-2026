@@ -202,6 +202,7 @@ class ToolRegistry:
         adapter.position(building, session["position"])
         session = self._persist_mobility(session, args)
         result = adapter.route(building, session["position"], destination, self.service.constraints(session, args))
+        result["building_state_id"] = self.service.building_state_id(building)
         if not result["reachable"]:
             raise ServiceError("no_route", "No route is available under your current mobility constraints.", reason=result["reason"], route=result)
         return result, f"The route is about {result['length_m']:.0f} metres.", {"kind": "route", "route": result}

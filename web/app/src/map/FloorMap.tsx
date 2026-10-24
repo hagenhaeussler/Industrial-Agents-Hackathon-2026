@@ -9,6 +9,8 @@ export type FloorMapProps = {
   model: Model;
   floorId: string;
   tour?: Tour | null;
+  /** Standalone route returned by a tool; takes visual precedence over a collection tour. */
+  route?: ReachableRoute | null;
   selected?: ReadonlySet<string>; // asset ids
   focusAssetId?: string | null;
   highlightSpaceIds?: readonly string[];
@@ -135,9 +137,9 @@ function walkPath(segments: Segment[], floorId: string): string {
   return d.replace(/L(?=M|$)/g, '');
 }
 
-function RouteLayer({ model, floorId, tour, focusLeg, onFloor }: { model: Model; floorId: string; tour: Tour; focusLeg?: number; onFloor?: (id: string) => void }) {
-  const focused = focusLeg === undefined ? reachableLegs(tour) : [tour.legs[focusLeg]].filter((leg): leg is ReachableRoute => !!leg?.reachable);
-  const others = focusLeg === undefined ? [] : tour.legs.filter((leg, index): leg is ReachableRoute => index !== focusLeg && leg.reachable);
+function RouteLayer({ model, floorId, tour, route, focusLeg, onFloor }: { model: Model; floorId: string; tour?: Tour | null; route?: ReachableRoute | null; focusLeg?: number; onFloor?: (id: string) => void }) {
+  const focused = route ? [route] : focusLeg === undefined ? reachableLegs(tour ?? null) : [tour?.legs[focusLeg]].filter((leg): leg is ReachableRoute => !!leg?.reachable);
+  const others = route || focusLeg === undefined ? [] : (tour?.legs ?? []).filter((leg, index): leg is ReachableRoute => index !== focusLeg && leg.reachable);
   const d = walkPath(focused.flatMap(leg => leg.segments), floorId);
   const rest = others.map(leg => walkPath(leg.segments, floorId)).join('');
   // one pill per connector and other floor: "Stairs to Floor 1", "Stairs from Floor 1" or "Stairs to and from Floor 1"
@@ -169,7 +171,7 @@ function RouteLayer({ model, floorId, tour, focusLeg, onFloor }: { model: Model;
   </g>;
 }
 
-export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, onOpening, fit, focusLeg }: FloorMapProps) {
+export function FloorMap({ model, floorId, tour, route, selected, focusAssetId, highlightSpaceIds, you, showParts = true, compact, onAsset, onSpace, onFloor, onOpening, fit, focusLeg }: FloorMapProps) {
   const vb = useMemo(() => viewBox(model.box, model.unit * 3), [model]);
   const marks = useMemo(() => (tour ? stopMarks(model, tour).filter(mark => mark.floorId === floorId) : []), [model, tour, floorId]);
   const closedSpaces = useMemo(() => {
@@ -199,7 +201,7 @@ export function FloorMap({ model, floorId, tour, selected, focusAssetId, highlig
     <Doors model={model} floorId={floorId} onOpening={onOpening}/>
     <Labels model={model} floorId={floorId} compact={compact}/>
     {showParts && !compact && <Parts model={model} floorId={floorId} onAsset={onAsset}/>}
-    {tour && <RouteLayer key={`${tour.tour_id}:${tour.revision}:${floorId}:${focusLeg ?? ''}`} model={model} floorId={floorId} tour={tour} focusLeg={focusLeg} onFloor={onFloor}/>}
+    {(route || tour) && <RouteLayer key={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.building_version}:${floorId}` : `${tour?.tour_id}:${tour?.revision}:${floorId}:${focusLeg ?? ''}`} model={model} floorId={floorId} tour={tour} route={route} focusLeg={focusLeg} onFloor={onFloor}/>}
     {chosen.map(asset => asset && <g key={asset.id} className="map-chosen" onClick={onAsset ? () => onAsset(asset.id) : undefined}>
       <circle cx={fmt(toSvg(asset.position)[0])} cy={fmt(toSvg(asset.position)[1])} r={u * 0.55} fill="#191c16" stroke="#fff" strokeWidth={u * 0.18}/>
       {(asset.id === focusAssetId || chosen.length <= 6) && <Pill at={asset.position} text={asset.name} unit={u}/>}

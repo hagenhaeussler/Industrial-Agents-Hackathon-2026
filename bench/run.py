@@ -17,6 +17,7 @@ from core.building import content_hash
 from core.profiles import current_profile
 
 from .agent import PROMPT_VERSION, configure_budget, predict
+from .llm_fallback import PROMPT_VERSION as FALLBACK_PROMPT_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "agent_output" / "bench"
@@ -261,7 +262,7 @@ def run(config: RunConfig) -> dict:
         raise ValueError("No questions selected.")
     context = {"commit": revision(), "source_hash": source_hash(), "profile": current_profile(),
                "model": ["claude-haiku-5-5", "claude-sonnet-5-5"] if config.max_cost else None,
-               "prompt_version": PROMPT_VERSION + "+benchmark-fallback-v1" if config.max_cost else PROMPT_VERSION,
+               "prompt_version": PROMPT_VERSION + "+" + FALLBACK_PROMPT_VERSION if config.max_cost else PROMPT_VERSION,
                "mode": config.mode, "budget_limit": config.max_cost}
     configure_budget(config.max_cost)
     start = time.perf_counter()

@@ -35,7 +35,7 @@ Use the tracked [navigator](../agent/voice_prompts/navigator.md) and [admin](../
 
 The browser starts authenticated **WebRTC** with a newly generated short-lived conversation token from `/api/voice/token?agent=navigator|admin`; it receives no provider key. `livekit-client` is temporarily pinned to **2.16.1** because newer clients can request an unsupported `/rtc/v1` handshake. Remove the pin only after upstream compatibility is fixed and a WebRTC smoke passes. See [the voice bridge](../web/app/src/voice/README.md).
 
-For a visible one-destination route, use `plan_tour` with one item: direct `route` computes successfully but its standalone route display is not currently rendered. Collection and final arrival remain explicit phone controls.
+Navigator prompts use `plan_tour` with one item for a collection journey. The integrated frontend also renders standalone `route` geometry as a separately labelled preview without changing collection progress. Collection and final arrival remain explicit phone controls.
 
 ## Recorded evidence
 

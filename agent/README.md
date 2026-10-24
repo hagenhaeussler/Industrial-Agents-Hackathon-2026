@@ -8,17 +8,17 @@ The prompt modules are under `skills/`. The two dashboard-ready voice prompts ar
 
 ## Paid run configuration
 
-No paid run is approved or measured in this checkpoint. Before enabling a run, write the dollar limit, scope and time in `master prompt/Lenard's codex/STATUS.md`. The human can then supply server-side configuration:
+Write the dollar limit, scope and time in the running builder's STATUS before enabling a paid run. The current integration setup and measured smoke tests are recorded in [`../docs/live-provider-setup.md`](../docs/live-provider-setup.md); historical offline benchmark evidence is in [`../BENCHMARK.md`](../BENCHMARK.md). Configure credentials only server-side:
 
 - `ANTHROPIC_API_KEY`.
 - `TYB_CHAT_BUDGET_USD`: a positive dollar cap for this ChatAgent process.
 
-The key alone does not enable requests. The shared process budget reserves a conservative maximum cost before each model request and settles it from usage afterward. Automatic SDK retries are disabled. Restarting the process resets the in-memory budget. A restart needs a new written run allocation. The rates come from the supplied master plan and need confirmation before a paid run if the provider changes them.
+The key alone does not enable requests. The shared process budget reserves a conservative maximum cost before each model request and settles it from usage afterward. Automatic SDK retries are disabled. Restarting the process resets the in-memory budget; keep any remaining allocation within the approved shared cap. The rates come from the supplied master plan and need confirmation before a paid run if the provider changes them.
 
 Keep live credentials absent from offline tests:
 
 ```sh
-env -u ANTHROPIC_API_KEY uv run pytest -q tests/agent
+PYTHON_DOTENV_DISABLED=1 ANTHROPIC_API_KEY= ELEVENLABS_API_KEY= OPENAI_API_KEY= uv run pytest -q tests/agent
 ```
 
-Tests inject an offline client. They exercise real SDK tool wrappers, edit confirmation, session isolation, bounded settings, prompt limits and numeric grounding. This proves the code path, not live model quality. The human voice comparison and live text transcripts remain pending a written budget and provider setup.
+Tests inject an offline client. They exercise real SDK tool wrappers, edit confirmation, session isolation, bounded settings, prompt limits and numeric grounding. This proves the code path; live text smoke evidence is reported separately in the setup document. The human voice model comparison remains unmeasured.

@@ -42,7 +42,7 @@ The route panel uses a 20px radius. The minimap uses 14px. Buttons use 12–15px
 - Camera control: one 44px icon button. Red while off, white while live. Its accessible name explains the action.
 - Camera: rear-facing preferred, no audio, no recording, no upload. Handle denied, missing, busy and interrupted cameras. Cancel late requests and stop tracks on teardown.
 - Agent: exact `alain00`, `animate="always"`, built-in idle expression. Use the happy expression on arrival. Respect the library's reduced-motion setting. Do not animate the rest of the interface continuously.
-- Chat: locally scripted, clearly marked demo replies. Named destinations switch the demo route. Do not claim a connected language model or real localization.
+- Chat: live screens show replies and tool displays from the server, with text fallback when voice fails. The separate prototype keeps clearly marked scripted replies. Position comes from confirmation, codes and manual steps.
 
 ## Desk and map
 
@@ -57,6 +57,7 @@ The route panel uses a 20px radius. The minimap uses 14px. Buttons use 12–15px
 
 - Phone: route banner on top (turn symbol, instruction, next stop, metres to the next step), the map in the middle with the current leg bold and later legs as a quiet dashed line, the guidance dock at the thumb: avatar and status, progress dots (ink done, accent now, hatched red unreachable), one big primary action ("Next step", "Got it", "I have arrived"). Changes arrive as an accent notice that says what happened and what it means for this tour.
 - Start: "Are you at …?" first, with "Yes", "Scan a position code" and "Choose my room". Position is never claimed without one of them.
+- Camera mode: a direction-only arrow over live camera frames; a scanned code supplies the standing point and facing direction. Without a code or after a floor change, ask for the next code. Denied access keeps a clear return to the map.
 - Admin: same plan-table layout as the desk. Every change shows an ink-bordered preview card first; Confirm is the only primary action. The admin code card appears before anything else when the server asks for it.
 
 ## Do's and Don'ts

@@ -17,6 +17,7 @@
                 "type": "null"
               }
             ],
+            "description": "Opaque content/edit-history identity; compare with an unfinished tour even when numeric versions match or decrease after a reset.",
             "title": "Building State Id"
           },
           "building_version": {
@@ -524,6 +525,18 @@
           "building_id": {
             "title": "Building Id",
             "type": "string"
+          },
+          "building_state_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opaque content/edit-history identity; reject a displayed route when the current snapshot differs, including reused numeric versions after a reset.",
+            "title": "Building State Id"
           },
           "building_version": {
             "title": "Building Version",

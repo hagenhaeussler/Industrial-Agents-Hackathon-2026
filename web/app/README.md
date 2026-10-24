@@ -1,48 +1,43 @@
 # Talk to Your Building: web app
 
-One SPA for desk planning (`/desk`), the phone journey (`/go/:tourId`) and admin (`/admin`). React, TypeScript, Vite and Bun.
+One React 19 / TypeScript / Vite SPA serves desk planning, phone guidance and facility administration.
 
-- Live API: run the FastAPI server on port 8000 (`TYB_API` overrides); Vite proxies `/api`, `/ws` and `/health`.
-- Without a server: add `?mock=1` (bundled kit data; in `bun run dev` every kit building is readable from `data/`).
-- Demo: `/desk?demo=hero` preloads `demo/scenario.json`.
-- Admin (`/admin`): set a private server `TYB_ADMIN_TOKEN`; the admin view asks for that code once per browser tab. The code and admin session stay in `sessionStorage`; revoked access asks for a new code. Never expose the code through frontend build variables or a URL.
-
-The phone prototype below is reachable at `/go/demo` until the live journey replaces it.
+[Open the shared preview](https://hagen-core-test-testing.up.railway.app/desk?demo=hero). Navigation is public; `/admin?demo=hero` asks for the private admin code. Coordinate closures and demo resets with coworkers because the preview shares persistent building state. Upload a separate JSON building for independent experiments.
 
 ```sh
-bun install
+bun install --frozen-lockfile
 bun run dev
 ```
 
-Open the printed localhost URL. For a phone, use the private HTTPS deployment and sign in with the owner account. Camera access needs HTTPS or localhost. A plain HTTP LAN address can show the demo, but cannot start the camera.
+Run the FastAPI server on port 8000; Vite proxies `/api`, `/ws` and `/health` (`TYB_API` overrides the upstream). Camera and microphone require HTTPS or localhost. Plain HTTP on a LAN supports the map only. Provider keys remain in the server's private environment; never add them to a `VITE_` variable.
 
 ```sh
-bun run build
 bun test
+bun run build
 ```
 
-## What works
+## Live journey
 
-- Live device camera with a preference for the rear camera. Explicit start/stop, permission and device errors, stream cleanup. No frames leave the browser.
-- White floating route panel, floor minimap, demo path and route-step controls.
-- Destination selection and a locally scripted agent chat that can switch destinations.
-- Exact `alain00` identity using matching `blobatar` and `@blobatar/react` 2.7.0 packages. Always-on inline SVG motion, blinking and idle gaze. Built-in reduced-motion support. Happy expression at arrival.
-- Mobile and desktop layouts, native modal focus handling, Escape to close.
+- `/`: building list. `/desk?building=<id>`: search parts, select, plan, choose mobility and optional finish, inspect route/trace, send the exact saved tour to a phone with QR.
+- `/desk?demo=hero`: factory scenario from `demo/scenario.json`; the factory is kit data, not a measured model of the venue.
+- `/go/<tourId>`: confirm a start, scan a position code or choose a room; follow steps, collect stops and explicitly reach any final destination. Reload resumes progress. Building changes trigger replanning without losing collected parts; wheelchair profiles require an explicit choice before showing stairs.
+- `/m/<markerId>`: use a printed position-code location. Codes supply a declared standing point and heading; they do not measure the camera pose.
+- `/admin`: code-gated preview → confirm → commit once → undo; upload/validate kit-format `building.json`; demo reset when enabled on the server. The code and privileged session stay in tab-only `sessionStorage`.
+- Desk and phone show standalone tool routes as a separate preview with exact server segments and textual directions. Closing it restores the collection tour without changing position/progress. Spatial answers can highlight multiple rooms; stale geometry from another building/version is ignored.
+- Text and ElevenLabs voice tools share each screen's display handler. Voice is explicit opt-in; unavailable audio falls back to text and navigation buttons. Provider setup/test limits are described in `docs/live-provider-setup.md` at the repo root.
 
-## Prototype limits
+## Camera and AR
 
-The route, floor map, distances and position are example data. The line is a screen-space illustration, not a tracked physical-world anchor. No Gaussian Splat, visual localization, route backend, building-document retrieval, microphone or language model is connected. Chat replies are local templates. The corridor is an SVG illustration shown while the camera is off.
+The phone's Camera button opens a rear-camera view with a **Direction only** arrow. Scan a position code while in camera mode to anchor its heading; without motion permission the arrow is explicitly relative to the code's direction. Floor changes ask for another code. Camera denial leaves a return to the map. Frames are neither recorded nor uploaded.
 
-## Where things live
+Compatible browsers may offer **Try experimental AR** after a new standing/facing confirmation. The optional, separately loaded Three.js module draws only the current floor's computed walking segments and stops before a lift/stair transition. Denial, cancellation, tracking loss, backgrounding and route changes return to a working map/camera path. Physical-device alignment, drift and simultaneous voice/camera performance still require Android/iPhone measurements; offline lifecycle tests do not establish those results.
 
-- `src/camera`: camera lifecycle and the demo corridor illustration.
-- `src/navigation`: typed demo routes, floor map and camera overlay.
-- `src/agent`: Blobatar, chat and demo answers.
-- `src/styles.css`: layout and visual tokens.
-- `DESIGN.md`: design rules.
+## Fixtures and prototype
 
-## Blobatar findings
+`?mock=1` explicitly enables labelled fixtures; it is never the default live path. `/go/demo` keeps the original scripted prototype for design reference only. Its illustrated corridor, demo routes and local chat are separate from the live screens. No continuous localization, live part tracking, Gaussian Splat or reliable image-to-building import is claimed. JSON import is the supported path; 3D exploded-building view is an unshipped stretch.
 
-The name is hashed into stable visual traits. Keep the name and package major stable to preserve identity. `animate="always"` uses inline SVG so the imported motion CSS can animate its parts. `animate="hover"` does not provide continuous motion on a phone. Motion includes breathing, bobbing, blinking and gaze changes. Expressions alter the face without changing the name. The library disables movement for `prefers-reduced-motion`.
+## Structure
 
-Sources: [repository](https://github.com/Alain00/blobatar), [React adapter](https://github.com/Alain00/blobatar/tree/main/packages/react), [motion styles](https://github.com/Alain00/blobatar/blob/main/packages/blobatar/src/motion.css).
+`src/desk`, `src/phone` and `src/admin` own screens; `src/map` draws server geometry through `src/geo/transform.ts`; `src/api` owns transport/contracts; `src/voice` owns token/SDK/client tools; `src/camera/ar` owns frame transforms and XR lifecycle. `DESIGN.md` defines visual/accessibility rules. `demo/SCRIPT.md` at the repo root supplies the recording runbook.
+
+Blobatar uses the stable `alain00` identity and the library's reduced-motion support. Sources: [repository](https://github.com/Alain00/blobatar), [React adapter](https://github.com/Alain00/blobatar/tree/main/packages/react).

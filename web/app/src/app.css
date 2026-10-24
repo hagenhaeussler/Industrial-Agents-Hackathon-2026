@@ -313,3 +313,36 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .code-card .plan-error { color: #8f2422; }
 .finish-line { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 52px; border-radius: 15px; border: 1.5px dashed #c9cdc0; }
 .stop-n.finish { background: #fff; color: var(--ink); box-shadow: 0 0 0 1.5px var(--ink) inset; }
+
+/* camera mode (C04): live camera, direction-only arrow, minimap */
+.journey > .camera-guide { grid-row: 2; }
+.camera-guide { position: relative; min-height: 0; overflow: hidden; background: #20251b; }
+.camera-guide video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.camera-guide video.live { opacity: 1; }
+.camera-guide-minimap { position: absolute; top: 10px; right: 12px; width: 144px; height: 144px; padding: 6px; border-radius: 14px; }
+.camera-guide-minimap .floor-map-svg { width: 100%; height: 100%; }
+.camera-arrow { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 14px; pointer-events: none; }
+.arrow-disc { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--ink); box-shadow: 0 0 0 6px #191c1655, 0 10px 40px #0006; transition: transform .18s linear; }
+.arrow-disc.arrived { background: #fff; }
+.direction-label { font-size: 12px; font-weight: 750; padding: 6px 12px; border-radius: 20px; }
+.camera-card { position: absolute; left: 16px; right: 16px; top: 50%; transform: translateY(-50%); max-width: 360px; margin: auto; padding: 16px; border-radius: 18px; display: grid; gap: 10px; font-size: 14px; line-height: 1.5; font-weight: 600; }
+.camera-waiting { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); }
+.dock-actions .icon-button.on { background: var(--ink); color: var(--accent); }
+.ar-canvas { position: absolute; inset: 0; }
+.ar-canvas canvas { width: 100%; height: 100%; }
+.camera-ar-controls { position: absolute; bottom: 14px; left: 14px; right: 14px; padding: 12px; border-radius: 16px; display: grid; gap: 8px; font-size: 12px; line-height: 1.4; }
+.camera-ar-controls label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.camera-ar-controls input { width: 20px; height: 20px; flex: none; }
+.camera-ar-error { position: absolute; top: 14px; left: 14px; max-width: calc(100% - 184px); padding: 10px; border-radius: 14px; color: #8f2422; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .arrow-disc { transition: none; } }
+
+.route-preview { padding: 18px; border-radius: 20px; display: grid; gap: 10px; }
+.route-preview .policy { display: flex; align-items: center; gap: 7px; }
+.route-preview h2 { font-size: 19px; line-height: 1.3; }
+.route-preview details { max-height: 28svh; overflow-y: auto; }
+.route-preview summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 750; }
+.route-preview ol { padding-left: 22px; font-size: 14px; line-height: 1.5; }
+.route-preview li + li { margin-top: 8px; }
+.desk-map > .route-preview { position: absolute; bottom: 20px; left: 20px; right: 20px; max-width: 420px; z-index: 3; }
+.journey-dock > .route-preview { width: 100%; }
+@media (max-width: 640px) { .desk-map > .route-preview { bottom: 12px; left: 12px; right: 12px; } }
