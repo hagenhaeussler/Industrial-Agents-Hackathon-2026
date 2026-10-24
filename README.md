@@ -324,13 +324,13 @@ Run the integration checks from the repository root before requesting a merge:
 scripts/check.sh
 ```
 
-The script runs pytest, the unchanged kit oracle, the core text evaluation, and the frontend tests/build when Bun is available. Skipped checks print warnings. For isolated live HTTP/WebSocket, restart and two-cycle demo-reset checks, run:
+The script runs pytest, the unchanged kit oracle, the core text evaluation, and the frontend tests/build when Bun is available. Skipped checks print warnings. For isolated live HTTP/WebSocket, restart, two-cycle demo-reset and reused-version recovery checks, run:
 
 ```bash
 uv run python scripts/check_live_integration.py --output agent_output/reports/live-integration.json
 ```
 
-This command starts its own loopback server with temporary state, a generated admin code and local demo mode, then cleans up. It makes no provider calls.
+This command starts its own loopback server with temporary state, a generated admin code and local demo mode, then cleans up. It also checks both closure directions after version/event-ID reuse, for pending stops and final destinations, preserving collected stops and constraints. These are API checks; rendered phone recovery is verified separately. It makes no provider calls.
 
 Build and run the production image (Docker builds the frontend with Bun):
 

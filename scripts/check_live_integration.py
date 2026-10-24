@@ -151,6 +151,7 @@ try:
         raw = snapshot['building']
         assert snapshot['building_version'] == 0 and len(raw['assets']) == 505
         lift = next(v for v in raw['vertical_connectors'] if v['kind'] == 'lift')
+        stairs = next(v for v in raw['vertical_connectors'] if v['kind'] == 'stairs')
         printer = next(v for v in raw['assets'] if v['id'].endswith('A00021'))
         cnc = next(v for v in raw['assets'] if v['name'] == 'CNC mill H-A1-A')
         ups = next(v for v in raw['assets'] if v['id'].endswith('A00325'))
@@ -409,6 +410,79 @@ try:
         report['checks']['demo_reset_twice'] = {'cycles': reset_cycles, 'local_demo_mode_only': True,
             'exact_reset_state_survives_hard_restart': True,
             'automatic_ui_reset_catchup_verified': False}
+        # Reset can reuse both version 1 and evt-1 for a different closure. A
+        # stale saved tour must refresh before giving either pending-stop or
+        # final-destination instructions, even though both numbers still match.
+        aliases = []
+        for destination in ('pending', 'end'):
+            for old_blocked in (True, False):
+                post('/api/demo/reset', {'building_id': bid}, {'X-Session-ID': admin})
+                alias_phone = session(device='phone', profile='wheelchair')
+                patch('/api/sessions/' + alias_phone, {
+                    'position': {'space_id': printer['space_id'], 'source': 'desk'},
+                    'constraints': {'step_free': True, 'min_door_width_m': .6,
+                                    'no_transit_room_types': ['toilet']}})
+                items = [printer['id'], cnc['id']]
+                body = {'session_id': alias_phone, 'items': items, 'keep_order': True}
+                if destination == 'end':
+                    body['end'] = ups['id']
+                else:
+                    items.append(ups['id'])
+                alias_tour = post('/api/tours', body)
+                alias_path = '/api/tours/' + alias_tour['tour_id']
+                for stop in alias_tour['stops'][:2]:
+                    alias_tour = post(alias_path + '/progress',
+                                      {'stop_id': stop['stop_id'], 'status': 'collected'},
+                                      {'X-Session-ID': alias_phone})
+
+                def close_alias(target):
+                    proposal = tool(admin, 'propose_edit', {'action': 'close', 'target': target})['result']
+                    return tool(admin, 'commit_edit', {'proposal_id': proposal['proposal_id']})['result']
+
+                old_event = close_alias(lift['id'] if old_blocked else stairs['id'])
+                alias_position = get('/api/sessions/' + alias_phone)['position']
+                old = post(alias_path + '/replan', {'session_id': alias_phone, 'from': alias_position})
+                old_snapshot = get('/api/buildings/' + bid)
+                assert old['status'] == ('blocked' if old_blocked else 'active')
+                post('/api/demo/reset', {'building_id': bid}, {'X-Session-ID': admin})
+                new_event = close_alias(stairs['id'] if old_blocked else lift['id'])
+                current = get('/api/buildings/' + bid)
+                assert old_event['building_version'] == new_event['building_version'] == 1
+                assert old_event['event_id'] == new_event['event_id']
+                assert old_snapshot['content_hash'] == current['content_hash']
+                assert old['building_state_id'] != current['building_state_id']
+                assert get(alias_path) == old  # GET never silently replans a saved tour.
+                instruction = tool(alias_phone, 'next_step', {}, ok=old_blocked)
+                fresh = get(alias_path)
+                assert fresh['tour_id'] == old['tour_id']
+                assert fresh['building_version'] == old['building_version'] == 1
+                assert fresh['building_state_id'] == current['building_state_id']
+                assert fresh['revision'] > old['revision']
+                assert fresh['start']['space_id'] == alias_position['space_id']
+                assert fresh['start']['point'] == alias_position['point']
+                for field in ('stops', 'constraints', 'order_policy', 'end'):
+                    assert fresh.get(field) == old.get(field), field
+                assert fresh['order_policy'] == 'fixed'
+                assert len([stop for stop in fresh['stops'] if stop['status'] == 'collected']) == 2
+                assert fresh['status'] == ('active' if old_blocked else 'blocked')
+                if old_blocked:
+                    assert not fresh['unreachable_stops'] and not instruction['result'].get('complete', False)
+                    if destination == 'end':
+                        assert instruction['result']['stop_id'] == 'end'
+                else:
+                    assert instruction['error']['code'] == 'no_route' and fresh['unreachable_stops']
+                    assert all(stop.get('reason') for stop in fresh['unreachable_stops'])
+                aliases.append({'destination': destination,
+                    'direction': 'blocked_to_open' if old_blocked else 'open_to_blocked',
+                    'reused_building_version': 1, 'reused_event_id': new_event['event_id'],
+                    'base_content_hash_equal': True,
+                    'old_state_id': old['building_state_id'],
+                    'current_state_id': current['building_state_id'],
+                    'stored_tour_stale_until_next_step': True,
+                    'fresh_status': fresh['status'], 'same_tour_and_two_collected_preserved': True,
+                    'next_step_ok': instruction['ok']})
+        report['checks']['reset_version_reuse'] = {
+            'cases': aliases, 'automatic_ui_catchup_verified': False}
         assert git('rev-parse', 'HEAD') == expected_sha
         final_diff = subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD'])
         report['source_after_diff_sha256'] = hashlib.sha256(final_diff).hexdigest()
