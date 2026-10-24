@@ -31,7 +31,7 @@ describe('camera lifecycle', () => {
     const { result } = renderHook(useCamera);
     await act(async () => { await result.current.start(); });
     expect(result.current.state.kind).toBe('error');
-    if (result.current.state.kind === 'error') expect(result.current.state.message).toContain('nicht erlaubt');
+    if (result.current.state.kind === 'error') expect(result.current.state.message).toContain('not allowed');
     act(() => result.current.stop());
     expect(result.current.state.kind).toBe('off');
   });

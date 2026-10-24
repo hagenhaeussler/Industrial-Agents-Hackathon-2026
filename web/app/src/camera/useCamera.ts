@@ -8,11 +8,11 @@ type CameraState =
 
 function cameraError(error: unknown): string {
   if (error instanceof DOMException) {
-    if (error.name === 'NotAllowedError') return 'Kamerazugriff wurde nicht erlaubt. Erlaube ihn in den Website-Einstellungen deines Browsers.';
-    if (error.name === 'NotFoundError') return 'Keine Kamera gefunden. Du kannst die Demo trotzdem ausprobieren.';
-    if (error.name === 'NotReadableError') return 'Die Kamera ist gerade belegt. Schließe andere Kamera-Apps und versuche es erneut.';
+    if (error.name === 'NotAllowedError') return 'Camera access was not allowed. Allow it in your browser’s site settings.';
+    if (error.name === 'NotFoundError') return 'No camera found. The map and directions still work.';
+    if (error.name === 'NotReadableError') return 'The camera is in use by another app. Close it and try again.';
   }
-  return 'Die Kamera konnte nicht starten. Bitte versuche es erneut.';
+  return 'The camera could not start. Try again.';
 }
 
 /** Owns the stream, including requests that resolve after stop or unmount. */
@@ -34,7 +34,7 @@ export function useCamera() {
     stop();
     const request = requestRef.current;
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-      setState({ kind: 'error', message: 'Die Kamera braucht HTTPS oder localhost. Öffne die sichere App-Adresse.' });
+      setState({ kind: 'error', message: 'The camera needs HTTPS or localhost. Open the secure app address.' });
       return;
     }
     setState({ kind: 'requesting' });
@@ -58,7 +58,7 @@ export function useCamera() {
         if (streamRef.current !== stream) return;
         stream.getTracks().forEach(item => item.stop());
         streamRef.current = null;
-        setState({ kind: 'error', message: 'Die Kamera wurde unterbrochen. Du kannst sie erneut starten.' });
+        setState({ kind: 'error', message: 'The camera was interrupted. You can start it again.' });
       }, { once: true }));
       setState({ kind: 'live' });
     } catch (error) {

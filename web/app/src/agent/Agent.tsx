@@ -15,7 +15,7 @@ export function Agent({ arrived, onDestination }: { arrived: boolean; onDestinat
   const historyRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState('');
   const [hidden, setHidden] = useState(document.hidden);
-  const [messages, setMessages] = useState<Message[]>([{ id: 0, role: 'agent', text: 'Hi, ich bin Alain. Wohin möchtest du? Ich kenne die Demo-Wege zur Werkstatt, Besprechung und Kaffeeküche.' }]);
+  const [messages, setMessages] = useState<Message[]>([{ id: 0, role: 'agent', text: 'Hi, I am Alain. Where would you like to go? I know the demo routes to the workshop, the meeting room and the coffee kitchen.' }]);
 
   useEffect(() => {
     const updateVisibility = () => setHidden(document.hidden);
@@ -35,21 +35,21 @@ export function Agent({ arrived, onDestination }: { arrived: boolean; onDestinat
   const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); send(text); };
 
   return <>
-    <section className="agent-dock" aria-label="Gebäudeassistent">
-      <button className="agent-presence" onClick={() => dialogRef.current?.showModal()} aria-label="Mit Alain sprechen">
-        <span className="avatar-wrap" data-paused={hidden}><Blobatar name="alain00" animate="always" size={116} expression={arrived ? happy : idle} title="Alain, dein Gebäudeguide"/></span>
-        <span className="agent-bubble surface"><strong>{arrived ? 'Da sind wir!' : 'Ich zeig dir den Weg.'}</strong></span>
+    <section className="agent-dock" aria-label="Building assistant">
+      <button className="agent-presence" onClick={() => dialogRef.current?.showModal()} aria-label="Talk to Alain">
+        <span className="avatar-wrap" data-paused={hidden}><Blobatar name="alain00" animate="always" size={116} expression={arrived ? happy : idle} title="Alain, your building guide"/></span>
+        <span className="agent-bubble surface"><strong>{arrived ? 'Here we are!' : 'I will show you the way.'}</strong></span>
       </button>
-      <button className="ask-agent surface" onClick={() => dialogRef.current?.showModal()}><MessageCircle size={21}/><span>Frag das Gebäude …</span><span className="send-icon"><ArrowUpRight size={22}/></span></button>
+      <button className="ask-agent surface" onClick={() => dialogRef.current?.showModal()}><MessageCircle size={21}/><span>Ask the building…</span><span className="send-icon"><ArrowUpRight size={22}/></span></button>
     </section>
     <dialog className="sheet chat-sheet" ref={dialogRef} aria-labelledby="agent-title">
       <div className="sheet-handle"/>
-      <header className="sheet-header"><div><h2 id="agent-title">Frag Alain.</h2><p>Demo-Antworten · Kein Sprachmodell verbunden</p></div><button className="icon-button" onClick={() => dialogRef.current?.close()} aria-label="Chat schließen"><X size={22}/></button></header>
-      <div className="chat-history" ref={historyRef} aria-live="polite" role="log" aria-label="Gespräch mit Alain">
-        {messages.map(message => <div className={`message ${message.role}`} key={message.id}><span className="message-author">{message.role === 'agent' ? 'Alain' : 'Du'}</span><p>{message.text}</p></div>)}
+      <header className="sheet-header"><div><h2 id="agent-title">Ask Alain.</h2><p>Demo replies · No language model connected</p></div><button className="icon-button" onClick={() => dialogRef.current?.close()} aria-label="Close chat"><X size={22}/></button></header>
+      <div className="chat-history" ref={historyRef} aria-live="polite" role="log" aria-label="Conversation with Alain">
+        {messages.map(message => <div className={`message ${message.role}`} key={message.id}><span className="message-author">{message.role === 'agent' ? 'Alain' : 'You'}</span><p>{message.text}</p></div>)}
       </div>
-      <div className="suggestions">{['Zur Kaffeeküche', 'Ohne Treppen?', 'Wo bin ich?'].map(suggestion => <button key={suggestion} onClick={() => send(suggestion)}>{suggestion}</button>)}</div>
-      <form className="chat-input" onSubmit={submit}><label className="sr-only" htmlFor="message">Nachricht an Alain</label><input ref={inputRef} id="message" value={text} maxLength={1000} onChange={event => setText(event.target.value)} placeholder="Wohin möchtest du?" autoComplete="off"/><button className="icon-button dark" type="submit" disabled={!text.trim()} aria-label="Nachricht senden"><Send size={19}/></button></form>
+      <div className="suggestions">{['To the coffee kitchen', 'Without stairs?', 'Where am I?'].map(suggestion => <button key={suggestion} onClick={() => send(suggestion)}>{suggestion}</button>)}</div>
+      <form className="chat-input" onSubmit={submit}><label className="sr-only" htmlFor="message">Message to Alain</label><input ref={inputRef} id="message" value={text} maxLength={1000} onChange={event => setText(event.target.value)} placeholder="Where would you like to go?" autoComplete="off"/><button className="icon-button dark" type="submit" disabled={!text.trim()} aria-label="Send message"><Send size={19}/></button></form>
     </dialog>
   </>;
 }
