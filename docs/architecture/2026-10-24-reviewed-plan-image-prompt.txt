@@ -1,0 +1,80 @@
+Use case: infographic-diagram
+Asset type: a high-resolution landscape architecture and delivery-plan poster for the Industrial Agents Hackathon team.
+Primary request: Visualize the planned "Talk to Your Building" system, reconciling the Codex architecture review with the newer two-UX review and the committed ElevenLabs agent configuration. This is a proposed implementation, not a claim that the app is built or deployed. Source snapshot: 337157b, 24 October 2026.
+
+Style: polished technical editorial infographic, diagram-led with small realistic device illustrations. White/off-white canvas, dark navy text, restrained teal for application flow, violet for voice, amber for timeboxed or unresolved elements. Crisp typography, strong contrast, generous spacing, flat cards, thin directional connectors, minimal shadows. No decorative factory scene. Use 16:9 landscape, ideally 3840 x 2160. Labels must be legible and spelled exactly. Use large headings and concise text, not tiny paragraphs. No logos or watermark.
+
+Title, verbatim: "TALK TO YOUR BUILDING"
+Subtitle, verbatim: "Reviewed implementation plan · 24 Oct 2026"
+Premise, verbatim: "The LLM interprets. Deterministic tools compute."
+Small status label: "PLANNED ARCHITECTURE"
+
+Composition: a coherent architecture diagram occupying the upper two-thirds, with two device-experience cards on the left, a dominant shared backend and voice layer in the middle, and data/persistence cards on the right. The lower third contains a clearly separate local benchmark lane, a compact delivery sequence, and one small open-decisions strip. Arrows must have clear direction and labels. Avoid crossing arrows and do not repeat the same concept in multiple boxes.
+
+LEFT: TWO CONNECTED EXPERIENCES
+Card "UX A · LAPTOP / ADMIN". Show a laptop with an editable 2D floor plan, room outlines, one proposed door and a preview overlay. Exact concise labels:
+"Upload → scale → validate → preview"
+"Confirm edits · undo · QR markers"
+Add an amber small tag: "Image import: 3 h timebox + fallback".
+
+Card "UX B · PHONE / NAVIGATOR". Show a phone displaying a real-world corridor camera view with a floor-following route line and a QR start anchor, plus a small 2D map inset. Exact concise labels:
+"QR anchor → route → next step"
+"Android: WebXR AR"
+"iPhone: camera overlay"
+"Baseline: QR + 2D map + voice"
+Use amber/dashed styling on the camera-renderer details to show device testing and fallbacks remain required, rather than depicting proven tracking. Do not imply continuous iPhone positional tracking. No GPS, Wi-Fi positioning, Gaussian splats or VPS.
+
+CENTER TOP: VOICE
+Card "ELEVENLABS · TWO VOICE AGENTS" with "Admin" and "Navigator" beneath it.
+Small labels: "English · WebRTC" and "Conversation Token".
+Both browser experiences exchange audio directly with ElevenLabs over a violet two-way line labelled "Audio". Client-tool calls return to the browser; a separate teal arrow from browser to FastAPI is labelled "Client tools → API". The API returns deterministic results to the browser; the browser updates the display and returns the same result to the voice agent. Do not draw direct ElevenLabs execution of database mutations. Do not draw an extra LLM between backend result and map rendering.
+
+CENTER MAIN: APPLICATION AND CORE
+Large container titled "RAILWAY · ONE FASTAPI SERVICE".
+Secondary line: "React + TypeScript + SVG · built SPA + API".
+Small runtime label: "One process · one Docker image".
+Inside this container make the shared computation module visually prominent:
+"SHARED PYTHON CORE"
+"Shapely + NetworkX"
+Three short capability groups:
+"Find & measure"
+"Route & reachability"
+"What-if & edit impact"
+Under those: "Versioned scoring profiles" and "Room path + portals + polyline + maneuvers".
+Show a small secondary card connected to FastAPI labelled "Anthropic · text fallback / extraction". This API is also used by the local benchmark, not as a mandatory second voice LLM. No Custom-LLM proxy.
+
+RIGHT: INPUTS AND STATE
+Card "BUILDING INPUTS" with "Kit JSON + equipment CSV" and "New plans → validated building". Arrow into the shared core/model. The original kit data remains immutable.
+Card "PERSISTENT VOLUME /state" with "SQLite event log + uploads" and "Proposals · markers · building catalog". Connect it to FastAPI with a two-way line.
+The edit lifecycle should be a compact visible sequence: "Preview → confirm → commit → undo".
+Small state guarantee: "Version checks · idempotent commits".
+A teal return arrow labelled "building_changed → live reroute" links the backend to the two device experiences. It represents WebSocket updates. Show an Admin door closure causing the phone route to change, as a small before/after route inset if space permits. This is planned behavior, not a completion badge.
+
+LOWER LANE: INDEPENDENT BENCHMARK
+Label "LOCAL BENCHMARK · NO RAILWAY OR ELEVENLABS REQUIRED".
+Flow: "Question text + building" → "Extract parameters" → "Same Python core" → "Score + serialize".
+Compact outputs: "138 dev questions · 145 test answers · Sunday adapter".
+Small guardrail: "No gold answers in the live path".
+The independent CLI uses the same core code locally; it must not appear dependent on the remote FastAPI service. Connect its extraction step to Anthropic and visually tie its core to the shared core concept without implying a network dependency.
+
+BOTTOM: DELIVERY ORDER
+Six small numbered steps in one readable horizontal sequence:
+"1  Integrate + freeze contracts"
+"2  Core + dev end-to-end"
+"3  Railway + real voice tool"
+"4  Import + QR anchors"
+"5  Two-device live reroute"
+"6  Fresh clone + submission"
+
+Small amber strip labelled "OPEN GATES": "Sunday schema + scorer · forklift mapping · demo building · device/audio test · voice-model A/B".
+Footer: "Fallbacks: text chat · QR + 2D · hand-built demo building".
+Small provenance footer: "Plan synthesis at repo 337157b".
+
+Accuracy constraints: The latest review takes precedence over the original PLAN.md where they conflict. Railway replaces the old Cloudflare stack, so do not show Worker, Durable Objects, Hono, R2 or Wrangler. Do not show a standalone 3D viewer, forklift demo, cross-building routing or custom LLM endpoint as planned deliverables. Forklift rule semantics remain an open core requirement. Camera navigation is the selected extension with fallback, and image-to-building import is a timeboxed workflow. Do not show performance scores, success checkmarks, completed deployment badges, invented runtime limits, vendor pricing, or a guaranteed Sunday schema. Do not put API keys, secrets or personal information into the image. Keep the entire poster coherent and readable rather than adding more text than fits.
+
+Targeted second-pass edit prompt (built-in image generation, referencing the first generated image):
+Preserve the poster's visual style, palette, content, devices, typography, sections and overall composition. Make only these technical connection corrections, redistributing a little vertical spacing around the voice card if needed. Remove every direct purple arrow between ELEVENLABS and RAILWAY. The two-way purple Audio connection goes only between the laptop/phone browser experiences and ELEVENLABS. In the gap beneath ELEVENLABS, add a crisp small bridge box labelled exactly "CLIENT TOOLS · EXECUTE IN BROWSER". A violet two-way connection joins ELEVENLABS to that browser bridge; a teal two-way connection joins the browser bridge to the RAILWAY API. Make the bridge explicitly part of the browser side, not part of FastAPI, and connect it visibly to the two left browser cards. Replace the ambiguous small phrase "Browser display result to voice agent" with "Browser updates display + returns tool result". There must be no direct vendor-to-database or vendor-to-core execution arrow. Preserve the existing teal WebSocket live-reroute feedback.
+In the local benchmark lane, change the dashed annotation "Uses same API" to "Anthropic API" and route that dashed line from the "Extract parameters" box to the Anthropic API box, not from Score + serialize. Label the Anthropic card "Anthropic API · text fallback / extraction" with a small "External API" indicator. Add the exact compact note "Local CLI shares core code, not the server" within the benchmark lane, fitting it by tightening whitespace rather than making text tiny. The local core does not call Railway. Keep the 138 dev / 145 test figures, all open gates, fallback labels, source revision 337157b and planned-status label unchanged. Do not introduce additional infrastructure or change the scope. Render the corrected final poster at high resolution, ideally 3840 x 2160.
+
+Targeted final edit prompt (built-in image generation, referencing the second generated image):
+Keep the entire image unchanged except these exact technical corrections. Remove the teal arrow labelled "Load and validate" that currently points from BUILDING INPUTS toward ELEVENLABS; there must be no input-data arrow to ElevenLabs. Instead put a concise label inside the BUILDING INPUTS card saying "Loaded into the shared Python core". No new arrow is needed. In the LOCAL BENCHMARK lane, replace the incorrect box after "Same Python core" with "Score + serialize". This is the fourth step, followed by Outputs. Remove every dashed arrow and annotation above the benchmark lane; the Extract parameters box already says "via Anthropic", which is sufficient. Do not place an Anthropic box after the core. Keep "Local CLI shares core code, not the server". In the existing Anthropic card below the shared core inside the main application area, use the title "Anthropic API · text fallback / extraction" and the small caption "External API". Make no other changes. Preserve all labels, two device experiences, client-tool browser bridge, 138 dev / 145 test figures, edit lifecycle, open gates, planned status and source revision 337157b. Do not add arrows, boxes, claims or text not explicitly requested here.
