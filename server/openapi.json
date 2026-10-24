@@ -1116,6 +1116,7 @@
             "type": "string"
           },
           "stop_id": {
+            "description": "Collection stop ID, or reserved 'end' with status 'collected' to confirm final arrival.",
             "title": "Stop Id",
             "type": "string"
           }
@@ -1409,7 +1410,7 @@
   },
   "info": {
     "title": "Talk to Your Building",
-    "version": "C6"
+    "version": "C7"
   },
   "openapi": "3.1.0",
   "paths": {

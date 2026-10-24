@@ -86,7 +86,7 @@ _DEFINITIONS = [
     Tool("find", "Find a named item or place; ask once if ambiguous.", FindArgs, "_find"),
     Tool("plan_tour", "Plan a tour from the session position through comma-separated items.", TourArgs, "_tour"),
     Tool("route", "Compute a route from the session position, respecting mobility constraints.", RouteArgs, "_route"),
-    Tool("next_step", "Return the next instruction of the active tour.", Args, "_next_step"),
+    Tool("next_step", "Return the next instruction of the active tour, including final destination directions and an explicit arrival confirmation.", Args, "_next_step"),
     Tool("spatial_query", "Answer a spatial question through the deterministic core.", SpatialArgs, "_spatial"),
     Tool("propose_edit", "Preview an edit without changing the building.", EditArgs, "_propose", frozenset({"admin"})),
     Tool("commit_edit", "Commit a confirmed proposal exactly once.", CommitArgs, "_commit", frozenset({"admin"})),
