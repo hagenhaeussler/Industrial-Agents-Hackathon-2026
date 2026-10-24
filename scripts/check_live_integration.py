@@ -36,7 +36,8 @@ def git(*parts):
 
 expected_sha = git('rev-parse', 'HEAD')
 initial_diff = subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD'])
-security_paths = ['server/config.py', 'server/routes_live.py', 'server/ws.py', 'server/public.py']
+security_paths = ['server/config.py', 'server/app.py', 'server/state.py', 'server/routes_live.py',
+                  'server/ws.py', 'server/public.py', 'server/tools.py']
 security_hashes = {path: hashlib.sha256((source / path).read_bytes()).hexdigest()
                    for path in security_paths if (source / path).is_file()}
 url = None
@@ -69,7 +70,7 @@ environment.update(ANTHROPIC_API_KEY='', ELEVENLABS_API_KEY='',
                    PYTHON_DOTENV_DISABLED='1', DATA_DIR=str(source / 'data'),
                    PYTHONDONTWRITEBYTECODE='1', TYB_PROFILE='kit_1_1_0',
                    TYB_ADMIN_TOKEN=admin_code, TYB_ADMIN_OPEN_INSECURE='',
-                   TYB_DEMO_MODE='true')
+                   TYB_DEMO_MODE='true', TYB_ALLOW_UNAUTHENTICATED_DEMO_ADMIN='0')
 
 
 def interrupted(signum, frame):
@@ -129,6 +130,7 @@ try:
         def tool(sid, name, values, ok=True):
             result = post('/api/tools/' + name, {'session_id': sid, 'args': values})
             assert result['ok'] is ok, (name, result)
+            check_public(result)
             return result
 
         def ready():
@@ -246,7 +248,7 @@ try:
                 stale = tool(admin, 'propose_edit', {'action': 'close', 'target': lift['id']})['result']
                 started = time.perf_counter()
                 commit = tool(admin, 'commit_edit', {'proposal_id': preview['proposal_id'], 'op_id': f'g34-close-{trial}'})['result']
-                assert commit['session_id'] == admin  # The private caller retains its own ownership metadata.
+                check_public(commit)
                 committed = time.perf_counter()
                 changed = until(ws, 'building_changed')
                 notified = time.perf_counter()
@@ -306,8 +308,8 @@ try:
             previous_tour = get(tour_path)
             assert previous_tour['building_version'] == 6 and snap['building_version'] == 7
             events = get('/api/buildings/' + bid + '/events?since=6')
-            assert disconnected_event['session_id'] == admin
-            assert events == [{key: value for key, value in disconnected_event.items() if key != 'session_id'}]
+            check_public(disconnected_event)
+            assert events == [disconnected_event]
             caught_up = replan()
             assert until(ws, 'tour_updated')['revision'] == caught_up['revision']
             assert caught_up['building_version'] == 7 and caught_up['unreachable_stops']
@@ -318,7 +320,7 @@ try:
                 'automatic_ui_reconnect_verified': False}
         report['checks']['public_credentials'] = {
             'public_events_tours_and_ws_omit_session_fields_and_values': True,
-            'private_commit_owner_retained': True,
+            'tool_results_and_displays_omit_session_fields_and_values': True,
         }
 
         expected = {'tour': get(tour_path), 'session': get('/api/sessions/' + phone),

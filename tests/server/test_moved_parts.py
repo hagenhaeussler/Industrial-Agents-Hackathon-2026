@@ -23,11 +23,11 @@ def journey(tmp_path, monkeypatch, request):
     assets = grouped[source][:2]
     collector_room, destination = other_rooms[:2]
     collector = grouped[collector_room][0]
-    # Trusted in-process fixture; admin authentication is covered separately.
-    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_requires_code=False)
+    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_token='server-test-admin-code')
     with TestClient(create_app(settings)) as client:
         def session(role):
-            response = client.post('/api/sessions', json={'building_id': raw['building']['id'], 'role': role})
+            response = client.post('/api/sessions', json={'building_id': raw['building']['id'], 'role': role},
+                                   headers={'X-Admin-Token': settings.admin_token} if role == 'admin' else {})
             assert response.status_code == 200, response.text
             return response.json()['session_id']
         nav, admin = session('navigator'), session('admin')

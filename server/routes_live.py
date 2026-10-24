@@ -15,9 +15,9 @@ from shapely.geometry import Point
 from starter_agent.building_map import outline
 
 from .errors import ServiceError
-from .public import public_payload
 from . import schemas
 from .state import now
+from .public import public_payload
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix='/api')
@@ -25,6 +25,15 @@ router = APIRouter(prefix='/api')
 
 def components(request):
     return request.app.state.service, request.app.state.store
+
+
+def admin_allowed(request, code):
+    """Mirror the store policy without treating proxy or loopback IPs as proof."""
+    settings = request.app.state.settings
+    token = settings.admin_token if isinstance(settings.admin_token, str) else ""
+    if token:
+        return isinstance(code, str) and hmac.compare_digest(code.encode("utf-8"), token.encode("utf-8"))
+    return bool(settings.demo_mode and settings.allow_unauthenticated_demo_admin)
 
 
 def admin_session(request, session_id, building_id=None):
@@ -35,15 +44,6 @@ def admin_session(request, session_id, building_id=None):
     if building_id and session['building_id'] != building_id:
         raise ServiceError('forbidden', 'This admin session belongs to another building.', status=403)
     return session
-
-
-def admin_allowed(request, code):
-    """Whether this request may open an admin session (CR-C-2); the role in the body is never trusted alone."""
-    settings = request.app.state.settings
-    if not settings.admin_requires_code:
-        return True
-    # Fail closed: without a configured code nobody is admin. The client address is never an auth factor.
-    return bool(settings.admin_token) and bool(code) and hmac.compare_digest(code.encode(), settings.admin_token.encode())
 
 
 def checked_position(service, store, building_id, position):
@@ -78,12 +78,14 @@ def checked_position(service, store, building_id, position):
 
 @router.post('/sessions', response_model=schemas.Session, tags=['sessions'])
 def create_session(body: schemas.SessionCreate, request: Request,
-                   admin_code: str | None = Header(default=None, alias='X-Admin-Token')):
-    if body.role == 'admin' and not admin_allowed(request, admin_code):
-        raise ServiceError('forbidden', 'Changes need the admin code.', status=403)
+                   admin_token: str | None = Header(default=None, alias='X-Admin-Token',
+                       description='Required for admin sessions when TYB_ADMIN_TOKEN is configured. Never returned.')):
+    """Create a navigator session, or authenticate an admin with its private code."""
     service, store = components(request)
+    if body.role == 'admin' and not admin_allowed(request, admin_token):
+        raise ServiceError('forbidden', 'Admin access requires a valid admin code.', status=403)
     service.current(body.building_id)
-    return store.create_session(body.building_id, body.device, body.role, body.profile)
+    return store.create_session(body.building_id, body.device, body.role, body.profile, admin_token=admin_token)
 
 
 @router.get('/sessions/{session_id}', response_model=schemas.Session, tags=['sessions'])

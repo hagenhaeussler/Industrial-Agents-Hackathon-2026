@@ -102,7 +102,7 @@ def journey(request, monkeypatch, tmp_path):
     settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero',
                         static_dir=tmp_path / 'dist', demo_mode=True,
                         admin_token='reset-identity-test-admin-code')
-    assert settings.admin_requires_code is True
+    assert settings.allow_unauthenticated_demo_admin is False
     current = Journey(settings)
     try:
         yield current
