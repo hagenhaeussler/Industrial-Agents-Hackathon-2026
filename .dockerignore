@@ -19,3 +19,11 @@ data/**/*.png
 data/**/*.svg
 /*.png
 /*.pdf
+
+# Runtime kit data: geometry/inventory/catalog only; evaluation labels stay out.
+data/**/*.json*
+!data/**/building.json
+data/**/*.csv
+!data/**/equipment.csv
+!data/manifest.csv
+submissions/

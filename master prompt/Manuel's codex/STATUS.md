@@ -1,12 +1,15 @@
 # STATUS: Manuel's codex (Platform & Live Integration Lead, integration captain)
-Last update: 2026-10-24 21:50 CEST · Branch: `manuel-codex/platform` · HEAD: integration follow-up (this revision) · Last sync with origin/main: `8baa2c6` (G1 pushed)
+Last update: 2026-10-24 21:55 CEST · Branch: `manuel-codex/platform` · HEAD: G2/C4 checkpoint (this revision) · Last sync with origin/main: `8baa2c6` (G1 pushed)
 
 Single writer: Manuel's codex. Keep this structure (OWNERSHIP_AND_DEPENDENCIES §7).
 
 ## Current task
-G1 passed and pushed to main at `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`; `gate-G1` points to that exact checked commit. Continuing M02/C3 integration hardening, G2 submission review and local G3 journey checks. Physical G4/device acceptance remains pending; no AR rendering or external deploy is claimed.
+G1 passed/pushed/tagged at `8baa2c6`. G2 benchmark verification is green; final integrated production check before main/tag. M02 C4 mobility/closure transport, moved-part recovery and optional-end recovery are implemented and verified. Local live desk/QR handoff passes; G3/G4 remain pending C02 phone journey and chat/voice/provider acceptance. No external deploy or AR rendering claimed.
 
 ## Delivered (newest first)
+- C4/CR-L-1/2: persistent affirmative session mobility and route width, atomic merges across concurrent tools; zero/single/multiple closure handling without changing benchmark input schema; candidate names compatible with UI chips. **25 new mobility/tool tests pass**; existing eleven names/required arguments unchanged.
+- Blocked optional end is reported as blocked even after collection finishes; core and kit HTTP closure/reopening recovery verified. Current **90 server tests**, **250 integrated Python tests**, **39 Bun tests** pass.
+- CR-H-3: production Docker context excludes evaluation question JSON/JSONL, answer/template CSVs and submissions; keeps building JSON, equipment and manifest. Latest core `6452bda` and G2 bench `e1c2dfd` consumed.
 - G1 captain integration: core `4e6f956` (already containing platform `d187ce5`, bench `4d93bdb`, web `de81877`) plus current web `e29fc43`; main and gate-G1 verified remotely at `8baa2c6`. Used a regular `HEAD:main` push from the prescribed detached clean integration worktree; the human checkout/main branch was not switched or overwritten.
 - CR-H-2 fixed in this checkpoint: real-core and kit replan retarget moved pending parts by identity, preserve collected stops, split/merge rooms without losing stop IDs, and progress follows current inventory. Original HTTP400 regression reproduced before fix; 8 new HTTP tests + all63server tests pass.
 - C3 OpenAPI now describes geometry_length_m, fallback, point endpoints as coordinate pairs, and building_closed; find display adds asset_ids/floor_id for Claude's live UI; Docker web stage includes demo/scenario.json.
@@ -18,7 +21,7 @@ G1 passed and pushed to main at `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`; `gat
 - `917980c` (pushed within the initial dependency handoff): shared dependencies/lockfile and package exports. Added runtime httpx in M02 after production-only smoke exposed its dev-only omission.
 
 ## Interfaces exposed / changed
-- Contract **C3** (C2 transport preserved), additive CR-M-1: raw admin endpoints use `X-Session-ID`; phone progress accepts the same header to advance the caller; tours expose `mobility_profile` separately from cost profile. Tool names/required arguments unchanged. `server/README.md` contains integration details.
+- Contract **C4** (C2 transport/C3 core semantics preserved), additive CR-M-1: raw admin endpoints use `X-Session-ID`; phone progress accepts the same header to advance the caller; tours expose `mobility_profile` separately from cost profile. Tool names/required arguments unchanged. `server/README.md` contains integration details.
 - HTTP: health/buildings/snapshots/events; sessions create/get/patch; tools; tours create/get/progress/replan; markers create/get/sheet; voice token; chat; demo reset. Plan import remains explicit not_available. `TYB_DEMO_MODE=true` required for reset (default off).
 - `WS /ws/buildings/{id}`: hello, building_changed/reset, tour_opened/updated, 20 s heartbeat. Subscriber registration precedes version fetch; concurrent commits cannot fall through the handshake gap.
 - `from server.tools import registry`: `json_schemas()` and `call(name, session_id, args)`; bound during app startup. Chat constructor is `ChatAgent(registry, session_provider)`.
@@ -32,6 +35,11 @@ G1 passed and pushed to main at `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`; `gat
 | G1 (early green integration) | core4e6f956 + platformd187ce5 + bench4d93bdb + webe29fc43 -> **8baa2c6** | 214 Python; oracle369/369; devtext138/138; structureddev138/138,train517/517;39Bun; productionbuild; health+fixtures | `gate-G1` @8baa2c6 | repository-only scope |
 
 ## Evidence
+- Final production image `tyb-g2`, `sha256:c1c6db70b7d3c43b32885c9292215e7862d10ba6db927c17815a2be34b0bc381`,129937751bytes,linux/arm64: frozenbuild and empty-volume smoke passed. Actual runtime data:280buildingJSON+280equipmentCSV+manifest; ZERO evaluationJSON/JSONL,answer/templateCSV,PNG/SVG; submissions absent. OpenAPIC4,realcoretourpointarrays,desk/devtest200. Closure/replan3trials77.6/80.2/91.4ms; duplicatecommitoneevent; C4wheelchair/width persists on no_route; restartkeepsphone/tour/collectedstop/3events. Container/tempstate removed. Evidence `agent_output/reports/g2/production-smoke.json`,docker-build.log,runtime-check.log,container.log.
+- G2: strict validator passes; CSV145uniqueIDs/145rows,exact question_id+answer columns,6337bytes, SHA256 `d3b026e88822e9697b9b02b724f29bef08c5e01129afe5c3e7b3e2467231e89f` matches owner. Independent `env -u ANTHROPIC_API_KEY uv run python -m benchmark.evaluate data/dev --agent bench.agent:answer --name captain-g2-dev`: **138/138**, every per-kind count matches BENCHMARK.md. No hidden test accuracy claim. Evidence `agent_output/reports/g2/summary.json`, official-dev.log, csv-integrity.json.
+- Current `env -u ANTHROPIC_API_KEY scripts/check.sh` exit0: **250 Python tests** (25.24s), oracle369/369, core devtext138/138, **39 Bun**, strict TS/Vite/devicegate build. Log `/private/tmp/tyb-g2-full-check.log`. Full server90passed; source whitespace clean; no paid calls.
+- Real browser QA (headless Chrome, actual core API, no mocks): 3parts ->108.87m tour,83ms to route DOM; exact rendered QR decoded; phone same3stops in165ms, tour_start/low confidence; desk shows Opened on phone. Desktop1280x800/mobile390x844 nooverflow/blank/overlay; screenshots/report `/private/tmp/tyb-live-journey-report.json` and tyb-live-{desk-tour,desk-qr,phone-tour}.png. These are desktop emulation timings, not physical phone/Railway evidence.
+- The same QA proved the C02 gap: committing a lift closure produced **zero phone replan requests**; C01 GoTour is read-only (no start confirmation/Got it/voice). Chat503 fallback was visible with no provider call. Do not mark fullG3/G4 green until owner integration and physical acceptance.
 - G1 exact HEAD `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`: `scripts/check.sh` exit0, **214 Python tests**, **369/369 oracle**, **138/138 dev text**, **39 Bun**, strict TS/Vite/devicegate build. Separate dev structured138/138 and train structured517/517. Frozen uv/Bun installs succeeded. Health200 reports exact SHA,280 buildings; factory snapshot79spaces/505assets and both C3fixtures verified. Logs: `../tyb-main/agent_output/reports/g1/summary.json`, check.log, dev-structured.log, train-structured.log, health-fixtures.json.
 - `git ls-remote origin refs/heads/main refs/tags/gate-G1` returned **8baa2c65b1bda13b1596e28c652aaa6f41a00e99** for both. No force push.
 - Current platform follow-up: **63server tests pass** (including 8actualHTTP moved-part regressions core+kit); source regression confirmed failing against previous _plan before fix. C3 endpoint schema mismatch identified by real UI QA and fixed to actual [x,y] pairs; schema export verified.
@@ -52,9 +60,9 @@ G1 passed and pushed to main at `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`; `gat
 - Latest fetch/read: Hagen6452bda (additional explicit stop-position fix, queued); Lenarde1c2dfd (verified145-row submission/BENCHMARK, queuedG2); Claudee29fc43 (C01 liveAPI). No deployment claimed.
 
 ## Change requests
-- **CR-H-2 accepted:** fixed in this checkpoint; server delegates core.replan and preserves canonical updated stops. 8HTTP regressions +63server tests green.
-- **CR-H-3 accepted:** exclude evaluation question/answer files from production Docker context; implementation/check next.
-- **CR-L-1 / CR-L-2 accepted for C4 §8:** persist affirmative tool mobility settings; explicitly bridge the benchmark's singular closure input while honoring all current session closures on an isolated materialization. Implementing with regression tests; no core/benchmark schema change.
+- **CR-H-2 accepted:** fixed at `d55d0ac`; server delegates core.replan and preserves canonical updated stops. 8HTTP regressions +63server tests green.
+- **CR-H-3 accepted/implemented:** evaluation JSON/CSV and submissions excluded from production Docker context; runtime image inspection verifies the whitelist.
+- **CR-L-1 / CR-L-2 accepted/implemented in C4 §8:** affirmative mobility/width persists atomically; closure bridge honors all current IDs on isolated core copy and passes one required solver string. 25 tool regressions green; core/benchmark schema untouched.
 ### CR-M-1: Explicit admin/phone session transport
 - Contract sections: 7, 14; C1 -> C2 (additive).
 - Change: X-Session-ID for raw admin endpoints and optional phone progress; mobility_profile handoff; demo opt-in; existing voice_unavailable token code documented.
@@ -63,6 +71,8 @@ G1 passed and pushed to main at `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`; `gat
 - Status: accepted in C2 at `5f63287` (captain owns these sections); relay to Claude/Lenard before consumption.
 
 ## Next handoff
+- Claude: consume C4 OpenAPI (`bun run gen:api`), voice hook and C01 display compatibility; complete C02 start confirmation/progress/reconnect/replan/voice UI. Backend and actual desk/QR handoff verified; UI gap evidence above. Only Claude edits those UI paths.
+- Lenard: C4 mobility/closure CRs resolved and tested; `registry.call`/`json_schemas()` ready for ChatAgent. Publish L02 when ready; provider-free stub tests do not establish live spoken/chat acceptance.
 - Consumers Hagen, Lenard, Manuel's Claude: fetch platform branch; `5f63287` M02 live endpoints/OpenAPI/registry/voice hook/server fixtures are ready for integration.
-- Next captain action: merge/recheck the M02 fixes, latest core stop-position fix and G2 submission; run the validator and independent official dev score, then push main and gate-G2 only when green. Continue local G3 journey evidence and request C02/voice consumer integration through published STATUS (human relay).
+- Next captain action: push this checked platform increment, merge into clean integration worktree, run scripts/check.sh there, push main and gate-G2 once green; preserve gate-G1. Full G3/G4 remains pending the specific owner/provider/device dependencies above.
 - Physical G3/G4/G5, Railway release, real voice, phone device table, AR accuracy, Sunday rehearsal and submission remain future acceptance work, not completed claims.
