@@ -12,7 +12,7 @@
 
 Diese Punkte gelten für alle Menschen und Agenten im Team. Andere Dokumente, auch `HagenFinalPrompt.md`, überschreiben sie nicht. Ändern kann sie nur das Team gemeinsam.
 
-- **TypeScript für alles.** Python nur an zwei Stellen: im offiziellen Evaluator von Synera (`benchmark/`, unverändert) und im späteren Ortungsdienst für AR.
+- **TypeScript für alles.** Python nur an zwei Stellen: im offiziellen Evaluator von Synera (`benchmark/`) und im späteren Ortungsdienst für AR. Der Scorer `benchmark/score.py` bleibt unverändert. In `benchmark/evaluate.py` ersetzen wir später nur den Standard-Agenten durch unseren eigenen.
 - **Nur JSON.** Jedes Gebäude kommt als `building.json`. Kein Import von Bildern, PDFs oder SVGs.
 - **Railway**, ein Node-Service, SQLite auf einem Volume. Kein Cloudflare.
 - **Agent Harness mit dem Claude Agent SDK** (`@anthropic-ai/claude-agent-sdk`, TypeScript), keine einzelnen LLM-Aufrufe. Gebäudedaten kommen nur über Tools, nie in einen Prompt.
@@ -36,7 +36,7 @@ Diese Punkte gelten für alle Menschen und Agenten im Team. Andere Dokumente, au
 ## 2. Gesamter Tech-Stack
 
 **Grundsätze (Stand Sa abends):**
-- **Nur TypeScript.** Kein Python im Laufzeitcode. Ausnahmen: der offizielle Evaluator `benchmark/` (Python, von Synera, unverändert, damit wir genau wie die Jury bewerten) und der spätere Ortungsdienst für AR (Abschnitt 8). Den Starter Agent haben wir entfernt.
+- **Nur TypeScript.** Kein Python im Laufzeitcode. Ausnahmen: der offizielle Evaluator `benchmark/` (Python, von Synera; der Scorer bleibt unverändert, damit wir genau wie die Jury bewerten) und der spätere Ortungsdienst für AR (Abschnitt 8). Den Starter Agent haben wir entfernt.
 - **Nur JSON.** Jedes Gebäude kommt als `building.json`. Es gibt keinen Bildimport (kein PNG, kein SVG, kein Foto). 2D- und 3D-Ansicht entstehen direkt aus den Daten.
 - **Vorberechnete Datenbank.** Ein Import-Skript liest `building.json` und schreibt SQLite. Dabei berechnet es alle Werte, die der Agent sonst selbst rechnen müsste. Import und Änderungen nutzen denselben Schreibweg.
 - **Agent Harness statt einzelner LLM-Aufrufe.** Das Modell führt eine Agent-Schleife aus und entscheidet selbst, welche Tools es wie oft aufruft. Gebäudedaten kommen nie in den Prompt, nur über Tools.
@@ -182,7 +182,7 @@ Der Puffer im Benchmark ist für den Fall gedacht, dass wir auf Sonnet wechseln 
 
 | Wo | Inhalt | Zustand |
 |---|---|---|
-| `benchmark/` | Offizieller Evaluator (`evaluate.py`) und Scorer (`score.py`) von Synera, Python | Unverändert. Wir prüfen damit unsere Antworten genau wie die Jury. Ohne `--agent` versucht er den entfernten Starter Agent zu laden |
+| `benchmark/` | Offizieller Evaluator (`evaluate.py`) und Scorer (`score.py`) von Synera, Python | `score.py` bleibt unverändert. `evaluate.py` lädt ohne `--agent` noch den entfernten Starter Agent. In Phase 2 stellen wir den Standard auf unseren eigenen Agenten um (über `bench/answer.py`) |
 | Lenards UI-Prototyp "Building Guide" (`web/mobile/`) | Mobile-Ansicht mit Vollbildkamera, Route, Minimap, Chat und Blobatar-Avatar. React 19, Vite, pnpm, Vitest | Vorlage für die Mobile-Ansicht. Route, Position und Chat sind noch Demo-Daten |
 | Dieses Repo | Notizen, PDFs, Transkripte (Lead-Q&A, Hagens UX-Erklärung, Brainstorming), Route-Spec, dieser Plan | Ältere Pläne und Recherchen in `docs/archive/`. `.env` wird nicht verfolgt |
 
@@ -195,7 +195,7 @@ Testset (145 Fragen): floor_area_total 33 · shared_walls 26 · largest_room 21 
 | Phase | Inhalt | Fertig, wenn |
 |---|---|---|
 | **1 Datenbank** | Setup: pnpm, TypeScript, Vitest, `AGENTS.md`, `.env.example`. **Vorberechnete Felder** für die Fragen (Abschnitt 5). **Import-Feature:** `building.json` → Validator → DB, derselbe Weg für Kit-Gebäude, Sonntagsgebäude und Upload in der App. Core-Graph: Constraints, Erreichbarkeit, Routen, What-if | Warm-up-Routen auf den Zentimeter, Geometrie-Arten ≈ 100 % auf dev und train, alle 280 Gebäude importierbar |
-| **2 Agent** | Harness mit dem Claude Agent SDK aufsetzen, eingebaute Tools aus. API zum LLM. **DB-Tools zum Lesen und Schreiben**, Schreiben nur über den einen Schreibweg mit Vorschau und Bestätigung. Skills und Prompts pro Fragetyp. Benchmark-CLI und `BENCHMARK.md`. API im Node-Service | **M1:** vollständige Test-CSV mit 145 Zeilen und dev-Score pro Fragetyp, end to end auf den dev-Fragetexten |
+| **2 Agent** | Harness mit dem Claude Agent SDK aufsetzen, eingebaute Tools aus. API zum LLM. **DB-Tools zum Lesen und Schreiben**, Schreiben nur über den einen Schreibweg mit Vorschau und Bestätigung. Skills und Prompts pro Fragetyp. Benchmark-CLI und `BENCHMARK.md`. `benchmark/evaluate.py` startet ohne `--agent` unseren eigenen Agenten statt des Starter Agents. API im Node-Service | **M1:** vollständige Test-CSV mit 145 Zeilen und dev-Score pro Fragetyp, end to end auf den dev-Fragetexten |
 | **A Voice** | Realtime-Voice-Layer mit ElevenLabs für Mobile und Desktop. Token-Endpunkt, Client-Tools auf dieselbe Tool-API wie der Agent | Eine gesprochene Frage zeigt eine Route, auf Mobile und Desktop |
 | **B.1 Visualisierung** | 2D (SVG) und 3D (extrudiert), **deterministisch aus der DB**: Etagen, Räume, Türen, Assets, Route, Highlights, Vorschau von Änderungen | Gleiche Daten ergeben immer dasselbe Bild. Alle Etagen eines dev-Gebäudes korrekt |
 | **B.2 UI/UX** | Eine Web-App mit zwei Ansichten, siehe unten | **M2:** Demo-Abläufe aus Abschnitt 12 laufen auf der öffentlichen URL |

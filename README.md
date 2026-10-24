@@ -11,7 +11,6 @@ This kit has everything you need to start:
 
 - **Data:** 280 buildings with floor plans, equipment lists and plan images.
 - **Questions:** train and dev questions with answers, and the test questions you are scored on (without answers).
-- **A working starter agent** built on the Claude API.
 - **A scorer**, so you can measure yourself on dev before you submit.
 
 ---
@@ -47,9 +46,8 @@ Shortly before code freeze on Sunday, a new, unseen building is released, and yo
 README.md                  this file
 CHANGELOG.md               what changed between kit versions (1.1.0: stair and lift costs)
 ATTRIBUTION.md             data sources and licences (read before you share anything)
-pyproject.toml             Python project for the starter agent and the scorer (uv or pip)
+pyproject.toml             Python project for the scorer and the evaluator (uv or pip)
 .env.example               copy to .env and add your ANTHROPIC_API_KEY
-starter_agent/             a working example agent (Claude + tools); its own README explains it
 benchmark/                 score.py (the official scorer) and evaluate.py (runs an agent, writes the submission)
 data/
   manifest.csv             one row per building: split, source, licence, size, lifts, stairs, ...
@@ -161,7 +159,7 @@ Route lengths in the answers follow the same rules the judges grade with, so you
 
 These rules changed in 1.1.0; see `CHANGELOG.md`.
 
-`starter_agent/building_map.py` implements exactly this model.
+Our router must reproduce exactly this model. We check it against the warm-up answers in train and dev.
 
 ---
 
@@ -222,23 +220,18 @@ You need Python 3.12+ and [uv](https://docs.astral.sh/uv/) (or pip), plus an Ant
 ```bash
 uv sync
 cp .env.example .env        # then put your key in .env
-uv run --env-file .env python -m starter_agent data/dev/proc-factory-dev-003
 ```
 
 Measure yourself on **dev** before you touch the test set:
 
 ```bash
-# warm-up questions, tools only, free:
-uv run python -m starter_agent.evaluate data/dev --oracle
-# benchmark questions with the starter agent (uses credits; about $0.10–0.25 per question):
-uv run --env-file .env python -m benchmark.evaluate data/dev --per-kind 3
-# your own agent:
-uv run --env-file .env python -m benchmark.evaluate data/dev --agent my_agent:answer
+# benchmark questions with an agent (uses credits):
+uv run --env-file .env python -m benchmark.evaluate data/dev --per-kind 3 --agent my_agent:answer
 ```
 
 `--agent module:function` takes a function `answer(building_directory: Path, question_text: str) -> str` that returns your agent's full reply.
 
-The starter agent scores **under 5% on the benchmark questions**. That is deliberate: its tools don't expose room areas, door widths or reachability, and it shows you where to start. See `starter_agent/README.md` for how it works and ideas to extend it.
+We removed the starter agent. `benchmark.evaluate` still tries to load it when you leave out `--agent`, so always pass `--agent` for now. Later, `benchmark.evaluate` will run our own TypeScript agent by default, through a small Python adapter `bench/answer.py`. The scorer `benchmark/score.py` stays unchanged, because it is the scorer the judges use.
 
 ---
 
