@@ -79,7 +79,7 @@ class TourCreate(Input):
 
 
 class TourProgress(Input):
-    stop_id: str
+    stop_id: str = Field(description="Collection stop ID, or reserved 'end' with status 'collected' to confirm final arrival.")
     status: Literal['collected', 'pending']
 
 

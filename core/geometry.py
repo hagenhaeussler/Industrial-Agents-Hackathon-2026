@@ -25,6 +25,9 @@ class SpaceGeometry:
     nodes: list
     matrix: np.ndarray
     paths: dict = field(default_factory=dict)
+    # visibility_matrix prepares this cached GEOS geometry in place. Sharing
+    # its prepared state between native calls needs a per-space critical section.
+    lock: object = field(default_factory=RLock, repr=False)
 
 
 _CACHE = OrderedDict()
@@ -108,6 +111,13 @@ def walk_polyline(b, space_id, first_node, second_node, *, start_point=None, end
     a valid shortest walk.
     """
     geometry = space_geometry(b, space_id)
+    with geometry.lock:
+        return _walk_polyline_locked(geometry, space_id, first_node, second_node,
+                                     start_point=start_point, end_point=end_point)
+
+
+def _walk_polyline_locked(geometry, space_id, first_node, second_node, *, start_point, end_point):
+    """All use of cached prepared geometry and its path cache is serialized."""
     index = {member[0]: i for i, member in enumerate(geometry.members)}
     nodes = geometry.nodes
     matrix = geometry.matrix
@@ -128,6 +138,13 @@ def walk_polyline(b, space_id, first_node, second_node, *, start_point=None, end
             landed = (p.x, p.y)
         nodes = list(nodes) + [landed]
         stubs.append((len(nodes) - 1, raw))
+    # Identical explicit positions mean no movement. Validate both points above
+    # before taking this shortcut; projecting a wall-band position twice would
+    # otherwise invent an out-and-back clearance stub (for example 0.26 m).
+    # Kit anchor/door walks retain their original stub costs and node semantics.
+    if start_point is not None and end_point is not None and stubs[0][1] == stubs[1][1]:
+        return {"points": [list(stubs[0][1])], "length_m": 0.0, "kit_length_m": 0.0,
+                "fallback": False, "endpoint_stubs": [False, False]}
     if nodes is not geometry.nodes:
         matrix = visibility_matrix(geometry.allowed, nodes)
     first, second = stubs[0][0], stubs[1][0]

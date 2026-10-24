@@ -1,4 +1,4 @@
-# Platform integration (C6)
+# Platform integration (C7)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -33,6 +33,8 @@ For `spatial_query(kind="step_free_reachable_count")`, `second_target` can name 
 
 Replan accepts optional partial `constraints`; only supplied fields override the saved tour. Omitting it preserves mobility. A wheelchair/pram/trolley profile still forces step-free routing. To explicitly allow stairs on an existing step-free tour, PATCH the session to `profile: "walk"` with its existing constraints plus `step_free: false`, then POST replan with `constraints: {"step_free": false}`. Check both responses. Stop identities and collected progress are retained; other constraints remain in effect. Replan does not mutate session mobility itself.
 
+An optional final destination remains active after the last part is collected until arrival is confirmed. `next_step` refreshes stale building/mobility state from the latest confirmed session position, then follows that final leg with `stop_id: "end"` and `complete: false`, finally returning `at_end: true`. Confirm arrival with `POST /api/tours/{id}/progress`, body `{"stop_id":"end","status":"collected"}` and the phone's `X-Session-ID`. This requires all collection stops collected and a currently reachable end; it preserves the same tour and stop history, moves the caller to the exact end, and completes the tour. It never inserts a fake collection stop. Reading directions alone does not confirm arrival. A blocked end remains incomplete and recovers after reopening.
+
 An independent process can instantiate `ToolRegistry(PlatformService(catalog, store))` after initializing `StateStore`. `/api/chat` constructs `agent.chat.ChatAgent(registry, store.get_session)` and calls `reply(session_id, message)` when Lenard's agent and an Anthropic key are installed. The pending L02 agent additionally requires a positive `TYB_CHAT_BUDGET_USD` backed by a written allocation in Lenard's STATUS; the example defaults to zero. Its process budget resets on restart and needs a new allocation. Missing configuration returns explicit unavailability. Offline chat tests inject an interpretation client and establish integration rather than live language quality; paid enablement waits for the owner checkpoint to pass review.
 
 The voice hook is documented in [the browser bridge README](../web/app/src/voice/README.md). The token endpoint returns a short-lived WebRTC token; missing provider configuration returns 503 `voice_unavailable`. This implementation does not configure the external ElevenLabs agents.
@@ -49,9 +51,12 @@ Demo reset is disabled unless `TYB_DEMO_MODE=true`. It archives events, clears p
 
 ```sh
 scripts/check.sh
+uv run python scripts/check_live_integration.py --output agent_output/reports/live-integration.json
 uv run python -m server.export_openapi
 uv run python scripts/generate_server_fixtures.py
 ```
+
+The live integration check starts its own loopback server and temporary SQLite state, runs three commit/WebSocket/replan trials plus idempotence, conflicts, collected-stop, wheelchair, reconnect and hard-restart checks, then cleans up. Provider keys are explicitly blank and the chat budget is zero. It reports local API evidence; rendered UI, physical phones, QR scanning and live voice require their own acceptance checks.
 
 `server/openapi.json` is committed; Claude regenerates client types with `bun run gen:api`. `fixtures/session.json` and `fixtures/events_close_lift.json` are labelled examples with real kit geometry, not live state. `/devtest` is an unlinked device gate after the app build; its local jsQR bundle is built with `bun scripts/build-device-gate.ts`.
 
