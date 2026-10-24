@@ -7,6 +7,8 @@ const api = process.env.TYB_API ?? 'http://127.0.0.1:8000';
 
 export default defineConfig(({ command }) => ({
   plugins: [react()],
+  // the only chunk above the default 500 kB is the ElevenLabs SDK, loaded lazily for voice only
+  build: { chunkSizeWarningLimit: 700 },
   // dev only: lets `?mock=1` read any kit building from data/ (production builds get an empty string)
   define: { 'import.meta.env.TYB_REPO_ROOT': JSON.stringify(command === 'serve' ? repo : '') },
   // demo/scenario.json and data/ live at the repository root

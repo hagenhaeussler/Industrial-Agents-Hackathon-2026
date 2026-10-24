@@ -1,4 +1,5 @@
 """C1 session, tour, tool, edit-event and marker HTTP transports."""
+import hmac
 import importlib
 import inspect
 import json
@@ -24,6 +25,15 @@ router = APIRouter(prefix='/api')
 
 def components(request):
     return request.app.state.service, request.app.state.store
+
+
+def admin_allowed(request, code):
+    """Mirror the store policy without treating proxy or loopback IPs as proof."""
+    settings = request.app.state.settings
+    token = settings.admin_token if isinstance(settings.admin_token, str) else ""
+    if token:
+        return isinstance(code, str) and hmac.compare_digest(code.encode("utf-8"), token.encode("utf-8"))
+    return bool(settings.demo_mode and settings.allow_unauthenticated_demo_admin)
 
 
 def admin_session(request, session_id, building_id=None):
@@ -72,8 +82,8 @@ def create_session(body: schemas.SessionCreate, request: Request,
                        description='Required for admin sessions when TYB_ADMIN_TOKEN is configured. Never returned.')):
     """Create a navigator session, or authenticate an admin with its private code."""
     service, store = components(request)
-    if body.role == 'admin':
-        store._authorize_admin_creation(admin_token)
+    if body.role == 'admin' and not admin_allowed(request, admin_token):
+        raise ServiceError('forbidden', 'Admin access requires a valid admin code.', status=403)
     service.current(body.building_id)
     return store.create_session(body.building_id, body.device, body.role, body.profile, admin_token=admin_token)
 

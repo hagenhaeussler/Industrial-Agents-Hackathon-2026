@@ -1,0 +1,87 @@
+{
+ "mobility_profile": "walk",
+ "tour_id": "umosc5ouid",
+ "revision": 8,
+ "status": "blocked",
+ "building_id": "proc-factory-dev-003",
+ "building_version": 5,
+ "order_policy": "optimized_exact",
+ "building_closed": [
+  "proc-factory-dev-003-F0-S019",
+  "proc-factory-dev-003-V02"
+ ],
+ "start": {
+  "space_id": "proc-factory-dev-003-F1-S005",
+  "point": [
+   2.5,
+   7.585
+  ],
+  "floor_id": "proc-factory-dev-003-F1",
+  "source": "manual",
+  "confidence": "medium",
+  "updated_at": "2026-10-24T20:41:30.495779+00:00"
+ },
+ "end": {
+  "space_id": "proc-factory-dev-003-F0-S019",
+  "point": [
+   2.5,
+   2.715
+  ],
+  "floor_id": "proc-factory-dev-003-F0"
+ },
+ "stops": [
+  {
+   "stop_id": "stop_354af91eefe74bd991ccd58cc1320eeb",
+   "space_id": "proc-factory-dev-003-F0-S003",
+   "asset_ids": [
+    "proc-factory-dev-003-A00021"
+   ],
+   "label": "3D printer H-A3-A \u00b7 Additive zone H-A3",
+   "status": "collected",
+   "target": "proc-factory-dev-003-F0-S003"
+  },
+  {
+   "stop_id": "stop_4b9dd8723efc4a2b986616667bb46653",
+   "space_id": "proc-factory-dev-003-F1-S005",
+   "asset_ids": [
+    "proc-factory-dev-003-A00325"
+   ],
+   "label": "UPS unit 1.05 \u00b7 Server room 1.05",
+   "status": "collected",
+   "target": "proc-factory-dev-003-F1-S005"
+  }
+ ],
+ "order": [],
+ "legs": [],
+ "length_m": 0.0,
+ "unreachable_stops": [
+  {
+   "stop_id": "end",
+   "space_id": "proc-factory-dev-003-F0-S019",
+   "reason": "blocked_by_closure"
+  }
+ ],
+ "changed_because": {
+  "event_id": "evt-5",
+  "summary": "Close Hall access 0.19."
+ },
+ "profile": "kit_1_1_0",
+ "constraints": {
+  "step_free": false,
+  "min_door_width_m": 0.0,
+  "closed": [],
+  "no_transit_room_types": []
+ },
+ "content_hash": "sha256:77b49a056e9dc274",
+ "length_m_exact": 0.0,
+ "reachable": false,
+ "session_id": "a2034ce86c43417cb6a09797f3b77fbe",
+ "keep_order": false,
+ "_fixture": {
+  "producer": "Manuel's Claude (captured from the live API)",
+  "contract": "C7",
+  "generated_by": "local server at manuel-claude/web b234fb5 (main a5e4bea), proc-factory-dev-003",
+  "replace_by": "/api/tours/{id}",
+  "shape": "finish room closed on the final leg (status blocked, unreachable end)"
+ }
+}

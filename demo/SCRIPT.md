@@ -8,9 +8,9 @@ The three moments: **Say what you need, not where it is** (desk) · **From scree
 
 | Where | What |
 |---|---|
-| Server | `TYB_DEMO_MODE=true`; `/health` shows the expected commit and `buildings: 280+` |
+| Server | `TYB_DEMO_MODE=true` and `TYB_ADMIN_TOKEN=<admin code>` (from the humans' password manager, never in the repo); `/health` shows the expected commit and `buildings: 280+` |
 | Laptop window 1 (projector, 1280×800 or 1920×1080) | `https://<host>/desk?demo=hero` — the three parts are preselected, "You are at Hall access 0.19" |
-| Laptop window 2 (second desktop or a tab) | `https://<host>/admin?demo=hero` |
+| Laptop window 2 (second desktop or a tab) | `https://<host>/admin?demo=hero`; enter the admin code once (kept for this tab only), then keep the tab open |
 | Phone | screen mirrored (Android: `scrcpy`; iPhone: QuickTime). Camera app ready to scan. Screen brightness up, auto-lock off |
 | Reset | in admin, **Reset demo** (bottom of the panel) twice; the event log says "No changes yet" |
 | Desk | "How do you move?" = **Walking**; press "Change parts" if an old tour is shown |

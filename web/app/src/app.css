@@ -302,3 +302,14 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .stop-remove { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 12px; background: transparent; display: grid; place-items: center; color: var(--muted); }
 .stop-remove:hover { background: #ebece5; color: var(--ink); }
 .picker-clear { margin-bottom: 8px; }
+
+/* admin code (CR-C-2) */
+.code-card { margin: 4px 20px 12px; padding: 16px; border-radius: 16px; border: 2px solid var(--ink); display: grid; gap: 8px; }
+.code-card h2 { font-size: 18px; font-weight: 750; letter-spacing: -.4px; line-height: 1.25; }
+.code-card p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.code-card label { font-size: 13px; font-weight: 700; }
+.code-card input { min-height: 48px; border: 1.5px solid #d8dcd0; border-radius: 12px; padding: 0 12px; font-size: 16px; }
+.code-card input:focus-visible { border-color: var(--ink); }
+.code-card .plan-error { color: #8f2422; }
+.finish-line { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 52px; border-radius: 15px; border: 1.5px dashed #c9cdc0; }
+.stop-n.finish { background: #fff; color: var(--ink); box-shadow: 0 0 0 1.5px var(--ink) inset; }

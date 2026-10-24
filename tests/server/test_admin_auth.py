@@ -38,9 +38,11 @@ def assert_forbidden(response):
 
 
 @pytest.mark.parametrize("demo_mode", [False, True])
+@pytest.mark.parametrize("allow_open", [False, True])
 @pytest.mark.parametrize("token", [None, "wrong-admin-code", ""])
-def test_configured_code_is_required_even_in_demo_mode(settings, demo_mode, token):
-    with TestClient(create_app(replace(settings, demo_mode=demo_mode))) as client:
+def test_configured_code_is_required_even_in_demo_mode(settings, demo_mode, allow_open, token):
+    with TestClient(create_app(replace(settings, demo_mode=demo_mode,
+                                      allow_unauthenticated_demo_admin=allow_open))) as client:
         assert_forbidden(create_session(client, "admin", token))
         assert create_session(client).status_code == 200
         with client.app.state.store.connect() as db:
@@ -57,13 +59,21 @@ def test_unconfigured_public_app_fails_closed_but_navigators_work(settings):
 
 
 def test_explicit_code_free_demo_is_available_only_without_configured_secret(settings):
-    with TestClient(create_app(replace(settings, admin_token="", demo_mode=True))) as client:
+    with TestClient(create_app(replace(settings, admin_token="", demo_mode=True, allow_unauthenticated_demo_admin=True))) as client:
         response = create_session(client, "admin")
         assert response.status_code == 200, response.text
         assert response.json()["role"] == "admin"
         session_id = response.json()["session_id"]
     with TestClient(create_app(replace(settings, admin_token="", demo_mode=False))) as client:
         assert_forbidden(client.get("/api/sessions/" + session_id))
+
+
+@pytest.mark.parametrize("demo_mode,allow_open", [(True, False), (False, True), (False, False)])
+def test_code_free_admin_requires_both_explicit_demo_flags(settings, demo_mode, allow_open):
+    with TestClient(create_app(replace(settings, admin_token="", demo_mode=demo_mode,
+                                      allow_unauthenticated_demo_admin=allow_open))) as client:
+        assert_forbidden(create_session(client, "admin"))
+        assert create_session(client).status_code == 200
 
 
 def test_admin_authority_never_appears_in_session_responses_or_settings_repr(settings):

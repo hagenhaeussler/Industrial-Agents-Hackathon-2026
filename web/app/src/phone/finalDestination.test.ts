@@ -45,7 +45,7 @@ describe('C7 final destination guidance', () => {
     const voice = context.replanned('Final destination closed.', blockedEnd, model);
     expect(voice).toContain('No route is available');
     expect(voice).toContain(model.space.get(blockedEnd.end!.space_id)!.name);
-    expect(voice).toContain('blocked_by_closure');
+    expect(voice).toContain('blocked by a closure');
     expect(voice).not.toContain('replanned: 0 m');
   });
 

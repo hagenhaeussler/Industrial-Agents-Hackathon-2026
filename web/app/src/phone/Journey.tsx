@@ -312,7 +312,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       {done
         ? <div className="done-card surface">
           <span className="avatar-wrap"><Blobatar name="alain00" animate="always" size={116} expression={happy} title="Alain, your building guide"/></span>
-          <h1>All {total} {total === 1 ? 'part' : 'parts'} collected</h1>
+          <h1>{total === 1 ? 'Your part is collected' : `All ${total} parts collected`}</h1>
           {tour.end && <p>Final destination reached: {destinationLabel(tour, model)}.</p>}
           <ul>{tour.stops.map(stop => <li key={stop.stop_id}><Check size={16}/>{stop.label}</li>)}</ul>
         </div>

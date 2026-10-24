@@ -91,7 +91,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.settings = settings
     application.state.catalog = catalog
     application.state.store = StateStore(settings.state_dir,
-        admin_token=settings.admin_token if isinstance(settings.admin_token, str) else "", demo_mode=settings.demo_mode)
+        admin_token=settings.admin_token if isinstance(settings.admin_token, str) else "",
+        demo_mode=settings.demo_mode and settings.allow_unauthenticated_demo_admin)
     application.state.state_dir_writable = False
     application.state.hub = BuildingHub()
     application.state.service = PlatformService(catalog, application.state.store, settings.profile, application.state.hub.notify)
