@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-10-25T09:00:00Z",
+  "synthetic": true,
+  "notes": "Invented signal levels and AP identifiers. Preserve this flag; not a recording.",
+  "readings": [
+    {"bssid": "02:00:00:00:00:01", "rssi_dbm": -46, "age_s": 1.0},
+    {"bssid": "02:00:00:00:00:02", "rssi_dbm": -65, "age_s": 1.0},
+    {"bssid": "02:00:00:00:00:03", "rssi_dbm": -76, "age_s": 1.0}
+  ]
+}

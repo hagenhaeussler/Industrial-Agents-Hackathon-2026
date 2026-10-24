@@ -1,0 +1,3469 @@
+{
+  "schema_version": 1,
+  "building_id": "munich-urban-colab-demo",
+  "title": "Munich Urban Colab",
+  "subtitle": "Photo-inspired upper floors · illustrative dimensions",
+  "source_photos": [
+    {
+      "id": "photo-00",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58.jpeg",
+      "sha256": "f86f18a4be167f5d86d4a2e0f516d8b47fb70a75fc175c36cd1dd24e250b2c42",
+      "stored_path": "sources/photo-00-central-core-crop.jpeg",
+      "heading_floor_level": null,
+      "observed": "Cropped central service core; floor heading missing. Corroborates floor-3 arrangement; not independent floor evidence.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    },
+    {
+      "id": "photo-01",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58 (1).jpeg",
+      "sha256": "3b082ce027e9cf9a763cf420def629fe29a15785789a50fb2c1c48d46d2463fa",
+      "stored_path": "sources/photo-01-floor-3-central.jpeg",
+      "heading_floor_level": 3,
+      "observed": "Heading 3. Obergeschoss. Five Besprechung rooms, Küche, lift, WC, ELT-Verteiler, EDV, Putzraum, central stair flights, open offices.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    },
+    {
+      "id": "photo-02",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58 (2).jpeg",
+      "sha256": "ddd1536366454dfdc191eecb9b6b90377f92277c95d5b25292bf8e6df0275659",
+      "stored_path": "sources/photo-02-floor-3-office-wing.jpeg",
+      "heading_floor_level": 3,
+      "observed": "Heading 3. Obergeschoss. Side wing: five Büro labels, a stair, open office, Think Tank pods, terrace and atrium.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    },
+    {
+      "id": "photo-03",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58 (3).jpeg",
+      "sha256": "06bb5305bce4cdde43b083fe43fb843e419c577979959638ab5f575139d1a8f4",
+      "stored_path": "sources/photo-03-floor-4-office-wing.jpeg",
+      "heading_floor_level": 4,
+      "observed": "Heading 4. Obergeschoss. Side wing: five Büro labels, a stair, Think Tank pods, atria, terrace, Küche, Aktivraum/Bib.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    },
+    {
+      "id": "photo-04",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58 (4).jpeg",
+      "sha256": "6526642a9805eef6d500f24e3b0b85663a25359050e3dcdf2d75a2a557bdad99",
+      "stored_path": "sources/photo-04-floor-4-core-side.jpeg",
+      "heading_floor_level": 4,
+      "observed": "Heading 4. Obergeschoss. Rotated central-core view: meeting rooms, kitchen, lift, WC, EDV, terraces, Aktivraum/Bib.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    },
+    {
+      "id": "photo-05",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58 (5).jpeg",
+      "sha256": "3ce116f0aebe8106b9ee945413cbdde9d419a7998b38ea0f75447b9ab4cfe632",
+      "stored_path": "sources/photo-05-floor-4-central.jpeg",
+      "heading_floor_level": 4,
+      "observed": "Heading 4. Obergeschoss. Four Besprechung rooms, Aktivraum/Bib, Küche, WC, lift, EDV, ELT-Verteiler, two side terraces and stair flights.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    },
+    {
+      "id": "photo-06",
+      "filename": "WhatsApp Image 2026-10-25 at 00.46.58 (6).jpeg",
+      "sha256": "39c977187673080f89fa2f48f3fed8e8f7d005540bdc76148bdf13601ba64ba7",
+      "stored_path": "sources/photo-06-floor-4-other-side.jpeg",
+      "heading_floor_level": 4,
+      "observed": "Heading 4. Obergeschoss. Another rotated partial view: meeting rooms, WC/lift, open office, Think Tank pods, terrace and atrium.",
+      "metric_calibration": null,
+      "rights": "User-supplied photograph; source poster copyright not assessed. The source file is copied byte-for-byte, preserving its original metadata."
+    }
+  ],
+  "source_date": "2026-10-25",
+  "default_floor_level": 3,
+  "floor_provenance": {
+    "munich-urban-colab-demo-F0": {
+      "basis": "synthetic",
+      "label": "Illustrative ground floor",
+      "notes": "No floor-plan photograph supplied; illustrative layout for the cross-floor demo.",
+      "source_photo_ids": [],
+      "geometry": "schematic_not_surveyed",
+      "elevation": "estimated"
+    },
+    "munich-urban-colab-demo-F1": {
+      "basis": "synthetic",
+      "label": "Synthetic floor 1",
+      "notes": "No floor-plan photograph supplied; illustrative layout for the cross-floor demo.",
+      "source_photo_ids": [],
+      "geometry": "schematic_not_surveyed",
+      "elevation": "estimated"
+    },
+    "munich-urban-colab-demo-F2": {
+      "basis": "synthetic",
+      "label": "Synthetic floor 2",
+      "notes": "No floor-plan photograph supplied; illustrative layout for the cross-floor demo.",
+      "source_photo_ids": [],
+      "geometry": "schematic_not_surveyed",
+      "elevation": "estimated"
+    },
+    "munich-urban-colab-demo-F3": {
+      "basis": "photo-derived",
+      "label": "3. Obergeschoss",
+      "notes": "Observed room categories and core arrangement; estimated coordinates, heights and wing registration.",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "schematic_not_surveyed",
+      "elevation": "estimated"
+    },
+    "munich-urban-colab-demo-F4": {
+      "basis": "photo-derived",
+      "label": "4. Obergeschoss",
+      "notes": "Observed room categories and core arrangement; estimated coordinates, heights and wing registration.",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "schematic_not_surveyed",
+      "elevation": "estimated"
+    }
+  },
+  "space_provenance": {
+    "munich-urban-colab-demo-F0-S-south-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F0-S-west-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F0-S-east-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F0-S-north-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F0-S-open-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-open-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-meeting-1": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-meeting-2": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-meeting-3": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-meeting-4": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-meeting-5": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-kitchen": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-lift": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-wc-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-wc-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-wc-small": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-electrical": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-it": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F0-S-stairs-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F0-S-stairs-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F0-S-office-wing-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Wing-to-central-block registration and this joining position are inferred from separate, rotated partial views."
+    },
+    "munich-urban-colab-demo-F0-S-office-1": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F0-S-office-2": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F0-S-office-3": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F0-S-office-4": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F0-S-office-5": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F0-S-stairs-wing": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-south-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F1-S-west-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F1-S-east-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F1-S-north-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F1-S-open-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-open-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-meeting-1": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-meeting-2": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-meeting-3": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-meeting-4": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-meeting-5": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-kitchen": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-lift": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-wc-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-wc-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-wc-small": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-electrical": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-it": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F1-S-stairs-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F1-S-stairs-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F1-S-office-wing-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Wing-to-central-block registration and this joining position are inferred from separate, rotated partial views."
+    },
+    "munich-urban-colab-demo-F1-S-office-1": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F1-S-office-2": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F1-S-office-3": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F1-S-office-4": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F1-S-office-5": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F1-S-stairs-wing": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-south-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F2-S-west-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F2-S-east-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F2-S-north-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F2-S-open-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-open-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-meeting-1": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-meeting-2": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-meeting-3": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-meeting-4": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-meeting-5": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-kitchen": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-lift": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-wc-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-wc-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-wc-small": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-electrical": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-it": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F2-S-stairs-west": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F2-S-stairs-east": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F2-S-office-wing-corridor": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Wing-to-central-block registration and this joining position are inferred from separate, rotated partial views."
+    },
+    "munich-urban-colab-demo-F2-S-office-1": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F2-S-office-2": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F2-S-office-3": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F2-S-office-4": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F2-S-office-5": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F2-S-stairs-wing": {
+      "basis": "synthetic",
+      "label_basis": "demo_label",
+      "observed_label": null,
+      "source_photo_ids": [],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-south-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F3-S-west-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F3-S-east-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F3-S-north-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F3-S-open-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "offener Bürobereich",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-open-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "offener Bürobereich",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-meeting-1": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-meeting-2": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-meeting-3": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-meeting-4": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-meeting-5": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-kitchen": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Küche",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-lift": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Aufzug",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-wc-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "WC",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-wc-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "WC",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-wc-small": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "WC",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-electrical": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "ELT-Verteiler",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-it": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "EDV",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-stairs-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F3-S-stairs-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F3-S-office-wing-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Wing-to-central-block registration and this joining position are inferred from separate, rotated partial views."
+    },
+    "munich-urban-colab-demo-F3-S-office-1": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F3-S-office-2": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F3-S-office-3": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F3-S-office-4": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F3-S-office-5": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F3-S-stairs-wing": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F3-S-terrace-wing": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Terrasse",
+      "source_photo_ids": [
+        "photo-01",
+        "photo-02"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Terrace is visible in the side-wing view; placement against this schematic open office is inferred."
+    },
+    "munich-urban-colab-demo-F4-S-south-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F4-S-west-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F4-S-east-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F4-S-north-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Green highlighted movement zone simplified to connected corridor rectangles; not asserted as an approved escape route."
+    },
+    "munich-urban-colab-demo-F4-S-open-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "offener Bürobereich",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-open-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "offener Bürobereich",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-meeting-1": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-meeting-2": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-meeting-3": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-meeting-4": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Besprechung",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-meeting-5": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Aktivraum/Bib",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-kitchen": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Küche",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-lift": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Aufzug",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-wc-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "WC",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-wc-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "WC",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-wc-small": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Small internal stair symbol visible on floor 4; no unobserved vertical destination is invented for it."
+    },
+    "munich-urban-colab-demo-F4-S-electrical": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "ELT-Verteiler",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-it": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "EDV",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-stairs-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F4-S-stairs-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Visible stair-flight arrangement reduced to an independent demo stair stop; cross-floor correspondence inferred."
+    },
+    "munich-urban-colab-demo-F4-S-office-wing-corridor": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Fluchtweg",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Wing-to-central-block registration and this joining position are inferred from separate, rotated partial views."
+    },
+    "munich-urban-colab-demo-F4-S-office-1": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F4-S-office-2": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F4-S-office-3": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F4-S-office-4": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F4-S-office-5": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Büro",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Five offices and a stair bay are visible; dimensions and placement of this wing in the shared XY frame are inferred."
+    },
+    "munich-urban-colab-demo-F4-S-stairs-wing": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Treppe",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": ""
+    },
+    "munich-urban-colab-demo-F4-S-terrace-west": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Terrasse",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Side terraces visible in the frontal floor-4 plan; exact size and step-free threshold unverified."
+    },
+    "munich-urban-colab-demo-F4-S-terrace-east": {
+      "basis": "photo-derived",
+      "label_basis": "observed_category",
+      "observed_label": "Terrasse",
+      "source_photo_ids": [
+        "photo-03",
+        "photo-04",
+        "photo-05",
+        "photo-06"
+      ],
+      "geometry": "inferred_schematic",
+      "dimensions": "estimated_not_measured",
+      "room_ref": "generated_demo_ref",
+      "notes": "Side terraces visible in the frontal floor-4 plan; exact size and step-free threshold unverified."
+    }
+  },
+  "opening_provenance": {
+    "munich-urban-colab-demo-F0-O-meeting-1": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-meeting-2": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-meeting-3": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-meeting-4": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-meeting-5": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-kitchen": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-lift": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-wc-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-wc-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-wc-small": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-electrical": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-it": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-stairs-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-stairs-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-south-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-south-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-west-north": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-east-north": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-open-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-open-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-wing-link": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-office-1": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-office-2": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-office-3": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-office-4": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-office-5": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-stairs-wing": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-meeting-1": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-meeting-2": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-meeting-3": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-meeting-4": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-meeting-5": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-kitchen": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-lift": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-wc-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-wc-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-wc-small": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-electrical": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-it": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-stairs-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-stairs-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-south-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-south-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-west-north": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-east-north": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-open-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-open-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-wing-link": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-office-1": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-office-2": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-office-3": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-office-4": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-office-5": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F1-O-stairs-wing": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-meeting-1": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-meeting-2": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-meeting-3": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-meeting-4": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-meeting-5": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-kitchen": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-lift": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-wc-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-wc-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-wc-small": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-electrical": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-it": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-stairs-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-stairs-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-south-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-south-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-west-north": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-east-north": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-open-west": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-open-east": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-wing-link": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-office-1": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-office-2": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-office-3": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-office-4": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-office-5": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F2-O-stairs-wing": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-meeting-1": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-meeting-2": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-meeting-3": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-meeting-4": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-meeting-5": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-kitchen": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-lift": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-wc-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-wc-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-wc-small": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-electrical": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-it": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-stairs-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-stairs-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-south-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-south-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-west-north": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-east-north": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-open-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-open-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-wing-link": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-office-1": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-office-2": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-office-3": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-office-4": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-office-5": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-stairs-wing": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F3-O-terrace-wing": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-meeting-1": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-meeting-2": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-meeting-3": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-meeting-4": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-meeting-5": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-kitchen": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-lift": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-wc-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-wc-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-wc-small": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-electrical": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-it": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-stairs-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-stairs-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-south-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-south-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-west-north": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-east-north": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-open-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-open-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-wing-link": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-office-1": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-office-2": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-office-3": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-office-4": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-office-5": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-stairs-wing": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-terrace-west": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F4-O-terrace-east": {
+      "basis": "photo-informed_adjacency",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    },
+    "munich-urban-colab-demo-F0-O-entry": {
+      "basis": "synthetic",
+      "position": "inferred_boundary_position",
+      "width": "estimated_not_measured",
+      "step_free": "demo_assumption_not_accessibility_survey"
+    }
+  },
+  "asset_provenance": {
+    "munich-urban-colab-demo-F0-A-table-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-1-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-1-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-table-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-2-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-2-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-table-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-3-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-3-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-table-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-4-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-4-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-table-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-5-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-chair-5-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-desk-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-desk-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-desk-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-desk-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-desk-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-coffee": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-kitchen-table": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-fridge": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-think-tank-west": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-think-tank-east": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-sofa": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-mobile-display": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F0-A-tool-cart": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-table-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-1-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-1-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-table-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-2-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-2-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-table-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-3-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-3-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-table-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-4-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-4-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-table-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-5-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-chair-5-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-desk-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-desk-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-desk-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-desk-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-desk-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-coffee": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-kitchen-table": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-fridge": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-think-tank-west": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-think-tank-east": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-sofa": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-mobile-display": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F1-A-tool-cart": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-table-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-1-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-1-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-table-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-2-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-2-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-table-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-3-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-3-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-table-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-4-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-4-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-table-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-5-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-chair-5-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-desk-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-desk-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-desk-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-desk-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-desk-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-coffee": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-kitchen-table": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-fridge": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-think-tank-west": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-think-tank-east": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-sofa": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-mobile-display": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F2-A-tool-cart": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-table-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-1-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-1-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-table-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-2-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-2-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-table-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-3-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-3-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-table-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-4-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-4-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-table-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-5-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-chair-5-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-desk-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-desk-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-desk-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-desk-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-desk-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-coffee": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-kitchen-table": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-fridge": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-think-tank-west": {
+      "basis": "photo_category_inferred_position",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-think-tank-east": {
+      "basis": "photo_category_inferred_position",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-sofa": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-mobile-display": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F3-A-tool-cart": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-table-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-1-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-1-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-table-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-2-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-2-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-table-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-3-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-3-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-table-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-4-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-4-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-table-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-5-north": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-chair-5-south": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-desk-1": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-desk-2": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-desk-3": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-desk-4": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-desk-5": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-coffee": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-kitchen-table": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-fridge": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-think-tank-west": {
+      "basis": "photo_category_inferred_position",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-think-tank-east": {
+      "basis": "photo_category_inferred_position",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-sofa": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-mobile-display": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    },
+    "munich-urban-colab-demo-F4-A-tool-cart": {
+      "basis": "synthetic",
+      "position": "illustrative_not_observed",
+      "dimensions": "estimated_not_measured"
+    }
+  },
+  "connector_provenance": {
+    "munich-urban-colab-demo-V-lift": {
+      "basis": "visible_upper_floor_symbol_with_inferred_continuity",
+      "notes": "Cross-floor stop correspondence, operation and accessibility are illustrative; no on-site verification."
+    },
+    "munich-urban-colab-demo-V-stairs-west": {
+      "basis": "visible_upper_floor_symbol_with_inferred_continuity",
+      "notes": "Cross-floor stop correspondence, operation and accessibility are illustrative; no on-site verification."
+    },
+    "munich-urban-colab-demo-V-stairs-east": {
+      "basis": "visible_upper_floor_symbol_with_inferred_continuity",
+      "notes": "Cross-floor stop correspondence, operation and accessibility are illustrative; no on-site verification."
+    },
+    "munich-urban-colab-demo-V-stairs-wing": {
+      "basis": "visible_upper_floor_symbol_with_inferred_continuity",
+      "notes": "Cross-floor stop correspondence, operation and accessibility are illustrative; no on-site verification."
+    }
+  },
+  "dimensions": {
+    "status": "estimated_not_measured",
+    "units": "m",
+    "main_core_extent": [
+      56,
+      28
+    ],
+    "combined_demo_extent": [
+      56,
+      36
+    ],
+    "floor_to_floor_m": 4.0,
+    "floor_clear_height_m": 3.5,
+    "door_width_m": 1.0,
+    "lift_door_width_m": 1.2,
+    "corridor_opening_width_m": 2.4,
+    "method": "Manual orthogonal schematic of visible adjacency and labels; no scale bar, measured reference, perspective calibration or site survey was available.",
+    "confidence": "No defensible metric accuracy bound; distances are demo-model distances only."
+  },
+  "coordinate_frame": {
+    "origin": "South-west corner of schematic central block",
+    "x": "right",
+    "y": "up",
+    "north": "Not georeferenced. Photo orientation arrows vary with the posted-plan viewing direction.",
+    "alignment": "Floors share an illustrative XY frame. Side-wing registration and correspondence of stair stops are inferred."
+  },
+  "notes": [
+    "Floor-3 and floor-4 room categories and broad service-core adjacency are visible in photos. Absolute coordinates, room sizes, door widths, heights and wing registration are inferred.",
+    "The source plans are partial and differently rotated. The combined model is a deliberately simplified central block plus side office wing, not a complete or rectified whole-building trace.",
+    "The photos show lift and stair symbols. Their modeled continuity across all five floors and accessibility are demo assumptions, not verified on site.",
+    "Ground-floor reception is mentioned in the plan legend; its layout and entrance are synthetic. Floors 1 and 2 are wholly synthetic at the user's request.",
+    "Atrium/void regions are omitted from walkable spaces. Terrace geometry is modeled only where recognizable in the chosen upper-floor view.",
+    "No room numbers are legible: refs such as 3.01 are generated demo labels, not observed venue signage.",
+    "Furniture, coffee machines and movable equipment are illustrative additions. A visible kitchen label does not establish exact furniture inventory or placement.",
+    "Use for software demonstration only: not surveyed, not verified accessibility guidance and not an evacuation plan. Follow venue signage for actual movement."
+  ],
+  "movable_assets": [
+    {
+      "asset_id": "munich-urban-colab-demo-F4-A-coffee",
+      "from": [
+        46,
+        1.2
+      ],
+      "to": [
+        44.8,
+        1.2
+      ],
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-kitchen",
+      "duration_s": 6,
+      "purpose": "Illustrative furniture move; not observed live tracking."
+    },
+    {
+      "asset_id": "munich-urban-colab-demo-F3-A-mobile-display",
+      "from": [
+        10,
+        16
+      ],
+      "to": [
+        10,
+        19
+      ],
+      "floor_id": "munich-urban-colab-demo-F3",
+      "space_id": "munich-urban-colab-demo-F3-S-open-west",
+      "duration_s": 8,
+      "purpose": "Illustrative equipment move within one valid space."
+    },
+    {
+      "asset_id": "munich-urban-colab-demo-F4-A-kitchen-table",
+      "from": [
+        43,
+        3
+      ],
+      "to": [
+        43,
+        4
+      ],
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-kitchen",
+      "duration_s": 7,
+      "purpose": "Illustrative table rearrangement."
+    }
+  ],
+  "walk_path": [
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-kitchen",
+      "x": 44,
+      "y": 3
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-kitchen",
+      "x": 44,
+      "y": 5.5
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-kitchen",
+      "x": 44,
+      "y": 6
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-south-corridor",
+      "x": 44,
+      "y": 7.5
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-south-corridor",
+      "x": 42,
+      "y": 7.5
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-south-corridor",
+      "x": 42,
+      "y": 9
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-east-corridor",
+      "x": 42,
+      "y": 15.5
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-east-corridor",
+      "x": 40,
+      "y": 15.5
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-north-corridor",
+      "x": 36,
+      "y": 15.5
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-north-corridor",
+      "x": 36,
+      "y": 17
+    },
+    {
+      "floor_id": "munich-urban-colab-demo-F4",
+      "space_id": "munich-urban-colab-demo-F4-S-stairs-east",
+      "x": 36,
+      "y": 19
+    }
+  ],
+  "walk_path_basis": "Illustrative floor-4 kitchen-to-stairs walk; hand-placed inside modeled spaces. Not measured pedestrian tracking. No vertical teleport animation.",
+  "demo_routes": [
+    {
+      "name": "Coffee across floors, step-free",
+      "from": "munich-urban-colab-demo-F3-A-coffee",
+      "to": "munich-urban-colab-demo-F4-A-coffee",
+      "constraints": {
+        "step_free": true
+      }
+    },
+    {
+      "name": "Cross-floor stairs while lift is closed",
+      "from": "munich-urban-colab-demo-F3-A-coffee",
+      "to": "munich-urban-colab-demo-F4-A-coffee",
+      "constraints": {
+        "closed": [
+          "munich-urban-colab-demo-V-lift"
+        ]
+      }
+    }
+  ]
+}

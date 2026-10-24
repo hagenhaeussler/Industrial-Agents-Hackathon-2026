@@ -41,6 +41,7 @@ export type Route =
   | { name: 'home' }
   | { name: 'desk' }
   | { name: 'admin' }
+  | { name: 'colab' }
   | { name: 'go'; tourId: string }
   | { name: 'marker'; markerId: string }
   | { name: 'missing' };
@@ -50,6 +51,7 @@ export function match(path: string): Route {
   if (clean === '/') return { name: 'home' };
   if (clean === '/desk') return { name: 'desk' };
   if (clean === '/admin') return { name: 'admin' };
+  if (clean === '/colab') return { name: 'colab' };
   const go = /^\/go\/([^/]+)$/.exec(clean);
   if (go?.[1]) return { name: 'go', tourId: decodeURIComponent(go[1]) };
   const marker = /^\/m\/([^/]+)$/.exec(clean);
