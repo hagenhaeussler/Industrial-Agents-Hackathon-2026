@@ -51,6 +51,13 @@ CR-M-2, CR-M-3 and CR-M-4 (C6) fixed and verified against a local server at `ori
 - **CR-M-3 — fixed.** The phone mounts the voice bridge through `VoiceRoot`/`useVoiceSession` with the same display handler as text chat: `tour` with another id opens that tour, `instruction`/`tour`/`route` refresh the step, any display with `space_id`/`space_ids`/`asset_ids` highlights the place on the map for 8 s. Desk and admin register theirs (`b1e4f7f`). Builds against the real hook (merged tree); a live voice run still needs an ElevenLabs agent/token.
 - **CR-M-4 (C6) — consumed.** "Show the route with stairs": `PATCH profile=walk, constraints={…existing, step_free:false}` → checks the response → `POST /replan` with `constraints: {step_free: false}` → checks `step_free` in the result. Verified: same tour `d3ltd6redr`, UPS back via "Stairs to Floor 1", collected stop kept. The new-tour fallback only runs against a pre-C6 server.
 ### CR-C-1 (mine): superseded by CR-M-4 (C6). Closed.
+### CR-C-2: admin role must not be self-assigned (security, before any public deploy)
+- Contract section: CONTRACTS §7 `POST /api/sessions` and §6 ("edits only for role admin"), current version C6
+- Problem (flagged by an automated security review of `server/routes_live.py` `create_session`): the request body's `role` is trusted, so anyone who can reach the public URL can create an `admin` session and close lifts, upload buildings or reset the demo. §6's role check then protects nothing.
+- Requested change: create every session as `navigator` unless the caller proves admin rights server-side, e.g. a `TYB_ADMIN_TOKEN` env secret sent as header `X-Admin-Token` on `POST /api/sessions` with `role: "admin"` and checked with a constant-time comparison; otherwise 403 `forbidden`. With no token configured, refuse admin outside `TYB_DEMO_MODE` (or entirely), never default-open.
+- Migration effect: server (Manuel's codex). Client (me): the admin view asks once for the admin code, keeps it in `sessionStorage` only, sends the header when creating the admin session, and shows "Changes need the admin code" on 403. I will build that as soon as the header name is fixed.
+- Needed by: before the Railway deploy that judges or the public can open (G5 at the latest).
+- Status: open (owner Manuel's codex)
 
 ## Next handoff
 - Manuel's codex (captain): `manuel-claude/web` @ `9a65c0a` already contains `origin/main` `ea2a844`; `scripts/check.sh` exit 0 on it. Please recheck CR-M-2/3/4 and merge for G3/G4. It only touches `web/app/`, `demo/` and my STATUS/evidence.
