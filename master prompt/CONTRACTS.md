@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C7** (24 Oct 2026; explicit final-destination navigation/arrival; C2–C6 definitions preserved). Section owners:
+Contract version: **C8** (24 Oct 2026; authenticated admin-session creation; C2–C7 definitions preserved). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -218,6 +218,8 @@ Rules, verified on 24 Oct 2026 against the kit answers (161/161 reachable dev ro
 
 **Event record:** `{"event_id": "evt-4", "building_id", "building_version": 4, "kind": "close|open|add_door|move_asset|set_room_type|undo", "edit": {...resolved IDs...}, "undoes": null, "op_id", "proposal_id", "session_id", "author_role": "admin", "summary", "created_at"}`.
 
+This is the internal storage/owner record. Public event reads and WebSocket messages omit `session_id` (C8); it is a bearer credential, not public author metadata. Internal ownership, idempotency and undo retain it.
+
 - Base data is immutable. The materialised building at version *v* is `apply_events(base, events[:v])`.
 - **Benchmark isolation:** benchmark and Sunday runs always load base files from disk and never read `/state`. Each question starts from the original building.
 - Edits are permitted only for sessions with `role: "admin"`. An LLM-provided argument is not a permission.
@@ -235,7 +237,7 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `POST /api/buildings/{id}/plan-import` | multipart PNG/SVG + `floor_level` (admin, X5 only) | draft + validation, §6-style preview; nothing saved until confirmed |
 | `GET /api/buildings/{id}/events` | `?since=` | `[event]` |
 | `POST /api/tools/{name}` | `{"session_id", "args": {...}}` | ToolResponse §8 |
-| `POST /api/sessions` | `{"building_id", "device": "desk|phone", "role": "navigator|admin", "profile": "walk"}` | session §10 |
+| `POST /api/sessions` | `{"building_id", "device": "desk|phone", "role": "navigator|admin", "profile": "walk"}`; admin requires `X-Admin-Token` (§7 below) | session §10 |
 | `GET /api/sessions/{id}` / `PATCH /api/sessions/{id}` | position, profile, active tour | session |
 | `POST /api/tours` | `{"session_id", "start"?, "items": ["asset or space ids"], "keep_order": false, "end": null}` | TourResult with `tour_id` |
 | `GET /api/tours/{id}` | – | TourResult (latest revision) |
@@ -253,6 +255,10 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 **Explicit replan constraints (C6, CR-M-4):** optional `constraints` on replan overrides only the fields explicitly present, retaining other saved tour constraints, stop IDs and collected progress. Omitted or null means preserve existing behavior. A non-walk session profile still enforces step-free routing even if an override says false. For the deliberate “Show the route with stairs” action, the UI must explicitly PATCH the session to `profile: "walk"` with its existing constraints plus `step_free: false`, then replan with `constraints: {"step_free": false}`. This changes the stored tour constraint; it does not silently downgrade mobility on reconnect or a building event. The session PATCH and replan remain separate requests; report a failure if either fails. Session closure constraints remain combined with tour closures. The eleven voice tools are unchanged.
 
 **Final destination (C7, CR-H-4):** collecting the last part does not complete a tour while a positive-length route to its optional `end` remains. The server preserves the core's active/blocked/completed status. Before advancing, `next_step` refreshes a saved tour if its building version or effective mobility constraints changed, using the latest confirmed session position. It traverses the remaining final leg with `stop_id: "end"` and `complete: false`; after its instructions it returns `at_end: true` and asks the person to confirm arrival. Reading an arrival instruction does not establish physical arrival. Confirm with the existing progress endpoint using `{"stop_id":"end","status":"collected"}` and the phone's `X-Session-ID`. This reserved identifier is not a collection stop and never enters `stops` or `order`. Confirmation requires an end destination, all collection stops collected, and a currently reachable final destination; it moves the caller to the exact end position and completes the same tour. `status: "pending"` is invalid for this identifier. Setting the confirmed actual end position and replanning also completes naturally. Blocked final destinations return `no_route`, retain collected history, and can recover after reopening.
+
+**Admin creation (C8, CR-C-2):** creating `role: "admin"` requires `X-Admin-Token` matching the server-only `TYB_ADMIN_TOKEN` with a constant-time comparison. Missing/wrong credentials or an unconfigured token return HTTP403 `forbidden`; navigator creation remains available. All settings constructors default closed. `TYB_ADMIN_OPEN_INSECURE=1` is an explicit local-development opt-in, unsafe on any reachable server including a shared development proxy; the client address never grants permission. The admin UI may keep the entered code in sessionStorage and sends it only at session creation. Administrative operations then use the established session as described above. Existing persisted admin sessions are bearer credentials and are not revoked by adding this creation gate or rotating the code: before a first public migration, use a fresh state volume or explicitly retire those sessions. Do not delete live state automatically.
+
+**Public projections (C8):** event-list responses, REST tour responses and building WebSocket messages recursively omit `session_id`. Public handoff consumers use their own session and the opaque tour ID; they never need the tour author's session credential. Session creation and known-session reads still return that session to its holder. Private database records retain ownership unchanged; authenticated tool responses may refer to their caller.
 
 Front-end routes served by the SPA: `/` (building picker), `/desk`, `/admin`, `/go/{tour_id}`, `/m/{marker_id}`. Query `?demo=hero` loads the demo scenario.
 
@@ -312,12 +318,13 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 {"type": "building_changed", "building_id": "...", "building_version": 4, "event": {"event_id": "evt-4", "kind": "close", "edit": {"action": "close", "target": "...-V02"}, "summary": "East lift closed"}, "at": "2026-10-24T23:10:00Z"}
 {"type": "building_reset", "building_id": "...", "building_version": 0}
 {"type": "tour_updated", "tour_id": "...", "revision": 3}
-{"type": "tour_opened", "tour_id": "...", "session_id": "...", "device": "phone"}
+{"type": "tour_opened", "tour_id": "...", "device": "phone"}
 ```
 
 - Clients reconnect with backoff 0.5 s → 5 s, then `GET /api/buildings/{id}` and the active tour. Messages with `building_version` ≤ the known version are ignored.
 - On `building_changed`, the phone with an active tour calls `POST /api/tours/{id}/replan` from its current position. Only the newest response per tour is applied (compare `revision` and `request_id`).
 - `tour_opened` is sent when a phone session sets `active_tour_id` (the desk shows "Opened on phone").
+- C8 public broadcasts omit session credentials, including nested event metadata; use tour IDs and revisions to match updates.
 - Target: phone shows the new route ≤ 2 s after the admin says "Yes" (Aha 3).
 
 ## 10. Sessions, position, handoff and markers
@@ -405,4 +412,5 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C5 — 24 Oct 2026, Manuel's codex (captain):** reconciled both C4 handoffs; §8 follows the core's closure-list support (including no closures) and preserves match-stage precedence across asset/space find candidates (CR-L-3). Tool names and required arguments unchanged.
 - **C6 — 24 Oct 2026, Manuel's codex, CR-M-4:** §7 adds optional partial replan constraints for an explicit mobility change while preserving tour identity/progress and profile safeguards. No changes to core interfaces or the eleven tools.
 - **C7 — 24 Oct 2026, Manuel's codex, CR-H-4:** §7/§8 transport preserves optional-end status, navigates its remaining leg and reserves progress stop_id=end for explicit final arrival. No synthetic collection stop, new endpoint or new tool; C6 explicit mobility overrides remain unchanged.
+- **C8 — 24 Oct 2026, Manuel's codex, CR-C-2:** §7 gates admin-session creation using X-Admin-Token/TYB_ADMIN_TOKEN, defaults closed in all constructors, and documents explicit local insecure opt-in and legacy-session migration. Public event/tour/WS projections omit session credentials; internal ownership and tool arguments remain unchanged.
 

@@ -14,7 +14,11 @@ CODE = 'test-admin-code-7f3a'
 
 
 @pytest.fixture
-def settings(tmp_path):
+def settings(tmp_path, monkeypatch):
+    # Neither a developer's .env nor inherited local opt-ins may open this gate.
+    monkeypatch.setattr('server.config.load_dotenv', lambda *args, **kwargs: None)
+    monkeypatch.delenv('TYB_ADMIN_TOKEN', raising=False)
+    monkeypatch.delenv('TYB_ADMIN_OPEN_INSECURE', raising=False)
     return Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist')
 
 
@@ -23,10 +27,22 @@ def create(client, role, code=None):
     return client.post('/api/sessions', json={'building_id': BID, 'role': role, 'device': 'desk', 'profile': 'walk'}, headers=headers)
 
 
-def test_admin_needs_the_configured_code(settings):
-    locked = replace(settings, admin_requires_code=True, admin_token=CODE)
+def test_direct_constructor_fails_closed_without_affecting_navigators(settings):
+    assert settings.admin_requires_code is True
+    assert settings.admin_token is None
+    with TestClient(create_app(settings)) as client:
+        for code in (None, '', 'anything'):
+            response = create(client, 'admin', code)
+            assert response.status_code == 403
+            assert response.json()['error']['code'] == 'forbidden'
+        response = create(client, 'navigator')
+        assert response.status_code == 200 and response.json()['role'] == 'navigator'
+
+
+def test_admin_needs_the_exact_configured_code_with_constructor_defaults(settings):
+    locked = replace(settings, admin_token=CODE)
     with TestClient(create_app(locked)) as client:
-        for code in (None, '', 'wrong', CODE + 'x', CODE[:-1]):
+        for code in (None, '', 'wrong', CODE + 'x', CODE[:-1], CODE.upper()):
             response = create(client, 'admin', code)
             assert response.status_code == 403, code
             assert response.json()['error']['code'] == 'forbidden'
@@ -37,6 +53,14 @@ def test_admin_needs_the_configured_code(settings):
         # a refused admin request created nothing that could act as admin
         refused_tool = client.post('/api/tools/propose_edit', json={'session_id': navigator.json()['session_id'], 'args': {'action': 'close', 'target': 'Office lift'}})
         assert refused_tool.json()['ok'] is False and refused_tool.json()['error']['code'] == 'forbidden'
+
+
+def test_trusted_constructor_must_explicitly_opt_into_insecure_admin(settings):
+    insecure = replace(settings, admin_requires_code=False)
+    with TestClient(create_app(insecure)) as client:
+        response = create(client, 'admin')
+        assert response.status_code == 200 and response.json()['role'] == 'admin'
+        assert create(client, 'navigator').status_code == 200
 
 
 def test_without_a_code_nobody_is_admin(settings):
@@ -53,12 +77,14 @@ def test_without_a_code_nobody_is_admin(settings):
         assert admin_allowed(request(host), None) is False
 
 
-def test_environment_locks_admin_by_default(monkeypatch):
-    monkeypatch.setattr('server.config.load_dotenv', lambda *args, **kwargs: None)  # a developer's .env must not leak in
-    monkeypatch.delenv('TYB_ADMIN_TOKEN', raising=False)
-    monkeypatch.delenv('TYB_ADMIN_OPEN_INSECURE', raising=False)
-    assert Settings.from_env().admin_requires_code is True
-    assert Settings.from_env().admin_token is None
+def test_environment_locks_admin_by_default(settings, monkeypatch):
+    configured = replace(Settings.from_env(), state_dir=settings.state_dir,
+                         hero_dir=settings.hero_dir, static_dir=settings.static_dir)
+    assert configured.admin_requires_code is True
+    assert configured.admin_token is None
+    with TestClient(create_app(configured)) as client:
+        assert create(client, 'admin').status_code == 403
+        assert create(client, 'navigator').status_code == 200
     monkeypatch.setenv('TYB_ADMIN_TOKEN', '  ' + CODE + '  ')
     assert Settings.from_env().admin_token == CODE
     monkeypatch.setenv('TYB_ADMIN_TOKEN', '   ')
@@ -67,3 +93,13 @@ def test_environment_locks_admin_by_default(monkeypatch):
     assert Settings.from_env().admin_requires_code is False
     monkeypatch.setenv('TYB_ADMIN_OPEN_INSECURE', '')
     assert Settings.from_env().admin_requires_code is True
+
+
+def test_environment_insecure_admin_requires_an_explicit_opt_in(settings, monkeypatch):
+    monkeypatch.setenv('TYB_ADMIN_OPEN_INSECURE', '1')
+    configured = replace(Settings.from_env(), state_dir=settings.state_dir,
+                         hero_dir=settings.hero_dir, static_dir=settings.static_dir)
+    assert configured.admin_requires_code is False
+    with TestClient(create_app(configured)) as client:
+        response = create(client, 'admin')
+        assert response.status_code == 200 and response.json()['role'] == 'admin'

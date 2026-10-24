@@ -23,7 +23,8 @@ def journey(tmp_path, monkeypatch, request):
     assets = grouped[source][:2]
     collector_room, destination = other_rooms[:2]
     collector = grouped[collector_room][0]
-    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist')
+    # Trusted in-process fixture; admin authentication is covered separately.
+    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_requires_code=False)
     with TestClient(create_app(settings)) as client:
         def session(role):
             response = client.post('/api/sessions', json={'building_id': raw['building']['id'], 'role': role})
