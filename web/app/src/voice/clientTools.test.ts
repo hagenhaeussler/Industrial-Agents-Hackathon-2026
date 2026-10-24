@@ -116,3 +116,17 @@ describe('voice result size', () => {
     expect(JSON.parse(serialized).ok).toBe(false)
   })
 })
+
+describe('voice tool outcome observers', () => {
+  it('reports failed ambiguity without repainting the map', async () => {
+    const response = { ok: false, speech: 'Which press?', error: { code: 'ambiguous', candidates: [{ id: 'p4', name: 'Press 4' }] } }
+    const seen: ToolResponse[] = []
+    const tools = createClientTools({ sessionId: 's', fetcher: async () => json(response), onResponse: result => seen.push(result), onDisplay: () => { throw new Error('No display on failure') } })
+    expect(JSON.parse(await tools.find({ query: 'press' })).ok).toBe(false)
+    expect(seen).toEqual([response])
+  })
+  it('an observer exception cannot change a committed server result', async () => {
+    const tools = createClientTools({ sessionId: 's', fetcher: async () => json({ ok: true, result: { event_id: 'e' } }), onResponse: () => { throw new Error('View failed') } })
+    expect(JSON.parse(await tools.commit_edit({ proposal_id: 'p' })).ok).toBe(true)
+  })
+})

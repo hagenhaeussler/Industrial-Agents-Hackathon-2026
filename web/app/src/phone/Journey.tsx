@@ -1,6 +1,6 @@
 import { Blobatar } from '@blobatar/react';
 import { happy, idle } from 'blobatar/expression';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Camera, Check, CornerUpLeft, CornerUpRight, DoorOpen, Flag, Footprints, ListOrdered, LoaderCircle, MapPin, Mic, MicOff, MoveUpLeft, MoveUpRight, Navigation, ScanQrCode, TriangleAlert, Undo2, WifiOff, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, Camera, Check, CornerUpLeft, CornerUpRight, DoorOpen, Flag, Footprints, ListOrdered, LoaderCircle, MapPin, MoveUpLeft, MoveUpRight, Navigation, ScanQrCode, TriangleAlert, Undo2, WifiOff, X } from 'lucide-react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
@@ -16,6 +16,8 @@ import { anchorOf, buildModel, displayOrder, floorName, isProvisional, placeOf, 
 import type { Model } from '../map/model';
 import { navigate } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
+import { VoiceOrb } from '../voice/VoiceOrb';
+import type { VoiceOrbPhase } from '../voice/VoiceOrb';
 import { ChatSheet } from './ChatSheet';
 import type { Anchor } from './cameraArrow';
 import { requestMotion } from './cameraMotion';
@@ -315,6 +317,12 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
   const routeTargets: TourStop[] = [...pendingStops(tour)];
   if (tour.end && !done) routeTargets.push({ stop_id: 'end', space_id: tour.end.space_id, asset_ids: [], status: 'pending', label: destinationLabel(tour, model) });
   const unavailable = tour.unreachable_stops.map(item => stopLabel(tour, item.stop_id, model).split(' · ')[0]).join(', ');
+  const voicePhase: VoiceOrbPhase = voice.status === 'connecting' ? 'connecting'
+    : voice.status === 'connected' ? voice.isSpeaking ? 'speaking' : voice.isMuted ? 'muted' : 'listening'
+    : (voice.available && voice.error) || voice.status === 'error' ? 'error' : 'idle';
+  const voiceStatus = voicePhase === 'speaking' ? 'Speaking…' : voicePhase === 'listening' ? 'Listening'
+    : voicePhase === 'muted' ? 'Microphone muted' : voicePhase === 'connecting' ? 'Connecting…'
+    : voicePhase === 'error' ? 'Voice unavailable. Tap to type' : 'Tap to ask';
 
   return <main className="journey">
     {mode === 'camera' && !route && !done && confirmed && navigationReady
@@ -368,9 +376,14 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
             <div className="agent-line">
               <button className="agent-presence" onClick={() => setSheet('chat')} aria-label="Ask the building">
                 <span className="avatar-wrap small"><Blobatar name="alain00" animate="always" size={72} expression={arrived ? happy : idle} title="Alain, your building guide"/></span>
-                <span className="agent-bubble surface"><strong>{!next || !leg ? 'No route right now' : arrived ? `Here: ${next.label.split(' · ')[0]}` : finalLeg ? `Final destination: ${next.label}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voice.status === 'connected' ? (voice.isSpeaking ? 'Speaking…' : 'Listening') : 'Tap to ask'}</span></span>
+                <span className="agent-bubble surface"><strong>{!next || !leg ? 'No route right now' : arrived ? `Here: ${next.label.split(' · ')[0]}` : finalLeg ? `Final destination: ${next.label}` : `Stop ${collected + 1} of ${total}`}</strong><span>{voiceStatus}</span></span>
               </button>
-              {voice.available && <button className={`icon-button voice-toggle ${voice.status === 'connected' ? 'on' : ''}`} disabled={voice.status === 'connecting'} onClick={() => { if (voice.status === 'connected') void voice.stop(); else { voiceAttempted.current = true; void voice.start().catch(() => setSheet('chat')); } }} aria-label={voice.status === 'connected' ? 'Stop voice guidance' : 'Start voice guidance'}>{voice.status === 'connected' ? <Mic size={20}/> : <MicOff size={20}/>}</button>}
+              {voice.available && <VoiceOrb phase={voicePhase} level={voicePhase === 'speaking' ? voice.outputLevel : voicePhase === 'listening' ? voice.inputLevel : 0}
+                disabled={voice.status === 'connecting'} label={voice.status === 'connected' ? 'Stop voice guidance' : voice.status === 'connecting' ? 'Connecting voice guidance' : 'Start voice guidance'}
+                onClick={() => {
+                  if (voice.status === 'connected') void voice.stop().catch(() => setSheet('chat'));
+                  else { voiceAttempted.current = true; void voice.start().catch(() => setSheet('chat')); }
+                }}/>}
             </div>
             <div className="progress-dots" aria-label={`${collected} of ${total} parts collected${tour.end ? '; final destination remains' : ''}`}>{displayOrder(tour).filter(id => id !== 'end').map(id => <span key={id} className={tour.stops.find(stop => stop.stop_id === id)?.status === 'collected' ? 'done' : id === next?.stop_id ? 'now' : tour.unreachable_stops.some(item => item.stop_id === id) ? 'blocked' : ''}/>)}{tour.end && <span aria-label="Final destination" className={tour.unreachable_stops.some(item => item.stop_id === 'end') ? 'blocked' : finalLeg ? 'now' : ''}/>}</div>
             <div className="dock-actions">
@@ -415,7 +428,7 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
       <p className="fineprint">Position source: {session?.position?.source === 'marker' ? 'scanned position code' : session?.position?.source === 'manual' ? 'room confirmed by you' : session?.position?.source === 'desk' ? 'desk planning' : 'planned tour start, awaiting confirmation'}.</p>
     </dialog>
 
-    <ChatSheet open={sheet === 'chat'} sessionId={session?.session_id ?? null} onClose={() => setSheet(null)} onDisplay={onDisplay} voiceError={voice.error}/>
+    <ChatSheet open={sheet === 'chat'} sessionId={session?.session_id ?? null} onClose={() => setSheet(null)} onDisplay={onDisplay} voice={voice}/>
     <StartPicker model={model} open={picker} current={session?.position?.space_id ?? null} onPick={chooseRoom} onClose={() => setPicker(false)}/>
     {scanner && <Suspense fallback={null}><Scanner open={scanner} onMarker={onMarker} onClose={() => setScanner(false)}/></Suspense>}
   </main>;
