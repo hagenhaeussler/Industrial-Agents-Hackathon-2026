@@ -1,6 +1,12 @@
-# Alain building guide
+# Talk to Your Building: web app
 
-Phone-first indoor navigation prototype. React, TypeScript, Vite and Bun.
+One SPA for desk planning (`/desk`), the phone journey (`/go/:tourId`) and admin (`/admin`). React, TypeScript, Vite and Bun.
+
+- Live API: run the FastAPI server on port 8000 (`TYB_API` overrides); Vite proxies `/api`, `/ws` and `/health`.
+- Without a server: add `?mock=1` (bundled kit data; in `bun run dev` every kit building is readable from `data/`).
+- Demo: `/desk?demo=hero` preloads `demo/scenario.json`.
+
+The phone prototype below is reachable at `/go/demo` until the live journey replaces it.
 
 ```sh
 bun install

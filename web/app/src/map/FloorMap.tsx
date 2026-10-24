@@ -50,7 +50,7 @@ const Ghost = memo(function Ghost({ model, floorId }: { model: Model; floorId: s
   const others = model.floors.filter(floor => floor.id !== floorId);
   if (!others.length) return null;
   const d = others.flatMap(floor => (model.spacesOn.get(floor.id) ?? []).map(space => `M${svgPoints(space.polygon)}Z`)).join('');
-  return <path d={d} fill="none" stroke="#c9cbbf" strokeWidth={1} vectorEffect="non-scaling-stroke" strokeDasharray="3 3" opacity={0.55} pointerEvents="none"/>;
+  return <path d={d} fill="none" stroke="#c9cbbf" strokeWidth={1} vectorEffect="non-scaling-stroke" strokeDasharray="3 3" opacity={0.35} pointerEvents="none"/>;
 });
 
 const Doors = memo(function Doors({ model, floorId }: { model: Model; floorId: string }) {

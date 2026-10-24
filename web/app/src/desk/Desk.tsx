@@ -20,11 +20,13 @@ type Agent = { text: string; candidates: Candidate[]; tone: 'info' | 'error' } |
 
 const message = (error: unknown) => error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'Something went wrong.';
 
-/** Default start: the scenario start in demo mode, else the first lobby or entrance-side room on the lowest floor. */
+/** Default start: the scenario start in demo mode, else a room by a ground-floor entrance, a lobby or a corridor. */
 function defaultStart(model: Model, demo: boolean): string {
   if (demo && model.space.has(scenario.start.space_id)) return scenario.start.space_id;
-  const lowest = model.spacesOn.get(model.floors[0]?.id ?? '') ?? [];
-  return (lowest.find(space => space.room_type === 'lobby') ?? lowest.find(space => space.type === 'corridor') ?? lowest[0])?.id ?? '';
+  const ground = model.floors.find(floor => floor.level === 0) ?? model.floors[0];
+  const spaces = model.spacesOn.get(ground?.id ?? '') ?? [];
+  const entrance = (model.openingsOn.get(ground?.id ?? '') ?? []).find(opening => opening.kind === 'entrance')?.space_ids.find(id => model.space.has(id));
+  return entrance ?? (spaces.find(space => space.room_type === 'lobby') ?? spaces.find(space => space.type === 'corridor') ?? spaces[0])?.id ?? '';
 }
 
 export function Desk() {
@@ -57,7 +59,7 @@ export function Desk() {
   const loadBuilding = useCallback(() => latest(() => api.building(buildingId), snapshot => {
     const next = buildModel(snapshot);
     setModel(current => (current && current.snapshot.content_hash === snapshot.content_hash && current.snapshot.building_version === snapshot.building_version ? current : next));
-    setFloorId(current => current && next.floor.has(current) ? current : next.floors[0]?.id ?? '');
+    setFloorId(current => current && next.floor.has(current) ? current : (next.floors.find(floor => floor.level === 0) ?? next.floors[0])?.id ?? '');
     setLoadError(null);
   }, error => setLoadError(message(error))), [buildingId, latest]);
 
@@ -74,7 +76,7 @@ export function Desk() {
           const start = defaultStart(model, demo);
           if (start) next = await api.updateSession(next.session_id, { position: { space_id: start, floor_id: model.space.get(start)?.floor_id, point: anchorOf(model, start), source: 'desk', confidence: 'medium', heading_deg: null, marker_id: null } });
         }
-        if (live) setSession(next);
+        if (live) { setSession(next); if (next.position) setFloorId(next.position.floor_id); }
       } catch (error) {
         if (live) setAgent({ text: `Could not start a desk session: ${message(error)}`, candidates: [], tone: 'error' });
       }
