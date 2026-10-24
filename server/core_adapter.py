@@ -546,9 +546,13 @@ def plan_tour(building, start, stops, constraints, keep_order=False, end=None):
         legs.append(leg(previous, i))
         previous = i
     if end:
-        legs.append(leg(previous, n))
+        end_leg = leg(previous, n)
+        if end_leg["reachable"]:
+            legs.append(end_leg)
+        else:
+            unreachable.append({"stop_id": "end", "space_id": end_position["space_id"], "reason": end_leg["reason"]})
     return {
-        "status": "blocked" if unreachable else "active" if stops else "completed", "building_id": building.id,
+        "status": "blocked" if unreachable and not order else "active" if order else "completed", "building_id": building.id,
         "building_version": building.version, "content_hash": building.content_hash,
         "order_policy": policy, "start": start_position, "end": end_position,
         "stops": stops, "order": [stops[i]["stop_id"] for i in order], "legs": legs,

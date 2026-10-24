@@ -103,7 +103,7 @@ class PlatformService:
         result["profile"] = self.profile
         result["constraints"] = constraints
         result["building_version"] = building.version
-        if not any(stop["status"] == "pending" for stop in result["stops"]):
+        if not any(stop["status"] == "pending" for stop in result["stops"]) and not result["unreachable_stops"]:
             result["status"] = "completed"
         return result
 
