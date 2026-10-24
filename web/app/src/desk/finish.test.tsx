@@ -7,7 +7,7 @@ import payloads from '../phone/fixtures/final-destination-c7.json';
 import { TourPanel } from './TourPanel';
 
 const model = buildModel(snapshot as unknown as Snapshot);
-const render = (tour: Tour) => renderToStaticMarkup(<TourPanel model={model} tour={tour} plannedMs={null} onHandoff={() => undefined} onEdit={() => undefined} onFocusStop={() => undefined}/>);
+const render = (tour: Tour) => renderToStaticMarkup(<TourPanel model={model} tour={tour} onHandoff={() => undefined} onEdit={() => undefined} onFocusStop={() => undefined}/>);
 const finish = (html: string) => /<p class="finish-line">(.*?)<\/p>/.exec(html)?.[1] ?? '';
 
 describe('desk final destination summary', () => {

@@ -1,8 +1,7 @@
 import { ArrowLeft, Smartphone, TriangleAlert, X } from 'lucide-react';
-import type { ToolResponse, Tour, UnreachableReason } from '../api/types';
+import type { Tour, UnreachableReason } from '../api/types';
 import { displayOrder, isProvisional, spaceName } from '../map/model';
 import type { Model } from '../map/model';
-import { TracePanel } from '../trace/TracePanel';
 
 export const policyLabel = (tour: Tour) => tour.order_policy === 'optimized_exact' ? 'Optimal order' : tour.order_policy === 'optimized_heuristic' ? 'Good order · heuristic' : 'Your order';
 
@@ -15,9 +14,9 @@ export const reasonText: Record<UnreachableReason, string> = {
 
 const metres = (m: number) => `${Math.round(m)} m`;
 
-type Props = { model: Model; tour: Tour; plannedMs: number | null; onHandoff: () => void; onEdit: () => void; onFocusStop: (spaceId: string, floorId: string) => void; onRemoveStop?: (assetIds: string[]) => void; busy?: boolean; responses?: ToolResponse[] };
+type Props = { model: Model; tour: Tour; onHandoff: () => void; onEdit: () => void; onFocusStop: (spaceId: string, floorId: string) => void; onRemoveStop?: (assetIds: string[]) => void; busy?: boolean };
 
-export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusStop, onRemoveStop, busy, responses }: Props) {
+export function TourPanel({ model, tour, onHandoff, onEdit, onFocusStop, onRemoveStop, busy }: Props) {
   const stops = new Map(tour.stops.map(stop => [stop.stop_id, stop]));
   const legToStop = new Map(tour.order.map((stopId, index) => [stopId, tour.legs[index]]));
   const provisional = isProvisional(tour);
@@ -26,7 +25,7 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       <div>
         <p className="policy">{policyLabel(tour)}</p>
         <h2 id="tour-title" tabIndex={-1}>{tour.stops.length} {tour.stops.length === 1 ? 'stop' : 'stops'} · {metres(tour.length_m)}</h2>
-        <p className="muted">From {spaceName(model, tour.start.space_id)}{tour.end ? (tour.end.space_id === tour.start.space_id ? ' and back' : ` to ${spaceName(model, tour.end.space_id)}`) : ''}{tour.constraints.step_free ? ' · step-free' : ''}{plannedMs !== null ? ` · planned in ${plannedMs < 1000 ? `${Math.max(1, Math.round(plannedMs))} ms` : `${(plannedMs / 1000).toFixed(1)} s`}` : ''}</p>
+        <p className="muted">From {spaceName(model, tour.start.space_id)}{tour.end ? (tour.end.space_id === tour.start.space_id ? ' and back' : ` to ${spaceName(model, tour.end.space_id)}`) : ''}{tour.constraints.step_free ? ' · step-free' : ''}</p>
       </div>
     </div>
     <ol className="stop-list">
@@ -55,7 +54,6 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       <div><strong>Not included</strong>{tour.unreachable_stops.map(item => <p key={item.stop_id}>{item.stop_id === 'end' ? 'Finish point' : stops.get(item.stop_id)?.label ?? item.stop_id}: {reasonText[item.reason as UnreachableReason] ?? item.reason}</p>)}</div>
     </div>}
     {provisional && <p className="fineprint">Route lines are provisional straight segments until the core publishes walk polylines.</p>}
-    <TracePanel model={model} tour={tour} responses={responses}/>
     <div className="tour-actions">
       <button className="secondary-button" onClick={onEdit}><ArrowLeft size={17}/>Change parts</button>
       <button className="primary-button" onClick={onHandoff}><Smartphone size={18}/>Send to phone</button>

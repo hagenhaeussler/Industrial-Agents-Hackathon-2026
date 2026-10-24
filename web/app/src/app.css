@@ -301,15 +301,6 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .admin-foot .link-button { display: inline-flex; align-items: center; gap: 6px; }
 
 /* "How I calculated this" */
-.trace-panel { border-radius: 14px; background: #f5f5f1; font-size: 12px; line-height: 1.55; }
-.trace-panel summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; font-weight: 700; font-size: 13px; cursor: pointer; list-style: none; }
-.trace-panel summary::-webkit-details-marker { display: none; }
-.trace-panel[open] summary { border-bottom: 1px solid var(--line); }
-.trace-body { padding: 10px 12px 12px; display: grid; gap: 8px; }
-.trace-legs, .trace-calls ol { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-.trace-legs span, .trace-calls span { display: block; color: var(--muted); }
-.trace-calls code { font-size: 11px; font-weight: 700; }
-.trace-calls li span { display: inline; margin-left: 4px; }
 .drop-zone { border: 1.5px dashed #c9cdc0; border-radius: 15px; padding: 14px; display: grid; gap: 10px; justify-items: start; font-size: 13px; }
 .drop-zone.over { border-color: var(--ink); background: #f3f6e9; }
 .drop-zone code, .validation code { font-size: 11px; }
