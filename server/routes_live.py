@@ -36,18 +36,13 @@ def admin_session(request, session_id, building_id=None):
     return session
 
 
-LOOPBACK_HOSTS = {'127.0.0.1', '::1', 'localhost'}
-
-
 def admin_allowed(request, code):
     """Whether this request may open an admin session (CR-C-2); the role in the body is never trusted alone."""
     settings = request.app.state.settings
     if not settings.admin_requires_code:
         return True
-    if settings.admin_token:
-        return bool(code) and hmac.compare_digest(code.encode(), settings.admin_token.encode())
-    # No code configured: only a client on this machine (local development) may become admin.
-    return request.client is not None and request.client.host in LOOPBACK_HOSTS
+    # Fail closed: without a configured code nobody is admin. The client address is never an auth factor.
+    return bool(settings.admin_token) and bool(code) and hmac.compare_digest(code.encode(), settings.admin_token.encode())
 
 
 def checked_position(service, store, building_id, position):
