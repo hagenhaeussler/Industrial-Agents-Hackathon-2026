@@ -79,3 +79,6 @@ benchmark labels and existing agent inference were not edited.
 - No new cloud deployment is claimed here. PR/release verification is the place
   to record a later exact deployed SHA and Railway deployment ID. Real device
   calibration and positioning accuracy remain separate physical acceptance.
+- Production CI smoke was extended to expect the immutable manifest count plus
+  the Colab model, rather than the old kit-only constant 280. It also checks the
+  exact packaged Colab JSON, `/colab` HTML and an empty, unready Wi-Fi survey.
