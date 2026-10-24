@@ -19,6 +19,7 @@ export type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<
 type Options = {
   sessionId: string
   onDisplay?: (display: ToolDisplay, response: ToolResponse) => void
+  onResponse?: (response: ToolResponse) => void
   fetcher?: Fetcher
   navigationGuard?: NavigationRequestGuard
 }
@@ -75,7 +76,7 @@ export function serializeToolResponse(response: ToolResponse): string {
   return JSON.stringify({ ok: response.ok, speech: response.ok ? 'Done. Full details are in the application.' : 'The tool failed. Check the application for details.' })
 }
 
-export function createClientTools({ sessionId, onDisplay, fetcher = fetch,
+export function createClientTools({ sessionId, onDisplay, onResponse, fetcher = fetch,
   navigationGuard = createNavigationRequestGuard() }: Options): Record<BuildingToolName, (args?: unknown) => Promise<string>> {
   const execute = (name: BuildingToolName) => async (input?: unknown): Promise<string> => {
     if (!sessionId) return serializeToolResponse(failure('Choose a building and start a session first.', 'invalid_args'))
@@ -106,6 +107,7 @@ export function createClientTools({ sessionId, onDisplay, fetcher = fetch,
         return serializeToolResponse(failure('The tool returned an invalid response. Please try text chat.'))
       }
       const result = payload as ToolResponse
+      try { onResponse?.(result) } catch { /* A view callback cannot change the server outcome. */ }
       if (!response.ok) return serializeToolResponse(failure(result.error?.message || 'The request could not complete. Please try again.', result.error?.code))
       if (result.ok && result.display && typeof result.display === 'object' && !Array.isArray(result.display)) {
         // A view callback cannot change an already committed server operation into a failure.

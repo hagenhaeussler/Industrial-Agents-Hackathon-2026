@@ -31,3 +31,11 @@ Use `voice.sendContext(text)` after real application state changes; it wraps `se
 Pass a new `sessionId` only after stopping an active conversation, so a spoken tool cannot act in a different session during a screen change. Return to text chat on permission denial or provider failure.
 
 SDK reference: [ElevenLabs React SDK](https://elevenlabs.io/docs/eleven-agents/libraries/react), [WebRTC token endpoint](https://elevenlabs.io/docs/api-reference/conversations/get-webrtc-token), checked 24 October 2026. No camera frames are recorded or uploaded by this module.
+
+The desk, phone chat and admin share the real voice transcript. `sendText(text)` submits a user turn to the connected ElevenLabs conversation; disconnected text chat continues through `/api/chat`. `sendContext(text)` supplies current app state without asking the agent to speak. Never send a session bearer or admin code in contextual text.
+
+The compact `VoiceOrb` reflects actual connection, speaking, mute and sampled audio levels. `VoiceConversation` shows real messages, safe asynchronous failures, Retry, mute and End. Voice starts only from a user gesture. The SDK and token fetch have bounded connection/teardown waits; replacing a session retires its audio, requests, messages and UI callbacks.
+
+Two browser-only planning desk tools, `update_selection` and `focus_floor`, are separate from the eleven server tools. They validate IDs against the currently loaded building and return actual outcomes. Phone and admin contexts do not expose these actions. Server authority, admin preview/confirmation and write idempotency are unchanged.
+
+Navigator preview operations: 10 calls per day, at most 180 seconds per call, one concurrent conversation (user-approved). Admin retains its separate existing limits. These ongoing limits are separate from the $5 development testing budget.

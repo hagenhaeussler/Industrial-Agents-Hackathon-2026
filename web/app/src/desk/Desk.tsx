@@ -15,6 +15,9 @@ import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { VoiceButton, VoiceRoot, useVoiceSession } from '../phone/voice';
 import { scenario } from '../demo/scenario';
+import { createDeskVoiceTools } from '../voice/uiTools';
+import { deskVoiceContext } from '../voice/deskContext';
+import { VoiceConversation } from '../voice/VoiceConversation';
 import { HandoffDialog } from './HandoffDialog';
 import { fallbackReply } from './matchParts';
 import { PartsList } from './PartsList';
@@ -52,6 +55,8 @@ function DeskScreen() {
   const [session, setSession] = useState<Session | null>(null);
   const [floorId, setFloorId] = useState('');
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
   const [focusId, setFocusId] = useState<string | null>(null);
   const [frameSpaces, setFrameSpaces] = useState<string[]>([]);
   const [search, setSearch] = useState('');
@@ -176,7 +181,23 @@ function DeskScreen() {
     }
   };
 
-  const voice = useVoiceSession(session?.session_id ?? null, display => applyDisplay(display as Display));
+  const voiceTools = useMemo(() => createDeskVoiceTools({
+    getModel: () => modelRef.current, getSelected: () => selectedRef.current,
+    onSelection: ids => { selectedRef.current = ids; setSelected(ids); setTour(null); setRequestedRoute(null); setPlanError(null); },
+    onFloor: id => { setFloorId(id); setFocusId(null); setFrameSpaces([]); },
+  }), []);
+  const voice = useVoiceSession(session?.building_id === buildingId ? session.session_id : null, display => applyDisplay(display as Display), {
+    clientTools: voiceTools,
+    onToolResponse: response => {
+      if ('request_id' in response && 'tool' in response) setLastCalls(current => [response as ToolResponse, ...current].slice(0, 5));
+      if (!response.ok) {
+        const candidates = (response.error?.candidates ?? []).filter((item): item is Candidate => !!item && typeof item === 'object' && 'id' in item && 'name' in item && typeof item.id === 'string' && typeof item.name === 'string');
+        setAgent({ text: response.speech ?? response.error?.message ?? 'That action could not complete.', candidates: candidates.slice(0, 4), tone: candidates.length ? 'info' : 'error' });
+      } else setAgent(null);
+    },
+  });
+  const voiceContext = model && session?.building_id === buildingId ? deskVoiceContext(model, session, floorId, selected, tour) : '';
+  useEffect(() => { if (voice.status === 'connected' && voiceContext) voice.sendContext(voiceContext); }, [voice.status, voice.sendContext, voiceContext]);
 
   const localAnswer = (text: string) => {
     if (!model) return;
@@ -189,6 +210,12 @@ function DeskScreen() {
 
   const sendAsk = async (text: string) => {
     if (!session || !text.trim()) return;
+    if (voice.status === 'connected') {
+      if (voice.sendText(text.trim())) { setAsk(''); setAgent(null); }
+      else setAgent({ text: 'The message could not be sent. Reconnect voice and try again.', candidates: [], tone: 'error' });
+      return;
+    }
+    if (voice.status === 'connecting') return;
     if (chatOffline) { localAnswer(text.trim()); return; }
     setAsking(true);
     await latest(() => api.chat(session.session_id, text.trim()), (reply: ChatReply) => {
@@ -242,10 +269,11 @@ function DeskScreen() {
         <label htmlFor="ask-input">What do you need?</label>
         <div className="ask-field">
           <input ref={askRef} id="ask-input" value={ask} onChange={event => setAsk(event.target.value)} placeholder="“Where is the 3D printer?”" autoComplete="off" maxLength={500}/>
-          <VoiceButton voice={voice} onUnavailable={text => setAgent({ text: `${text} Type your request instead.`, candidates: [], tone: 'error' })}/>
-          <button className="icon-button dark" type="submit" disabled={!ask.trim() || asking || !session} aria-label="Ask">{asking ? <LoaderCircle className="spin" size={18}/> : <ArrowUp size={19}/>}</button>
+          <VoiceButton voice={voice}/>
+          <button className="icon-button dark" type="submit" disabled={!ask.trim() || asking || !session || voice.status === 'connecting'} aria-label="Ask">{asking ? <LoaderCircle className="spin" size={18}/> : <ArrowUp size={19}/>}</button>
         </div>
       </form>
+      <VoiceConversation key={session?.session_id} voice={voice}/>
       {agent && <div className={`agent-reply ${agent.tone}`} role="status" aria-live="polite">
         <p>{agent.text}</p>
         {agent.candidates.length > 0 && <div className="chips">{agent.candidates.map(candidate => <button key={candidate.id} onClick={() => { if (model.asset.has(candidate.id)) focusAsset(candidate.id); if (chatOffline) { setSelected(current => new Set([...current, candidate.id])); setAgent(null); } else void sendAsk(candidate.name); }}>{candidate.name}{candidate.floor_id ? <span> · {floorName(model, candidate.floor_id)}</span> : null}</button>)}</div>}
