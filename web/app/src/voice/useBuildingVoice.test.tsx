@@ -6,16 +6,19 @@ import type { Fetcher, ToolDisplay } from './clientTools'
 
 const starts: unknown[] = []
 const contexts: string[] = []
+const lifecycle: string[] = []
 let stops = 0
 let currentTools: Record<string, (args?: unknown) => Promise<string>>
+let currentOnError: (() => void) | undefined
 const conversation = {
   status: 'disconnected', isSpeaking: false,
-  startSession: (options: unknown) => { starts.push(options) },
-  endSession: async () => { stops++ },
+  startSession: (options: unknown) => { lifecycle.push('start'); starts.push(options) },
+  endSession: async () => { lifecycle.push('end'); stops++ },
   sendContextualUpdate: (text: string) => { contexts.push(text) },
 }
-mock.module('@elevenlabs/react', () => ({ useConversation: (options: { clientTools: typeof currentTools }) => {
+mock.module('@elevenlabs/react', () => ({ useConversation: (options: { clientTools: typeof currentTools; onError?: () => void }) => {
   currentTools = options.clientTools
+  currentOnError = options.onError
   return conversation
 } }))
 
@@ -41,7 +44,7 @@ function deferredToken() {
 
 beforeAll(async () => { useBuildingVoice = (await import('./useBuildingVoice')).useBuildingVoice })
 beforeEach(() => {
-  starts.length = 0; contexts.length = 0; stops = 0; conversation.status = 'disconnected'
+  starts.length = 0; contexts.length = 0; lifecycle.length = 0; stops = 0; conversation.status = 'disconnected'
   dom = new Window({ url: 'http://localhost' })
   Object.defineProperties(globalThis, {
     window: { value: dom, configurable: true }, document: { value: dom.document, configurable: true },
@@ -119,9 +122,56 @@ describe('voice start lifecycle', () => {
     expect(view.result.current.error).not.toContain('offline-test-token')
     expect(starts).toEqual([])
   })
+
+  test('an asynchronous SDK connection failure is sanitized and can retry after ending the failed session', async () => {
+    let requests = 0
+    fetchMock.fetch = async () => { requests++; return token() }
+    const view = renderHook(() => useBuildingVoice(options))
+    await act(async () => { await view.result.current.start() })
+    expect(starts.length).toBe(1)
+    expect(view.result.current.error).toBeNull()
+    // The real SDK returns void, then reports a failed handshake through onError
+    // and its status context. Provider error text must never enter the UI.
+    await act(async () => {
+      conversation.status = 'error'
+      const report = currentOnError as ((message: string, context: unknown) => void) | undefined
+      report?.('Handshake failed at https://provider.invalid/?token=private-token', { token: 'private-token' })
+    })
+    expect(view.result.current.error).toBe('Voice is unavailable. Please use text chat.')
+    expect(view.result.current.error).not.toContain('private-token')
+    expect(view.result.current.status).toBe('error')
+    await act(async () => { await view.result.current.start() })
+    expect(requests).toBe(2)
+    expect(lifecycle).toEqual(['start', 'end', 'start'])
+    expect(view.result.current.error).toBeNull()
+  })
+
+  test.each(['session', 'agent', 'unmount'] as const)('an SDK error retained from a retired %s cannot change current UI state', async cancellation => {
+    const view = renderHook((props: BuildingVoiceOptions) => useBuildingVoice(props), { initialProps: options })
+    const retiredError = currentOnError
+    if (cancellation === 'session') view.rerender({ ...options, sessionId: 'replacement-session' })
+    if (cancellation === 'agent') view.rerender({ ...options, agent: 'admin' })
+    if (cancellation === 'unmount') view.unmount()
+    await act(async () => { retiredError?.() })
+    expect(view.result.current.error).toBeNull()
+    expect(starts).toEqual([])
+  })
 })
 
 describe('voice tool lifecycle', () => {
+  test('an SDK connection failure suppresses a pending instruction', async () => {
+    let release!: (response: Response) => void
+    fetchMock.fetch = async () => new Promise<Response>(resolve => { release = resolve })
+    const displays: ToolDisplay[] = []
+    const view = renderHook(() => useBuildingVoice({ ...options, onDisplay: display => { displays.push(display) } }))
+    const pending = currentTools.next_step!()
+    await act(async () => { conversation.status = 'error'; currentOnError?.() })
+    release(instruction())
+    expect(JSON.parse(await pending).ok).toBe(false)
+    expect(displays).toEqual([])
+    expect(view.result.current.error).toBe('Voice is unavailable. Please use text chat.')
+  })
+
   test.each(['stop', 'session', 'agent', 'unmount'] as const)('invalidates a pending next_step on %s', async cancellation => {
     let release!: (response: Response) => void
     fetchMock.fetch = async () => new Promise<Response>(resolve => { release = resolve })

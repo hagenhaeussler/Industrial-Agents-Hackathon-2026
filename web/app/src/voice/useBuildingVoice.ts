@@ -3,6 +3,8 @@ import { useConversation } from '@elevenlabs/react'
 import { createClientTools, createNavigationRequestGuard } from './clientTools'
 import type { ToolDisplay, ToolResponse } from './clientTools'
 
+const VOICE_UNAVAILABLE = 'Voice is unavailable. Please use text chat.'
+
 export type BuildingVoiceOptions = {
   agent: 'navigator' | 'admin'
   sessionId: string
@@ -33,10 +35,17 @@ export function useBuildingVoice({ agent, sessionId, onDisplay }: BuildingVoiceO
   }, [scope, invalidate])
   const tools = useMemo(() => createClientTools({ sessionId, navigationGuard: scope.navigation,
     onDisplay: (payload, response) => { if (scope.state.active) display.current?.(payload, response) } }), [sessionId, onDisplay, scope])
-  const { status, isSpeaking, startSession, endSession, sendContextualUpdate } = useConversation({ clientTools: tools })
+  // The React SDK starts asynchronously but returns void. Connection and
+  // microphone failures arrive here, rather than rejecting startSession.
+  const onError = useCallback(() => {
+    if (!scope.state.active) return
+    invalidate()
+    setError(VOICE_UNAVAILABLE)
+  }, [invalidate, scope])
+  const { status, isSpeaking, startSession, endSession, sendContextualUpdate } = useConversation({ clientTools: tools, onError })
 
   const start = useCallback(async () => {
-    if (!scope.state.active || scope.state.starting || status !== 'disconnected') return
+    if (!scope.state.active || scope.state.starting || (status !== 'disconnected' && status !== 'error')) return
     if (!sessionId) {
       const message = 'Choose a building and start a session first.'
       setError(message)
@@ -49,18 +58,21 @@ export function useBuildingVoice({ agent, sessionId, onDisplay }: BuildingVoiceO
     const current = () => scope.state.active && scope.state.attempt === attempt && !controller.signal.aborted
     setError(null)
     try {
+      // An SDK error can leave a conversation instance alive. End it before
+      // fetching a fresh token so retry cannot reuse that failed connection.
+      if (status === 'error') endSession()
       const response = await fetch(`/api/voice/token?agent=${agent}`, { cache: 'no-store', signal: controller.signal })
       if (!current()) return
       const payload: unknown = await response.json()
       if (!current()) return
       const body = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {}
       if (!response.ok || typeof body.token !== 'string' || !body.token) {
-        throw new Error('Voice is unavailable. Please use text chat.')
+        throw new Error(VOICE_UNAVAILABLE)
       }
       startSession({ conversationToken: body.token })
     } catch {
       if (!current()) return
-      const message = 'Voice is unavailable. Please use text chat.'
+      const message = VOICE_UNAVAILABLE
       setError(message)
       throw new Error(message)
     } finally {
@@ -70,7 +82,7 @@ export function useBuildingVoice({ agent, sessionId, onDisplay }: BuildingVoiceO
         scope.state.controller = null
       }
     }
-  }, [agent, sessionId, startSession, status, scope])
+  }, [agent, sessionId, startSession, endSession, status, scope])
 
   const stop = useCallback(async () => {
     if (!scope.state.active) return

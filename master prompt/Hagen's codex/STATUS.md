@@ -1,12 +1,20 @@
 # STATUS: Hagen's codex (Core & Spatial Intelligence Lead)
-Last update: 2026-10-24 23:01 Europe/Berlin · Branch: `hagen/core` · Code candidate: `e384c73` · Latest main consumed: `0c3a80c` · Contract: C8
+Last update: 2026-10-24 23:36 Europe/Berlin · Branch: `hagen/core` · Provider base: `29e4c8d` plus voice recovery fix · Latest main consumed: `f179cc2` · Contract: C9
 
 Single writer: Hagen's codex.
 
 ## Current task
+Latest increment enables the user-supplied Anthropic/ElevenLabs providers securely, with a written $5 total smoke allocation and real local/provider verification. Final cloud release evidence is in the new provider-integration PR; no physical voice/device acceptance is implied.
+
 H01–H04 are delivered. This integration pass consumes the three other builders' published work, resolves the final-destination/frontend and agent budget blockers, and secures the approved public Railway test service. The human explicitly authorized the cross-owner repairs, main merge and deployment in this chat. GitHub PR [#2](https://github.com/hagenhaeussler/Industrial-Agents-Hackathon-2026/pull/2) is the coordination and final release record; its final comment records the exact main SHA and deployment ID. G3/G4 physical and live-provider acceptance remains separate.
 
 ## Delivered (newest first)
+- Live-provider integration (this increment): exact Anthropic key authenticated and Sonnet5.5 available; both keys and agent IDs saved only in ignored0600 .env / Railway service variables. No key in tracked files or browser bundle. Latest captain main `f179cc2` / C9 consumed with platform voice lifecycle fixes; no kit edits.
+- Reproduced real Anthropic400 before any generation: strict tools rejected numeric minimum. The adapter now uses public anthropic.transform_schema, preserves original server/Pydantic validation and true required fields, and represents optional nulls as omission. ActualSDK payload is11strict tools/21optional parameters/0unions (limits24/16). Four regressions include server rejection of invalid width;47focused tests pass. Actual local find+route then pass with five provider responses and $0.042682 metered usage.
+- Verified ElevenLabs account hagen.haeussler@berkeley.edu from tool-creator metadata and matching MCP access. Plugin cannot create API keys, so the human supplied the key. Created two dedicated authenticated test agents via MCP with11client tools, Gemini3.7Flash, no recording,60s max,2calls/day/concurrency1 peragent and test-origin allowlist. Local navigator/admin short-lived tokens both200/no-store. Four remote one-turn tool tests pass; LLM/platform price report totals$0.023610225. Tests skip backend execution and do not prove a microphone call.
+- Voice frontend temporarily pins LiveKit2.16.1 per ElevenLabs compatibility instructions. Async SDK connection errors now show a fixed sanitized message, suppress stale directions and allow a fresh-token retry after ending the failed session. Five additional lifecycle regressions pass; retired-session protections remain intact. Navigator uses plan_tour for a visible single-destination journey; standalone route still computes but its display is not rendered. Agent exports contain no secrets; setup and one-time budget/restart rules are in docs/live-provider-setup.md.
+- Written human allocation in this chat: **$5 total** for broader smoke tests, allocated1USDlocalAnthropic/1USDRailwayAnthropic/3USDElevenLabs. This is not a fresh allocation per restart. Ledger in ignored .state/provider-setup-budget.json; unused funds are not spent automatically. Final exact main/deployment/cloud chat/token outcomes will be recorded in this increment's PR release comment.
+- Final combined offline check after C9, strict schemas, dependency pin and async voice retry fix: **474 Python passed in 62.64s**, oracle369/369, devtext138/138, **112 Bun / 384 assertions**, strict TS/Vite/device bundle; exit0. Command: provider keys blank, PYTHON_DOTENV_DISABLED=1 scripts/check.sh with builder tool/cache paths. Log: ignored agent_output/reports/core/provider-final-check.log. Initial OCR key401, provider-schema400 and obsolete tool-parameter format422 were corrected; no secrets logged and no building edits from provider tool tests.
 - Reconciled captain main `0c3a80c`, platform `9eae6a8`, Lenard `e781afd`, and Claude `c9b6b3a` by intended behavior, retaining both owners' tests and the stricter C8 implementation. No history rewrite or human-checkout changes. A pushed branch or comment does not prove another builder read it.
 - `e384c73` / `9255b6a` / `b5caf78`: final destination keeps the map and instructions after all collection stops are collected; only accepted explicit arrival completes the same tour. Unreachable collection stops cannot be mistaken for the end leg. Rejected arrival remains incomplete and retryable. Cold-load and reconnect freshness checks include all-collected active/blocked end legs. Leg distances pair by stable stop order; Finish uses its own final leg. Blocked context names the affected target and reason.
 - `b25cb16`: the chat runner reserves budget before real requests, then stops after a terminal SDK response without a false second reservation that discarded the completed answer/display. Real SDK/mock-transport regressions use zero provider calls.
@@ -16,7 +24,7 @@ H01–H04 are delivered. This integration pass consumes the three other builders
 - Existing H01–H04 delivery retained: 15 deterministic question kinds, actual geometry/maneuvers, exact tours through 12 stops and labelled heuristic beyond, pure edit/undo/what-if, validation, real fixtures, and measured SVG draft import. Venue H6 remains unmeasured; factory fallback is explicit.
 
 ## Interfaces exposed / changed
-- Canonical C8, including C7 final destination and C6 explicit partial constraints; OpenAPI and generated frontend types agree.
+- Canonical C9, retaining C8 authentication, C7 final destination and C6 explicit partial constraints; OpenAPI and generated frontend types agree.
 - Admin POST /api/sessions: X-Admin-Token must match server-only TYB_ADMIN_TOKEN. Both TYB_DEMO_MODE and TYB_ALLOW_UNAUTHENTICATED_DEMO_ADMIN must be true for the explicit isolated code-free demo opt-in; a configured code remains mandatory. Never publish codes or session bearers.
 - Public event/tour/WS/tool projections omit session_id recursively. Private session/event ownership, authorization, undo and idempotence remain intact. Consumers match tour ID/revision.
 - Final arrival: POST /api/tours/{id}/progress with {stop_id:"end",status:"collected"} and phone X-Session-ID; all parts must be collected and a fresh route reachable. No synthetic collection stop or new endpoint.
@@ -34,7 +42,7 @@ H01–H04 are delivered. This integration pass consumes the three other builders
 
 ## Blockers and resource requests
 - No remaining reproduced code blocker for this integration. Venue H6 dimensions/objects/headings are absent; demo/hero/README.md lists required measurements and the factory fallback.
-- Physical Android/iPhone localization, camera/AR, paid LLM/voice quality, Sunday inputs/rehearsal and final hackathon submission are unverified future acceptance. No paid provider calls, G3/G4 tags or invented measurements.
+- Physical Android/iPhone localization, camera/AR, live microphone/client-tool execution, Sunday inputs/rehearsal and final hackathon submission remain unverified. Limited paid provider checks are recorded above; no G3/G4 tags or invented measurements.
 
 ## Change requests
 - CR-H-4 resolved by C7 final destination API, consumed with core end-status regressions and real HTTP checks.
@@ -45,5 +53,5 @@ H01–H04 are delivered. This integration pass consumes the three other builders
 - Earlier CR-H-2/3 and CR-L-1/2/3 remain resolved. CR-L-4 Sunday spatial schema remains provisional/unsupported until actual organizer inputs establish semantics.
 
 ## Next handoff
-- All builders: fetch main and read PR#2 for the exact merged/deployed SHA. Retain C8 authentication/public projections and C7 explicit arrival semantics; do not restore role-only admin sessions or client completion fallbacks.
+- All builders: fetch main and read PR#3 for the provider release SHA/deployment and PR#2 for prior final-destination evidence. Retain C8 authentication/public projections and C7 explicit arrival semantics; do not restore role-only admin sessions or client completion fallbacks.
 - Captain/Claude/Lenard: latest main contains the integrated fixes and regression evidence after this explicitly human-authorized release. Preserve ownership/status writers and normal fetch/merge/push collaboration. G3/G4 and physical/live-provider acceptance still require their own demonstrations.
