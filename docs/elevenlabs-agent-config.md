@@ -1,6 +1,6 @@
 # ElevenLabs-Agent – Konfiguration
 
-**Stand:** 24.10.2026. Hier steht, wie die Voice-Agents im ElevenLabs-Dashboard eingestellt werden. Wer sie nachbauen will, etwa die Jury, kann diese Werte übernehmen. Architektur und Begründungen: [Plan-Review](../2026-10-24-plan-review-zwei-ux.md), Abschnitte 3, 6 und 7.
+**Stand:** 24.10.2026. Hier steht, wie die Voice-Agents im ElevenLabs-Dashboard eingestellt werden. Wer sie nachbauen will, etwa die Jury, kann diese Werte übernehmen. Architektur und Begründungen: [Finaler Plan](../2026-10-24-plan-review-zwei-ux.md), Abschnitte 3, 6 und 9.
 
 ## Zwei Agents mit gleicher Basis
 
@@ -19,7 +19,7 @@ Beide Agents bekommen dieselben Basiseinstellungen:
 | Spracherkennung (ASR) | Scribe v2 Realtime (`scribe_realtime`), Qualität `high` |
 | Turn-Taking | Modell `turn_v3`, Turn-Timeout 7 s |
 | Sprache | Englisch (über den Prompt) |
-| LLM im Agent | **Soll:** Claude Sonnet 5.5, niedriger Reasoning-Aufwand. Endgültig nach dem A/B-Test (Review §6); das Ergebnis wird hier eingetragen. **Ist (Dashboard-Standard):** Qwen3.5-397B-A17B |
+| LLM im Agent | **Soll:** Claude Sonnet 5.5, niedriger Reasoning-Aufwand. Endgültig nach dem A/B-Test (Finaler Plan §9); das Ergebnis wird hier eingetragen. **Ist (Dashboard-Standard):** Qwen3.5-397B-A17B |
 | Backup-LLM | „Default“ (nicht „Disabled“), damit ein Ausfall des Haupt-LLM das Gespräch nicht beendet |
 | Sicherheit | Enable authentication an. Die App holt pro Gespräch einen **Conversation Token (WebRTC)** vom Server |
 
