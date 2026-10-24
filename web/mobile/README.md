@@ -26,7 +26,7 @@ pnpm test
 
 The route, floor map, distances and position are example data. The line is a screen-space illustration, not a tracked physical-world anchor. No Gaussian Splat, visual localization, route backend, building-document retrieval, microphone or language model is connected. Chat replies are local templates. The corridor is an SVG illustration shown while the camera is off.
 
-Planned later: camera-only AR with server-side localization (hloc and MegaLoc), see `PLAN.md` section 8.
+Planned later: camera-only AR with server-side localization (hloc and MegaLoc), see `docs/product.md` section 3.
 
 ## Where things live
 

@@ -26,7 +26,7 @@ The non-negotiable outcomes are:
 - Coordinate exactly four builder roles: three Codex agents and one Claude agent, with the exact folder names below.
 - Give Claude primary ownership of UI, design, and the customer journey; use Claude Design where actually available. Respect the team's preference to give Claude selected difficult design and integration problems without making it the bottleneck.
 - Keep the work honest: proposals are not implementations; mocked data is not live integration; a test that was not run is not a passing test.
-- **Respect the fixed team decisions in `PLAN.md` section 0.** TypeScript for everything (Python only in the official evaluator `benchmark/` and the later localization service), `building.json` as the only building input (no image, PDF or SVG import), Railway with one Node service and SQLite, a Claude Agent SDK harness (`@anthropic-ai/claude-agent-sdk`, built-in file/shell/web tools off) with our own tools (building data never in a prompt), ElevenLabs with two voice agents, one web app with two views (desktop administration and mobile navigation), no starter agent, and no expected answers in the database, prompts or tool results. These are current human constraints, not proposals. If you think one of them is wrong, explain the consequence and ask the humans; do not change it yourself.
+- **Respect the fixed team decisions in `PLAN.md` section 0.** They are current human constraints, not proposals. Read them first. If you think one of them is wrong, explain the consequence and ask the humans; do not change it yourself.
 
 You have final technical authority **within those outcomes, the fixed decisions in `PLAN.md` section 0 and the applicable execution permissions**. Choose the languages, architecture, libraries, harnesses, persistence, algorithms, tools, skills, service boundaries, and implementation sequence. You may adopt, combine, revise, replace, or reject the other recommendations in `PLAN.md` and the archived reviews, specs, research reports and architecture pictures in `docs/archive/`. Archived documents are history: where they differ from `PLAN.md`, `PLAN.md` wins.
 
@@ -55,12 +55,13 @@ This is a starting map, **not an exhaustive allowlist**. Discover and incorporat
 | `docs/sources/Hagen UX explanation transcript.md` | The full customer journey, intended outcomes, optional embellishments, and explicitly uncertain details. Highest emphasis for product interpretation. |
 | `README.md` (kit 1.1.0); `CHANGELOG.md`; `docs/sources/Hackathon Challenge - Talk to Your Building-1.pdf`; `docs/sources/Industrial Agents Hackathon Kick-Off.pdf`; `ATTRIBUTION.md` | Official task, levels, scoring, route model (README section 3), inputs/outputs, deliverables, deadline, data rights. The 1.1.0 README is newer than the PDF: it asks for a 3–5 minute live demo without a restart and no longer mentions finalists or `BENCHMARK.md`. |
 | `docs/sources/2026-10-24-challenge-lead-qa.md`; `docs/sources/2026-10-24-route-scoring-specifications.md`; `docs/sources/2026-10-24-weitere-aufnahmen-relevante-infos.md` | Organizer statements, route measurement, provenance limits, and unresolved evaluation semantics. |
-| `PLAN.md` section 10; archived `docs/archive/2026-10-24-fragen-an-juroren.md` and `docs/archive/open questions for judge .md` | What is still unanswered. Kit 1.1.0 answered the route model questions. |
+| `PLAN.md` section 6; archived `docs/archive/2026-10-24-fragen-an-juroren.md` and `docs/archive/open questions for judge .md` | What is still unanswered. Kit 1.1.0 answered the route model questions. |
 | `docs/sources/2026-10-24-brainstorming-transkript.md`; `docs/sources/2026-10-24-brainstorming-zusammenfassung.md` | Team intent, priorities, proposed differentiators, and uncertainty in automatic transcripts. |
-| `PLAN.md` | The current plan. Section 0 is fixed. |
+| `AGENTS.md`; `PLAN.md` | Repository rules and the current plan. `PLAN.md` section 0 is fixed. Its table "Wo steht was" lists the primary file for each topic. |
+| `docs/architecture.md`; `docs/contracts.md`; `docs/product.md` | Primary files for architecture, interfaces and product/UX. Extend these files instead of writing parallel documents. |
 | `docs/archive/` (Codex review, two-UX review, `AGENT_BUILD_SPEC.md`, research reports, experiments, architecture pictures) | Earlier proposals and reasoning. Useful ideas such as tool lists, state contracts and edge cases. Their Python, image-import, position-QR and two-route-model parts are superseded. |
 | `benchmark/`; `pyproject.toml`; `uv.lock`; `data/manifest.csv`; representative `building.json`, `equipment.csv` and questions | The official evaluator and scorer (Python, unchanged), schema, data quirks and test labels. The starter agent was removed; the routing reference is README section 3 and the expected answers. |
-| `docs/elevenlabs-agent-config.md` | Two voice agents, client-tool contracts, conversation-token authorization, session context, and reproducibility. Verify before adopting API-specific claims. |
+| `docs/elevenlabs-agent-config.md` | Dashboard settings and conversation rules for the two voice agents. Verify before adopting API-specific claims. |
 | `web/mobile/AGENTS.md`; `web/mobile/DESIGN.md`; `web/mobile/README.md`; `web/mobile/src/`; manifests and tests | Existing mobile design and working code, scoped instructions, reusable components, simulated behavior and integration gaps. |
 | `docs/archive/` image prompts and pictures | Historical intent only. Pictures illustrate a proposal; they do not prove working software or override newer human requirements. |
 
@@ -166,15 +167,21 @@ Show a workload table with estimated effort, dependencies, uncertainty, critical
 
 ## 8. Create the execution package in these folders
 
-Create **one root directory named `master prompt` with exactly these four immediate builder subdirectories**. Put shared documents directly in the root directory, and each builder's ordered prompt set inside its own directory. Use portable relative links and quote paths containing spaces/apostrophes in shell examples.
+**Write the plan into the primary files, not into a parallel set.** Each topic has one primary file (see the table "Wo steht was" in `PLAN.md`). Put your decisions where they belong:
+
+| Your result | Primary file |
+|---|---|
+| Plan, decisions, milestones, time budget, critical path, fallback ladder, open questions | `PLAN.md` (do not change section 0 without the humans) |
+| Architecture with a concise diagram | `docs/architecture.md` |
+| Shared schemas and interfaces | `docs/contracts.md` |
+| UX traceability matrix and acceptance scenarios | `docs/product.md` |
+
+Create **one root directory named `master prompt` with exactly these four immediate builder subdirectories** for the execution material that has no primary file yet. Put shared documents directly in the root directory, and each builder's ordered prompt set inside its own directory. These documents link to the primary files instead of repeating them. Use portable relative links and quote paths containing spaces/apostrophes in shell examples.
 
 ```text
 master prompt/
   README.md
-  MASTER_PLAN.md
   SOURCE_AND_DECISION_REGISTER.md
-  UX_REQUIREMENTS.md
-  CONTRACTS.md
   OWNERSHIP_AND_DEPENDENCIES.md
   INTEGRATION_AND_ACCEPTANCE.md
   HUMAN_INPUTS_AND_RESOURCES.md
@@ -202,13 +209,13 @@ master prompt/
 
 Replace the illustrative milestone filenames with concrete names. Use as many stages as the actual dependency graph requires; do not create empty filler prompts. Exactly four builder folders; no fifth shadow implementation team. Useful review work can be shared among the four.
 
-The shared documents must contain:
+The primary files and the shared documents must contain:
 
 - **README:** launch instructions, the four copy-ready starting prompts, order of execution, links, current base commit, and how humans provide answers or steer the plan.
-- **MASTER_PLAN:** selected architecture with a concise diagram, decisions, product scope, milestones, time budget, critical path, fallback ladder and release outcome.
+- **`PLAN.md` and `docs/architecture.md`:** selected architecture with a concise diagram, decisions, product scope, milestones, time budget, critical path, fallback ladder and release outcome.
 - **SOURCE_AND_DECISION_REGISTER:** material source coverage, verified versus proposed facts, conflicts, adopted/rejected research, architecture decisions and explicit assumptions.
-- **UX_REQUIREMENTS:** the traceability matrix for Hagen's complete journey, challenge interaction needs, acceptance scenarios and honest limits.
-- **CONTRACTS:** concrete shared schemas and interfaces, example valid requests/responses and errors, identifiers, units, coordinate frames, cost profiles, state ownership, versions, edit lifecycle, route/tour representation, handoff, events and voice tools. Resolve names before coding against them. Mark genuinely external unknowns with a bounded adapter assumption and owner.
+- **`docs/product.md`:** the traceability matrix for Hagen's complete journey, challenge interaction needs, acceptance scenarios and honest limits.
+- **`docs/contracts.md`:** concrete shared schemas and interfaces, example valid requests/responses and errors, identifiers, units, coordinate frames, cost profiles, state ownership, versions, edit lifecycle, route/tour representation, handoff, events and voice tools. Resolve names before coding against them. Mark genuinely external unknowns with a bounded adapter assumption and owner.
 - **OWNERSHIP_AND_DEPENDENCIES:** one primary owner per component/shared file, consumers, reviewers, milestone dependencies, what can start immediately, handoff evidence, merge strategy and integration captain.
 - **INTEGRATION_AND_ACCEPTANCE:** meaningful checks and commands, environments/devices, full journey tests, benchmark and submission gates, recovery/reconnect checks, definitions of ready/done and honest release reporting.
 - **HUMAN_INPUTS_AND_RESOURCES:** only actionable needs: exact question/resource/access, why it matters, owner, deadline, blocked task, fallback, approximate cost if known and permission needed. Separate actual blockers from optional improvements. Never request secret values in committed files.

@@ -1,15 +1,15 @@
-# ElevenLabs-Agent – Konfiguration
+# ElevenLabs-Agents – Konfiguration
 
-**Stand:** 24.10.2026. Hier steht, wie die Voice-Agents im ElevenLabs-Dashboard eingestellt werden. Wer sie nachbauen will, etwa die Jury, kann diese Werte übernehmen. Architektur und Begründungen: [PLAN.md](../PLAN.md), Abschnitte 0, 3 und 4. Wo diese Datei von `PLAN.md` abweicht, gilt `PLAN.md`.
+Primäre Datei für **die Einstellungen im ElevenLabs-Dashboard und das Gesprächsverhalten**. Wer die Agents nachbauen will, etwa die Jury, kann diese Werte übernehmen. Die Client-Tools und der Token-Endpunkt stehen in [`contracts.md`](contracts.md) §2 und §3, die Voice-Architektur in [`architecture.md`](architecture.md) §5.
 
-## Zwei Agents mit gleicher Basis
+## 1. Zwei Agents mit gleicher Basis
 
 | Agent | Gerät | Aufgabe |
 |---|---|---|
 | **Navigator** | Handy (Navigation) und Desktop | Teile und Räume finden, Weg führen, Schritt für Schritt ansagen. Touren über mehrere Teile als Add-on |
 | **Admin** | Desktop (Verwaltung) | Objekte verschieben, Bereiche sperren, Änderungen vorschlagen, bestätigen und rückgängig machen, What-if |
 
-Beide Agents bekommen dieselben Basiseinstellungen:
+## 2. Basiseinstellungen
 
 | Bereich | Einstellung |
 |---|---|
@@ -19,58 +19,34 @@ Beide Agents bekommen dieselben Basiseinstellungen:
 | Spracherkennung (ASR) | Scribe v2 Realtime (`scribe_realtime`), Qualität `high` |
 | Turn-Taking | Modell `turn_v3`, Turn-Timeout 7 s |
 | Sprache | Englisch (über den Prompt) |
-| LLM im Agent | **Soll:** Claude Sonnet 5.5, niedriger Reasoning-Aufwand. Offen, ob das LLM in ElevenLabs bleibt oder ElevenLabs unseren Agent Harness als Custom LLM nutzt (`PLAN.md` §4). **Ist (Dashboard-Standard):** Qwen3.5-397B-A17B |
+| LLM im Agent | **Soll:** Claude Sonnet 5.5, niedriger Reasoning-Aufwand. Offen, ob das LLM in ElevenLabs bleibt oder ElevenLabs unseren Agent Harness als Custom LLM nutzt ([`PLAN.md`](../PLAN.md) §6). **Ist (Dashboard-Standard):** Qwen3.5-397B-A17B |
 | Backup-LLM | „Default“ (nicht „Disabled“), damit ein Ausfall des Haupt-LLM das Gespräch nicht beendet |
-| Sicherheit | Enable authentication an. Die App holt pro Gespräch einen **Conversation Token (WebRTC)** vom Server |
+| Sicherheit | Enable authentication an. Die App holt pro Gespräch einen Conversation Token (WebRTC) vom Server |
+| Client-Tools | Typ **Client**, „Wait for response“ an. Nur dann wartet der Agent auf das Ergebnis; sonst nimmt er Erfolg an. Liste in [`contracts.md`](contracts.md) §3 |
 
-## Client-Tools
+## 3. Gesprächsregeln
 
-Alle Tools sind vom Typ **Client** und haben **„Wait for response“** an. Nur dann wartet der Agent auf das Ergebnis; sonst nimmt er Erfolg an. Namen und Parameter müssen **exakt** (Groß-/Kleinschreibung) mit `clientTools` im Code übereinstimmen. Die Namen unten sind der Vorschlag für den Tool-Vertrag aus P0; ab dem Einfrieren werden sie nur noch gemeinsam geändert.
-
-**Navigator**
-
-| Tool | Parameter | Wirkung |
-|---|---|---|
-| `find` | `query` (String, Pflicht): Name, Typ oder Raumnummer, wie gesagt, z. B. „3D printer“, „room 0.21“ | Treffer mit Ort; bei mehreren Treffern die Kandidaten für eine Rückfrage |
-| `plan_tour` (Add-on) | `items` (String, Pflicht): Teile oder Orte, durch Komma getrennt; `keep_order` (Boolean, Standard false); `step_free` (Boolean) | gute Reihenfolge und Route über alle Stopps ab der aktuellen Position; liefert `tour_id` für den QR-Code |
-| `route` | `destination` (String, Pflicht); `step_free` (Boolean); `min_door_width_m` (Number) | Route ab der aktuellen Position aus der Sitzung, Karte bzw. Kamera zeigt sie sofort |
-| `next_step` | – | nächste Anweisung mit Landmarke; in einer Tour auch der nächste Stopp |
-
-**Admin**
-
-| Tool | Parameter | Wirkung |
-|---|---|---|
-| `propose_edit` | `action` (String, Pflicht): `close`, `open`, `add_door`, `move_asset`, `set_room_type`; `target` (String, Pflicht); `second_target` (String); `value` (String) | Vorschau mit betroffenen Routen, liefert `proposal_id`, ändert nichts |
-| `commit_edit` | `proposal_id` (String, Pflicht) | übernimmt die Änderung genau einmal (idempotent) |
-| `undo` | – | macht die letzte eigene Änderung rückgängig |
-| `what_if` | wie `propose_edit` | Was-wäre-wenn ohne Vorschlag zum Speichern |
-
-**Was kein Tool ist:** Der QR-Code vom Desktop ist nur ein Link. Er öffnet die Mobile-Ansicht mit einem Objekt oder einer Tour als Ziel. Der Import eines `building.json` läuft über die Oberfläche. Die App teilt dem Agenten solche Ereignisse per `sendContextualUpdate` mit, z. B. „Destination from QR code: CNC mill 0.21“ oder „Lift V02 closed“. Das löst keine Antwort aus. QR-Codes dienen nicht zur Ortung.
-
-Ein Tool-Fehler wird als Fehler zurückgegeben, nie als „Route angezeigt“.
-
-## Prompt-Regeln
-
-Für beide Agents (aus `PLAN.md` §4):
-
-- Sofort eine kurze Bestätigung sprechen, dann das Tool aufrufen.
+Gelten für beide Agents und für den Textchat.
+- Sofort eine kurze Bestätigung sprechen, dann das Tool aufrufen, etwa „Okay, I'm looking up the way to the press …“.
 - Landmarken statt Raumnummern.
-- Genau eine Rückfrage, wenn ein Pflichtparameter fehlt oder es mehrere Treffer gibt. Nie still den ähnlichsten Treffer nehmen („Press 4“ ist nicht „Press 14“).
-- Nichts erfinden: Gibt es ein Objekt oder eine Route nicht, das klar sagen.
-- Gebäude, Ziel, Position (falls bekannt) und Profil („wheelchair“) kommen aus der Sitzung, nicht aus dem Gesprächsverlauf.
+- Genau eine Rückfrage, wenn ein Pflichtparameter fehlt (Start, Breite, Etage) oder es mehrere Treffer gibt. Nie still den ähnlichsten Treffer nehmen („Press 4“ ist nicht „Press 14“).
+- Nichts erfinden: Gibt es ein Objekt oder eine Route nicht, das klar sagen. „Keine Route“ ist eine gültige Antwort.
+- Ein Tool-Fehler wird als Fehler gesagt, nie als „Route angezeigt“.
+- Gebäude, Ziel, Position (falls bekannt) und Profil kommen aus der Sitzung, nicht aus dem Gesprächsverlauf. Wer „wheelchair“ sagt, bekommt ab dann immer stufenlose Routen.
+- **Keine Gebäudedaten im Prompt.** Alles kommt über Tools.
 
 Nur Navigator: höchstens drei Schritte auf einmal, dann auf „next“ warten. Fällt unterwegs etwas aus (Lift gesperrt), meldet die App das per `sendContextualUpdate`; der Agent sagt die neue Route kurz an.
 
 Nur Admin: vor jeder Änderung `propose_edit`, die Vorschau beschreiben und auf ein klares „yes“ warten. Erst dann `commit_edit`.
 
-## Einbindung in die App
+## 4. Einbindung in die App
 
 - **Paket:** `@elevenlabs/react` (enthält `@elevenlabs/client`), Version im Lockfile festschreiben. Alle Hooks innerhalb eines `ConversationProvider`.
-- **Token:** Der Server (`GET /api/voice/token?agent=navigator|admin`) ruft `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=<AGENT_ID>` mit Header `xi-api-key` auf und gibt nur den Token weiter. Der Client startet mit `startSession({ conversationToken })`.
+- **Token:** Der Server ruft `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=<AGENT_ID>` mit Header `xi-api-key` auf und gibt nur den Token weiter. Der Client startet mit `startSession({ conversationToken })`.
 - **Eine signierte URL gehört zur WebSocket-Verbindung** und passt nicht zu diesem Weg. Nur nutzen, wenn ausdrücklich auf `connectionType: "websocket"` umgestellt wird.
 
-## Hinweise
+## 5. Hinweise
 
-- **Secrets:** `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID_NAVIGATOR` und `ELEVENLABS_AGENT_ID_ADMIN` liegen lokal in `.env` und auf Railway in den Service-Variablen, nie in dieser Datei. Der Key bleibt auf dem Server; der Browser sieht nur den kurzlebigen Token.
+- **Secrets** (Namen in [`architecture.md`](architecture.md) §3) liegen lokal in `.env` und auf Railway in den Service-Variablen, nie in dieser Datei.
 - **Kosten:** Das Agent-LLM wird über ElevenLabs-Credits abgerechnet, nicht über das Anthropic-Guthaben.
 - **Abgabe:** Beide Agent-Konfigurationen ohne Secrets exportieren und neben diese Datei legen.

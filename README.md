@@ -1,5 +1,7 @@
 # Track 01 — Google Maps for Every Building: student kit
 
+> **Team:** This README is Synera's kit text (1.1.0). Our own docs start at [`AGENTS.md`](AGENTS.md) and [`PLAN.md`](PLAN.md).
+
 Build a conversational agent that knows a building as well as its facility manager does. You give it a building, and people just ask it things:
 
 - *"Where is the 3D printer?"*
