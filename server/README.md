@@ -1,4 +1,4 @@
-# Platform integration (C4)
+# Platform integration (C5)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -29,7 +29,7 @@ schemas = registry.json_schemas()
 # registry.call("find", session_id, {"query": "CNC mill"})
 ```
 
-For `spatial_query(kind="step_free_reachable_count")`, `second_target` can name the closed element. Existing session/building closures are all honored on an isolated copy; without any closure the tool asks which element is closed. The official solver still receives its singular string input.
+For `spatial_query(kind="step_free_reachable_count")`, `second_target` can name the closed element. All existing session/building closures are included; an empty set returns the count without closures. The live core accepts a closure list while preserving its original single-string benchmark input. Exact item matches precede normalized/fuzzy matches across entity kinds, so a perfect fuzzy score cannot displace an exact name.
 
 An independent process can instantiate `ToolRegistry(PlatformService(catalog, store))` after initializing `StateStore`. `/api/chat` constructs `agent.chat.ChatAgent(registry, store.get_session)` and calls `reply(session_id, message)` when Lenard's agent and an Anthropic key are installed. Otherwise it returns explicit `not_available`.
 

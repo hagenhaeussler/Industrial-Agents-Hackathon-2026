@@ -105,11 +105,11 @@ def spatial_args(lift, closure=None):
     return args
 
 
-def test_empty_closure_asks_for_one_without_internal_error(platform):
+def test_empty_closure_counts_with_no_artificial_clarification(platform):
     service, tools, sid, lift, *_ = platform
     response = tools.call('spatial_query', sid, spatial_args(lift))
-    assert not response['ok'] and response['error']['code'] == 'invalid_args'
-    assert 'closed' in response['speech'].lower()
+    assert response['ok'] and response['result']['value'] > 0, response
+    assert service.current(service.store.get_session(sid)['building_id']).core.closed == set()
 
 
 def test_single_closure_uses_existing_session_constraint(platform):
@@ -121,7 +121,7 @@ def test_single_closure_uses_existing_session_constraint(platform):
     assert service.current(raw['building']['id']).core.closed == set()
 
 
-def test_multiple_closures_apply_all_on_an_isolated_building(platform):
+def test_multiple_closures_apply_without_mutating_the_live_building(platform):
     service, tools, sid, lift, stairs, raw = platform
     service.store.update_session(sid, {'constraints': {'closed': [stairs['id']]}})
     stairs_only = tools.call('spatial_query', sid, spatial_args(lift))
@@ -185,11 +185,10 @@ def test_missing_start_position_does_not_persist_mobility(platform, name, args):
     assert service.store.get_session(sid) == before
 
 
-def test_empty_optional_closure_still_requests_a_closed_element(platform):
+def test_empty_optional_closure_uses_the_zero_closure_count(platform):
     service, tools, sid, lift, *_ = platform
     response = tools.call('spatial_query', sid, spatial_args(lift, '  '))
-    assert not response['ok'] and response['error']['code'] == 'invalid_args'
-    assert 'closed' in response['speech'].lower()
+    assert response['ok'] and response['result']['value'] > 0, response
 
 
 def test_ambiguous_spare_drill_candidates_include_full_display_name(platform, tmp_path):
@@ -244,3 +243,27 @@ def test_simultaneous_tools_merge_mobility_against_latest_session(platform, monk
     assert stored['constraints']['step_free'] is True
     if 'min_door_width_m' in second_args:
         assert stored['constraints']['min_door_width_m'] == 0.8
+
+
+@pytest.mark.parametrize('closure_count', [0, 1, 2])
+def test_spatial_transport_passes_the_complete_closure_list(platform, monkeypatch, closure_count):
+    from server import core_adapter
+    service, tools, sid, lift, stairs, raw = platform
+    closures = [stairs['id'], lift['id']][:closure_count]
+    service.store.update_session(sid, {'constraints': {'closed': closures}})
+    original_lookup = core_adapter.core_function
+    real_solve = original_lookup('spatial', 'solve')
+    received = []
+
+    def solve(building, kind, inputs):
+        received.append(inputs['closed'])
+        return real_solve(building, kind, inputs)
+
+    def lookup(module, name):
+        return solve if (module, name) == ('spatial', 'solve') else original_lookup(module, name)
+
+    monkeypatch.setattr(core_adapter, 'core_function', lookup)
+    response = tools.call('spatial_query', sid, spatial_args(lift))
+    assert response['ok'], response
+    assert received == [sorted(closures)]
+    assert service.current(raw['building']['id']).core.closed == set()

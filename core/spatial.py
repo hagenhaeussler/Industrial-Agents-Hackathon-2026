@@ -293,6 +293,12 @@ class SpatialCore(Building):
             if key == "min_width":
                 if isinstance(value, bool) or not isinstance(value, (float, int)):
                     raise MapError("min_width must be a number in metres.")
+            elif key == "closed":
+                if isinstance(value, str) and value:
+                    continue
+                if isinstance(value, list) and all(isinstance(v, str) and v for v in value):
+                    continue
+                raise MapError("closed must be one element ID or a list of nonempty element IDs.")
             elif not isinstance(value, str) or not value:
                 raise MapError(f"{key} must be a nonempty string.")
         if kind == "largest_room":
@@ -310,8 +316,10 @@ class SpatialCore(Building):
             result = self.errand(inputs["start"], inputs["asset_type"], inputs["floor_id"], inputs["room_type"])
             return {"value": result["length_m"], **result}
         if kind in {"wide_delivery_count", "step_free_reachable_count"}:
+            closed = inputs.get("closed", [])
+            closed = [closed] if isinstance(closed, str) else closed
             constraints = Constraints(step_free=True, min_width=inputs.get("min_width", 0),
-                                      closed=frozenset([inputs["closed"]]) if "closed" in inputs else frozenset())
+                                      closed=frozenset(closed))
             rooms = self.reachable_rooms(inputs["start"], inputs["floor_id"], constraints)
             return {"value": len(rooms), "space_ids": rooms}
         if kind == "what_if_door":

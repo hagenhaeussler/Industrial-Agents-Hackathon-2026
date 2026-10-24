@@ -447,9 +447,8 @@ def replan_tour(building, tour, start):
                 space_name = building.kit.spaces[space_id]["name"]
                 stop["label"] = (", ".join(building.kit.assets[aid]["name"] for aid in asset_ids) + " · " + space_name) if asset_ids else space_name
                 pending.append(stop)
-        if tour["order_policy"] == "fixed":
-            by_id = {stop["stop_id"]: stop for stop in pending}
-            pending = [by_id[sid] for sid in tour["order"] if sid in by_id] + [stop for stop in pending if stop["stop_id"] not in tour["order"]]
+        # The retained stop sequence includes blocked stops; the previous
+        # reachable order must not redefine a fixed collection sequence.
         result = plan_tour(building, start, pending, tour["constraints"], tour["order_policy"] == "fixed", tour.get("end"))
         result["stops"] = collected + result["stops"]
     # Target is additive server metadata. Keep it consistent with the canonical

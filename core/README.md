@@ -25,7 +25,7 @@ preview = preview_edit(b, {'action': 'close', 'target': lift_id}, [tour])
 Core functions do not persist changes or authorize users. The server owns
 proposal expiry, admin permissions, atomic/idempotent commit, session/tour IDs,
 SQLite and realtime transport. `apply_events` deterministically materializes an
-event log; `what_if` and previews work on isolated copies. See canonical C3
+event log; `what_if` and previews work on isolated copies. See canonical C4
 contracts in `master prompt/CONTRACTS.md`.
 
 Routes retain selected door and connector identities, raw walk polylines,
