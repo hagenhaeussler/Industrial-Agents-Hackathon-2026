@@ -153,9 +153,24 @@ function JourneyScreen({ tourId, session, setSession }: { tourId: string; sessio
     }
     if (event.type === 'tour_updated' && current && event.tour_id === current.tour_id && event.revision > current.revision) void latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
   }, [model, here, replan, done, latestTour, applyTour]);
-  const link = useBuildingSocket(tour?.building_id ?? null, onSocket, () => {
-    if (tour) { void api.building(tour.building_id).then(snapshot => setModel(buildModel(snapshot))); void latestTour(() => api.tour(tour.tour_id), loaded => applyTour(loaded, true)); }
-  });
+  /** After a reconnect (U11): reload the snapshot; if the building changed while offline, replan from here. */
+  const onReconnect = useCallback(async () => {
+    const current = tourRef.current;
+    if (!current) return;
+    try {
+      const snapshot = await api.building(current.building_id);
+      const known = modelRef.current?.snapshot.building_version ?? snapshot.building_version;
+      setModel(buildModel(snapshot));
+      const from = here();
+      if (snapshot.building_version !== known && from && !done) {
+        const missed = (await api.events(current.building_id).catch(() => [])).filter(event => event.building_version > known);
+        const summary = missed.length === 1 ? missed[0]!.summary : missed.length ? `${missed.length} changes while you were offline` : 'The building changed while you were offline';
+        change.current = { summary, before: current, at: performance.now() };
+        await replan(from, summary);
+      } else await latestTour(() => api.tour(current.tour_id), loaded => applyTour(loaded, true));
+    } catch { /* the next reconnect tries again */ }
+  }, [here, done, replan, latestTour, applyTour]);
+  const link = useBuildingSocket(tour?.building_id ?? null, onSocket, () => void onReconnect());
 
   // voice context when the tour loads
   useEffect(() => { if (tour && voice.status === 'connected') voice.sendContext(context.tourLoaded(tour)); }, [voice.status]); // eslint-disable-line react-hooks/exhaustive-deps
