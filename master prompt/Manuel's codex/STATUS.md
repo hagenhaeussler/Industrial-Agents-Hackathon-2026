@@ -1,78 +1,62 @@
 # STATUS: Manuel's codex (Platform & Live Integration Lead, integration captain)
-Last update: 2026-10-24 21:55 CEST · Branch: `manuel-codex/platform` · HEAD: G2/C4 checkpoint (this revision) · Last sync with origin/main: `8baa2c6` (G1 pushed)
+Last update: 2026-10-24 22:02 CEST · Branch: `manuel-codex/platform` · HEAD: C5 checkpoint (this revision) · Last verified main: `0e892435d7a37e2b201bccc0f26e22c40358833c`
 
-Single writer: Manuel's codex. Keep this structure (OWNERSHIP_AND_DEPENDENCIES §7).
+Single writer: Manuel's codex. Structure follows OWNERSHIP_AND_DEPENDENCIES §7.
 
 ## Current task
-G1 passed/pushed/tagged at `8baa2c6`. G2 benchmark verification is green; final integrated production check before main/tag. M02 C4 mobility/closure transport, moved-part recovery and optional-end recovery are implemented and verified. Local live desk/QR handoff passes; G3/G4 remain pending C02 phone journey and chat/voice/provider acceptance. No external deploy or AR rendering claimed.
+G1 and G2 passed, pushed to main and tagged. Continuing M02: reconcile concurrent core/platform C4 changes as C5, unblock L02 exact item lookup, and consume newly published C02 phone/C03 admin UI. G3/G4 still need integrated journey and chat/voice acceptance. Work remains repository-only per human steering.
 
 ## Delivered (newest first)
-- C4/CR-L-1/2: persistent affirmative session mobility and route width, atomic merges across concurrent tools; zero/single/multiple closure handling without changing benchmark input schema; candidate names compatible with UI chips. **25 new mobility/tool tests pass**; existing eleven names/required arguments unchanged.
-- Blocked optional end is reported as blocked even after collection finishes; core and kit HTTP closure/reopening recovery verified. Current **90 server tests**, **250 integrated Python tests**, **39 Bun tests** pass.
-- CR-H-3: production Docker context excludes evaluation question JSON/JSONL, answer/template CSVs and submissions; keeps building JSON, equipment and manifest. Latest core `6452bda` and G2 bench `e1c2dfd` consumed.
-- G1 captain integration: core `4e6f956` (already containing platform `d187ce5`, bench `4d93bdb`, web `de81877`) plus current web `e29fc43`; main and gate-G1 verified remotely at `8baa2c6`. Used a regular `HEAD:main` push from the prescribed detached clean integration worktree; the human checkout/main branch was not switched or overwritten.
-- CR-H-2 fixed in this checkpoint: real-core and kit replan retarget moved pending parts by identity, preserve collected stops, split/merge rooms without losing stop IDs, and progress follows current inventory. Original HTTP400 regression reproduced before fix; 8 new HTTP tests + all63server tests pass.
-- C3 OpenAPI now describes geometry_length_m, fallback, point endpoints as coordinate pairs, and building_closed; find display adds asset_ids/floor_id for Claude's live UI; Docker web stage includes demo/scenario.json.
-- M03 prerequisites: standalone /devtest page with local jsQR bundle; simultaneous camera/mic, QR, motion and XR probes with cleanup/cancellation; exact four-heading frame transform and direction-only arrow maths; Docker/check hooks. No AR route rendering or physical-device pass is claimed.
-- `5f63287`: M02 implementation, C2 contracts, OpenAPI, voice bridge and labelled server fixtures.
-- M02: SQLite schema 2 + v1 migration, durable sessions/tour revisions/proposals/events/markers/cache; idempotent commits, expiry/version checks, safe undo, immutable base replay, restart tests, per-building WebSocket events, phone handoff/progress/replan, all eleven shared tools, voice token + browser hook, chat adapter, marker sheets and opt-in demo reset. OpenAPI and server fixtures published with C2.
-- Kit fallback is explicitly labelled in tool traces and provisional route geometry. Real H01 loader/resolver integration verified; exact H02 route/edit functions are consumed when published. Spatial queries and validated JSON upload return not_available until the needed core modules exist.
-- `53eb592` (pushed): M01 server/Docker/checks/local README; `682441a`: root rules, environment and ignores.
-- `917980c` (pushed within the initial dependency handoff): shared dependencies/lockfile and package exports. Added runtime httpx in M02 after production-only smoke exposed its dev-only omission.
+- C5 / CR-L-3: find compares resolution stage before numeric score across assets/spaces. Exact ID, name/ref/label and normalized matches beat fuzzy scores; true ambiguity and number safety remain. The CNC exact/fuzzy collision was reproduced before the fix;16 actual-core/kit regressions pass.
+- C5 / CR-L-2: consumed Hagenb57d39f (codeb2b8ddd) closure-list compatibility and fixed-order recovery. Spatial transport passes all validated live/session/explicit closures, including []; original benchmark string inputs remain supported. Reopened fixed stops regain their prescribed sequence in both engines; collected identity remains.28 mobility/closure tests and4 HTTP recovery tests pass.
+- G2 pushed/tagged at0e89243: verified145-row submission, platform1a5c491, core6452bda, benche1c2dfd; integrated checks passed. G1 remains8baa2c6. Normal HEAD:main pushes from the clean detached integration worktree; human checkout untouched.
+- C4 / CR-L-1: affirmative step-free mobility and route width persist atomically in shared sessions, including valid no_route outcomes. Invalid/ambiguous requests do not mutate state; concurrent tools preserve each other's constraints.
+- d55d0ac / CR-H-2: core.replan and labelled kit fallback retarget moved pending parts by identity, split/merge destinations without losing stop IDs and preserve collected stops. Eight HTTP regressions cover both engines. Blocked optional end destinations report honestly and recover after reopening.
+- 1a5c491 / CR-H-3: production Docker context excludes evaluation questions/answers/templates and submissions; retains building JSON/equipment/manifest. Docker web stage includes demo/scenario.json.
+- M02 (5f63287 and follow-ups): durable SQLite schema2, sessions/tour revisions/proposals/events/markers/cache; idempotency/conflicts/expiry/undo, per-building WS, phone handoff/progress/replan, eleven tools, voice token/hook, chat adapter, marker sheets, validated JSON upload, opt-in reset; OpenAPI/labelled fixtures published.
+- M03 prerequisites (d187ce5): /devtest with bundled QR scanner, camera/mic/motion/XR probes/cleanup, four-heading frame transform and arrow math. AR rendering stays after G4/device evidence.
+- M01:53eb592 server/Docker/checks/README;682441a root rules/environment;917980c dependency/lockfile handoff within ten minutes. Runtime httpx included after production smoke exposed its dev-only omission.
 
 ## Interfaces exposed / changed
-- Contract **C4** (C2 transport/C3 core semantics preserved), additive CR-M-1: raw admin endpoints use `X-Session-ID`; phone progress accepts the same header to advance the caller; tours expose `mobility_profile` separately from cost profile. Tool names/required arguments unchanged. `server/README.md` contains integration details.
-- HTTP: health/buildings/snapshots/events; sessions create/get/patch; tools; tours create/get/progress/replan; markers create/get/sheet; voice token; chat; demo reset. Plan import remains explicit not_available. `TYB_DEMO_MODE=true` required for reset (default off).
-- `WS /ws/buildings/{id}`: hello, building_changed/reset, tour_opened/updated, 20 s heartbeat. Subscriber registration precedes version fetch; concurrent commits cannot fall through the handshake gap.
-- `from server.tools import registry`: `json_schemas()` and `call(name, session_id, args)`; bound during app startup. Chat constructor is `ChatAgent(registry, session_provider)`.
-- `web/app/src/voice/useBuildingVoice.ts`: agent/sessionId/onDisplay, status/isSpeaking/start/stop/sendContext, valid JSON result <=1500 chars and stable commit UUIDs. Claude mounts ConversationProvider and visible UI.
-- `server/openapi.json` exported; Claude runs `bun run gen:api`. `fixtures/session.json`, `fixtures/events_close_lift.json` are explicitly labelled examples with real building IDs/geometry.
-- Local: `uv run uvicorn server.app:app --port 8000`; `curl localhost:8000/health`; `curl localhost:8000/api/buildings/proc-factory-dev-003`; catalog dynamically reports 280 kit buildings.
+- Contract **C5** reconciles concurrent C4 core/platform changes, preserving C2 transport/C3 geometry. Eleven names/required arguments unchanged. server/README.md describes mobility, closure lists and match precedence; server/openapi.json exported as C5.
+- Python registry: `from server.tools import registry`; json_schemas() and call(name,session_id,args), bound at startup. Chat constructor: ChatAgent(registry,store.get_session).
+- HTTP: health/buildings/snapshots/events, sessions, tools, tours/progress/replan, markers/sheets, voice token, chat, opt-in demo reset. Admin and optional phone progress use X-Session-ID. Plan import remains explicit not_available.
+- WS /ws/buildings/{id}: hello, building_changed/reset, tour_opened/updated,20s heartbeat; subscription before version fetch prevents handshake loss.
+- Voice hook useBuildingVoice({agent,sessionId,onDisplay}), status/isSpeaking/error/start/stop/sendContext, valid JSON <=1500chars and stable commit UUIDs. Claude mounts ConversationProvider/visible UI.
+- Local: `uv run uvicorn server.app:app --port 8000`; `curl localhost:8000/health`; /api/buildings/proc-factory-dev-003. Catalog280buildings. Claude runs `bun run gen:api`.
 
 ## Merge log (captain)
-| Window | Merged branches @ SHA | Checks | Tag | Deployed |
+| Window | Merged branches / main SHA | Checks | Tag | Deployment |
 |---|---|---|---|---|
-| G1 (early green integration) | core4e6f956 + platformd187ce5 + bench4d93bdb + webe29fc43 -> **8baa2c6** | 214 Python; oracle369/369; devtext138/138; structureddev138/138,train517/517;39Bun; productionbuild; health+fixtures | `gate-G1` @8baa2c6 | repository-only scope |
+| G2 | platform1a5c491 + core6452bda + benche1c2dfd -> **0e892435d7a37e2b201bccc0f26e22c40358833c** |250Python,oracle369/369,devtext138/138,39Bun,build; independent officialdev138/138 and CSVvalidator|gate-G2|repository-only|
+| G1 | core4e6f956 (platformd187ce5/bench4d93bdb) + webe29fc43 -> **8baa2c65b1bda13b1596e28c652aaa6f41a00e99** |214Python,oracle369/369,devtext138/138,structureddev138/138/train517/517,39Bun,build,health/fixtures|gate-G1|repository-only|
 
 ## Evidence
-- Final production image `tyb-g2`, `sha256:c1c6db70b7d3c43b32885c9292215e7862d10ba6db927c17815a2be34b0bc381`,129937751bytes,linux/arm64: frozenbuild and empty-volume smoke passed. Actual runtime data:280buildingJSON+280equipmentCSV+manifest; ZERO evaluationJSON/JSONL,answer/templateCSV,PNG/SVG; submissions absent. OpenAPIC4,realcoretourpointarrays,desk/devtest200. Closure/replan3trials77.6/80.2/91.4ms; duplicatecommitoneevent; C4wheelchair/width persists on no_route; restartkeepsphone/tour/collectedstop/3events. Container/tempstate removed. Evidence `agent_output/reports/g2/production-smoke.json`,docker-build.log,runtime-check.log,container.log.
-- G2: strict validator passes; CSV145uniqueIDs/145rows,exact question_id+answer columns,6337bytes, SHA256 `d3b026e88822e9697b9b02b724f29bef08c5e01129afe5c3e7b3e2467231e89f` matches owner. Independent `env -u ANTHROPIC_API_KEY uv run python -m benchmark.evaluate data/dev --agent bench.agent:answer --name captain-g2-dev`: **138/138**, every per-kind count matches BENCHMARK.md. No hidden test accuracy claim. Evidence `agent_output/reports/g2/summary.json`, official-dev.log, csv-integrity.json.
-- Current `env -u ANTHROPIC_API_KEY scripts/check.sh` exit0: **250 Python tests** (25.24s), oracle369/369, core devtext138/138, **39 Bun**, strict TS/Vite/devicegate build. Log `/private/tmp/tyb-g2-full-check.log`. Full server90passed; source whitespace clean; no paid calls.
-- Real browser QA (headless Chrome, actual core API, no mocks): 3parts ->108.87m tour,83ms to route DOM; exact rendered QR decoded; phone same3stops in165ms, tour_start/low confidence; desk shows Opened on phone. Desktop1280x800/mobile390x844 nooverflow/blank/overlay; screenshots/report `/private/tmp/tyb-live-journey-report.json` and tyb-live-{desk-tour,desk-qr,phone-tour}.png. These are desktop emulation timings, not physical phone/Railway evidence.
-- The same QA proved the C02 gap: committing a lift closure produced **zero phone replan requests**; C01 GoTour is read-only (no start confirmation/Got it/voice). Chat503 fallback was visible with no provider call. Do not mark fullG3/G4 green until owner integration and physical acceptance.
-- G1 exact HEAD `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`: `scripts/check.sh` exit0, **214 Python tests**, **369/369 oracle**, **138/138 dev text**, **39 Bun**, strict TS/Vite/devicegate build. Separate dev structured138/138 and train structured517/517. Frozen uv/Bun installs succeeded. Health200 reports exact SHA,280 buildings; factory snapshot79spaces/505assets and both C3fixtures verified. Logs: `../tyb-main/agent_output/reports/g1/summary.json`, check.log, dev-structured.log, train-structured.log, health-fixtures.json.
-- `git ls-remote origin refs/heads/main refs/tags/gate-G1` returned **8baa2c65b1bda13b1596e28c652aaa6f41a00e99** for both. No force push.
-- Current platform follow-up: **63server tests pass** (including 8actualHTTP moved-part regressions core+kit); source regression confirmed failing against previous _plan before fix. C3 endpoint schema mismatch identified by real UI QA and fixed to actual [x,y] pairs; schema export verified.
-- M03 helper verification: **15 Bun tests**, strict TS, standalone local bundle, desktop 1100x850 and mobile 390x844 Playwright smoke passed (no horizontal overflow/page errors; unsupported XR reported honestly; Stop cleanup works). Camera/QR/microphone/motion permission and AR accuracy on actual phones remain pending H8.
-- Docker restart: persisted phone session/active tour, collected stop, 3 events and building_version 3; container stopped and temporary contexts cleaned. Local image retained for reuse; commit unknown locally without RAILWAY_GIT_COMMIT_SHA.
-- Final `scripts/check.sh`: **55 Python tests**, kit oracle **369/369**, **24 Bun tests** passed. Core.evaluate and full C01 build explicitly skipped in platform checkout because those packages remain on their builder branches. Log: `/private/tmp/tyb-platform-final-check.log`.
-- Fresh Python recheck after runtime dependency fix: `pytest -q tests/server` **55 passed in 2.88 s**; Bun **24 pass / 0 fail**. No paid/provider calls.
-- Three local HTTP commit -> WebSocket -> replan trials: **82.6 / 67.0 / 68.2 ms**. These are server/local test results, not phone/Railway timings.
-- Actual published H01 `49a7e6b` archived into /tmp, with current platform: **58 server+core tests passed in 3.38 s**. Verified real core.Building load/hash/resolve seam; no branch/worktree mutation.
-- Production Docker combined validation: current platform + published C01 `78b0fde` overlaid only in temporary context. Frozen Bun install, strict TS/Vite, voice/AR helper compilation and local jsQR device-gate bundle passed. Corrected image `sha256:3b762f26670aa7ee9f013efde8314a2c2c8c8b04e5916142a76c2a6d37ac1ce0`, **129,869,967 bytes**, linux/arm64.
-- Docker smoke: health/catalog/snapshot/SPA/device-gate 200; missing voice/chat configuration 503; marker creation/get/12 cm printable sheet; desk->phone->progress->three close/open/close commits->WS->replan, stable collected stop, duplicate commit one event. Docker timings **63.9 / 65.0 / 75.5 ms**; external acceptance not implied.
-- Regression coverage: four simultaneous commits -> one event; concurrent preview/tour revision guards; expiry; stale preview; admin role from session; dependent undo rejected without mutation; archived reset can reuse evt-1 safely across buildings/cache; persisted walks avoid cold recompute; malformed uploads 422; concurrent WS handshake commit caught; restart sessions/tours/events retained.
-- `uv lock`, `uv sync`, runtime imports, whitespace checks passed. Kit files untouched; isolated platform + integration worktrees preserve the human checkout.
+- C5 fullcheck exit0:275Python tests (27.22s),oracle369/369,coredevtext138/138,39Bun,strictTS/Vite/device-gate build. All113server tests pass;44find/mobility pass. CNC stage precedence and two kit reopening cases failed before their fixes. Log /private/tmp/tyb-c5-platform-check.log. Read-only independent review found no actionable issues.
+- G2 exactmain0e89243: `env -u ANTHROPIC_API_KEY scripts/check.sh` exit0;250Python,oracle369/369,coredevtext138/138,39Bun,strictTS/Vite/device-gate build. Log /private/tmp/tyb-g2-main-check.log.
+- G2 CSV:145uniqueIDs/145rows,exact question_id/answer columns,6337bytes, validatorpasses; SHA256 d3b026e88822e9697b9b02b724f29bef08c5e01129afe5c3e7b3e2467231e89f. Independent officialdev138/138; per-kind counts match BENCHMARK.md. Hidden test accuracy unknown. Reports agent_output/reports/g2/{summary.json,official-dev.log,csv-integrity.json}.
+- Production C4 image tyb-g2 sha256:c1c6db70b7d3c43b32885c9292215e7862d10ba6db927c17815a2be34b0bc381 (129937751bytes,linux/arm64): frozen build/empty-volume smoke pass. Runtime280buildingJSON+280equipmentCSV+manifest; zero evaluationJSON/JSONL/answer/templateCSV/PNG/SVG, submissions absent. API/SPA/devtest200, actualcore geometry/pointarrays. Closure/replan77.6/80.2/91.4ms; doublecommitoneevent; mobilitypersists on no_route; restartretainsphone/tour/collected/events. Reports agent_output/reports/g2/{production-smoke.json,docker-build.log,runtime-check.log,container.log}. Container/tempstate removed, image retained. LocalAPI timings only.
+- Earlier C01 browserQA (actualcore,no mocks):3parts->108.87mtour,83ms to routeDOM; renderedQR decoded exactly; phone-emulated tab same3stops165ms; desk Opened on phone; desktop1280x800/mobile390x844 nooverflow. /private/tmp/tyb-live-journey-report.json. C01 lacked phoneprogress/reroute; new C02 needs separate proof.
+- G1 exact8baa2c6: frozen uv/Bun installs/fullcheck, independent structureddev138/138/train517/517; health exactSHA/280buildings, factory79spaces/505assets, requiredfixtures. Logs ../tyb-main/agent_output/reports/g1/.
+- Remote main/gate-G2 verified at0e89243; gate-G1 remains8baa2c6. No forcepushes, paid/provider calls or kit edits.
+- M03 helpers:15Bun tests,strictTS/bundle,desktop/mobile-emulated smoke pass; unsupportedXR honest; Stopcleanup passes. Actual device camera/mic/motion, models and AR accuracy unverified.
 
 ## Blockers and resource requests
-- Human steering: “just do all in the repo — elevenlabs agents will be implemented.” No external setup/access follow-ups required now. Railway deploy, live voice and physical devices remain unverified.
-- G1 resolved; real H02/H03 core now available on main. Chat conversations still require Lenard's ChatAgent and authorized provider configuration. C02 phone confirmation/progress/reroute UI is still in Claude's milestone.
-- Latest fetch/read: Hagen6452bda (additional explicit stop-position fix, queued); Lenarde1c2dfd (verified145-row submission/BENCHMARK, queuedG2); Claudee29fc43 (C01 liveAPI). No deployment claimed.
+- Human steering: “just do all in the repo — elevenlabs agents will be implemented.” No external setup/access follow-ups. This captain has not deployed externally or verified voice/physical phones.
+- Latest fetched/read: Hagenb57d39f consumed (closure-list/fixed-order); Lenardee38da7 consumed (L02 exactlookupCR; ChatAgent not published); Claude11a2962 published (C02phone/C03admin/desk localsearch), held for integration verification of blocked-stop/reconnect/mobility cases.
+- G3 chat/voice find awaits Lenard's published ChatAgent/provider configuration. G4 needs integrated phone reroute trials and physical acceptance. G5/device/AR/Sundayrelease remain future gates.
+- Venue H6 measurements absent; validated factory fallback available. No invented venue/measurement claims.
 
 ## Change requests
-- **CR-H-2 accepted:** fixed at `d55d0ac`; server delegates core.replan and preserves canonical updated stops. 8HTTP regressions +63server tests green.
-- **CR-H-3 accepted/implemented:** evaluation JSON/CSV and submissions excluded from production Docker context; runtime image inspection verifies the whitelist.
-- **CR-L-1 / CR-L-2 accepted/implemented in C4 §8:** affirmative mobility/width persists atomically; closure bridge honors all current IDs on isolated core copy and passes one required solver string. 25 tool regressions green; core/benchmark schema untouched.
-### CR-M-1: Explicit admin/phone session transport
-- Contract sections: 7, 14; C1 -> C2 (additive).
-- Change: X-Session-ID for raw admin endpoints and optional phone progress; mobility_profile handoff; demo opt-in; existing voice_unavailable token code documented.
-- Why: prevent phone progress from advancing only the desk session, and make admin transport/types unambiguous.
-- Migration: Claude sends phone progress header and regenerates API types. Eleven tool names unchanged.
-- Status: accepted in C2 at `5f63287` (captain owns these sections); relay to Claude/Lenard before consumption.
+- CR-L-3 accepted C5: stage precedence across kinds; realCNC,ambiguity,number-safety regressions.
+- CR-L-2 accepted C5: complete live closure lists consume core owner's §4support. Replaces C4 isolated-copy/singular-string bridge; benchmark inputs preserved.
+- CR-L-1 accepted C4: atomic affirmative mobility/width persistence; no invalid-request mutation.
+- CR-H-2 accepted d55d0ac: core replan delegation/moved-part recovery;8HTTP regressions.
+- CR-H-3 accepted1a5c491: production data whitelist inspected in runtime image.
+- CR-M-1 accepted C2 at5f63287 (§7/14): explicit X-Session-ID admin/phone transport and mobility_profile. Claude regenerates types; eleven tool names unchanged.
 
 ## Next handoff
-- Claude: consume C4 OpenAPI (`bun run gen:api`), voice hook and C01 display compatibility; complete C02 start confirmation/progress/reconnect/replan/voice UI. Backend and actual desk/QR handoff verified; UI gap evidence above. Only Claude edits those UI paths.
-- Lenard: C4 mobility/closure CRs resolved and tested; `registry.call`/`json_schemas()` ready for ChatAgent. Publish L02 when ready; provider-free stub tests do not establish live spoken/chat acceptance.
-- Consumers Hagen, Lenard, Manuel's Claude: fetch platform branch; `5f63287` M02 live endpoints/OpenAPI/registry/voice hook/server fixtures are ready for integration.
-- Next captain action: push this checked platform increment, merge into clean integration worktree, run scripts/check.sh there, push main and gate-G2 once green; preserve gate-G1. Full G3/G4 remains pending the specific owner/provider/device dependencies above.
-- Physical G3/G4/G5, Railway release, real voice, phone device table, AR accuracy, Sunday rehearsal and submission remain future acceptance work, not completed claims.
+- Lenard: fetch C5 platform for CR-L-1/2/3; publish L02 against registry.call/json_schemas(). No provider calls without authorization.
+- Claude: consume C5 OpenAPI and regenerate types. Captain integrating published C02/C03, then checks phone confirmation/progress/reconnect/reroute and admin confirm/undo against actualcore.
+- Captain: finish C5fullcheck, push platform, merge ready dependencies/web in clean integration worktree, check and pushmain. Preserve G1/G2 tags; do not tag G3/G4 until demonstrated.
+- Physical devices/realvoice/Railwayrelease/ARaccuracy/Sundayrehearsal/finalsubmission remain outstanding acceptance work.
