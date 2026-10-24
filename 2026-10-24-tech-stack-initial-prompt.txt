@@ -1,0 +1,67 @@
+Use case: infographic-diagram
+Asset type: high-resolution German architecture overview, intended to explain a hackathon team's INITIAL PROPOSED product architecture.
+Primary request: Generate one polished, readable landscape schematic showing how the UI, external voice/LLM services, our own backend, building data, and benchmark connect. This is OUR PROPOSED ARCHITECTURE based on brainstorming, not an inventory of existing implementation. Use the exact German labels below. Approximate aspect ratio 16:10, high resolution, white background, dark navy typography, teal backend, blue frontend, violet external AI services, pale amber open/planned extensions. Large text and generous whitespace. Clean orthogonal directional arrows. A small phone and desktop illustration is useful, but the architecture and connection labels are central. Do not draw fake screenshots with tiny UI text. No vendor logos required.
+
+HEADER, exact: "UNSER TECH-STACK"
+Subtitle: "Initiale Architektur · Talk to Your Building · 24.10.2026"
+Small visible banner: "Planungsstand — Technologieauswahl und Hosting noch offen"
+
+Use a spatially clear layout with THREE MAIN BOUNDARIES: "IM BROWSER" on the left, "EXTERNE KI-DIENSTE" across the upper middle/right, and "UNSER BACKEND" across the lower middle/right. Include a slim bottom row for the benchmark and optional extension. Keep arrow crossings to a minimum. Browser, cloud providers and own server must clearly be different locations.
+
+LEFT — boundary "IM BROWSER / Nutzergerät"
+One shared frontend card, exact title "Responsive Web-App". A small badge "Vorschlag: React + TypeScript".
+Two views inside it:
+"Mobile Navigation" with phone icon; short text "Sprechen · Suchen · Navigieren"; "Gebäudeplan + Route + Assets".
+"Verwaltungsansicht" with desktop icon; short text "Pläne hochladen · Gebäude bearbeiten"; "Änderungen prüfen und bestätigen".
+A small shared rendering strip: "2D zuerst · 3D / Three.js als Option".
+Show that these are views of one app, not two separate products requiring native installation.
+
+UPPER MIDDLE/RIGHT — boundary "EXTERNE KI-DIENSTE"
+Two adjacent but clearly separate service cards:
+Card A "ElevenLabs / ElevenAgents" location badge "ElevenLabs-Cloud". Contents "Speech-to-Text", "Gesprächssteuerung", "Text-to-Speech: Eleven v4 Turbo".
+Card B "Claude / LLM-Agent" location badge "Anthropic-API". Contents "Intent verstehen", "Werkzeuge auswählen", "Antwort formulieren".
+Between A and B: a paired or double-headed arrow labelled "Text / Tool-Aufträge ↔ LLM-Antwort".
+Between frontend and ElevenAgents: a paired or double-headed arrow labelled "Audio ↔ Audio".
+A visible small explanatory line under these services: "v4 Turbo spricht. Claude entscheidet über Tool-Aufrufe."
+Crucial semantic constraint: ElevenAgents orchestrates the conversation with Claude. Claude is a distinct externally called LLM service, not a model called v4. Do NOT depict a second redundant LLM within our backend conversation path. Do NOT imply that Eleven v4 does intent reasoning.
+
+LOWER MIDDLE/RIGHT — boundary "UNSER BACKEND / eigener Server — Hosting offen"
+Main API card: "Python + FastAPI" with badge "Framework-Vorschlag".
+Its primary sub-card "Tool-API" contains short labels "Suchen / Lesen", "Routen / Geometrie berechnen", "Sperren / Türen / Assets ändern".
+Under that or directly next to it a deterministic core card:
+"Gebäudekern" badge "Starter erweitern".
+"NetworkX + Shapely"
+"Graph aus Räumen, Türen, Treppen und Liften"
+"Dijkstra · Flächen · Türbreiten · Erreichbarkeit"
+Important visible callout: "Routen und Zahlen werden in Python berechnet."
+Tools call the deterministic core; do not show the LLM inventing coordinates or calculating final routes by itself.
+From ElevenAgents to Tool-API draw a labelled request arrow "Tool-Aufruf"; return arrow "Strukturierte Ergebnisse". The call is triggered by Claude through ElevenAgents. Keep this orchestration explicit; do not bypass it with an unexplained direct Claude-to-database link.
+Between frontend and backend API draw a separate bidirectional connection labelled "Gebäudedaten / Routen als JSON ↔ UI-Aktionen". Add a tiny note "Karte aktualisieren". This is separate from the audio path. Our API supports the visual UI and tools; do not draw voice audio passing through it as a mandatory step.
+
+DATA inside the same backend boundary:
+A storage card "Gemeinsame Gebäudedaten". Contents "Gebäude-JSON · Räume · Öffnungen · Assets"; "Dateiablage zunächst möglich"; "Datenbank: Produkt noch offen".
+Draw bidirectional arrow between deterministic core/tool layer and storage, label "Lesen / Schreiben".
+Add a small graph icon next to the core labelled "Graph wird aus Gebäudedaten abgeleitet". Do not depict a mandatory separate graph database or introduce PostgreSQL, Redis, Docker, Kubernetes, AWS, Railway, or other unchosen infrastructure.
+External dataset input, a small stack of files labelled "Starter-Datensatz / building.json + equipment.csv", flows into storage via a loader in the backend. This does not require image recognition.
+
+A planned import sub-card inside backend, AMBER DASHED boundary:
+"Planimport — zu bauen"
+"PNG / SVG / PDF → Gebäude-JSON"
+"Erkennung + Validierung"
+"Prüfumfang mit Jury klären"
+An arrow starts at the admin/upload view and goes to this import card labelled "Neuen Plan hochladen"; from import arrow to storage labelled "Validiertes Gebäudemodell". The uploader can preview and confirm results via the UI. Clearly distinguish this new feature from simply loading the supplied JSON files. It is planned challenge work, not an implemented capability and not an optional AR feature.
+
+BOTTOM STRIP — two concise independent modules
+Module 1, broad and important: "Benchmark-Pfad / CLI ohne Mikrofon und UI". Subtitle "Vorgeschlagener gemeinsamer Rechenkern". Show "Fragen + Gebäude" → "Text-Agent / Adapter" → "Dieselben Backend-Tools" → "Answer: … / CSV + Scorer". A clear connector from "Dieselben Backend-Tools" up to the actual Tool-API card demonstrates core reuse. Do not imply that the benchmark must go through voice transcription. No claim that this complete custom pipeline is already implemented.
+Module 2, smaller AMBER DASHED card: "Optionale Erweiterung". Text "Kamera / Lokalisierung / AR"; "Machbarkeit noch testen". Small dashed connector toward the mobile view. Optional note "QR-Code oder Startpunktwahl als einfacher Einstieg". No implication that a QR code alone gives continuous precise location. Do not show live AR or automatic camera tracking as a finished core function.
+
+FOOTER legend, exact concepts: "Durchgezogen: geplante Kernarchitektur · Vorschlag: noch nicht festgelegt · Gestrichelt: zu bauen / optional"
+Footer microtext: "Basis: Team-Brainstorming + anschließende Stack-Skizze · Keine konkrete Hosting-Plattform gewählt"
+
+Constraints:
+- This graphic must distinguish the product architecture we intend to build from the already available starter code.
+- Keep the TWO backend consumers clear: the user-facing app and the automated benchmark.
+- The most legible story is: browser audio ↔ ElevenAgents ↔ Claude; tool calls via ElevenAgents ↔ our Python backend; structured results ↔ UI; tools ↔ building data.
+- Show all service/location boundaries, but never imply actual deployed infrastructure, selected cloud regions or working features.
+- Label proposals and unresolved choices clearly without adding lengthy warnings or implementation checklists.
+- Exact German spelling and umlauts. No invented model names.
