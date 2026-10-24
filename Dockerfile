@@ -1,6 +1,7 @@
 FROM oven/bun:1 AS web
 WORKDIR /web
 COPY web/ ./
+COPY scripts/build-device-gate.ts /scripts/build-device-gate.ts
 RUN set -eu; \
     if [ -f app/package.json ]; then app_dir=app; \
     elif [ -f mobile/package.json ]; then app_dir=mobile; \
@@ -8,6 +9,7 @@ RUN set -eu; \
     cd "$app_dir"; \
     bun install --frozen-lockfile; \
     bun run build; \
+    if [ "$app_dir" = app ] && [ -f src/camera/ar/deviceGatePage.ts ]; then bun /scripts/build-device-gate.ts; fi; \
     cp -R dist /web-dist
 
 FROM python:3.12-slim AS app

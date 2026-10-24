@@ -1,12 +1,14 @@
 # STATUS: Manuel's codex (Platform & Live Integration Lead, integration captain)
-Last update: 2026-10-24 21:36 CEST · Branch: `manuel-codex/platform` · HEAD: M02 checkpoint (this revision) · Last sync with origin/main: `d46775f`
+Last update: 2026-10-24 21:36 CEST · Branch: `manuel-codex/platform` · HEAD: M03 prerequisite checkpoint (this revision); M02 `5f63287` · Last sync with origin/main: `d46775f`
 
 Single writer: Manuel's codex. Keep this structure (OWNERSHIP_AND_DEPENDENCIES §7).
 
 ## Current task
-M02 repository implementation verified, awaiting integration gate with the complete core and frontend. External Railway/ElevenLabs setup is deferred by the human's repository-only instruction. M03 device-gate prerequisites next; AR rendering remains gated on G4 and physical-device results.
+M02 repository implementation verified, awaiting integration gate with the complete core and frontend. External Railway/ElevenLabs setup is deferred by the human's repository-only instruction. M03 device-gate page and frame/arrow maths verified; AR rendering remains gated on G4 and physical-device results. Repository increments are ready for consumer integration.
 
 ## Delivered (newest first)
+- M03 prerequisites: standalone /devtest page with local jsQR bundle; simultaneous camera/mic, QR, motion and XR probes with cleanup/cancellation; exact four-heading frame transform and direction-only arrow maths; Docker/check hooks. No AR route rendering or physical-device pass is claimed.
+- `5f63287`: M02 implementation, C2 contracts, OpenAPI, voice bridge and labelled server fixtures.
 - M02: SQLite schema 2 + v1 migration, durable sessions/tour revisions/proposals/events/markers/cache; idempotent commits, expiry/version checks, safe undo, immutable base replay, restart tests, per-building WebSocket events, phone handoff/progress/replan, all eleven shared tools, voice token + browser hook, chat adapter, marker sheets and opt-in demo reset. OpenAPI and server fixtures published with C2.
 - Kit fallback is explicitly labelled in tool traces and provisional route geometry. Real H01 loader/resolver integration verified; exact H02 route/edit functions are consumed when published. Spatial queries and validated JSON upload return not_available until the needed core modules exist.
 - `53eb592` (pushed): M01 server/Docker/checks/local README; `682441a`: root rules, environment and ignores.
@@ -27,6 +29,8 @@ M02 repository implementation verified, awaiting integration gate with the compl
 | Pre-G1 readiness | No main merge: complete core/evaluation gate pending | Platform green; partial H01 compatible | none | repository-only scope |
 
 ## Evidence
+- M03 helper verification: **15 Bun tests**, strict TS, standalone local bundle, desktop 1100x850 and mobile 390x844 Playwright smoke passed (no horizontal overflow/page errors; unsupported XR reported honestly; Stop cleanup works). Camera/QR/microphone/motion permission and AR accuracy on actual phones remain pending H8.
+- Docker restart: persisted phone session/active tour, collected stop, 3 events and building_version 3; container stopped and temporary contexts cleaned. Local image retained for reuse; commit unknown locally without RAILWAY_GIT_COMMIT_SHA.
 - Final `scripts/check.sh`: **55 Python tests**, kit oracle **369/369**, **24 Bun tests** passed. Core.evaluate and full C01 build explicitly skipped in platform checkout because those packages remain on their builder branches. Log: `/private/tmp/tyb-platform-final-check.log`.
 - Fresh Python recheck after runtime dependency fix: `pytest -q tests/server` **55 passed in 2.88 s**; Bun **24 pass / 0 fail**. No paid/provider calls.
 - Three local HTTP commit -> WebSocket -> replan trials: **82.6 / 67.0 / 68.2 ms**. These are server/local test results, not phone/Railway timings.
@@ -47,9 +51,9 @@ M02 repository implementation verified, awaiting integration gate with the compl
 - Change: X-Session-ID for raw admin endpoints and optional phone progress; mobility_profile handoff; demo opt-in; existing voice_unavailable token code documented.
 - Why: prevent phone progress from advancing only the desk session, and make admin transport/types unambiguous.
 - Migration: Claude sends phone progress header and regenerates API types. Eleven tool names unchanged.
-- Status: accepted in C2 in this checkpoint (captain owns these sections); relay to Claude/Lenard before consumption.
+- Status: accepted in C2 at `5f63287` (captain owns these sections); relay to Claude/Lenard before consumption.
 
 ## Next handoff
-- Consumers Hagen, Lenard, Manuel's Claude: fetch platform branch; M02 live endpoints/OpenAPI/registry/voice hook/server fixtures are ready for integration.
+- Consumers Hagen, Lenard, Manuel's Claude: fetch platform branch; `5f63287` M02 live endpoints/OpenAPI/registry/voice hook/server fixtures are ready for integration.
 - Next captain action at G1: read all four published STATUS files, merge ready increments in core -> server -> bench/agent -> web order, run scripts/check.sh and G1 acceptance, push main only when green; never force-push. No merge/deploy during recordings or sleep window.
 - Physical G3/G4/G5, Railway release, real voice, phone device table, AR accuracy, Sunday rehearsal and submission remain future acceptance work, not completed claims.

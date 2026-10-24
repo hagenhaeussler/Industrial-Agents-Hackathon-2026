@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talk to Your Building · Device gate</title>
+<style>
+:root { font-family: system-ui, sans-serif; color: #172126; background: #f5f6f5; }
+body { max-width: 760px; margin: auto; padding: 24px 18px 48px; }
+h1 { margin: 0 0 12px; font-size: 28px; }
+p { line-height: 1.55; }
+label { display: block; margin-top: 24px; font-weight: 600; }
+input, textarea { box-sizing: border-box; width: 100%; border: 1px solid #99a4a5; border-radius: 8px; padding: 12px; font: inherit; background: white; }
+input { margin-top: 8px; }
+textarea { min-height: 250px; font: 12px/1.6 ui-monospace, monospace; }
+video { width: 100%; max-height: 420px; aspect-ratio: 4/3; object-fit: contain; background: #162024; border-radius: 12px; margin-top: 20px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+button { min-height: 44px; padding: 10px 14px; border: 1px solid #546668; border-radius: 8px; color: #132b2e; background: white; font: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid #008b8b; outline-offset: 2px; }
+output { display: block; padding: 14px; border-radius: 8px; background: #e2ece9; overflow-wrap: anywhere; }
+#xr-overlay { padding: 16px; }
+#xr-overlay:before { content: 'Capability test only · no route rendering'; display: block; margin-bottom: 8px; }
+small { color: #46585c; }
+</style>
+</head>
+<body>
+<h1>Device gate</h1>
+<p>Run on Android Chrome and iPhone Safari over HTTPS or Android USB localhost forwarding. These buttons test permissions and capabilities. Keep the 2D map as the fallback.</p>
+<p><strong>No camera frames or audio are recorded, stored, or uploaded.</strong> QR scanning uses temporary image memory on this phone. The microphone permission test does not start an ElevenLabs conversation.</p>
+<label for="model">Phone model and OS version</label>
+<input id="model" placeholder="e.g. Pixel 9 / Android 17, iPhone 16 / iOS 20" autocomplete="off">
+<video id="preview" autoplay muted playsinline aria-label="Rear camera preview"></video>
+<div class="controls">
+<button id="camera">1. Rear camera</button><button id="microphone">2. Microphone</button><button id="both">3. Camera + mic together</button><button id="scan">4. Scan QR locally</button>
+</div>
+<div class="controls">
+<button id="tone">5. Play test tone</button><button id="tone-yes">Heard tone with camera + mic</button><button id="tone-no">No sound</button>
+</div>
+<div class="controls">
+<button id="xr-support">6. Check immersive AR support</button><button id="xr-start">7. Request XR session</button><button id="motion">8. Motion permission</button><button id="stop">Stop camera, mic and XR</button>
+</div>
+<div id="xr-overlay"><button id="xr-stop">End XR test</button></div>
+<p id="orientation">Motion data has not been received.</p>
+<output id="status" aria-live="polite">Loading local test module…</output>
+<label for="results">Results for the integration captain</label>
+<p><small>Copy these text results after both phones have been tested. Device support and audio quality require a real person to verify; a successful permission prompt alone does not prove the journey works.</small></p>
+<textarea id="results" readonly aria-label="Device test results"></textarea>
+<div class="controls"><button id="copy">Copy results</button></div>
+<script type="module" src="/devtest.js"></script>
+</body>
+</html>
