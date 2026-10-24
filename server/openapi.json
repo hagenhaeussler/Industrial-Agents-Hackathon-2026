@@ -1934,6 +1934,24 @@
     "/api/sessions": {
       "post": {
         "operationId": "create_session_api_sessions_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {

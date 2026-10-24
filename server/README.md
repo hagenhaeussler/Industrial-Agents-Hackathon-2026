@@ -39,7 +39,7 @@ The voice hook is documented in [the browser bridge README](../web/app/src/voice
 
 ## Admin and markers
 
-Create an admin session in the admin view. Tools use its body `session_id`; raw upload/marker/reset endpoints use `X-Session-ID`. Propose before commit. A proposal expires after ten minutes; version conflicts require a new preview. Repeat `proposal_id` or `op_id` commits return the original event. Undo appends an event.
+Create an admin session in the admin view. `POST /api/sessions` with `role: "admin"` needs `X-Admin-Token: <TYB_ADMIN_TOKEN>` (constant-time check); without a configured code only loopback clients (this machine) may open one, and a wrong or missing code returns 403 `forbidden`. The role in the body alone never grants admin rights. Tools use its body `session_id`; raw upload/marker/reset endpoints use `X-Session-ID`. Propose before commit. A proposal expires after ten minutes; version conflicts require a new preview. Repeat `proposal_id` or `op_id` commits return the original event. Undo appends an event.
 
 Uploads use the core validator and get a server-assigned `upl-…` building ID. When the core validator is unavailable the endpoint returns `not_available`, rather than accepting unchecked data. Marker standing points must be in their rooms; marker sheets escape labels and print 12 cm QR codes. A scanned marker is a known point/heading under the standing protocol, not a camera pose.
 

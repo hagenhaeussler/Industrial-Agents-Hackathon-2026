@@ -1,4 +1,5 @@
 """C1 session, tour, tool, edit-event and marker HTTP transports."""
+import hmac
 import importlib
 import inspect
 import json
@@ -35,6 +36,20 @@ def admin_session(request, session_id, building_id=None):
     return session
 
 
+LOOPBACK_HOSTS = {'127.0.0.1', '::1', 'localhost'}
+
+
+def admin_allowed(request, code):
+    """Whether this request may open an admin session (CR-C-2); the role in the body is never trusted alone."""
+    settings = request.app.state.settings
+    if not settings.admin_requires_code:
+        return True
+    if settings.admin_token:
+        return bool(code) and hmac.compare_digest(code.encode(), settings.admin_token.encode())
+    # No code configured: only a client on this machine (local development) may become admin.
+    return request.client is not None and request.client.host in LOOPBACK_HOSTS
+
+
 def checked_position(service, store, building_id, position):
     position = position.model_dump(exclude_none=True) if hasattr(position, 'model_dump') else dict(position)
     if position.get('source') == 'marker':
@@ -66,7 +81,10 @@ def checked_position(service, store, building_id, position):
 
 
 @router.post('/sessions', response_model=schemas.Session, tags=['sessions'])
-def create_session(body: schemas.SessionCreate, request: Request):
+def create_session(body: schemas.SessionCreate, request: Request,
+                   admin_code: str | None = Header(default=None, alias='X-Admin-Token')):
+    if body.role == 'admin' and not admin_allowed(request, admin_code):
+        raise ServiceError('forbidden', 'Changes need the admin code.', status=403)
     service, store = components(request)
     service.current(body.building_id)
     return store.create_session(body.building_id, body.device, body.role, body.profile)
