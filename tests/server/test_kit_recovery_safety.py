@@ -39,8 +39,9 @@ def recovery_api(tmp_path, monkeypatch, request):
     hero = tmp_path / "hero"
     hero.mkdir()
     (hero / "fixture.json").write_text(json.dumps(raw))
+    # Trusted in-process fixture; admin authentication is covered separately.
     settings = Settings(data_dir=tmp_path / "data", hero_dir=hero,
-                        state_dir=tmp_path / "state", static_dir=tmp_path / "web")
+                        state_dir=tmp_path / "state", static_dir=tmp_path / "web", admin_requires_code=False)
     with TestClient(create_app(settings)) as client:
         assert client.app.state.service.current(raw["building"]["id"]).adapter == request.param
         yield client, raw

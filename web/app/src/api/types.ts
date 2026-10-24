@@ -70,7 +70,8 @@ export type Session = { session_id: string; building_id: string; device: Device;
 export type Marker = { marker_id: string; building_id: string; floor_id: string; space_id: string; point: Point; heading_deg: number; label: string };
 
 export type BuildingEvent = { event_id: string; kind: string; edit: Record<string, unknown>; summary: string };
-export type BuildingEventRecord = BuildingEvent & { building_id: string; building_version: number; undoes: string | null; op_id: string | null; proposal_id: string | null; session_id: string; author_role: string; created_at: string };
+/** Public projection (C8): no `session_id`. */
+export type BuildingEventRecord = BuildingEvent & { building_id: string; building_version: number; undoes: string | null; op_id: string | null; proposal_id: string | null; author_role: string; created_at: string };
 export type ValidationItem = { code: string; path: string; message: string };
 export type Validation = { ok: boolean; errors: ValidationItem[]; warnings: ValidationItem[]; stats: Record<string, number> };
 export type EditAction = 'close' | 'open' | 'add_door' | 'move_asset' | 'set_room_type';
@@ -83,4 +84,4 @@ export type ServerMessage =
   | { type: 'building_changed'; building_id: string; building_version: number; event: BuildingEvent; at: string }
   | { type: 'building_reset'; building_id: string; building_version: number }
   | { type: 'tour_updated'; tour_id: string; revision: number }
-  | { type: 'tour_opened'; tour_id: string; session_id: string; device: Device };
+  | { type: 'tour_opened'; tour_id: string; device: Device };

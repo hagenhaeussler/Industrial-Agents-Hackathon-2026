@@ -16,7 +16,8 @@ def test_collected_tour_with_closed_optional_end_is_blocked(tmp_path, monkeypatc
     raw = json.loads((REPO_ROOT / 'data/dev/proc-factory-dev-003/building.json').read_text())
     building_id = raw['building']['id']
     start, end = (space['id'] for space in raw['spaces'][:2])
-    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist')
+    # Trusted in-process fixture; admin authentication is covered separately.
+    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_requires_code=False)
     with TestClient(create_app(settings)) as client:
         def session(role):
             response = client.post('/api/sessions', json={'building_id': building_id, 'role': role})

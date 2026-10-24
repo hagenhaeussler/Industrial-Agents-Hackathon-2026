@@ -351,4 +351,4 @@ uv run python -m bench.validate_submission submissions/test_answers.csv data/tes
 
 See `BENCHMARK.md` when published by the evaluation lead for measured results and the Sunday command. [Attribution and dataset licences](ATTRIBUTION.md) apply to the included building data.
 
-Platform endpoints, phone handoff, admin headers and current adapter limits are documented in [`server/README.md`](server/README.md). Set `TYB_DEMO_MODE=true` only for the rehearsed demo reset; its default is off.
+Platform endpoints, phone handoff, admin headers and current adapter limits are documented in [`server/README.md`](server/README.md). Set a server-only `TYB_ADMIN_TOKEN` to create admin sessions using `X-Admin-Token`; missing configuration fails closed. The integrated admin UI will ask for this code. Set `TYB_DEMO_MODE=true` only for the rehearsed demo reset; its default is off.

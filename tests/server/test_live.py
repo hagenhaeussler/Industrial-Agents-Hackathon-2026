@@ -14,7 +14,8 @@ from server.config import Settings, REPO_ROOT
 
 @pytest.fixture
 def settings(tmp_path):
-    return Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist')
+    # Trusted in-process fixture; admin authentication is covered separately.
+    return Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_requires_code=False)
 
 
 @pytest.fixture

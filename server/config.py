@@ -18,11 +18,10 @@ class Settings:
     demo_mode: bool = False
     profile: str = "kit_1_1_0"
     public_base_url: str = "http://localhost:8000"
-    # CR-C-2: an admin session needs TYB_ADMIN_TOKEN in X-Admin-Token; without a configured code no one is
-    # admin (fail closed) unless TYB_ADMIN_OPEN_INSECURE=1 is set for local development. Direct construction
-    # (tests) keeps the old open behaviour.
+    # CR-C-2: every construction path fails closed. Only an explicit local
+    # development opt-in may allow admin creation without a code.
     admin_token: str | None = None
-    admin_requires_code: bool = False
+    admin_requires_code: bool = True
 
     @classmethod
     def from_env(cls) -> "Settings":
