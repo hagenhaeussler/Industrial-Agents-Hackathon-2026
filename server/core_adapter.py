@@ -18,7 +18,7 @@ import threading
 import networkx as nx
 from rapidfuzz.fuzz import ratio
 from shapely.geometry import Point
-from starter_agent.building_map import BuildingMap, DOOR_PREFIX, outline
+from starter_agent.building_map import BuildingMap, DOOR_PREFIX, outline, walking_lengths
 
 from .errors import ServiceError
 
@@ -278,6 +278,9 @@ def route(building, start, destination, constraints=None):
         _load_walks(building, constraints)
         kit.walks = building.kit.walks
         graph = kit.graph(constraints["step_free"])
+        if constraints["step_free"]:
+            graph.remove_edges_from([(u, v, key) for u, v, key, edge in graph.edges(keys=True, data=True)
+                                     if kit.connectors.get(edge.get("via"), {}).get("kind") == "stairs"])
         _save_walks(building, constraints)
     minimum = constraints["min_door_width_m"]
     if minimum:
@@ -295,6 +298,26 @@ def route(building, start, destination, constraints=None):
     except (nx.NetworkXNoPath, nx.NodeNotFound):
         reason = "blocked_by_closure" if kit.closed else "no_step_free_path" if constraints["step_free"] else "too_narrow" if minimum else "disconnected"
         return {**metadata, "reachable": False, "reason": reason, "blocking_ids": sorted(kit.closed)}
+    if first["space_id"] == last["space_id"]:
+        points = [list(first["point"]), list(last["point"])]
+        # Use a fresh polygon: the kit prepares geometry inside walking_lengths.
+        # No GEOS object from the shared materialisation is passed to that helper.
+        distance = 0.0 if points[0] == points[1] else walking_lengths(
+            outline(kit.spaces[first["space_id"]]["polygon"]), points)[(0, 1)]
+        segments = [{"floor_id": first["floor_id"], "space_id": first["space_id"], "kind": "walk",
+                     "points": points, "length_m": distance, "geometry_length_m": math.dist(*points),
+                     "geometry": "provisional"}] if distance else []
+        name = kit.spaces[first["space_id"]]["name"]
+        maneuvers = [
+            {"i": 0, "kind": "depart", "floor_id": first["floor_id"], "at": points[0],
+             "distance_m": 0, "text": f"Start in {name}.", "landmark": None, "element_id": None},
+            {"i": 1, "kind": "arrive", "floor_id": last["floor_id"], "at": points[1],
+             "distance_m": distance, "text": f"You have arrived at the destination in {name}.", "landmark": None, "element_id": None},
+        ]
+        return {**metadata, "reachable": True, "length_m": round(distance, 2), "length_m_exact": distance,
+                "start_position": points[0], "destination_position": points[1],
+                "space_path": [first["space_id"]], "node_path": nodes, "element_path": [],
+                "segments": segments, "maneuvers": maneuvers}
     elements, segments = [], []
     for u, v in itertools.pairwise(nodes):
         edge = kit.cheapest(graph, u, v)
@@ -423,11 +446,11 @@ def replan_tour(building, tour, start):
     else:
         from .state import identifier
         pending = []
-        collected = []
+        rebuilt_stops = []
         used_ids = {stop["stop_id"] for stop in tour["stops"]}
         for original in tour["stops"]:
             if original["status"] == "collected":
-                collected.append(deepcopy(original))
+                rebuilt_stops.append(deepcopy(original))
                 continue
             locations = {}
             for asset_id in original["asset_ids"]:
@@ -447,10 +470,12 @@ def replan_tour(building, tour, start):
                 space_name = building.kit.spaces[space_id]["name"]
                 stop["label"] = (", ".join(building.kit.assets[aid]["name"] for aid in asset_ids) + " · " + space_name) if asset_ids else space_name
                 pending.append(stop)
+                rebuilt_stops.append(stop)
         # The retained stop sequence includes blocked stops; the previous
         # reachable order must not redefine a fixed collection sequence.
         result = plan_tour(building, start, pending, tour["constraints"], tour["order_policy"] == "fixed", tour.get("end"))
-        result["stops"] = collected + result["stops"]
+        planned = {stop["stop_id"]: stop for stop in result["stops"]}
+        result["stops"] = [planned.get(stop["stop_id"], stop) for stop in rebuilt_stops]
     # Target is additive server metadata. Keep it consistent with the canonical
     # retargeted stop, rather than restoring the previous revision's room.
     for stop in result["stops"]:
@@ -544,14 +569,16 @@ def plan_tour(building, start, stops, constraints, keep_order=False, end=None):
     for i in order:
         legs.append(leg(previous, i))
         previous = i
+    end_pending = False
     if end:
         end_leg = leg(previous, n)
         if end_leg["reachable"]:
             legs.append(end_leg)
+            end_pending = end_leg["length_m_exact"] > 1e-9
         else:
             unreachable.append({"stop_id": "end", "space_id": end_position["space_id"], "reason": end_leg["reason"]})
     return {
-        "status": "blocked" if unreachable and not order else "active" if order else "completed", "building_id": building.id,
+        "status": "blocked" if unreachable and not order else "active" if order or end_pending else "completed", "building_id": building.id,
         "building_version": building.version, "content_hash": building.content_hash,
         "order_policy": policy, "start": start_position, "end": end_position,
         "stops": stops, "order": [stops[i]["stop_id"] for i in order], "legs": legs,
