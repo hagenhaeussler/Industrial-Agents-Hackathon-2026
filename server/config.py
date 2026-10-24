@@ -18,8 +18,9 @@ class Settings:
     demo_mode: bool = False
     profile: str = "kit_1_1_0"
     public_base_url: str = "http://localhost:8000"
-    # CR-C-2: an admin session needs TYB_ADMIN_TOKEN in X-Admin-Token. Without a configured code only
-    # this machine (loopback) may open one. Direct construction (tests) keeps the old open behaviour.
+    # CR-C-2: an admin session needs TYB_ADMIN_TOKEN in X-Admin-Token; without a configured code no one is
+    # admin (fail closed) unless TYB_ADMIN_OPEN_INSECURE=1 is set for local development. Direct construction
+    # (tests) keeps the old open behaviour.
     admin_token: str | None = None
     admin_requires_code: bool = False
 
@@ -33,5 +34,5 @@ class Settings:
             profile=os.environ.get("TYB_PROFILE", "kit_1_1_0"),
             public_base_url=os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/"),
             admin_token=os.environ.get("TYB_ADMIN_TOKEN", "").strip() or None,
-            admin_requires_code=True,
+            admin_requires_code=os.environ.get("TYB_ADMIN_OPEN_INSECURE", "").lower() not in {"1", "true", "yes"},
         )
