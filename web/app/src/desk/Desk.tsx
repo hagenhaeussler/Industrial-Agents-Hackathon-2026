@@ -10,6 +10,7 @@ import { anchorOf, assetPlace, buildModel, floorName, isProvisional, placeOf, sp
 import type { Model } from '../map/model';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
+import { VoiceButton, VoiceRoot, useVoiceSession } from '../phone/voice';
 import { scenario } from '../demo/scenario';
 import { HandoffDialog } from './HandoffDialog';
 import { fallbackReply } from './matchParts';
@@ -31,6 +32,10 @@ function defaultStart(model: Model, demo: boolean): string {
 }
 
 export function Desk() {
+  return <VoiceRoot agent="navigator"><DeskScreen/></VoiceRoot>;
+}
+
+function DeskScreen() {
   const { query } = useLocation();
   const demo = query.get('demo') === 'hero';
   const buildingId = query.get('building') ?? scenario.building_id;
@@ -141,6 +146,8 @@ export function Desk() {
     else if (display.space_id && model.space.has(display.space_id)) { setFrameSpaces([display.space_id]); setFloorId(model.space.get(display.space_id)!.floor_id); }
   };
 
+  const voice = useVoiceSession(session?.session_id ?? null, display => applyDisplay(display as Display));
+
   const localAnswer = (text: string) => {
     if (!model) return;
     const answer = fallbackReply(model, text);
@@ -202,7 +209,7 @@ export function Desk() {
         <label htmlFor="ask-input">What do you need?</label>
         <div className="ask-field">
           <input ref={askRef} id="ask-input" value={ask} onChange={event => setAsk(event.target.value)} placeholder="“Where is the 3D printer?”" autoComplete="off" maxLength={500}/>
-          <div className="voice-slot" id="desk-voice-slot"/>
+          <VoiceButton voice={voice} onUnavailable={text => setAgent({ text: `${text} Type your request instead.`, candidates: [], tone: 'error' })}/>
           <button className="icon-button dark" type="submit" disabled={!ask.trim() || asking || !session} aria-label="Ask">{asking ? <LoaderCircle className="spin" size={18}/> : <ArrowUp size={19}/>}</button>
         </div>
       </form>

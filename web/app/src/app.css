@@ -34,7 +34,8 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .ask-field:focus-within { border-color: var(--ink); }
 .ask-field input { flex: 1; min-width: 0; min-height: 44px; border: 0; outline: 0; background: transparent; font-size: 16px; padding: 8px 0; }
 .ask-field .icon-button { width: 44px; height: 44px; }
-.voice-slot:empty { display: none; }
+.voice-button { width: 44px; height: 44px; }
+.voice-button.on { background: var(--ink); color: var(--accent); }
 .agent-reply { margin: 10px 20px 0; padding: 12px 14px; border-radius: 15px 15px 15px 5px; background: #f4f5ef; font-size: 13px; line-height: 1.55; }
 .agent-reply.error { background: #fdf0ee; color: #6d1f1d; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
