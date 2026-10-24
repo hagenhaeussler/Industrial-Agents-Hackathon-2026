@@ -25,7 +25,7 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
     <div className="tour-head">
       <div>
         <p className="policy">{policyLabel(tour)}</p>
-        <h2 id="tour-title">{tour.stops.length} {tour.stops.length === 1 ? 'stop' : 'stops'} · {metres(tour.length_m)}</h2>
+        <h2 id="tour-title" tabIndex={-1}>{tour.stops.length} {tour.stops.length === 1 ? 'stop' : 'stops'} · {metres(tour.length_m)}</h2>
         <p className="muted">From {spaceName(model, tour.start.space_id)}{plannedMs !== null ? ` · planned in ${plannedMs < 1000 ? `${Math.max(1, Math.round(plannedMs))} ms` : `${(plannedMs / 1000).toFixed(1)} s`}` : ''}</p>
       </div>
     </div>
