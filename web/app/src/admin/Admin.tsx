@@ -12,6 +12,7 @@ import type { Model } from '../map/model';
 import { humanSummary } from '../phone/guidance';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
+import { TracePanel } from '../trace/TracePanel';
 
 type Target = { id: string; name: string; kind: 'lift' | 'stairs' | 'door' | 'room'; closed: boolean; detail: string };
 type Preview = EditPreview & { target: Target; opId: string };
@@ -46,6 +47,7 @@ export function Admin() {
   const [notice, setNotice] = useState<{ text: string; tone: 'ok' | 'error' | 'conflict' } | null>(null);
   const [ask, setAsk] = useState('');
   const [resetAvailable, setResetAvailable] = useState(true);
+  const [lastCalls, setLastCalls] = useState<ToolResponse[]>([]);
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   const reload = useCallback(() => latest(() => Promise.all([api.building(buildingId), api.events(buildingId)]), ([snapshot, log]) => {
@@ -70,6 +72,7 @@ export function Admin() {
   const tool = async (name: string, args: Record<string, unknown>): Promise<ToolResponse> => {
     if (!session) throw new Error('No admin session yet.');
     const response = await api.tool(name, session.session_id, args);
+    setLastCalls(current => [response, ...current].slice(0, 3));
     if (!response.ok) throw Object.assign(new ApiError(200, response.error?.code ?? 'internal', response.error?.message ?? response.speech ?? 'The change failed.'), { response });
     return response;
   };
@@ -186,6 +189,8 @@ export function Admin() {
             <button ref={confirmRef} className="primary-button" onClick={() => void commit()} disabled={!!busy}>{busy === 'commit' ? <LoaderCircle className="spin" size={18}/> : <Check size={18}/>}Confirm: {preview.edit.action === 'close' ? 'close' : preview.edit.action === 'open' ? 'reopen' : 'apply'}</button>
           </div>
         </section>}
+
+        <TracePanel model={model} responses={lastCalls}/>
 
         <section className="admin-section" aria-labelledby="vertical-title">
           <h2 id="vertical-title">Lifts and stairs</h2>

@@ -2,6 +2,7 @@ import { ArrowLeft, Smartphone, TriangleAlert } from 'lucide-react';
 import type { Tour, UnreachableReason } from '../api/types';
 import { displayOrder, isProvisional, spaceName } from '../map/model';
 import type { Model } from '../map/model';
+import { TracePanel } from '../trace/TracePanel';
 
 export const policyLabel = (tour: Tour) => tour.order_policy === 'optimized_exact' ? 'Optimal order' : tour.order_policy === 'optimized_heuristic' ? 'Good order · heuristic' : 'Your order';
 
@@ -25,7 +26,7 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       <div>
         <p className="policy">{policyLabel(tour)}</p>
         <h2 id="tour-title">{tour.stops.length} {tour.stops.length === 1 ? 'stop' : 'stops'} · {metres(tour.length_m)}</h2>
-        <p className="muted">From {spaceName(model, tour.start.space_id)}{plannedMs !== null ? ` · planned in ${(plannedMs / 1000).toFixed(1)} s` : ''}</p>
+        <p className="muted">From {spaceName(model, tour.start.space_id)}{plannedMs !== null ? ` · planned in ${plannedMs < 1000 ? `${Math.max(1, Math.round(plannedMs))} ms` : `${(plannedMs / 1000).toFixed(1)} s`}` : ''}</p>
       </div>
     </div>
     <ol className="stop-list">
@@ -48,6 +49,7 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       <div><strong>Not included</strong>{tour.unreachable_stops.map(item => <p key={item.stop_id}>{stops.get(item.stop_id)?.label ?? item.stop_id}: {reasonText[item.reason as UnreachableReason] ?? item.reason}</p>)}</div>
     </div>}
     {provisional && <p className="fineprint">Route lines are provisional straight segments until the core publishes walk polylines.</p>}
+    <TracePanel model={model} tour={tour}/>
     <div className="tour-actions">
       <button className="secondary-button" onClick={onEdit}><ArrowLeft size={17}/>Change parts</button>
       <button className="primary-button" onClick={onHandoff}><Smartphone size={18}/>Send to phone</button>

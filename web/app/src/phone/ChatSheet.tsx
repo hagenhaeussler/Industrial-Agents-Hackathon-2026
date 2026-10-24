@@ -42,7 +42,7 @@ export function ChatSheet({ open, sessionId, onClose, onDisplay, voiceError, sug
 
   return <dialog ref={ref} className="sheet chat-sheet" aria-labelledby="chat-title" onClose={onClose} onCancel={onClose}>
     <div className="sheet-handle"/>
-    <header className="sheet-header"><div><h2 id="chat-title">Ask the building</h2><p>{voiceError ? `${voiceError} Text chat uses the same tools.` : 'Answers come from the building data.'}</p></div><button className="icon-button" onClick={onClose} aria-label="Close chat"><X size={22}/></button></header>
+    <header className="sheet-header"><div><h2 id="chat-title">Ask the building</h2><p>{voiceError ? 'Voice is not available right now. Text chat uses the same tools.' : 'Answers come from the building data.'}</p></div><button className="icon-button" onClick={onClose} aria-label="Close chat"><X size={22}/></button></header>
     <div className="chat-history" ref={history} role="log" aria-live="polite" aria-label="Conversation">
       {lines.map(line => <div className={`message ${line.role}`} key={line.id}><span className="message-author">{line.role === 'agent' ? 'Alain' : 'You'}</span><p>{line.text}</p></div>)}
       {busy && <p className="loading"><LoaderCircle className="spin" size={16}/>Thinking…</p>}

@@ -36,8 +36,10 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, ...map }: Prop
   };
 
   useEffect(() => {
+    // fit now and once more after layout settles (lazy chunks, fonts, a dock that changes height)
     const id = requestAnimationFrame(() => fitNow());
-    return () => cancelAnimationFrame(id);
+    const again = setTimeout(() => fitNow(false), 350);
+    return () => { cancelAnimationFrame(id); clearTimeout(again); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frameKey, floorId, box ? 1 : 0]);
 
