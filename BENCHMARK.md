@@ -2,6 +2,17 @@
 
 The deterministic agent answers the published English templates from question text and `building.json`. It needs no API key. The solver uses the unchanged kit 1.1.0 route model, profile `kit_1_1_0`.
 
+## Completion audit, 24 Oct 2026
+
+Rechecked the integrated `16d64cc` base with the fallback compatibility and Sunday accounting fixes described here. Offline runs explicitly used `PYTHON_DOTENV_DISABLED=1` and empty `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY` and `OPENAI_API_KEY`; no provider calls or charges were incurred by this audit.
+
+- `python -m benchmark.evaluate data/dev --agent bench.agent:answer --name completion-audit-dev`: **138/138**, all nine kinds correct.
+- `python -m benchmark.evaluate data/test --agent bench.agent:answer --name completion-audit-test --submission-csv /private/tmp/tyb-completion-test-answers.csv`: **145 rows**, validator passes, byte-identical to `submissions/test_answers.csv` with the SHA-256 below. Hidden test accuracy remains unknown.
+- `python -m bench.run_benchmark --make-questions data/dev/proc-factory-dev-003 /private/tmp/tyb-completion-sunday-questions.json`, then `python -m bench.run_benchmark data/dev/proc-factory-dev-003 /private/tmp/tyb-completion-sunday-questions.json /private/tmp/tyb-completion-sunday-answers.json --csv /private/tmp/tyb-completion-sunday-answers.csv`: **15 answered / 0 unanswered / 0 errors**. Independent post-inference comparison found all **seven route/tour legs** have exact space/element paths and lengths within 0.01 m of the warm-up reference.
+- `pytest -q tests/bench tests/agent`: **150 passed in 2.75 s**. The fallback now sends a small strict envelope (`kind`, `inputs_json`) for `solve` and `submit_answer`; it decodes an object and runs unchanged core validation before any submission. The full typed field catalogue remains in the system prompt. This replaces duplicated 15-way unions which passed public field/union counts but failed the live provider's internal grammar size limit before token generation. Tool schemas total 2,054 JSON bytes with zero optional fields and zero unions. The existing SDK grammar adaptation still handles unsupported field bounds in other tools. A real-SDK mocked transport inspects the actual request JSON; invalid JSON, non-object values, kind/field mismatches and shared repair limits are covered. Rejected unsupported Sunday constraints retain any model usage/cost so checkpoints do not refund spent budget.
+
+The fallback, adapter, submission and authored 48-question paraphrase set are present. Live fallback accuracy/cache measurements and the three-model human voice A/B comparison remain unmeasured. Organizer schema, unseen Sunday building/questions and the final freeze/release run require the actual event inputs. Existing live app/provider smoke evidence is separate in [`docs/live-provider-setup.md`](docs/live-provider-setup.md); the historical measurements below describe their own dated revisions.
+
 ## Test submission
 
 From the repository root:
@@ -128,7 +139,7 @@ Measured on 24 Oct 2026, after merge `50b16ea`, with this checkpoint's source co
 
 The fallback is implemented and tested offline. It starts with `claude-haiku-5-5`, then permits one `claude-sonnet-5-5` attempt. Both use low effort and automatic tool choice. Tools are `building_facts`, `resolve`, `solve` and `submit_answer`. Only a validated `submit_answer` calls the solver and serializer to store the final answer. Model prose cannot create an answer. There are at most eight model responses, 4,000 output tokens per request, deadline checks at 60 seconds and a 7.5-second request timeout. The Sunday process supplies the hard wall-clock timeout; the plain in-process fallback has deadline checks between calls.
 
-System and tool cache markers are configured. Cache hits have not been measured. Prompt version: `benchmark-fallback-v1`, templates `templates-v1`, chat `chat-v1`. Haiku is the planned first attempt, not a measured winner.
+System and tool cache markers are configured. Cache hits have not been measured. Current prompt version: `benchmark-fallback-v2` (small JSON-string envelope with typed local validation), templates `templates-v1`, chat `chat-v1`. Historical results above used fallback v1. Haiku is the planned first attempt, not a measured winner.
 
 | Required live measurement | Status |
 |---|---|
@@ -144,10 +155,28 @@ A paid batch needs both `ANTHROPIC_API_KEY` and an explicit positive `--max-cost
 
 An active paid-run marker prevents concurrent runs with the same name/output. If the parent process stops before checkpointing, the marker remains and blocks paid resume. Reconcile spend and obtain a new written allocation before choosing a new run name/output. Do not remove a marker to repeat uncertain charges. Successfully completed batches release the marker and can resume from their recorded checkpoints.
 
-## Current verification and release gates
+## Historical C5 verification and release gates
 
 Final check after C5 integration: `env -u ANTHROPIC_API_KEY scripts/check.sh` passed with 340 Python tests in 30.10 s, kit oracle 369/369, core text dev 138/138, 39 Bun tests, TypeScript/Vite build and device-gate bundle. The focused agent/bench suite passed 125 tests. The real Anthropic SDK tool loop was tested with mocked HTTP transport, without network access. Local logs: `/tmp/tyb-check-final.log` and `/tmp/tyb-agent-bench-final.log`. No kit, core, server or dependency files were edited by this builder.
 
 C5 resolves the exact-name registry collision found during chat testing. The original regression now passes without changing its expectation. Chat integration tests use an offline model client and the real registry; live language understanding remains unmeasured. Voice prompts are available in `agent/voice_prompts/`; human-owned dashboard configuration is unchanged.
 
 L04 remains gated on the captain's fresh Linux clone, release tag, organizer format and unseen building. These local checks are not the Sunday release run. No deployment is claimed.
+
+## Integrated live fallback verification (24 October 2026)
+
+Human authorization: $5 total smoke budget in the integration chat. This run allocated at most $1 ($0.40 paraphrases, $0.30 originals, $0.30 warm-up), shared with previous provider tests and the next deployment. Keys stayed in ignored server-side environment files.
+
+An initial live attempt failed before generation: Anthropic rejected the 9,439-byte overlapping strict input unions as a compiled grammar that was too large. All 77 checkpoints had zero generated tokens and zero tool calls; provider400 or budget-blocked outcomes were retained, not reported as an accuracy result. A direct sanitized diagnostic confirmed the cause. The revised strict envelope `{kind, inputs_json}` is 2,054 bytes, has no unions, and decodes only an object before the unchanged core validation and serializer. A single diagnostic returned200.
+
+The v2 batches ran with two workers each on base main `16d64cc` plus the source hash below. They receive question text and building data; evaluator gold is joined only after predictions.
+
+| Selection | Correct / total | Batch seconds | App-metered USD |
+|---|---:|---:|---:|
+| Hybrid authored paraphrases (all15kinds) | 48/48 | 143.48 | 0.083319 |
+| Pure LLM originals (two per benchmark kind where available) | 17/17 | 49.44 | 0.024177 |
+| Pure LLM warm-up (two per kind) | 12/12 | 36.93 | 0.041307 |
+
+Combined **77/77**, no unanswered cases. App-metered total **$0.14880213**; the separate schema diagnostic cost $0.000162525. Observed cache reads: **681,072 input tokens**. Source hash: `2ed294557604e873774541cbf5a57662d7c7c00653b5e5495b8ebc0af4a8aa74`. Prompt: `templates-v1+benchmark-fallback-v2`. Reports and per-kind/model/token/cost tables: ignored `agent_output/bench/swarm-*-live-v2-20261024/`; compact summary: `agent_output/reports/core/swarm-live-benchmark-summary.json`.
+
+Haiku is attempted first with one Sonnet escalation. Grouping by the final model is not a matched A/B comparison and does not establish a model winner. Typical completed question times are several seconds; this does not certify the three-second spoken-route target or a real voice conversation. The unseen Sunday building, organizer output format and human voice/device gates remain open. Earlier “not run” tables above are historical checkpoints; this section supersedes their fallback/cache measurement status.

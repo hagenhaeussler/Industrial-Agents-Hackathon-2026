@@ -17,6 +17,7 @@ export type BuildingSummary = { id: string; name: string; source: string; split:
 export type Snapshot = {
   building: Building;
   building_version: number;
+  building_state_id?: string | null;
   content_hash: string;
   closed: string[];
   derived: { anchors: Record<string, Point>; areas_m2: Record<string, number> };
@@ -28,7 +29,7 @@ export type Segment =
   | { floor_id: string; kind: 'lift' | 'stairs'; element_id: string; points: Point[]; to_floor_id: string; length_m: number };
 export type ManeuverKind = 'depart' | 'straight' | 'turn_left' | 'turn_right' | 'slight_left' | 'slight_right' | 'u_turn' | 'enter' | 'take_lift' | 'take_stairs' | 'arrive';
 export type Maneuver = { i: number; kind: ManeuverKind; floor_id: string; at: Point; distance_m: number; text: string; landmark: string | null; element_id: string | null };
-type Stamp = { constraints: Constraints; profile: string; building_id: string; building_version: number; content_hash: string; geometry?: 'provisional' | string };
+type Stamp = { constraints: Constraints; profile: string; building_id: string; building_version: number; building_state_id?: string | null; content_hash: string; geometry?: 'provisional' | string };
 export type ReachableRoute = Stamp & {
   reachable: true; from_space_id: string; to_space_id: string; length_m: number;
   space_path: string[]; element_path: string[]; node_path: string[]; segments: Segment[]; maneuvers: Maneuver[];
@@ -44,6 +45,7 @@ export type OrderPolicy = 'optimized_exact' | 'optimized_heuristic' | 'fixed';
 export type UnreachableStop = { stop_id: string; reason: UnreachableReason | string; blocking_ids?: string[] };
 export type Tour = {
   tour_id: string; revision: number; status: string; building_id: string; building_version: number;
+  building_state_id?: string | null;
   order_policy: OrderPolicy; start: TourPoint; end: TourPoint | null; stops: TourStop[]; order: string[];
   legs: RouteResult[]; length_m: number; unreachable_stops: UnreachableStop[];
   changed_because: { event_id: string; summary: string } | null; profile: string; constraints: Constraints;
@@ -79,8 +81,8 @@ export type EditPreview = {
   effects: { active_tours_affected: number; tours: { tour_id: string; before_m: number; after_m: number | null; reachable_after: boolean }[]; newly_unreachable_spaces: number };
 };
 export type ServerMessage =
-  | { type: 'hello'; building_id: string; building_version: number }
-  | { type: 'building_changed'; building_id: string; building_version: number; event: BuildingEvent; at: string }
-  | { type: 'building_reset'; building_id: string; building_version: number }
+  | { type: 'hello'; building_id: string; building_version: number; building_state_id?: string | null }
+  | { type: 'building_changed'; building_id: string; building_version: number; building_state_id?: string | null; event: BuildingEvent; at: string }
+  | { type: 'building_reset'; building_id: string; building_version: number; building_state_id?: string | null }
   | { type: 'tour_updated'; tour_id: string; revision: number }
   | { type: 'tour_opened'; tour_id: string; session_id?: string; device: Device };

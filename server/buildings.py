@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starter_agent.building_map import outline
 
 from .config import Settings
@@ -35,7 +35,7 @@ class DerivedGeometry(BaseModel):
 class BuildingSnapshot(BaseModel):
     building: dict[str, Any]
     building_version: int
-    building_state_id: str | None = None
+    building_state_id: str | None = Field(default=None, description="Opaque content/edit-history identity; compare with an unfinished tour even when numeric versions match or decrease after a reset.")
     content_hash: str
     closed: list[str]
     derived: DerivedGeometry

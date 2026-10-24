@@ -174,3 +174,17 @@ def test_openapi_includes_typed_contract_models(client):
     assert schema["paths"]["/health"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["$ref"].endswith("HealthResponse")
     assert "BuildingSnapshot" in schema["components"]["schemas"]
     assert "BuildingSummary" in schema["components"]["schemas"]
+
+
+def test_live_and_exported_openapi_expose_reset_safe_state_identity(client):
+    """Generated clients must discover C9 even though old fixture/tour IDs are optional."""
+    live = client.get('/openapi.json').json()
+    exported = json.loads((REPO_ROOT / 'server/openapi.json').read_text())
+    for name in ('BuildingSnapshot', 'TourResult', 'RouteResult'):
+        live_model = live['components']['schemas'][name]
+        exported_model = exported['components']['schemas'][name]
+        identity = live_model['properties']['building_state_id']
+        assert identity == exported_model['properties']['building_state_id']
+        assert identity['anyOf'] == [{'type': 'string'}, {'type': 'null'}]
+        assert 'reset' in identity['description']
+        assert 'building_state_id' not in live_model.get('required', [])

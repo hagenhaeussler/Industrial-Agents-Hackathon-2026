@@ -328,6 +328,11 @@ export interface components {
             building: {
                 [key: string]: unknown;
             };
+            /**
+             * Building State Id
+             * @description Opaque content/edit-history identity; compare with an unfinished tour even when numeric versions match or decrease after a reset.
+             */
+            building_state_id?: string | null;
             /** Building Version */
             building_version: number;
             /** Closed */
@@ -508,6 +513,11 @@ export interface components {
             building_closed?: string[];
             /** Building Id */
             building_id: string;
+            /**
+             * Building State Id
+             * @description Opaque content/edit-history identity; reject a displayed route when the current snapshot differs, including reused numeric versions after a reset.
+             */
+            building_state_id?: string | null;
             /** Building Version */
             building_version: number;
             constraints: components["schemas"]["Constraints"];
@@ -722,6 +732,11 @@ export interface components {
             building_closed?: string[];
             /** Building Id */
             building_id: string;
+            /**
+             * Building State Id
+             * @description Opaque building-state identity; compare with the snapshot even when numeric versions match after a reset.
+             */
+            building_state_id?: string | null;
             /** Building Version */
             building_version: number;
             /** Changed Because */

@@ -113,7 +113,10 @@ class PlatformService:
         result["profile"] = self.profile
         result["constraints"] = constraints
         result["building_version"] = building.version
-        result["building_state_id"] = self.building_state_id(building)
+        state_id = self.building_state_id(building)
+        result["building_state_id"] = state_id
+        for leg in result.get("legs", []):
+            leg["building_state_id"] = state_id
         return result
 
     def create_tour(self, session_id, items, start=None, keep_order=False, end=None, constraints=None):

@@ -73,6 +73,8 @@ export function useCamera() {
   useEffect(() => () => {
     requestRef.current += 1;
     streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
   }, []);
 
   return { state, videoRef, start, stop };

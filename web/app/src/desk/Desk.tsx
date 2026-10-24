@@ -3,9 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ApiError, api, ensureSession, mockMode } from '../api/client';
 import { useLatest } from '../api/latest';
-import type { Candidate, ChatReply, Display, MobilityProfile, ServerMessage, Session, Tour } from '../api/types';
+import { sameBuildingState } from '../api/buildingState';
+import type { Candidate, ChatReply, Display, MobilityProfile, ReachableRoute, ServerMessage, Session, ToolResponse, Tour } from '../api/types';
 import { useBuildingSocket } from '../api/ws';
 import { MapView } from '../map/MapView';
+import { RoutePreview } from '../map/RoutePreview';
+import { displayedRoute, displayedSpaces, routeIsCurrent } from '../map/toolDisplay';
 import { anchorOf, assetPlace, buildModel, floorName, isProvisional, placeOf, spaceName } from '../map/model';
 import type { Model } from '../map/model';
 import { navigate, useLocation } from '../router';
@@ -17,6 +20,7 @@ import { fallbackReply } from './matchParts';
 import { PartsList } from './PartsList';
 import { StartPicker } from './StartPicker';
 import { TourPanel } from './TourPanel';
+import { TracePanel } from '../trace/TracePanel';
 
 type Agent = { text: string; candidates: Candidate[]; tone: 'info' | 'error' } | null;
 
@@ -42,6 +46,8 @@ function DeskScreen() {
   const latest = useLatest();
   const latestTour = useLatest();
   const [model, setModel] = useState<Model | null>(null);
+  const modelRef = useRef<Model | null>(null);
+  modelRef.current = model;
   const [loadError, setLoadError] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [floorId, setFloorId] = useState('');
@@ -53,6 +59,8 @@ function DeskScreen() {
   const [end, setEnd] = useState<string | null>(null);
   const [endPicker, setEndPicker] = useState(false);
   const [tour, setTour] = useState<Tour | null>(null);
+  const [requestedRoute, setRequestedRoute] = useState<ReachableRoute | null>(null);
+  const [lastCalls, setLastCalls] = useState<ToolResponse[]>([]);
   const [plannedMs, setPlannedMs] = useState<number | null>(null);
   const [planning, setPlanning] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
@@ -67,7 +75,10 @@ function DeskScreen() {
 
   const loadBuilding = useCallback(() => latest(() => api.building(buildingId), snapshot => {
     const next = buildModel(snapshot);
-    setModel(current => (current && current.snapshot.content_hash === snapshot.content_hash && current.snapshot.building_version === snapshot.building_version ? current : next));
+    modelRef.current = next;
+    setModel(current => (current && current.snapshot.content_hash === snapshot.content_hash && sameBuildingState(snapshot, current.snapshot) ? current : next));
+    setTour(current => current && sameBuildingState(snapshot, current) ? current : null);
+    setRequestedRoute(current => routeIsCurrent(current, next) ? current : null);
     setFloorId(current => current && next.floor.has(current) ? current : (next.floors.find(floor => floor.level === 0) ?? next.floors[0])?.id ?? '');
     setLoadError(null);
   }, error => setLoadError(message(error))), [buildingId, latest]);
@@ -97,11 +108,18 @@ function DeskScreen() {
     if (demo && model) setSelected(new Set(scenario.items.filter(id => model.asset.has(id))));
   }, [demo, model?.snapshot.content_hash]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const refreshTour = useCallback((id: string) => latestTour(() => api.tour(id), setTour), [latestTour]);
+  const acceptTour = useCallback((next: Tour) => {
+    if (!modelRef.current || !sameBuildingState(modelRef.current.snapshot, next)) {
+      setTour(null); setAgent(null); setPlanError('The building changed. Plan your selection again using the latest map.'); return false;
+    }
+    setTour(next); return true;
+  }, []);
+  const refreshTour = useCallback((id: string) => latestTour(() => api.tour(id), next => { acceptTour(next); }), [latestTour, acceptTour]);
   const onSocket = useCallback((event: ServerMessage) => {
     if (event.type === 'building_changed' || event.type === 'building_reset') {
-      if (!model || event.building_version !== model.snapshot.building_version) void loadBuilding();
-      if (tour) void refreshTour(tour.tour_id);
+      setRequestedRoute(null);
+      void loadBuilding(); // Always refetch; reset may reuse the same version with different closures.
+      if (tour) setAgent({ text: 'The building changed. Plan your selection again using the latest map.', candidates: [], tone: 'info' });
     }
     if (event.type === 'tour_updated' && tour && event.tour_id === tour.tour_id && event.revision > tour.revision) void refreshTour(tour.tour_id);
     if (event.type === 'tour_opened' && tour && event.tour_id === tour.tour_id && event.device === 'phone') setOpenedOnPhone(true);
@@ -111,6 +129,7 @@ function DeskScreen() {
   const focusAsset = (id: string) => {
     const asset = model?.asset.get(id);
     if (!asset) return;
+    setRequestedRoute(null);
     setFocusId(id);
     setFrameSpaces([asset.space_id]);
     setFloorId(asset.floor_id);
@@ -126,8 +145,9 @@ function DeskScreen() {
     setPlanning(true); setPlanError(null);
     const started = performance.now();
     await latestTour(() => api.planTour({ session_id: session.session_id, items, keep_order: keepOrder, end }), next => {
+      if (!acceptTour(next)) return;
       setPlannedMs(performance.now() - started);
-      setTour(next); setOpenedOnPhone(false); setFocusId(null); setFrameSpaces([]);
+      setRequestedRoute(null); setOpenedOnPhone(false); setFocusId(null); setFrameSpaces([]);
       setFloorId(next.start.floor_id);
       console.info(`[timing] plan → route visible: ${Math.round(performance.now() - started)} ms (tour ${next.tour_id})`);
       requestAnimationFrame(() => document.getElementById('tour-title')?.focus());
@@ -137,15 +157,23 @@ function DeskScreen() {
 
   const applyDisplay = (display: Display | null | undefined) => {
     if (!display || !model) return;
+    if (display.kind === 'route') {
+      const route = displayedRoute(display, model);
+      if (route) { setRequestedRoute(route); setFocusId(null); setFrameSpaces([]); setFloorId(route.maneuvers[0]?.floor_id ?? model.space.get(route.from_space_id)!.floor_id); }
+      return;
+    }
     if (display.kind === 'tour' && display.tour_id) {
       const started = performance.now();
-      void latestTour(() => api.tour(display.tour_id!), next => { setTour(next); setFocusId(null); setFrameSpaces([]); setPlannedMs(performance.now() - started); setFloorId(next.start.floor_id); setSelected(new Set(next.stops.flatMap(stop => stop.asset_ids))); });
+      void latestTour(() => api.tour(display.tour_id!), next => { if (!acceptTour(next)) return; setRequestedRoute(null); setFocusId(null); setFrameSpaces([]); setPlannedMs(performance.now() - started); setFloorId(next.start.floor_id); setSelected(new Set(next.stops.flatMap(stop => stop.asset_ids))); });
       return;
     }
     const assets = (display.asset_ids ?? []).filter(id => model.asset.has(id));
     const first = assets[0];
     if (first) { focusAsset(first); setSelected(current => new Set([...current, ...assets])); }
-    else if (display.space_id && model.space.has(display.space_id)) { setFrameSpaces([display.space_id]); setFloorId(model.space.get(display.space_id)!.floor_id); }
+    else {
+      const spaces = displayedSpaces(display, model);
+      if (spaces.length) { setRequestedRoute(null); setFocusId(null); setFrameSpaces(spaces); setFloorId(model.space.get(spaces[0]!)!.floor_id); }
+    }
   };
 
   const voice = useVoiceSession(session?.session_id ?? null, display => applyDisplay(display as Display));
@@ -164,6 +192,7 @@ function DeskScreen() {
     if (chatOffline) { localAnswer(text.trim()); return; }
     setAsking(true);
     await latest(() => api.chat(session.session_id, text.trim()), (reply: ChatReply) => {
+      setLastCalls(reply.tool_calls.slice(-5));
       const failed = reply.tool_calls.find(call => !call.ok && call.error?.candidates?.length);
       setAgent({ text: reply.reply, candidates: failed?.error?.candidates?.slice(0, 4) ?? [], tone: 'info' });
       applyDisplay(reply.display ?? reply.tool_calls.find(call => call.ok && call.display)?.display);
@@ -182,12 +211,13 @@ function DeskScreen() {
     try {
       setSession(await api.updateSession(session.session_id, { position: { space_id: spaceId, floor_id: model.space.get(spaceId)?.floor_id, point: anchorOf(model, spaceId), source: 'desk', confidence: 'medium', heading_deg: null, marker_id: null } }));
       setTour(null);
+      setRequestedRoute(null);
     } catch (error) { setAgent({ text: `Could not change the start: ${message(error)}`, candidates: [], tone: 'error' }); }
   };
 
   const setProfile = async (profile: MobilityProfile) => {
     if (!session) return;
-    try { setSession(await api.updateSession(session.session_id, { profile })); setTour(null); }
+    try { setSession(await api.updateSession(session.session_id, { profile })); setTour(null); setRequestedRoute(null); }
     catch (error) { setAgent({ text: `Could not change how you move: ${message(error)}`, candidates: [], tone: 'error' }); }
   };
 
@@ -195,6 +225,7 @@ function DeskScreen() {
   const highlight = useMemo(() => (focusId && model?.asset.get(focusId) ? [model.asset.get(focusId)!.space_id] : frameSpaces), [focusId, model, frameSpaces]);
   const focus = focusId ? model?.asset.get(focusId) : null;
   const provisional = isProvisional(tour);
+  const route = routeIsCurrent(requestedRoute, model) ? requestedRoute : null;
 
   if (loadError) return <main className="desk desk-message"><div className="surface notice"><h1>The building did not load</h1><p>{loadError}</p><div className="row"><button className="primary-button" onClick={() => void loadBuilding()}>Try again</button><button className="secondary-button" onClick={() => navigate('/')}>Choose a building</button></div></div></main>;
   if (!model) return <main className="desk desk-message"><p className="loading"><LoaderCircle className="spin" size={20}/>Loading the building…</p></main>;
@@ -238,8 +269,9 @@ function DeskScreen() {
 
       {tour
         ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}
-            busy={planning} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
+            busy={planning} responses={lastCalls} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
         : <>
+          <TracePanel model={model} responses={lastCalls}/>
           <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>
           <footer className="plan-bar">
             {planError && <p className="plan-error" role="alert">{planError}</p>}
@@ -256,11 +288,12 @@ function DeskScreen() {
     </aside>
 
     <section className="desk-map" aria-label="Building map">
-      <MapView model={model} floorId={floorId} onFloor={setFloorId} tour={tour} selected={selected} focusAssetId={focusId} highlightSpaceIds={highlight} you={you}
+      <MapView model={model} floorId={floorId} onFloor={setFloorId} tour={route ? null : tour} route={route} selected={selected} focusAssetId={focusId} highlightSpaceIds={highlight} you={you}
         onAsset={id => { toggle(id); focusAsset(id); }} onSpace={picker ? id => void pickStart(id) : undefined}
-        frame={tour && !frameSpaces.length && !focusId ? 'route' : highlight.length ? 'space' : tour ? 'route' : 'all'} frameSpaceIds={highlight}
-        frameKey={tour && !frameSpaces.length && !focusId ? `tour:${tour.tour_id}:${tour.revision}` : focusId ? `focus:${focusId}` : highlight.join(',') || 'all'}/>
-      {focus && !tour && <div className="focus-card surface" role="status">
+        frame={route ? 'route' : tour && !frameSpaces.length && !focusId ? 'route' : highlight.length ? 'space' : tour ? 'route' : 'all'} frameSpaceIds={highlight}
+        frameKey={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.length_m}` : tour && !frameSpaces.length && !focusId ? `tour:${tour.tour_id}:${tour.revision}` : focusId ? `focus:${focusId}` : highlight.join(',') || 'all'}/>
+      {route && <RoutePreview route={route} model={model} collection={!!tour} onClose={() => setRequestedRoute(null)}/>}
+      {focus && !tour && !route && <div className="focus-card surface" role="status">
         <div><strong>{focus.name}</strong><span>{assetPlace(model, focus)}</span></div>
         <button className={selected.has(focus.id) ? 'secondary-button' : 'primary-button'} onClick={() => toggle(focus.id)}>{selected.has(focus.id) ? 'Remove' : 'Add to tour'}</button>
       </div>}

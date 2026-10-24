@@ -3,6 +3,13 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
+# This is an offline gate even on a developer machine with a live .env.
+# Paid provider measurements use their separate explicitly budgeted runners.
+export PYTHON_DOTENV_DISABLED=1
+export ANTHROPIC_API_KEY='' ELEVENLABS_API_KEY='' OPENAI_API_KEY=''
+export ELEVENLABS_AGENT_ID_NAVIGATOR='' ELEVENLABS_AGENT_ID_ADMIN=''
+export TYB_CHAT_BUDGET_USD=0
+
 uv run pytest -q
 uv run python -m starter_agent.evaluate data/dev --oracle
 

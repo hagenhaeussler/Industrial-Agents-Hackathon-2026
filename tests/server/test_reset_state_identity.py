@@ -191,6 +191,29 @@ def test_state_identity_is_stable_for_reads_and_app_restart(journey):
     assert journey.get('/api/tours/' + tour['tour_id']) == stored
 
 
+def test_displayed_routes_and_tour_legs_use_the_snapshot_state_identity(journey):
+    """A reused version/hash must not authenticate an old standalone map route."""
+    journey.close_target(journey.stairs)
+    before = journey.tool('route', {'destination': journey.cnc['id']})
+    assert before['ok'], before
+    old_snapshot = journey.snapshot()
+    assert journey.state_id(before['result']) == journey.state_id(old_snapshot)
+    assert before['display']['route'] == before['result']
+    planned = journey.plan()
+    assert all(journey.state_id(leg) == journey.state_id(planned) for leg in planned['legs'])
+
+    journey.reset()
+    journey.close_target(journey.lift)
+    after = journey.tool('route', {'destination': journey.cnc['id']})
+    assert after['ok'], after
+    current = journey.snapshot()
+    assert before['result']['building_version'] == after['result']['building_version'] == 1
+    assert before['result']['content_hash'] == after['result']['content_hash']
+    assert journey.state_id(before['result']) != journey.state_id(after['result'])
+    assert journey.state_id(after['result']) == journey.state_id(current)
+    assert after['display']['route'] == after['result']
+
+
 def test_legacy_tour_without_state_identity_is_lazily_refreshed_once(journey):
     tour = journey.plan()
     state_id = journey.state_id(journey.snapshot())

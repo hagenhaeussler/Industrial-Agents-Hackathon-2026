@@ -18,14 +18,15 @@ type Props = FloorMapProps & {
 const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function MapView({ frameKey, frame = 'all', frameSpaceIds, ...map }: Props) {
-  const { model, floorId, tour, onFloor } = map;
+  const { model, floorId, tour, route, onFloor } = map;
   const ref = useRef<ReactZoomPanPinchRef>(null);
   const fitId = `fit-${useId().replace(/:/g, '')}`;
   const box: Box | null = useMemo(() => {
+    if (frame === 'route' && route) return bounds(route.segments.filter(segment => segment.floor_id === floorId).flatMap(segment => segment.points));
     if (frame === 'route' && tour) return routeBox(model, tour, floorId, map.focusLeg);
     if (frame === 'space' && frameSpaceIds?.length) return bounds(frameSpaceIds.flatMap(id => (model.space.get(id)?.floor_id === floorId ? model.space.get(id)?.polygon ?? [] : [])));
     return null;
-  }, [frame, tour, model, floorId, frameSpaceIds, map.focusLeg]);
+  }, [frame, tour, route, model, floorId, frameSpaceIds, map.focusLeg]);
 
   const fitNow = (animate = true) => {
     const controls = ref.current;
@@ -81,7 +82,7 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, ...map }: Prop
     <div className="map-controls surface" role="group" aria-label="Map zoom">
       <button onClick={() => ref.current?.zoomIn(0.5)} aria-label="Zoom in"><Plus size={18}/></button>
       <button onClick={() => ref.current?.zoomOut(0.5)} aria-label="Zoom out"><Minus size={18}/></button>
-      <button onClick={() => fitNow()} aria-label={tour ? 'Fit route' : 'Fit building'} title={tour ? 'Fit route' : 'Fit building'}><Maximize size={17}/></button>
+      <button onClick={() => fitNow()} aria-label={tour || route ? 'Fit route' : 'Fit building'} title={tour || route ? 'Fit route' : 'Fit building'}><Maximize size={17}/></button>
     </div>
   </div>;
 }

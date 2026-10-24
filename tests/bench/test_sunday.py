@@ -73,3 +73,21 @@ def test_spatial_constraints_are_reported_instead_of_ignored():
                 "Which is the largest kitchen on the floor 1, and how big is it in m²?", {"step_free": True})
     prediction = constrained_prediction(task)
     assert prediction.error == "Explicit constraints require a route or tour question."
+
+
+def test_rejected_constraints_keep_paid_interpretation_cost_for_checkpoint_resume(monkeypatch):
+    from bench import run_benchmark
+
+    computed = Prediction("Answer: 3", kind="count", result={"value": 3}, method="llm",
+                          tokens={"input_tokens": 123, "output_tokens": 45}, cost=0.0123,
+                          model="claude-haiku-5-5", tool_calls=2)
+    monkeypatch.setattr(run_benchmark, "predict", lambda *_: computed)
+    prediction = constrained_prediction(Task(Path("unused"), "Count the items", {"step_free": True}))
+    assert prediction.error == "Explicit constraints require a route or tour question."
+    assert "Answer:" not in prediction.reply
+    assert prediction.result == {}
+    assert prediction.cost == computed.cost
+    assert prediction.tokens == computed.tokens
+    assert prediction.model == computed.model
+    assert prediction.method == computed.method
+    assert prediction.tool_calls == computed.tool_calls

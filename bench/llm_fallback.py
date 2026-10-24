@@ -8,6 +8,7 @@ import anthropic
 from anthropic.lib.tools import BetaFunctionTool
 
 from agent.budget import Budget, BudgetExceeded, RequestSize, cost, usage_counts
+from agent.chat import strict_schema
 from core.building import Building
 from core.resolve import resolve
 from core.spatial import solve
@@ -15,7 +16,7 @@ from core.spatial import solve
 from .agent import Prediction, unanswered
 from .serialize import serialize
 
-PROMPT_VERSION = "benchmark-fallback-v1"
+PROMPT_VERSION = "benchmark-fallback-v2"
 MODELS = ("claude-haiku-5-5", "claude-sonnet-5-5")
 MAX_ITERATIONS = 8
 MAX_SECONDS = 60
@@ -56,7 +57,9 @@ straight_line_3d: distance between floor-plan centroids at floor elevations.
 what_if_door: rooms on the requested floor with exit distance improved by more than 1 m after the hypothetical door.
 locate: the unique asset's place. count: items of the type on the floor.
 route*: route between rooms (an item destination ends in its room). tour: fixed-order visits, first stop is start.
-Exact required input fields and types by kind:
+For solve and submit_answer, pass inputs_json as a JSON-encoded object string containing exactly the fields for that kind.
+The tool decodes and validates it before computation. Do not include Markdown, explanations or Answer lines in inputs_json.
+Exact required decoded input fields and types by kind:
 """ + json.dumps(FIELDS, sort_keys=True)
 
 
@@ -109,13 +112,43 @@ class Interpretation:
         self.submitted = Prediction(reply=reply, kind=kind, inputs=inputs, result=result, method="llm")
         return json.dumps({"ok": True, "submitted": True})
 
+    def _json_call(self, callback, kind: str, inputs_json: str) -> str:
+        """Keep the provider grammar small; validate the decoded object locally."""
+        if self.invalid_inputs >= 2:
+            return json.dumps({"ok": False, "error": "Input repair limit reached."})
+        try:
+            if not isinstance(inputs_json, str) or len(inputs_json) > 65_536:
+                raise ValueError("Expected a JSON object string of at most 65536 characters.")
+            inputs = json.loads(inputs_json)
+            if not isinstance(inputs, dict):
+                raise ValueError("Expected a JSON object, not an array or scalar.")
+        except (ValueError, TypeError) as error:
+            self.tool_calls += 1
+            self.invalid_inputs += 1
+            return json.dumps({"ok": False, "error": f"Invalid inputs_json: {error}"})
+        return callback(kind, inputs)
+
+    def compute_json(self, kind: str, inputs_json: str) -> str:
+        return self._json_call(self.compute, kind, inputs_json)
+
+    def submit_json(self, kind: str, inputs_json: str) -> str:
+        return self._json_call(self.submit, kind, inputs_json)
+
     def tools(self) -> list[BetaFunctionTool]:
-        request = object_schema({"kind": {"type": "string", "enum": list(FIELDS)}, "inputs": {"anyOf": [object_schema(fields) for fields in FIELDS.values()]}})
+        request = object_schema({"kind": {"type": "string", "enum": list(FIELDS)},
+                                 "inputs_json": {"type": "string", "description": "JSON-encoded object with exactly the required typed fields from the kind catalogue. The solver validates every field."}})
+        # Provider strict grammar cannot express bounds such as minimum,
+        # minLength, minItems or const. Share chat's SDK adaptation: constraints
+        # remain documented to the model and the original solver still rejects
+        # invalid submissions before the serializer can produce an answer.
+        # A duplicated 15-way inputs union exceeded the provider's internal
+        # compiled-grammar limit despite meeting its public field/union limits.
+        # Decode this small string envelope before the same typed solver path.
         return [
-            BetaFunctionTool(self.facts, name="building_facts", description="List compact building facts, without geometry.", input_schema=object_schema({}), strict=True),
-            BetaFunctionTool(self.resolve, name="resolve", description="Resolve a label; ambiguity must not be guessed.", input_schema=object_schema({"text": STRING, "kind": {"type": "string", "enum": ["any", "space", "asset", "asset_type", "room_type", "floor", "connector", "opening"]}}), strict=True),
-            BetaFunctionTool(self.compute, name="solve", description="Compute a candidate answer from typed inputs.", input_schema=request, strict=True),
-            BetaFunctionTool(self.submit, name="submit_answer", description="Validate, compute and commit the final answer.", input_schema=request, strict=True, cache_control={"type": "ephemeral"}),
+            BetaFunctionTool(self.facts, name="building_facts", description="List compact building facts, without geometry.", input_schema=strict_schema(object_schema({})), strict=True),
+            BetaFunctionTool(self.resolve, name="resolve", description="Resolve a label; ambiguity must not be guessed.", input_schema=strict_schema(object_schema({"text": STRING, "kind": {"type": "string", "enum": ["any", "space", "asset", "asset_type", "room_type", "floor", "connector", "opening"]}})), strict=True),
+            BetaFunctionTool(self.compute_json, name="solve", description="Validate the inputs_json object and compute a candidate answer.", input_schema=strict_schema(request), strict=True),
+            BetaFunctionTool(self.submit_json, name="submit_answer", description="Validate the inputs_json object, compute and commit the final answer.", input_schema=strict_schema(request), strict=True, cache_control={"type": "ephemeral"}),
         ]
 
 
