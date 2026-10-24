@@ -46,8 +46,8 @@ The route panel uses a 20px radius. The minimap uses 14px. Buttons use 12–15px
 
 ## Desk and map
 
-- The desk is a plan table: the floor map fills the screen on the background colour; one white panel floats on the left (392px, 20px inset, 20px radius). Phone widths stack the map above the panel.
-- The panel reads top to bottom as the task: "What do you need?" (26px, 750) → start chip ("You are at …") → parts grouped by floor and room → one primary action. After planning, the tour summary replaces the list: policy label, stops and metres (30px), numbered stops, "Send to phone".
+- The desk is a plan table: conversation, start, mobility and tour controls sit in the left white panel (392px, 20px inset, 20px radius). While selecting, a separate right white panel (320px, 20px inset) contains only parts and their search. The floor map fills the space between them. At widths up to 1100px, stack map → controls → parts → planning action; the parts list scrolls independently.
+- The left panel reads "What do you need?" (26px, 750) → start chip ("You are at …") → mobility; its planning action stays at the bottom. Select parts grouped by floor and room in the right panel. After planning, the existing tour summary opens on the left and the parts panel closes: policy label, stops and metres (30px), numbered stops, "Send to phone". "Change parts" restores the right list and focuses its search.
 - Map: building metres, y flipped by `toSvg`. Rooms are quiet tints by type (circulation lightest, halls and zones a shade darker, stairs and lifts a soft green-grey), hairline walls, door gaps, other floors as faint dashed outlines. Parts are small grey dots; chosen parts are ink dots with an ink label pill. Closed elements are hatched red.
 - The route is the one bold element: ink outline under the accent line, drawn in 1.2s (instant with reduced motion). Stops are ink discs with accent numbers; collected stops turn grey with a tick. "You" is a white disc with an ink centre. Lift and stair pills on the route switch floors.
 - The floor switch sits top right (highest floor first) with accent counts of stops per floor; zoom and fit controls bottom right.
