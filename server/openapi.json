@@ -1934,9 +1934,11 @@
     },
     "/api/sessions": {
       "post": {
+        "description": "Create a navigator session, or authenticate an admin with its private code.",
         "operationId": "create_session_api_sessions_post",
         "parameters": [
           {
+            "description": "Required for admin sessions when TYB_ADMIN_TOKEN is configured. Never returned.",
             "in": "header",
             "name": "X-Admin-Token",
             "required": false,
@@ -1949,6 +1951,7 @@
                   "type": "null"
                 }
               ],
+              "description": "Required for admin sessions when TYB_ADMIN_TOKEN is configured. Never returned.",
               "title": "X-Admin-Token"
             }
           }

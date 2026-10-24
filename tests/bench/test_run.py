@@ -3,7 +3,7 @@ import json
 import pytest
 
 from bench.agent import Prediction
-from bench.run import RunConfig, checkpoint_key, load_checkpoint, run, score_warmup
+from bench.run import RunConfig, checkpoint_key, load_checkpoint, load_questions, run, score_warmup, select_questions
 
 
 @pytest.fixture
@@ -66,3 +66,55 @@ def test_resumed_predictions_are_scored_again_without_inference(tmp_path, monkey
 def test_unreachable_warmup_does_not_pass_for_a_failed_prediction():
     question = {"kind": "route_step_free", "answer": {"reachable": False}}
     assert not score_warmup(question, {"result": {}, "error": "solver bug", "reply": "No answer"})
+
+
+@pytest.fixture
+def paraphrase_config(tmp_path):
+    directory = tmp_path / "split" / "building"
+    directory.mkdir(parents=True)
+    (directory / "building.json").write_text('{}')
+    (directory / "questions_basic.jsonl").write_text(json.dumps({
+        "id": "source", "kind": "count", "question": "Original wording",
+        "answer": {"count": 2}, "inputs": {"secret": "gold-only"},
+    }) + "\n")
+    paraphrases = tmp_path / "paraphrases.jsonl"
+    paraphrases.write_text(json.dumps({"id": "new", "source_id": "source", "building_id": "building",
+                                       "kind": "count", "question": "Count the chairs."}) + "\n")
+    return RunConfig(tmp_path / "split", "paraphrases", mode="template", paraphrases=paraphrases)
+
+
+def test_paraphrase_source_mapping_selects_warmup_scoring(paraphrase_config, tmp_path, monkeypatch):
+    from bench import run as runner
+
+    monkeypatch.setattr(runner, "OUTPUT", tmp_path / "output")
+    monkeypatch.setattr(runner, "predict", lambda *args: Prediction("Answer: 2", kind="count", result={"value": 2}))
+    assert run(paraphrase_config)["correct"] == 1
+
+
+def test_paraphrase_inference_receives_no_gold_or_source_wording(paraphrase_config, tmp_path, monkeypatch):
+    from bench import run as runner
+
+    received = []
+    def capture(directory, text, mode):
+        received.append((directory.name, text, mode))
+        return Prediction("Answer: 2", kind="count", result={"value": 2})
+
+    monkeypatch.setattr(runner, "OUTPUT", tmp_path / "output")
+    monkeypatch.setattr(runner, "predict", capture)
+    run(paraphrase_config)
+    assert received == [("building", "Count the chairs.", "template")]
+
+
+@pytest.mark.parametrize("change", [{"source_id": "absent"}, {"building_id": "other"}, {"kind": "route"}])
+def test_invalid_paraphrase_links_are_rejected(paraphrase_config, change):
+    path = paraphrase_config.paraphrases
+    row = json.loads(path.read_text())
+    path.write_text(json.dumps({**row, **change}) + "\n")
+    with pytest.raises(ValueError):
+        load_questions(paraphrase_config)
+
+
+def test_per_kind_selection_keeps_less_common_kinds(tmp_path):
+    questions = [(tmp_path, {"id": str(index), "kind": kind}) for index, kind in enumerate(["count"] * 5 + ["locate"] * 3)]
+    selected = select_questions(questions, RunConfig(tmp_path, "subset", per_kind=2))
+    assert [question["kind"] for _, question in selected] == ["count", "count", "locate", "locate"]

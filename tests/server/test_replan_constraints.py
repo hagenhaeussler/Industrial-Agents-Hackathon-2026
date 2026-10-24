@@ -19,12 +19,12 @@ def blocked_tour(tmp_path, monkeypatch, request):
     start, destination = lift['space_ids']
     retained = {'step_free': True, 'min_door_width_m': 0.6,
                 'closed': [raw['spaces'][0]['id']], 'no_transit_room_types': ['toilet']}
-    # Trusted in-process fixture; admin authentication is covered separately.
-    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_requires_code=False)
+    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_token='server-test-admin-code')
     with TestClient(create_app(settings)) as client:
         def session(role, profile='walk'):
             response = client.post('/api/sessions', json={
-                'building_id': raw['building']['id'], 'role': role, 'profile': profile})
+                'building_id': raw['building']['id'], 'role': role, 'profile': profile},
+                headers={'X-Admin-Token': settings.admin_token} if role == 'admin' else {})
             assert response.status_code == 200, response.text
             return response.json()['session_id']
 
