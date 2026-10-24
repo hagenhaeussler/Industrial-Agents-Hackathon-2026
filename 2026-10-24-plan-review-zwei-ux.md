@@ -32,9 +32,10 @@ Abschnitte 3 und 4 schließen diese Lücken.
 |---|---|---|---|---|
 | 1 | **Hosting** | Cloudflare: Worker + Durable Object + Container + R2 | Codex-Review: Railway | **Railway**, ein Service. Architektur in Abschnitt 2. Alles Cloudflare-Spezifische in `PLAN.md` §2–3, P0, P6 und im Zeitplan entfällt |
 | 2 | **Testgeräte** | „Handy-Layout“ | Brainstorming: „Jury hat keine iPhones“ (unbestätigt) | **Android und iPhone sind im Team vorhanden.** Beide Plattformen werden unterstützt (Abschnitt 4) |
-| 3 | **LLM im ElevenLabs-Agent** | eingebautes `claude-sonnet-5-5` | `docs/elevenlabs-agent-config.md`: Standard Qwen3.5-397B | **Das bessere nach Messung.** Start mit Claude Sonnet 5.5, kurzer A/B-Test entscheidet (Abschnitt 5) |
-| 4 | **Voice-Auth** | „Token-Endpunkt“ liefert „signierte URL“ | ElevenLabs-Docs: Signed URL ist für **WebSocket**, für **WebRTC** braucht es einen **Conversation Token**; Voice nutzt standardmäßig WebRTC | **WebRTC + Conversation Token**, Endpunkt `/api/voice/token` (Abschnitt 2). Die Agent-Config-Datei entsprechend korrigieren |
-| 5 | **Sprache** | DE/EN | Agent-Config: Englisch | offen – Demo-Sprache festlegen (Jury ist international, Video vermutlich Englisch) |
+| 3 | **LLM im ElevenLabs-Agent** | eingebautes `claude-sonnet-5-5` | Dashboard-Standard bisher Qwen3.5-397B | **Das bessere nach Messung.** Start mit Claude Sonnet 5.5, kurzer A/B-Test entscheidet (Abschnitt 5) |
+| 4 | **Voice-Auth** | „Token-Endpunkt“ liefert „signierte URL“ | ElevenLabs-Docs: Signed URL ist für **WebSocket**, für **WebRTC** braucht es einen **Conversation Token**; Voice nutzt standardmäßig WebRTC | **WebRTC + Conversation Token**, Endpunkt `/api/voice/token` (Abschnitt 2) |
+| 5 | **Sprache** | DE/EN | Agent-Config: Englisch über den Prompt | **Englisch**, wie in der Agent-Config |
+| – | **ElevenLabs-Einstellungen** | – | – | **[`docs/elevenlabs-agent-config.md`](docs/elevenlabs-agent-config.md) ist verbindlich:** Stimme, TTS, ASR, Turn-Taking, zwei Agents, Client-Tools mit Parametern, Prompt-Regeln, Token-Weg |
 | 6 | **Cache-Preis** | Sonnet 5.5 Cache-Read 0,20 USD/MTok | Codex: 0,10 USD | **Plan hat recht.** Aktuelle Preisliste: Sonnet 5.5 2/10, Cache-Read 0,20; Haiku 5.5 0,10/0,50; Opus 5.5 4/20 |
 | 7 | **Zeitplan** | feste Gates 17:15, 18:00, 19:00 | – | ersetzt durch die Gates in Abschnitt 8 |
 
@@ -115,7 +116,7 @@ Geprüfte Fakten: iOS Safari unterstützt **kein** WebXR `immersive-ar`; Android
 ### Eine Codebasis, zwei Renderer
 
 ```
-QR-Scan (getUserMedia + jsQR) → set_position(marker) → Route vom Core (Polylinie + Manöver)
+QR-Scan (getUserMedia + jsQR) → Position in der Sitzung (API) + sendContextualUpdate an den Agenten → Route vom Core (Polylinie + Manöver)
         │
         ├─ navigator.xr.isSessionSupported('immersive-ar') == true  → AR-Renderer (Android)
         └─ sonst                                                    → Overlay-Renderer (iPhone)
@@ -159,6 +160,8 @@ Die Interaktionsbewertung (25 Punkte) ist ein **geskriptetes Gespräch**. Das mu
 3. Zeit bis zum ersten gesprochenen Wort
 4. Deutsch und Englisch
 
+Alle übrigen Agent-Einstellungen (Stimme Eric, Eleven v4 Turbo, Expressive Mode, Scribe v2 Realtime, `turn_v3`, Englisch) stehen in [`docs/elevenlabs-agent-config.md`](docs/elevenlabs-agent-config.md) und bleiben beim A/B-Test gleich. Getauscht wird nur das LLM.
+
 **Start-Modell: Claude Sonnet 5.5, niedriger Reasoning-Aufwand.** Gründe: starkes Tool-Calling und Regelbefolgung, und dieselbe Modellfamilie wie der Textchat im Backend. Damit gelten ein Tool-Vertrag und ein Prompt-Stil für Voice und Text. **Backup-LLM** in ElevenLabs aktiv lassen (nicht „Disabled“), mit einem schnellen Flash-Modell als Ausweichpfad.
 
 **A/B-Test, max. 30 Minuten, direkt nach dem ersten funktionierenden Voice-Durchstich.** Gleiche zehn Äußerungen gegen Sonnet 5.5, Qwen3.5 (aktueller Standard) und ein Gemini-Flash-Modell:
@@ -184,9 +187,10 @@ Die Interaktionsbewertung (25 Punkte) ist ein **geskriptetes Gespräch**. Das mu
 
 ## 6. Gemeinsame Architektur für beide UX
 
-- **Zwei ElevenLabs-Agents** mit getrennten Prompts:
-  - **Navigator** (Handy): `find`, `route`, `next_step`, `set_position`, `report_issue`
-  - **Admin** (Laptop): `import_plan`, `set_scale`, `propose_edit`, `commit_edit`, `undo`, `what_if`, `generate_markers`
+- **Zwei ElevenLabs-Agents** mit getrennten Prompts, Details und Parameter in [`docs/elevenlabs-agent-config.md`](docs/elevenlabs-agent-config.md):
+  - **Navigator** (Handy): `find`, `route`, `next_step`
+  - **Admin** (Laptop): `set_scale`, `propose_edit`, `commit_edit`, `undo`, `what_if`, `generate_markers`
+  - QR-Scan und Plan-Upload sind keine Tools, sondern laufen über die Oberfläche. Das Ergebnis geht per `sendContextualUpdate` an den Agenten.
 - **Kontext aus der Sitzung, nicht aus dem Gespräch:** Gebäude, Position (QR), Etage und Profil („Rollstuhl“) liegen im Session-State und werden serverseitig zu Constraints.
 - **Live-Kopplung:** Der Admin sperrt am Laptop eine Tür → WebSocket-Event → das Handy berechnet die aktive Route neu und sagt es an. Das ist die Multiuser-Funktion aus dem Plan, jetzt mit konkretem Nutzen.
 - **Datenmodell-Ergänzung als eigene Schicht** (nicht im Kit-Format): `markers[]` mit `id`, `floor_id`, `position`, `facing_deg`, optional `opening_id`; für importierte Gebäude `source_image` und `scale_m_per_px`. Das Basis-`building.json` bleibt im Kit-Format, damit Benchmark und Sonntagslauf unberührt sind.
@@ -245,7 +249,7 @@ Das technische Video zeigt Railway-Architektur, Benchmark-Lauf, Import-Messung u
 - **§7** verweist für Export, `node_path` und Doku auf `../repo`. Dieser Ordner ist nicht im Team-Repo; dort liegen u. a. `core/export3d.py`, GLB-Dateien und ungestagte Änderungen an `building_map.py`. Erst übernehmen, dann darauf bauen (Codex §3).
 - **API-Fallen für alle Agenten:** Sonnet 5.5 und Opus 5.5 lehnen erzwungenes `tool_choice` (`any`/`tool`) und `thinking: disabled` mit 400 ab. Seit 21.10.2026 liefern `temperature`, `top_p`, `top_k` auf allen Modellen 400. Der Starter-Agent setzt keins davon, neuer Code darf es auch nicht.
 - **Credits:** Plan rechnet mit 600 USD, im Kickoff klang es nach 150 USD pro Person bzw. pro Team. Einmal in der Console nachsehen.
-- **`docs/elevenlabs-agent-config.md`** ist nicht committet und widerspricht dem Plan (Qwen statt Claude, „OpenAI und Gemini im Backend“, Signed URL). Nach dem A/B-Test aktualisieren und committen.
+- **`docs/elevenlabs-agent-config.md`** ist jetzt auf dem Soll-Stand dieses Reviews (zwei Agents, Conversation Token, Sonnet 5.5 als Start). Nach dem A/B-Test das gewählte LLM dort eintragen.
 
 ---
 
@@ -260,5 +264,4 @@ Zu **Frage 10 (Interaktion)** ergänzen: „Zählt eine AR-Navigation mit QR-Ver
 ## 12. Noch offene Entscheidungen
 
 1. **Demo-Gebäude:** der echte Arbeitsort (Empfehlung; braucht Import oder Fallback-Gebäude) oder ein Kit-Gebäude mit simuliertem Rundgang?
-2. **Demo-Sprache:** Deutsch oder Englisch?
-3. **Rollen:** Wer verantwortet UX A, UX B (Kamera), Core/Benchmark, Integration?
+2. **Rollen:** Wer verantwortet UX A, UX B (Kamera), Core/Benchmark, Integration?
