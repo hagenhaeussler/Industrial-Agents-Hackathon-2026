@@ -1,0 +1,419 @@
+{
+ "mobility_profile": "walk",
+ "tour_id": "umosc5ouid",
+ "revision": 6,
+ "status": "active",
+ "building_id": "proc-factory-dev-003",
+ "building_version": 3,
+ "order_policy": "optimized_exact",
+ "building_closed": [
+  "proc-factory-dev-003-V02"
+ ],
+ "start": {
+  "space_id": "proc-factory-dev-003-F1-S005",
+  "point": [
+   2.5,
+   7.585
+  ],
+  "floor_id": "proc-factory-dev-003-F1",
+  "source": "manual",
+  "confidence": "medium",
+  "updated_at": "2026-10-24T20:41:09.949879+00:00"
+ },
+ "end": {
+  "space_id": "proc-factory-dev-003-F0-S019",
+  "point": [
+   2.5,
+   2.715
+  ],
+  "floor_id": "proc-factory-dev-003-F0"
+ },
+ "stops": [
+  {
+   "stop_id": "stop_354af91eefe74bd991ccd58cc1320eeb",
+   "space_id": "proc-factory-dev-003-F0-S003",
+   "asset_ids": [
+    "proc-factory-dev-003-A00021"
+   ],
+   "label": "3D printer H-A3-A \u00b7 Additive zone H-A3",
+   "status": "collected",
+   "target": "proc-factory-dev-003-F0-S003"
+  },
+  {
+   "stop_id": "stop_4b9dd8723efc4a2b986616667bb46653",
+   "space_id": "proc-factory-dev-003-F1-S005",
+   "asset_ids": [
+    "proc-factory-dev-003-A00325"
+   ],
+   "label": "UPS unit 1.05 \u00b7 Server room 1.05",
+   "status": "collected",
+   "target": "proc-factory-dev-003-F1-S005"
+  }
+ ],
+ "order": [],
+ "legs": [
+  {
+   "reachable": true,
+   "from_space_id": "proc-factory-dev-003-F1-S005",
+   "to_space_id": "proc-factory-dev-003-F0-S019",
+   "building_id": "proc-factory-dev-003",
+   "building_version": 3,
+   "content_hash": "sha256:77b49a056e9dc274",
+   "constraints": {
+    "step_free": false,
+    "min_door_width_m": 0.0,
+    "closed": [
+     "proc-factory-dev-003-V02"
+    ],
+    "no_transit_room_types": []
+   },
+   "profile": "kit_1_1_0",
+   "length_m": 25.53,
+   "length_m_exact": 25.527,
+   "start_position": [
+    2.5,
+    7.585
+   ],
+   "destination_position": [
+    2.5,
+    2.715
+   ],
+   "building_closed": [],
+   "space_path": [
+    "proc-factory-dev-003-F1-S005",
+    "proc-factory-dev-003-F1-S001",
+    "proc-factory-dev-003-F1-S002",
+    "proc-factory-dev-003-F0-S017",
+    "proc-factory-dev-003-F0-S016",
+    "proc-factory-dev-003-F0-S019"
+   ],
+   "element_path": [
+    "proc-factory-dev-003-F1-O0058",
+    "proc-factory-dev-003-F1-O0055",
+    "proc-factory-dev-003-V01",
+    "proc-factory-dev-003-F0-O0021",
+    "proc-factory-dev-003-F0-O0023"
+   ],
+   "node_path": [
+    "proc-factory-dev-003-F1-S005",
+    "door:proc-factory-dev-003-F1-O0058",
+    "door:proc-factory-dev-003-F1-O0055",
+    "proc-factory-dev-003-F1-S002",
+    "proc-factory-dev-003-F0-S017",
+    "door:proc-factory-dev-003-F0-O0021",
+    "door:proc-factory-dev-003-F0-O0023",
+    "proc-factory-dev-003-F0-S019"
+   ],
+   "segments": [
+    {
+     "floor_id": "proc-factory-dev-003-F1",
+     "kind": "walk",
+     "points": [
+      [
+       2.5,
+       7.585
+      ],
+      [
+       4.7,
+       7.585
+      ],
+      [
+       5.0,
+       7.585
+      ]
+     ],
+     "length_m": 2.5,
+     "geometry_length_m": 2.5,
+     "fallback": false,
+     "space_id": "proc-factory-dev-003-F1-S005",
+     "from_node": "proc-factory-dev-003-F1-S005",
+     "to_node": "door:proc-factory-dev-003-F1-O0058",
+     "endpoint_stubs": [
+      true,
+      true
+     ]
+    },
+    {
+     "floor_id": "proc-factory-dev-003-F1",
+     "kind": "walk",
+     "points": [
+      [
+       5.0,
+       7.585
+      ],
+      [
+       5.3,
+       7.585
+      ],
+      [
+       6.7,
+       2.003
+      ],
+      [
+       7.0,
+       2.003
+      ]
+     ],
+     "length_m": 6.355,
+     "geometry_length_m": 6.3548869667440036,
+     "fallback": false,
+     "space_id": "proc-factory-dev-003-F1-S001",
+     "from_node": "door:proc-factory-dev-003-F1-O0058",
+     "to_node": "door:proc-factory-dev-003-F1-O0055",
+     "endpoint_stubs": [
+      true,
+      true
+     ]
+    },
+    {
+     "floor_id": "proc-factory-dev-003-F1",
+     "kind": "walk",
+     "points": [
+      [
+       7.0,
+       2.003
+      ],
+      [
+       7.3,
+       2.003
+      ],
+      [
+       9.5,
+       2.0
+      ]
+     ],
+     "length_m": 2.5,
+     "geometry_length_m": 2.5000020454535945,
+     "fallback": false,
+     "space_id": "proc-factory-dev-003-F1-S002",
+     "from_node": "door:proc-factory-dev-003-F1-O0055",
+     "to_node": "proc-factory-dev-003-F1-S002",
+     "endpoint_stubs": [
+      true,
+      false
+     ]
+    },
+    {
+     "floor_id": "proc-factory-dev-003-F1",
+     "kind": "stairs",
+     "points": [
+      [
+       9.5,
+       2.0
+      ]
+     ],
+     "length_m": 7.0,
+     "element_id": "proc-factory-dev-003-V01",
+     "to_floor_id": "proc-factory-dev-003-F0",
+     "to_point": [
+      9.5,
+      2.0
+     ]
+    },
+    {
+     "floor_id": "proc-factory-dev-003-F0",
+     "kind": "walk",
+     "points": [
+      [
+       9.5,
+       2.0
+      ],
+      [
+       7.3,
+       2.003
+      ],
+      [
+       7.0,
+       2.003
+      ]
+     ],
+     "length_m": 2.5,
+     "geometry_length_m": 2.5000020454535945,
+     "fallback": false,
+     "space_id": "proc-factory-dev-003-F0-S017",
+     "from_node": "proc-factory-dev-003-F0-S017",
+     "to_node": "door:proc-factory-dev-003-F0-O0021",
+     "endpoint_stubs": [
+      false,
+      true
+     ]
+    },
+    {
+     "floor_id": "proc-factory-dev-003-F0",
+     "kind": "walk",
+     "points": [
+      [
+       7.0,
+       2.003
+      ],
+      [
+       6.7,
+       2.003
+      ],
+      [
+       5.3,
+       2.7179999999999995
+      ],
+      [
+       5.0,
+       2.718
+      ]
+     ],
+     "length_m": 2.172,
+     "geometry_length_m": 2.1720130406583777,
+     "fallback": false,
+     "space_id": "proc-factory-dev-003-F0-S016",
+     "from_node": "door:proc-factory-dev-003-F0-O0021",
+     "to_node": "door:proc-factory-dev-003-F0-O0023",
+     "endpoint_stubs": [
+      true,
+      true
+     ]
+    },
+    {
+     "floor_id": "proc-factory-dev-003-F0",
+     "kind": "walk",
+     "points": [
+      [
+       5.0,
+       2.718
+      ],
+      [
+       4.7,
+       2.718
+      ],
+      [
+       2.5,
+       2.715
+      ]
+     ],
+     "length_m": 2.5,
+     "geometry_length_m": 2.5000020454535945,
+     "fallback": false,
+     "space_id": "proc-factory-dev-003-F0-S019",
+     "from_node": "door:proc-factory-dev-003-F0-O0023",
+     "to_node": "proc-factory-dev-003-F0-S019",
+     "endpoint_stubs": [
+      true,
+      true
+     ]
+    }
+   ],
+   "maneuvers": [
+    {
+     "i": 0,
+     "kind": "depart",
+     "floor_id": "proc-factory-dev-003-F1",
+     "at": [
+      2.5,
+      7.585
+     ],
+     "distance_m": 0.0,
+     "text": "Start in Server room 1.05."
+    },
+    {
+     "i": 1,
+     "kind": "turn_right",
+     "floor_id": "proc-factory-dev-003-F1",
+     "at": [
+      5.0,
+      7.585
+     ],
+     "distance_m": 2.5,
+     "text": "After the Server rack 1.05-B, turn right.",
+     "landmark": "Server rack 1.05-B",
+     "element_id": "proc-factory-dev-003-F1-O0058"
+    },
+    {
+     "i": 2,
+     "kind": "turn_left",
+     "floor_id": "proc-factory-dev-003-F1",
+     "at": [
+      7.0,
+      2.003
+     ],
+     "distance_m": 6.36,
+     "text": "Turn left into Staircase 1.02.",
+     "landmark": "Staircase 1.02",
+     "element_id": "proc-factory-dev-003-F1-O0055"
+    },
+    {
+     "i": 3,
+     "kind": "take_stairs",
+     "floor_id": "proc-factory-dev-003-F1",
+     "at": [
+      9.5,
+      2.0
+     ],
+     "distance_m": 2.5,
+     "text": "Take the Office staircase to Ground floor.",
+     "landmark": "Office staircase",
+     "element_id": "proc-factory-dev-003-V01"
+    },
+    {
+     "i": 4,
+     "kind": "enter",
+     "floor_id": "proc-factory-dev-003-F0",
+     "at": [
+      7.0,
+      2.003
+     ],
+     "distance_m": 9.5,
+     "text": "Go through the door into Office corridor 0.16.",
+     "landmark": "Office corridor 0.16",
+     "element_id": "proc-factory-dev-003-F0-O0021"
+    },
+    {
+     "i": 5,
+     "kind": "enter",
+     "floor_id": "proc-factory-dev-003-F0",
+     "at": [
+      5.0,
+      2.718
+     ],
+     "distance_m": 2.17,
+     "text": "Go through the door into Hall access 0.19.",
+     "landmark": "Hall access 0.19",
+     "element_id": "proc-factory-dev-003-F0-O0023"
+    },
+    {
+     "i": 6,
+     "kind": "arrive",
+     "floor_id": "proc-factory-dev-003-F0",
+     "at": [
+      2.5,
+      2.715
+     ],
+     "distance_m": 2.5,
+     "text": "You have arrived at Hall access 0.19."
+    }
+   ],
+   "blocking_ids": []
+  }
+ ],
+ "length_m": 25.53,
+ "unreachable_stops": [],
+ "changed_because": {
+  "event_id": "evt-3",
+  "summary": "Close Office lift."
+ },
+ "profile": "kit_1_1_0",
+ "constraints": {
+  "step_free": false,
+  "min_door_width_m": 0.0,
+  "closed": [],
+  "no_transit_room_types": []
+ },
+ "content_hash": "sha256:77b49a056e9dc274",
+ "length_m_exact": 25.527,
+ "reachable": true,
+ "session_id": "a2034ce86c43417cb6a09797f3b77fbe",
+ "keep_order": false,
+ "_fixture": {
+  "producer": "Manuel's Claude (captured from the live API)",
+  "contract": "C7",
+  "generated_by": "local server at manuel-claude/web b234fb5 (main a5e4bea), proc-factory-dev-003",
+  "replace_by": "/api/tours/{id}",
+  "shape": "all parts collected, end destination remaining (status active, order [])"
+ }
+}

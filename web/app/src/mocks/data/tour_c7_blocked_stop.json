@@ -1,0 +1,71 @@
+{
+ "mobility_profile": "wheelchair",
+ "tour_id": "cfmseqlqpx",
+ "revision": 3,
+ "status": "blocked",
+ "building_id": "proc-factory-dev-003",
+ "building_version": 3,
+ "order_policy": "optimized_exact",
+ "building_closed": [
+  "proc-factory-dev-003-V02"
+ ],
+ "start": {
+  "space_id": "proc-factory-dev-003-F0-S003",
+  "point": [
+   -7.25,
+   42.75
+  ],
+  "floor_id": "proc-factory-dev-003-F0"
+ },
+ "stops": [
+  {
+   "stop_id": "stop_1e51e7a9e8624fb48f0238028aedf220",
+   "space_id": "proc-factory-dev-003-F0-S003",
+   "asset_ids": [
+    "proc-factory-dev-003-A00021"
+   ],
+   "label": "3D printer H-A3-A \u00b7 Additive zone H-A3",
+   "status": "collected",
+   "target": "proc-factory-dev-003-F0-S003"
+  },
+  {
+   "stop_id": "stop_b4e6dc3e757742c5904cf241496a4e19",
+   "space_id": "proc-factory-dev-003-F1-S005",
+   "asset_ids": [
+    "proc-factory-dev-003-A00325"
+   ],
+   "label": "UPS unit 1.05 \u00b7 Server room 1.05",
+   "status": "pending",
+   "target": "proc-factory-dev-003-F1-S005"
+  }
+ ],
+ "order": [],
+ "legs": [],
+ "length_m": 0.0,
+ "unreachable_stops": [
+  {
+   "stop_id": "stop_b4e6dc3e757742c5904cf241496a4e19",
+   "space_id": "proc-factory-dev-003-F1-S005",
+   "reason": "blocked_by_closure"
+  }
+ ],
+ "profile": "kit_1_1_0",
+ "constraints": {
+  "step_free": true,
+  "min_door_width_m": 0.0,
+  "closed": [],
+  "no_transit_room_types": []
+ },
+ "content_hash": "sha256:77b49a056e9dc274",
+ "length_m_exact": 0.0,
+ "reachable": false,
+ "session_id": "e279be6da9bf475a8b4ce2671ab07c9f",
+ "keep_order": false,
+ "_fixture": {
+  "producer": "Manuel's Claude (captured from the live API)",
+  "contract": "C7",
+  "generated_by": "local server at manuel-claude/web b234fb5 (main a5e4bea), proc-factory-dev-003",
+  "replace_by": "/api/tours/{id}",
+  "shape": "wheelchair, Office lift closed, last part unreachable (status blocked, order [])"
+ }
+}

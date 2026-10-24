@@ -144,7 +144,11 @@ const nextLabel = (tour: Tour) => pendingStops(tour)[0]?.label ?? (onFinalLeg(to
 /** CONTRACTS §8 context phrasings for the voice agent. */
 export const context = {
   position: (model: Model, position: Position) => `Position: ${spaceName(model, position.space_id)} (${floorName(model, position.floor_id ?? model.space.get(position.space_id)?.floor_id ?? '')}), source ${position.source === 'tour_start' ? 'tour start' : position.source}.`,
-  tourLoaded: (tour: Tour) => `Tour ${tour.tour_id} loaded: ${pendingStops(tour).length} stops, next ${nextLabel(tour)}.${tour.unreachable_stops.length ? ` Not reachable now: ${unreachableList(tour)}.` : ''}`,
+  tourLoaded: (tour: Tour) => {
+    const pending = pendingStops(tour).length;
+    const what = pending ? `${pending} ${pending === 1 ? 'stop' : 'stops'}, next ${nextLabel(tour)}` : onFinalLeg(tour) ? 'all parts collected, next the finish point' : 'no stop can be reached';
+    return `Tour ${tour.tour_id} loaded: ${what}.${tour.unreachable_stops.length ? ` Not reachable now: ${unreachableList(tour)}.` : ''}`;
+  },
   /** CR-M-3: a fully blocked tour says which stop and why, never "replanned: 0 m, next none". */
   replanned: (rawSummary: string, tour: Tour) => {
     const summary = humanSummary(rawSummary);
