@@ -29,6 +29,7 @@ from .ws import BuildingHub
 from .routes_live import router as live_router
 from .voice import router as voice_router
 from .teams import router as teams_router
+from .colab import ColabRuntime, router as colab_router
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(application: FastAPI):
         try:
             await anyio.to_thread.run_sync(application.state.store.initialize)
+            if application.state.colab is not None:
+                await anyio.to_thread.run_sync(application.state.colab.initialize)
             application.state.state_dir_writable = True
         except (OSError, sqlite3.Error):
             logger.exception("Cannot initialise persistent state directory")
@@ -101,6 +104,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.markers = MarkerService(application.state.service, settings.public_base_url)
     application.state.service.marker_generator = application.state.markers.generate
     application.state.chat_agent = None
+    application.state.colab = ColabRuntime(settings.colab_dir, settings.state_dir) if settings.colab_dir is not None else None
     application.add_middleware(GZipMiddleware, minimum_size=1000)
     application.add_middleware(
         CORSMiddleware,
@@ -159,6 +163,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(live_router)
     application.include_router(voice_router)
     application.include_router(teams_router)
+    application.include_router(colab_router)
 
     @application.websocket('/ws/buildings/{building_id}')
     async def building_socket(socket: WebSocket, building_id: str):

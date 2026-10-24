@@ -71,10 +71,15 @@ class BuildingCatalog:
                         has_stairs=row["has_stairs"].lower() == "true",
                     )
                     records[summary.id] = BuildingRecord(path, summary)
-        for root in (self.settings.hero_dir, self.settings.state_dir / "uploads"):
+        roots = [self.settings.hero_dir, self.settings.state_dir / "uploads"]
+        if self.settings.colab_dir is not None:
+            roots.append(self.settings.colab_dir)
+        for root in roots:
             if not root.is_dir():
                 continue
             for path in sorted(root.rglob("*.json")):
+                if root == self.settings.colab_dir and path.name != 'building.json':
+                    continue
                 if not _inside(path, root):
                     continue
                 try:

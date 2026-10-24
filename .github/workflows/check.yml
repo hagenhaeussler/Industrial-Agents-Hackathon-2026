@@ -80,12 +80,15 @@ jobs:
             sleep 1
           done
           python - <<'PY'
-          import json, os, urllib.request
+          import csv, json, os, urllib.request
+          from pathlib import Path
           with urllib.request.urlopen('http://127.0.0.1:8000/health') as response:
               health = json.load(response)
           assert health['ok'] and health['state_dir_writable']
           assert health['commit'] == os.environ['GITHUB_SHA']
-          assert health['buildings'] == 280
+          with Path('data/manifest.csv').open() as source:
+              kit_buildings = len(list(csv.DictReader(source)))
+          assert health['buildings'] == kit_buildings + 1
           with urllib.request.urlopen('http://127.0.0.1:8000/desk') as response:
               assert response.status == 200 and 'text/html' in response.headers['content-type']
           with urllib.request.urlopen('http://127.0.0.1:8000/api/buildings/proc-factory-dev-003') as response:
@@ -93,7 +96,18 @@ jobs:
           assert snapshot['building']['building']['id'] == 'proc-factory-dev-003'
           assert len(snapshot['building']['floors']) == 2 and snapshot['building']['assets']
           assert snapshot['derived']['anchors'] and snapshot['building_version'] == 0
-          print('Production Docker image: exact revision, empty writable volume, 280 buildings, factory snapshot and SPA pass.')
+          with urllib.request.urlopen('http://127.0.0.1:8000/api/colab/model') as response:
+              colab = json.load(response)
+          expected = json.loads(Path('demo/colab/building.json').read_text())
+          assert colab['building'] == expected and colab['model_revision']
+          assert len(colab['building']['floors']) >= 4 and colab['anchors']
+          with urllib.request.urlopen('http://127.0.0.1:8000/colab') as response:
+              assert response.status == 200 and 'text/html' in response.headers['content-type']
+          with urllib.request.urlopen('http://127.0.0.1:8000/api/colab/wifi/status') as response:
+              wifi = json.load(response)
+          assert wifi['calibration_points'] == 0 and not wifi['ready']
+          assert not wifi['browser_scan_supported'] and not wifi['accuracy_validated']
+          print(f'Production Docker image: exact revision, empty writable volume, {kit_buildings} kit buildings plus Colab, factory snapshot, Colab model and SPA pass; no unsurveyed Wi-Fi fix.')
           PY
       - name: Upload rehearsal evidence
         if: always()

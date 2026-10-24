@@ -99,6 +99,45 @@
         "title": "BuildingSummary",
         "type": "object"
       },
+      "Capture": {
+        "additionalProperties": false,
+        "properties": {
+          "device_id": {
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Device Id",
+            "type": "string"
+          },
+          "floor_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "label": {
+            "default": "Survey point",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "device_id",
+          "floor_id",
+          "x",
+          "y"
+        ],
+        "title": "Capture",
+        "type": "object"
+      },
       "ChatInput": {
         "additionalProperties": false,
         "properties": {
@@ -146,6 +185,293 @@
           "display"
         ],
         "title": "ChatResponse",
+        "type": "object"
+      },
+      "ColabAsset": {
+        "properties": {
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "floor_id": {
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "position": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Position",
+            "type": "array"
+          },
+          "space_id": {
+            "title": "Space Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "position",
+          "floor_id",
+          "space_id"
+        ],
+        "title": "ColabAsset",
+        "type": "object"
+      },
+      "ColabModel": {
+        "properties": {
+          "anchors": {
+            "additionalProperties": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Anchors",
+            "type": "object"
+          },
+          "building": {
+            "additionalProperties": true,
+            "title": "Building",
+            "type": "object"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "model_revision": {
+            "default": "",
+            "title": "Model Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "building",
+          "metadata",
+          "anchors"
+        ],
+        "title": "ColabModel",
+        "type": "object"
+      },
+      "ColabMovement": {
+        "properties": {
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "duration_s": {
+            "title": "Duration S",
+            "type": "number"
+          },
+          "floor_id": {
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "from": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "From",
+            "type": "array"
+          },
+          "started_at": {
+            "title": "Started At",
+            "type": "number"
+          },
+          "to": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "To",
+            "type": "array"
+          }
+        },
+        "required": [
+          "asset_id",
+          "floor_id",
+          "from",
+          "to",
+          "started_at",
+          "duration_s"
+        ],
+        "title": "ColabMovement",
+        "type": "object"
+      },
+      "ColabPosition": {
+        "properties": {
+          "accuracy_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy M"
+          },
+          "confidence": {
+            "enum": [
+              "low",
+              "confirmed",
+              "simulated"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "device_id": {
+            "title": "Device Id",
+            "type": "string"
+          },
+          "floor_id": {
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "wifi_fingerprint",
+              "manual",
+              "simulated"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "space_id": {
+            "title": "Space Id",
+            "type": "string"
+          },
+          "stale": {
+            "title": "Stale",
+            "type": "boolean"
+          },
+          "uncertainty_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty Kind"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "number"
+          },
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "device_id",
+          "label",
+          "x",
+          "y",
+          "floor_id",
+          "space_id",
+          "source",
+          "confidence",
+          "accuracy_m",
+          "updated_at",
+          "stale"
+        ],
+        "title": "ColabPosition",
+        "type": "object"
+      },
+      "ColabState": {
+        "properties": {
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/ColabAsset"
+            },
+            "title": "Assets",
+            "type": "array"
+          },
+          "demo_running": {
+            "title": "Demo Running",
+            "type": "boolean"
+          },
+          "model_revision": {
+            "default": "",
+            "title": "Model Revision",
+            "type": "string"
+          },
+          "movements": {
+            "items": {
+              "$ref": "#/components/schemas/ColabMovement"
+            },
+            "title": "Movements",
+            "type": "array"
+          },
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/ColabPosition"
+            },
+            "title": "Positions",
+            "type": "array"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "server_time": {
+            "title": "Server Time",
+            "type": "number"
+          },
+          "walk_running": {
+            "title": "Walk Running",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sequence",
+          "server_time",
+          "movements",
+          "assets",
+          "positions",
+          "demo_running",
+          "walk_running"
+        ],
+        "title": "ColabState",
         "type": "object"
       },
       "Constraints": {
@@ -345,6 +671,60 @@
         "title": "Maneuver",
         "type": "object"
       },
+      "ManualPosition": {
+        "additionalProperties": false,
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "floor_id": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Floor Id",
+            "type": "string"
+          },
+          "label": {
+            "default": "Demo visitor",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "default": "manual",
+            "enum": [
+              "manual",
+              "simulated"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "floor_id",
+          "x",
+          "y"
+        ],
+        "title": "ManualPosition",
+        "type": "object"
+      },
       "MarkerCreate": {
         "additionalProperties": false,
         "properties": {
@@ -403,6 +783,60 @@
           "label"
         ],
         "title": "MarkerInput",
+        "type": "object"
+      },
+      "Pair": {
+        "additionalProperties": false,
+        "properties": {
+          "device_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "label": {
+            "default": "Android visitor",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "title": "Pair",
+        "type": "object"
+      },
+      "PairedCollector": {
+        "properties": {
+          "device_id": {
+            "title": "Device Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "title": "Expires At",
+            "type": "number"
+          },
+          "scan_endpoint": {
+            "title": "Scan Endpoint",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "device_id",
+          "expires_at",
+          "scan_endpoint"
+        ],
+        "title": "PairedCollector",
         "type": "object"
       },
       "Position": {
@@ -949,6 +1383,20 @@
           }
         },
         "title": "SessionPatch",
+        "type": "object"
+      },
+      "Switch": {
+        "additionalProperties": false,
+        "properties": {
+          "running": {
+            "title": "Running",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "running"
+        ],
+        "title": "Switch",
         "type": "object"
       },
       "TeamBuildingResult": {
@@ -1568,6 +2016,108 @@
         ],
         "title": "VoiceToken",
         "type": "object"
+      },
+      "WifiDevice": {
+        "properties": {
+          "device_id": {
+            "title": "Device Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "last_scan_at": {
+            "title": "Last Scan At",
+            "type": "number"
+          },
+          "readings_count": {
+            "title": "Readings Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "device_id",
+          "label",
+          "last_scan_at",
+          "readings_count"
+        ],
+        "title": "WifiDevice",
+        "type": "object"
+      },
+      "WifiScan": {
+        "additionalProperties": false,
+        "properties": {
+          "device_id": {
+            "pattern": "^[A-Za-z0-9_-]{1,64}$",
+            "title": "Device Id",
+            "type": "string"
+          },
+          "label": {
+            "default": "Android visitor",
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "scan": {
+            "additionalProperties": true,
+            "title": "Scan",
+            "type": "object"
+          }
+        },
+        "required": [
+          "device_id",
+          "scan"
+        ],
+        "title": "WifiScan",
+        "type": "object"
+      },
+      "WifiStatus": {
+        "properties": {
+          "accuracy_validated": {
+            "title": "Accuracy Validated",
+            "type": "boolean"
+          },
+          "browser_scan_supported": {
+            "title": "Browser Scan Supported",
+            "type": "boolean"
+          },
+          "calibration_points": {
+            "title": "Calibration Points",
+            "type": "integer"
+          },
+          "devices": {
+            "items": {
+              "$ref": "#/components/schemas/WifiDevice"
+            },
+            "title": "Devices",
+            "type": "array"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "synthetic": {
+            "title": "Synthetic",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "calibration_points",
+          "ready",
+          "synthetic",
+          "devices",
+          "browser_scan_supported",
+          "method",
+          "accuracy_validated"
+        ],
+        "title": "WifiStatus",
+        "type": "object"
       }
     }
   },
@@ -1987,6 +2537,428 @@
         "summary": "Chat",
         "tags": [
           "chat"
+        ]
+      }
+    },
+    "/api/colab/demo": {
+      "post": {
+        "operationId": "demo_api_colab_demo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Switch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColabState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Demo",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/demo/walk": {
+      "post": {
+        "operationId": "demo_walk_api_colab_demo_walk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Switch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColabState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Demo Walk",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/model": {
+      "get": {
+        "operationId": "model_api_colab_model_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColabModel"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Model",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/pair": {
+      "post": {
+        "operationId": "pair_api_colab_pair_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pair"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PairedCollector"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Pair",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/positions": {
+      "post": {
+        "operationId": "position_api_colab_positions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualPosition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColabPosition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Position",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/state": {
+      "get": {
+        "operationId": "state_api_colab_state_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColabState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "State",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/wifi/calibration": {
+      "post": {
+        "operationId": "calibration_api_colab_wifi_calibration_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "title": "Body",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WifiStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calibration",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/wifi/capture": {
+      "post": {
+        "operationId": "capture_api_colab_wifi_capture_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Capture"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WifiStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Capture",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/wifi/scans": {
+      "post": {
+        "operationId": "wifi_scan_api_colab_wifi_scans_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Colab-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Colab-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WifiScan"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wifi Scan",
+        "tags": [
+          "Colab demo"
+        ]
+      }
+    },
+    "/api/colab/wifi/status": {
+      "get": {
+        "operationId": "wifi_status_api_colab_wifi_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WifiStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Wifi Status",
+        "tags": [
+          "Colab demo"
         ]
       }
     },

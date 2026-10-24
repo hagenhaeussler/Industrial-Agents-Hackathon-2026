@@ -97,6 +97,7 @@ export function Home() {
             })}</ul>
           </div>
           <button type="button" className="workspace-create" disabled={!team} onClick={() => setCreating(true)}><Plus size={18}/>Create a new building</button>
+          <a className="home-colab-link" href={withSticky('/colab')} onClick={linkHandler('/colab')}>Explore Munich Urban Colab <ArrowRight size={15}/></a>
         </>}
     </section>}
   </main>;
