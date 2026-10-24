@@ -58,6 +58,7 @@ class PlatformService:
             areas[space["id"]] = polygon.area
         return BuildingSnapshot(
             building=building.raw, building_version=building.version,
+            building_state_id=self.building_state_id(building),
             content_hash=building.content_hash, closed=sorted(building.closed),
             derived=DerivedGeometry(anchors=anchors, areas_m2=areas),
         )
@@ -92,6 +93,12 @@ class PlatformService:
                 stop["label"] = ", ".join(assets) + " · " + stop["label"]
         return list(grouped.values())
 
+    @staticmethod
+    def building_state_id(building):
+        """Identify materialised state across reset/version reuse, without exposing event owners."""
+        identity = json.dumps([building.content_hash, building.event_fingerprint], separators=(",", ":"))
+        return "sha256:" + hashlib.sha256(identity.encode()).hexdigest()
+
     def _plan(self, building, start, stops, constraints, keep_order=False, end=None, order=None):
         previous = {
             "stops": deepcopy(stops),
@@ -106,6 +113,7 @@ class PlatformService:
         result["profile"] = self.profile
         result["constraints"] = constraints
         result["building_version"] = building.version
+        result["building_state_id"] = self.building_state_id(building)
         return result
 
     def create_tour(self, session_id, items, start=None, keep_order=False, end=None, constraints=None):
@@ -260,7 +268,10 @@ class PlatformService:
             raise ServiceError("invalid_args", "Plan or open a tour first.")
         tour = self.store.get_tour(session["active_tour_id"])
         constraints = self.constraints(session, tour.get("constraints"))
-        if tour["building_version"] != self.store.version(tour["building_id"]) or constraints != tour.get("constraints"):
+        building = self.current(tour["building_id"])
+        if (tour["building_version"] != building.version
+                or tour.get("building_state_id") != self.building_state_id(building)
+                or constraints != tour.get("constraints")):
             tour = self.replan_tour(tour["tour_id"], session_id, session["position"] or tour["start"],
                                     reason="Refresh directions after the building or mobility profile changed.")
         pending = [sid for sid in tour["order"] if next(s for s in tour["stops"] if s["stop_id"] == sid)["status"] == "pending"]

@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C8** (24 Oct 2026; authenticated admin-session creation; C2–C7 definitions preserved). Section owners:
+Contract version: **C9** (24 Oct 2026; reset-safe HTTP building-state identity; C2–C8 definitions preserved). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -232,7 +232,7 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 |---|---|---|
 | `GET /health` | – | `{"ok": true, "commit": "<sha>", "profile": "kit_1_1_0", "state_dir_writable": true, "buildings": 281}`; no LLM call |
 | `GET /api/buildings` | – | `[{"id", "name", "source", "split", "floors", "has_lift", "has_stairs"}]` (kit buildings, hero, uploads) |
-| `GET /api/buildings/{id}` | `?version=` optional | `{"building": <kit building.json materialised at version>, "building_version", "content_hash", "closed": [ids], "derived": {"anchors": {space_id: [x,y]}, "areas_m2": {space_id: a}}}` (gzip) |
+| `GET /api/buildings/{id}` | `?version=` optional | `{"building": <kit building.json materialised at version>, "building_version", "building_state_id", "content_hash", "closed": [ids], "derived": {"anchors": {space_id: [x,y]}, "areas_m2": {space_id: a}}}` (gzip) |
 | `POST /api/buildings` | `building.json` body (admin) | `{"building_id", "validation": <validate_building report>}`; 422 if invalid |
 | `POST /api/buildings/{id}/plan-import` | multipart PNG/SVG + `floor_level` (admin, X5 only) | draft + validation, §6-style preview; nothing saved until confirmed |
 | `GET /api/buildings/{id}/events` | `?since=` | `[event]` |
@@ -259,6 +259,8 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 **Admin creation (C8, CR-C-2):** creating `role: "admin"` requires `X-Admin-Token` matching the server-only `TYB_ADMIN_TOKEN` with a constant-time comparison. Missing/wrong credentials or an unconfigured token return HTTP403 `forbidden`; navigator creation remains available. All settings constructors default closed. `TYB_ADMIN_OPEN_INSECURE=1` is an explicit local-development opt-in, unsafe on any reachable server including a shared development proxy; the client address never grants permission. The admin UI may keep the entered code in sessionStorage and sends it only at session creation. Administrative operations then use the established session as described above. Existing persisted admin sessions are bearer credentials and are not revoked by adding this creation gate or rotating the code: before a first public migration, use a fresh state volume or explicitly retire those sessions. Do not delete live state automatically.
 
 **Public projections (C8):** event-list responses, REST tour responses and building WebSocket messages recursively omit `session_id`. Public handoff consumers use their own session and the opaque tour ID; they never need the tour author's session credential. Session creation and known-session reads still return that session to its holder. Private database records retain ownership unchanged; authenticated tool responses may refer to their caller.
+
+**Reset-safe freshness (C9):** live HTTP snapshots and newly planned/replanned tours carry additive `building_state_id`, an opaque identity of the building content and active edit history. Compare it for equality; do not parse it or use it as a credential. It survives restart and ordinary reads. Numeric versions can decrease on demo reset and later match an old tour's version despite different closures; `content_hash` alone also does not distinguish closures. On load/reconnect compare the current snapshot with any unfinished active/blocked tour, including an all-collected final leg. Replan from the confirmed position when numeric versions differ or the state IDs differ. An old stored tour missing its ID gets one refresh against a C9 live snapshot; old fixtures may omit the optional metadata. `next_step` independently performs this check before emitting directions, retaining IDs/progress/constraints. GET tour still returns stored state without recomputing. No kit/core schema, tool name or replan input changes.
 
 Front-end routes served by the SPA: `/` (building picker), `/desk`, `/admin`, `/go/{tour_id}`, `/m/{marker_id}`. Query `?demo=hero` loads the demo scenario.
 
@@ -321,8 +323,9 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 {"type": "tour_opened", "tour_id": "...", "device": "phone"}
 ```
 
-- Clients reconnect with backoff 0.5 s → 5 s, then `GET /api/buildings/{id}` and the active tour. Messages with `building_version` ≤ the known version are ignored.
+- Clients reconnect with backoff 0.5 s → 5 s, then `GET /api/buildings/{id}` and the active tour. C9 compares snapshot/tour state identity as well as numeric version (§7); a reset can lower or reuse a version. Do not discard a reset or infer freshness only from `version > known`.
 - On `building_changed`, the phone with an active tour calls `POST /api/tours/{id}/replan` from its current position. Only the newest response per tour is applied (compare `revision` and `request_id`).
+- Always process `building_reset` and refetch on connection/reconnection or a building-change notification before discarding it as a duplicate: matching `building_state_id` can establish freshness, whereas a reused numeric version cannot. Revalidate blocked tours and remaining final legs too.
 - `tour_opened` is sent when a phone session sets `active_tour_id` (the desk shows "Opened on phone").
 - C8 public broadcasts omit session credentials, including nested event metadata; use tour IDs and revisions to match updates.
 - Target: phone shows the new route ≤ 2 s after the admin says "Yes" (Aha 3).
@@ -395,6 +398,7 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 
 - Producers publish real-data fixtures early so consumers never wait: `fixtures/` at the repository root, each file with a top-level `"_fixture": {"producer", "contract": "C1", "generated_by": "<command>", "replace_by": "<live endpoint>"}` field.
   - `fixtures/building_proc-factory-dev-003.json` (snapshot §7), `fixtures/tour_proc-factory-dev-003.json` (TourResult with real polylines once H02 lands; straight anchor-to-door lines before, flagged `"_fixture": {"geometry": "provisional"}`), `fixtures/tool_responses.json` — producer Hagen's codex (`uv run python -m core.export_fixtures`).
+  - `fixtures/server_demo_reset.json` — producer Manuel's codex; captured C8 public API bodies before/after reset and server recovery, with two collected stops retained. Metadata records exact source/web SHAs; credentials are removed. This historical fixture predates C9 state IDs and exercises the numeric version decrease case.
   - `fixtures/events_close_lift.json`, `fixtures/session.json` — producer Manuel's codex.
 - Frontend mocks live only in `web/app/src/mocks/` and are switched on by `?mock=1`; the UI shows a small "demo data" badge whenever a mock is active (prototype rule kept). Mocks are removed from default paths by the journey gate.
 
@@ -413,4 +417,5 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C6 — 24 Oct 2026, Manuel's codex, CR-M-4:** §7 adds optional partial replan constraints for an explicit mobility change while preserving tour identity/progress and profile safeguards. No changes to core interfaces or the eleven tools.
 - **C7 — 24 Oct 2026, Manuel's codex, CR-H-4:** §7/§8 transport preserves optional-end status, navigates its remaining leg and reserves progress stop_id=end for explicit final arrival. No synthetic collection stop, new endpoint or new tool; C6 explicit mobility overrides remain unchanged.
 - **C8 — 24 Oct 2026, Manuel's codex, CR-C-2:** §7 gates admin-session creation using X-Admin-Token/TYB_ADMIN_TOKEN, defaults closed in all constructors, and documents explicit local insecure opt-in and legacy-session migration. Public event/tour/WS projections omit session credentials; internal ownership and tool arguments remain unchanged.
+- **C9 — 24 Oct 2026, Manuel's codex, CR-M-8/reset follow-up:** §7 adds opaque building_state_id to live HTTP snapshots and server tours so reset/reused versions cannot validate stale directions. §9 clarifies reset/cold-load/reconnect freshness, including blocked tours and final legs. Old stored tours refresh lazily; core/kit schemas, eleven tools and request bodies are unchanged.
 
