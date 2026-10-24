@@ -154,7 +154,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .go .map-view { bottom: 38svh; }
 .go .floor-switch { top: max(14px, env(safe-area-inset-top)); right: 14px; }
 .go .floor-switch button { min-width: 0; }
-.go .map-controls { right: 14px; bottom: calc(38svh + 14px); }
+.go .map-controls { right: 14px; bottom: 14px; }
 .go-sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 40svh; border-radius: 26px 26px 0 0; padding: 10px 20px max(18px, env(safe-area-inset-bottom)); overflow-y: auto; }
 .go-sheet .sheet-handle { margin-bottom: 14px; }
 .go-sheet .stop-list { margin-top: 14px; }
