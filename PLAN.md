@@ -1,7 +1,7 @@
 # Plan – Talk to Your Building (Track 01)
 
 **Stand:** Sa 24.10.2026, 17:00 · **Code Freeze:** So 25.10., 13:00 → **ca. 21 reale Stunden.** In der Nacht endet die Sommerzeit (3:00 → 2:00), das bringt eine Stunde extra.
-**Stack:** eine Web-App mit zwei Ansichten auf **Railway** (ein Node-Service), **alles in TypeScript** · vorberechnete SQLite-Datenbank aus `building.json` · Agent Harness mit Claude (Anthropic TypeScript SDK) · zwei ElevenLabs-Agents mit Eleven v4 Turbo · Claude (600 USD Anthropic-Credits)
+**Stack:** eine Web-App mit zwei Ansichten auf **Railway** (ein Node-Service), **alles in TypeScript** · vorberechnete SQLite-Datenbank aus `building.json` · Agent Harness mit dem Claude Agent SDK (TypeScript) · zwei ElevenLabs-Agents mit Eleven v4 Turbo · Claude (600 USD Anthropic-Credits)
 **Grundlage:**
 - dieses Team-Repo: Meeting-Notizen, Q&A mit dem Challenge-Lead, Route-Scoring-Spec, Challenge-PDF
 - das offizielle Synera-Kit, Version 1.1.0 (Branch `patch/fix-answers-ruleset`, Commit `6a2cdec`): neue Antworten nach den Routenregeln der Jury, siehe `CHANGELOG.md`
@@ -15,7 +15,7 @@ Diese Punkte gelten für alle Menschen und Agenten im Team. Andere Dokumente, au
 - **TypeScript für alles.** Python nur an zwei Stellen: im offiziellen Evaluator von Synera (`benchmark/`, unverändert) und im späteren Ortungsdienst für AR.
 - **Nur JSON.** Jedes Gebäude kommt als `building.json`. Kein Import von Bildern, PDFs oder SVGs.
 - **Railway**, ein Node-Service, SQLite auf einem Volume. Kein Cloudflare.
-- **Agent Harness mit Claude** (Anthropic TypeScript SDK), keine einzelnen LLM-Aufrufe. Gebäudedaten kommen nur über Tools, nie in einen Prompt.
+- **Agent Harness mit dem Claude Agent SDK** (`@anthropic-ai/claude-agent-sdk`, TypeScript), keine einzelnen LLM-Aufrufe. Gebäudedaten kommen nur über Tools, nie in einen Prompt.
 - **ElevenLabs** für Voice, mit zwei Voice-Agents: Navigation und Verwaltung.
 - **Eine Web-App mit zwei Ansichten**, keine native App: Verwaltung am Desktop und Navigation am Handy.
 - **Kein Starter Agent.** Wir schreiben den Agenten neu. Ground Truth sind die erwarteten Antworten in train und dev.
@@ -50,7 +50,7 @@ Diese Punkte gelten für alle Menschen und Agenten im Team. Andere Dokumente, au
 | Voice | `@elevenlabs/react` (`useConversation`), Client-Tools | Mikrofon, Barge-in, Tool-Aufrufe aus dem Agenten |
 | **Datenbank** | SQLite über `node:sqlite`, lokal und auf dem Railway-Volume | Basisdaten plus vorberechnete Werte, siehe Abschnitt 5 |
 | **Core** | TypeScript-Bibliothek `core/`: Geometrie, Graph, Routing, What-if, Änderungen | Deterministisch. Läuft lokal, im Benchmark und in der Cloud mit demselben Code |
-| **Agent** | Claude über das Anthropic TypeScript SDK mit unseren Tools. Paket offen: Tool Runner aus `@anthropic-ai/sdk` oder Claude Agent SDK (Abschnitt 4). Sonnet 5.5, Prompt-Caching | Textchat, Benchmark und optional Custom-LLM für ElevenLabs. Läuft im Node-Service auf Railway |
+| **Agent** | Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`). Unsere DB-Tools hängen als MCP-Server im selben Prozess am Agenten. Eingebaute Datei-, Shell- und Web-Tools sind aus. Sonnet 5.5, Prompt-Caching | Textchat, Benchmark und optional Custom-LLM für ElevenLabs. Läuft im Node-Service auf Railway |
 | Agent (Voice) | Zwei ElevenLabs-Agents (Navigation, Verwaltung): `eleven_v4_turbo` + eingebautes `claude-sonnet-5-5`. Einstellungen in `docs/elevenlabs-agent-config.md` | Gespräch, Rückfragen, Tool-Auswahl |
 | **Benchmark** | TypeScript-CLI, ein Befehl, nutzt denselben Agenten und dieselbe DB. Ein kleiner Python-Adapter `bench/answer.py` ruft die CLI auf, damit der offizielle Evaluator läuft: `python -m benchmark.evaluate data/dev --agent bench.answer:answer` | Läuft lokal, schreibt die Abgabe-CSV (und `answers.json`, falls gefordert) |
 | Tooling | pnpm, Vitest (Tests gegen train/dev), Railway CLI. Python-Tools (`uv`) nur für `benchmark/` | Der Prototyp `web/mobile/` ist von Bun auf pnpm und Vitest umgestellt |
@@ -87,7 +87,7 @@ Später, nur für AR:  Railway-Service "localizer" (Python, hloc) ← Kamerabild
 - **Grenzen von Railway:** Mit Volume sind keine Replicas möglich, und ein Redeploy hat kurze Downtime. Deshalb kein Deploy während Aufnahme oder Demo. Der Client verbindet den WebSocket automatisch neu und lädt danach den aktuellen Stand. App-Sleeping ausschalten.
 - **Secrets als Railway-Variablen:** `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID_NAVIGATOR`, `ELEVENLABS_AGENT_ID_ADMIN`. Keys stehen nie im Repo und nie im Browser. Der Browser bekommt nur den kurzlebigen Conversation Token.
 - **Offene Demo, nicht öffentlich gelistet:** Die App braucht kein Login, damit Jury und Live-Demo ohne Hürde laufen. Die URL steht nur in der Abgabe und im Team, nicht in öffentlichen Links. Die Seite setzt `noindex`. Ausgabenlimits bei Anthropic und ElevenLabs und ein einfaches Rate-Limit am Token-Endpunkt begrenzen den Schaden, falls die URL bekannt wird.
-- **Agent Harness im Node-Service.** Wir nutzen den Tool Runner des Anthropic SDK, nicht das Claude Agent SDK: Das Agent SDK bringt Datei- und Shell-Tools mit, die wir nicht brauchen.
+- **Agent Harness im Node-Service** mit dem Claude Agent SDK. Es bringt Agent-Schleife, Kontextverwaltung, Hooks und Sessions mit. Seine eingebauten Datei-, Shell- und Web-Tools schalten wir aus, damit der Agent nur unsere Tools nutzt. Die genauen Optionsnamen nehmen wir bei der Umsetzung aus der Doku (code.claude.com/docs/en/agent-sdk).
 - **Python nur im offiziellen Evaluator** (lokal, nicht auf Railway) **und im eigenen Service `localizer`** für hloc und MegaLoc (Abschnitt 8). Alles andere ist TypeScript.
 - **Handy-Tests brauchen HTTPS**, weil Kamera und Mikrofon nur im Secure Context laufen. Die Railway-URL erfüllt das.
 - **Für die Jury:** Die öffentliche URL plus `README` mit lokalem Start (`pnpm i`, `.env.example`). Der Benchmark läuft ohne Railway, mit einem einzigen Befehl.
@@ -115,10 +115,10 @@ Da die App eine öffentliche Railway-URL hat, wären auch Server-Tools (Webhooks
 
 Die Zustandshoheit liegt beim Server: Gebäudeversion pro Gebäude, `commit_edit` nur mit `proposal_id` und idempotent. Wird die Sprache unterbrochen, darf kein Commit doppelt passieren.
 
-**Offen: ein oder zwei „Gehirne“ (vor Phase A gemeinsam entscheiden).** Der Voice-Agent hat ein eigenes LLM in ElevenLabs. Unser Agent Harness hat ein zweites. Dazu gehört die Frage, welches Claude-Paket der Harness nutzt.
+**Offen: ein oder zwei „Gehirne“ (vor Phase A gemeinsam entscheiden).** Der Voice-Agent hat ein eigenes LLM in ElevenLabs. Unser Agent Harness hat ein zweites. 
 - **Option 1, ElevenLabs-LLM wählt die Tools:** das eingebaute `claude-sonnet-5-5` mit niedrigem Reasoning-Aufwand ruft die Client-Tools direkt auf. Schnell und einfach. Nachteil: ein zweiter Prompt und eine zweite Tool-Auswahl neben Textchat und Benchmark. Abgerechnet über ElevenLabs-Credits.
 - **Option 2, ein Gehirn:** ElevenLabs nutzt einen **Custom-LLM-Endpoint** `/api/llm/v1/chat/completions` (OpenAI-kompatibel, SSE) auf unserem Harness. Voice, Textchat und Benchmark nutzen dann denselben Agenten und dieselben Tools. Nachteil: mehr Latenz und mehr Bauaufwand. Abgerechnet über unsere 600 USD. Pro Turn darf nur **eine** Seite Tools ausführen.
-- **Paket für den Harness:** Tool Runner aus `@anthropic-ai/sdk` (nur unsere Tools, wenig Overhead) oder Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`, eigene Tools über einen MCP-Server im Prozess, eingebaute Datei- und Shell-Tools müssen aus sein).
+- **Harness:** entschieden, Claude Agent SDK (Abschnitt 2). Bei Option 2 läuft auch Voice durch diesen Agenten.
 
 **Prompt-Regeln für Voice:**
 - Sofort eine kurze Bestätigung sprechen, etwa „Okay, ich suche den Weg zur Presse …“.
@@ -195,7 +195,7 @@ Testset (145 Fragen): floor_area_total 33 · shared_walls 26 · largest_room 21 
 | Phase | Inhalt | Fertig, wenn |
 |---|---|---|
 | **1 Datenbank** | Setup: pnpm, TypeScript, Vitest, `AGENTS.md`, `.env.example`. **Vorberechnete Felder** für die Fragen (Abschnitt 5). **Import-Feature:** `building.json` → Validator → DB, derselbe Weg für Kit-Gebäude, Sonntagsgebäude und Upload in der App. Core-Graph: Constraints, Erreichbarkeit, Routen, What-if | Warm-up-Routen auf den Zentimeter, Geometrie-Arten ≈ 100 % auf dev und train, alle 280 Gebäude importierbar |
-| **2 Agent** | Harness wählen und aufsetzen (Tool Runner). API zum LLM. **DB-Tools zum Lesen und Schreiben**, Schreiben nur über den einen Schreibweg mit Vorschau und Bestätigung. Skills und Prompts pro Fragetyp. Benchmark-CLI und `BENCHMARK.md`. API im Node-Service | **M1:** vollständige Test-CSV mit 145 Zeilen und dev-Score pro Fragetyp, end to end auf den dev-Fragetexten |
+| **2 Agent** | Harness mit dem Claude Agent SDK aufsetzen, eingebaute Tools aus. API zum LLM. **DB-Tools zum Lesen und Schreiben**, Schreiben nur über den einen Schreibweg mit Vorschau und Bestätigung. Skills und Prompts pro Fragetyp. Benchmark-CLI und `BENCHMARK.md`. API im Node-Service | **M1:** vollständige Test-CSV mit 145 Zeilen und dev-Score pro Fragetyp, end to end auf den dev-Fragetexten |
 | **A Voice** | Realtime-Voice-Layer mit ElevenLabs für Mobile und Desktop. Token-Endpunkt, Client-Tools auf dieselbe Tool-API wie der Agent | Eine gesprochene Frage zeigt eine Route, auf Mobile und Desktop |
 | **B.1 Visualisierung** | 2D (SVG) und 3D (extrudiert), **deterministisch aus der DB**: Etagen, Räume, Türen, Assets, Route, Highlights, Vorschau von Änderungen | Gleiche Daten ergeben immer dasselbe Bild. Alle Etagen eines dev-Gebäudes korrekt |
 | **B.2 UI/UX** | Eine Web-App mit zwei Ansichten, siehe unten | **M2:** Demo-Abläufe aus Abschnitt 12 laufen auf der öffentlichen URL |
