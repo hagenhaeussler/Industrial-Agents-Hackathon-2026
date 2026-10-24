@@ -1,6 +1,7 @@
 FROM oven/bun:1 AS web
 WORKDIR /web
 COPY web/ ./
+COPY demo /demo
 COPY scripts/build-device-gate.ts /scripts/build-device-gate.ts
 RUN set -eu; \
     if [ -f app/package.json ]; then app_dir=app; \

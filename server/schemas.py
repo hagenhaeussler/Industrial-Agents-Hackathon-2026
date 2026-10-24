@@ -122,6 +122,8 @@ class RouteSegment(BaseModel):
     kind: str
     points: list[tuple[float, float]]
     length_m: float
+    geometry_length_m: float | None = None
+    fallback: bool | None = None
     space_id: str | None = None
     element_id: str | None = None
     to_floor_id: str | None = None
@@ -151,6 +153,9 @@ class RouteResult(BaseModel):
     profile: str
     length_m: float | None = None
     length_m_exact: float | None = None
+    start_position: tuple[float, float] | None = None
+    destination_position: tuple[float, float] | None = None
+    building_closed: list[str] = Field(default_factory=list)
     space_path: list[str] = Field(default_factory=list)
     element_path: list[str] = Field(default_factory=list)
     node_path: list[str] = Field(default_factory=list)
@@ -178,6 +183,7 @@ class TourResult(BaseModel):
     building_id: str
     building_version: int
     order_policy: str
+    building_closed: list[str] = Field(default_factory=list)
     start: dict[str, Any]
     end: dict[str, Any] | None
     stops: list[TourStop]

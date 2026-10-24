@@ -1,12 +1,15 @@
 # STATUS: Manuel's codex (Platform & Live Integration Lead, integration captain)
-Last update: 2026-10-24 21:36 CEST · Branch: `manuel-codex/platform` · HEAD: M03 prerequisite checkpoint (this revision); M02 `5f63287` · Last sync with origin/main: `d46775f`
+Last update: 2026-10-24 21:50 CEST · Branch: `manuel-codex/platform` · HEAD: integration follow-up (this revision) · Last sync with origin/main: `8baa2c6` (G1 pushed)
 
 Single writer: Manuel's codex. Keep this structure (OWNERSHIP_AND_DEPENDENCIES §7).
 
 ## Current task
-M02 repository implementation verified, awaiting integration gate with the complete core and frontend. External Railway/ElevenLabs setup is deferred by the human's repository-only instruction. M03 device-gate page and frame/arrow maths verified; AR rendering remains gated on G4 and physical-device results. Repository increments are ready for consumer integration.
+G1 passed and pushed to main at `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`; `gate-G1` points to that exact checked commit. Continuing M02/C3 integration hardening, G2 submission review and local G3 journey checks. Physical G4/device acceptance remains pending; no AR rendering or external deploy is claimed.
 
 ## Delivered (newest first)
+- G1 captain integration: core `4e6f956` (already containing platform `d187ce5`, bench `4d93bdb`, web `de81877`) plus current web `e29fc43`; main and gate-G1 verified remotely at `8baa2c6`. Used a regular `HEAD:main` push from the prescribed detached clean integration worktree; the human checkout/main branch was not switched or overwritten.
+- CR-H-2 fixed in this checkpoint: real-core and kit replan retarget moved pending parts by identity, preserve collected stops, split/merge rooms without losing stop IDs, and progress follows current inventory. Original HTTP400 regression reproduced before fix; 8 new HTTP tests + all63server tests pass.
+- C3 OpenAPI now describes geometry_length_m, fallback, point endpoints as coordinate pairs, and building_closed; find display adds asset_ids/floor_id for Claude's live UI; Docker web stage includes demo/scenario.json.
 - M03 prerequisites: standalone /devtest page with local jsQR bundle; simultaneous camera/mic, QR, motion and XR probes with cleanup/cancellation; exact four-heading frame transform and direction-only arrow maths; Docker/check hooks. No AR route rendering or physical-device pass is claimed.
 - `5f63287`: M02 implementation, C2 contracts, OpenAPI, voice bridge and labelled server fixtures.
 - M02: SQLite schema 2 + v1 migration, durable sessions/tour revisions/proposals/events/markers/cache; idempotent commits, expiry/version checks, safe undo, immutable base replay, restart tests, per-building WebSocket events, phone handoff/progress/replan, all eleven shared tools, voice token + browser hook, chat adapter, marker sheets and opt-in demo reset. OpenAPI and server fixtures published with C2.
@@ -15,7 +18,7 @@ M02 repository implementation verified, awaiting integration gate with the compl
 - `917980c` (pushed within the initial dependency handoff): shared dependencies/lockfile and package exports. Added runtime httpx in M02 after production-only smoke exposed its dev-only omission.
 
 ## Interfaces exposed / changed
-- Contract **C2**, additive CR-M-1: raw admin endpoints use `X-Session-ID`; phone progress accepts the same header to advance the caller; tours expose `mobility_profile` separately from cost profile. Tool names/required arguments unchanged. `server/README.md` contains integration details.
+- Contract **C3** (C2 transport preserved), additive CR-M-1: raw admin endpoints use `X-Session-ID`; phone progress accepts the same header to advance the caller; tours expose `mobility_profile` separately from cost profile. Tool names/required arguments unchanged. `server/README.md` contains integration details.
 - HTTP: health/buildings/snapshots/events; sessions create/get/patch; tools; tours create/get/progress/replan; markers create/get/sheet; voice token; chat; demo reset. Plan import remains explicit not_available. `TYB_DEMO_MODE=true` required for reset (default off).
 - `WS /ws/buildings/{id}`: hello, building_changed/reset, tour_opened/updated, 20 s heartbeat. Subscriber registration precedes version fetch; concurrent commits cannot fall through the handshake gap.
 - `from server.tools import registry`: `json_schemas()` and `call(name, session_id, args)`; bound during app startup. Chat constructor is `ChatAgent(registry, session_provider)`.
@@ -26,9 +29,12 @@ M02 repository implementation verified, awaiting integration gate with the compl
 ## Merge log (captain)
 | Window | Merged branches @ SHA | Checks | Tag | Deployed |
 |---|---|---|---|---|
-| Pre-G1 readiness | No main merge: complete core/evaluation gate pending | Platform green; partial H01 compatible | none | repository-only scope |
+| G1 (early green integration) | core4e6f956 + platformd187ce5 + bench4d93bdb + webe29fc43 -> **8baa2c6** | 214 Python; oracle369/369; devtext138/138; structureddev138/138,train517/517;39Bun; productionbuild; health+fixtures | `gate-G1` @8baa2c6 | repository-only scope |
 
 ## Evidence
+- G1 exact HEAD `8baa2c65b1bda13b1596e28c652aaa6f41a00e99`: `scripts/check.sh` exit0, **214 Python tests**, **369/369 oracle**, **138/138 dev text**, **39 Bun**, strict TS/Vite/devicegate build. Separate dev structured138/138 and train structured517/517. Frozen uv/Bun installs succeeded. Health200 reports exact SHA,280 buildings; factory snapshot79spaces/505assets and both C3fixtures verified. Logs: `../tyb-main/agent_output/reports/g1/summary.json`, check.log, dev-structured.log, train-structured.log, health-fixtures.json.
+- `git ls-remote origin refs/heads/main refs/tags/gate-G1` returned **8baa2c65b1bda13b1596e28c652aaa6f41a00e99** for both. No force push.
+- Current platform follow-up: **63server tests pass** (including 8actualHTTP moved-part regressions core+kit); source regression confirmed failing against previous _plan before fix. C3 endpoint schema mismatch identified by real UI QA and fixed to actual [x,y] pairs; schema export verified.
 - M03 helper verification: **15 Bun tests**, strict TS, standalone local bundle, desktop 1100x850 and mobile 390x844 Playwright smoke passed (no horizontal overflow/page errors; unsupported XR reported honestly; Stop cleanup works). Camera/QR/microphone/motion permission and AR accuracy on actual phones remain pending H8.
 - Docker restart: persisted phone session/active tour, collected stop, 3 events and building_version 3; container stopped and temporary contexts cleaned. Local image retained for reuse; commit unknown locally without RAILWAY_GIT_COMMIT_SHA.
 - Final `scripts/check.sh`: **55 Python tests**, kit oracle **369/369**, **24 Bun tests** passed. Core.evaluate and full C01 build explicitly skipped in platform checkout because those packages remain on their builder branches. Log: `/private/tmp/tyb-platform-final-check.log`.
@@ -42,10 +48,13 @@ M02 repository implementation verified, awaiting integration gate with the compl
 
 ## Blockers and resource requests
 - Human steering: “just do all in the repo — elevenlabs agents will be implemented.” No external setup/access follow-ups required now. Railway deploy, live voice and physical devices remain unverified.
-- Gate G1 remains pending Hagen's full evaluator/fixtures; do not mark it green from the partial 49a7e6b checkpoint. Exact route geometry/edit semantics require H02/H03; chat conversations require Lenard's ChatAgent.
-- Latest fetch/read: Hagen 49a7e6b partial H01, Lenard 4db2d92 serializer/validator (30 owner-reported tests), Claude 78b0fde move/deps (STATUS still initial). Main remains d46775f. No gate tag or deployment claimed.
+- G1 resolved; real H02/H03 core now available on main. Chat conversations still require Lenard's ChatAgent and authorized provider configuration. C02 phone confirmation/progress/reroute UI is still in Claude's milestone.
+- Latest fetch/read: Hagen6452bda (additional explicit stop-position fix, queued); Lenarde1c2dfd (verified145-row submission/BENCHMARK, queuedG2); Claudee29fc43 (C01 liveAPI). No deployment claimed.
 
 ## Change requests
+- **CR-H-2 accepted:** fixed in this checkpoint; server delegates core.replan and preserves canonical updated stops. 8HTTP regressions +63server tests green.
+- **CR-H-3 accepted:** exclude evaluation question/answer files from production Docker context; implementation/check next.
+- **CR-L-1 / CR-L-2 accepted for C4 §8:** persist affirmative tool mobility settings; explicitly bridge the benchmark's singular closure input while honoring all current session closures on an isolated materialization. Implementing with regression tests; no core/benchmark schema change.
 ### CR-M-1: Explicit admin/phone session transport
 - Contract sections: 7, 14; C1 -> C2 (additive).
 - Change: X-Session-ID for raw admin endpoints and optional phone progress; mobility_profile handoff; demo opt-in; existing voice_unavailable token code documented.
@@ -55,5 +64,5 @@ M02 repository implementation verified, awaiting integration gate with the compl
 
 ## Next handoff
 - Consumers Hagen, Lenard, Manuel's Claude: fetch platform branch; `5f63287` M02 live endpoints/OpenAPI/registry/voice hook/server fixtures are ready for integration.
-- Next captain action at G1: read all four published STATUS files, merge ready increments in core -> server -> bench/agent -> web order, run scripts/check.sh and G1 acceptance, push main only when green; never force-push. No merge/deploy during recordings or sleep window.
+- Next captain action: merge/recheck the M02 fixes, latest core stop-position fix and G2 submission; run the validator and independent official dev score, then push main and gate-G2 only when green. Continue local G3 journey evidence and request C02/voice consumer integration through published STATUS (human relay).
 - Physical G3/G4/G5, Railway release, real voice, phone device table, AR accuracy, Sunday rehearsal and submission remain future acceptance work, not completed claims.

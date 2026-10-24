@@ -503,6 +503,13 @@
             "title": "Blocking Ids",
             "type": "array"
           },
+          "building_closed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Building Closed",
+            "type": "array"
+          },
           "building_id": {
             "title": "Building Id",
             "type": "string"
@@ -517,6 +524,27 @@
           "content_hash": {
             "title": "Content Hash",
             "type": "string"
+          },
+          "destination_position": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination Position"
           },
           "element_path": {
             "items": {
@@ -598,6 +626,27 @@
             "title": "Space Path",
             "type": "array"
           },
+          "start_position": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Position"
+          },
           "to_space_id": {
             "title": "To Space Id",
             "type": "string"
@@ -630,9 +679,31 @@
             ],
             "title": "Element Id"
           },
+          "fallback": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback"
+          },
           "floor_id": {
             "title": "Floor Id",
             "type": "string"
+          },
+          "geometry_length_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry Length M"
           },
           "kind": {
             "title": "Kind",
@@ -1092,6 +1163,13 @@
       "TourResult": {
         "additionalProperties": true,
         "properties": {
+          "building_closed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Building Closed",
+            "type": "array"
+          },
           "building_id": {
             "title": "Building Id",
             "type": "string"
@@ -1321,7 +1399,7 @@
   },
   "info": {
     "title": "Talk to Your Building",
-    "version": "C2"
+    "version": "C3"
   },
   "openapi": "3.1.0",
   "paths": {
