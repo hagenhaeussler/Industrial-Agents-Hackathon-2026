@@ -19,6 +19,11 @@ def content_hash(raw):
     return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
+def step_free_connector(connector):
+    """Physical stairs remain stairs even if source accessibility data conflicts."""
+    return connector["kind"] != "stairs" and connector["step_free"]
+
+
 class Building(BuildingMap):
     def __init__(self, raw, *, version=0):
         super().__init__(copy.deepcopy(raw))
@@ -45,6 +50,16 @@ class Building(BuildingMap):
         with _CACHE_LOCK:
             _WALKS.setdefault(self._walk_cache_key, {})[space_id] = walks
         return walks
+
+    def graph(self, step_free=False):
+        graph = super().graph(step_free)
+        if step_free:
+            blocked = {cid for cid, connector in self.connectors.items()
+                       if not step_free_connector(connector)}
+            graph.remove_edges_from([(first, second, key)
+                                     for first, second, key, edge in graph.edges(keys=True, data=True)
+                                     if edge.get("via") in blocked])
+        return graph
 
     def anchor(self, space_id):
         p = self.polygons[space_id].representative_point()

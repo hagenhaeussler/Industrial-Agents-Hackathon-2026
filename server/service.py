@@ -106,8 +106,6 @@ class PlatformService:
         result["profile"] = self.profile
         result["constraints"] = constraints
         result["building_version"] = building.version
-        if not any(stop["status"] == "pending" for stop in result["stops"]) and not result["unreachable_stops"]:
-            result["status"] = "completed"
         return result
 
     def create_tour(self, session_id, items, start=None, keep_order=False, end=None, constraints=None):
@@ -161,17 +159,37 @@ class PlatformService:
         if caller and (caller["building_id"] != tour["building_id"] or (caller["active_tour_id"] != tour_id and tour["session_id"] != session_id)):
             raise ServiceError("forbidden", "Open this tour in your session before changing its progress.", status=403)
         stops = deepcopy(tour["stops"])
-        stop = next((s for s in stops if s["stop_id"] == stop_id), None)
-        if not stop:
-            raise ServiceError("not_found", "Stop not found in this tour.", status=404)
-        if stop["status"] == status:
-            return tour
-        stop["status"] = status
+        final_arrival = stop_id == "end"
+        if final_arrival:
+            if not tour.get("end"):
+                raise ServiceError("invalid_args", "This tour has no final destination.")
+            if status != "collected":
+                raise ServiceError("invalid_args", "Confirm final arrival with status collected.")
+            if any(stop["status"] != "collected" for stop in stops):
+                raise ServiceError("invalid_args", "Collect the planned stops before confirming final arrival.")
+        else:
+            stop = next((s for s in stops if s["stop_id"] == stop_id), None)
+            if not stop:
+                raise ServiceError("not_found", "Stop not found in this tour.", status=404)
+            if stop["status"] == status:
+                return tour
+            stop["status"] = status
         session_id = session_id or tour["session_id"]
         session = caller or self.store.get_session(session_id)
         building = self.current(tour["building_id"])
-        position = adapter.position(building, stop["space_id"]) if status == "collected" else session["position"] or tour["start"]
-        result = self._plan(building, position, stops, self.constraints(session, tour.get("constraints")), tour.get("keep_order", False), tour.get("end"), order=tour["order"])
+        constraints = self.constraints(session, tour.get("constraints"))
+        if final_arrival:
+            position = adapter.position(building, tour["end"])
+            origin = session["position"] or tour["start"]
+            route = adapter.route(building, origin, position, constraints)
+            if not route["reachable"]:
+                raise ServiceError("no_route", "The final destination cannot currently be reached.", reason=route["reason"], route=route)
+            current = adapter.position(building, origin)
+            if tour["status"] == "completed" and current["space_id"] == position["space_id"] and current["point"] == position["point"]:
+                return tour
+        else:
+            position = adapter.position(building, stop["space_id"]) if status == "collected" else session["position"] or tour["start"]
+        result = self._plan(building, position, stops, constraints, tour.get("keep_order", False), tour.get("end"), order=tour["order"])
         result.update(tour_id=tour_id, session_id=session_id, keep_order=tour.get("keep_order", False), mobility_profile=session["profile"])
         result = self.store.save_tour(session_id, result, expected_revision=tour["revision"])
         if status == "collected":
@@ -241,19 +259,37 @@ class PlatformService:
         if not session["active_tour_id"]:
             raise ServiceError("invalid_args", "Plan or open a tour first.")
         tour = self.store.get_tour(session["active_tour_id"])
+        constraints = self.constraints(session, tour.get("constraints"))
+        if tour["building_version"] != self.store.version(tour["building_id"]) or constraints != tour.get("constraints"):
+            tour = self.replan_tour(tour["tour_id"], session_id, session["position"] or tour["start"],
+                                    reason="Refresh directions after the building or mobility profile changed.")
         pending = [sid for sid in tour["order"] if next(s for s in tour["stops"] if s["stop_id"] == sid)["status"] == "pending"]
+        final_leg = False
         if not pending:
             if any(stop["status"] == "pending" for stop in tour["stops"]):
                 raise ServiceError("no_route", "The remaining stops cannot currently be reached.")
-            return {"complete": True, "text": "All planned stops have been collected."}
-        stop = next(s for s in tour["stops"] if s["stop_id"] == pending[0])
+            if tour.get("end"):
+                unreachable = next((item for item in tour["unreachable_stops"] if item["stop_id"] == "end"), None)
+                if unreachable:
+                    raise ServiceError("no_route", "The final destination cannot currently be reached.", reason=unreachable["reason"])
+                if tour["status"] == "completed":
+                    return {"complete": True, "text": "All planned stops have been collected and the final destination reached."}
+                final_leg = True
+            else:
+                return {"complete": True, "text": "All planned stops have been collected."}
+        stop = None if final_leg else next(s for s in tour["stops"] if s["stop_id"] == pending[0])
         if not tour["legs"] or not tour["legs"][0].get("reachable"):
-            raise ServiceError("no_route", "The next stop cannot currently be reached.")
+            raise ServiceError("no_route", "The final destination cannot currently be reached." if final_leg else "The next stop cannot currently be reached.")
         maneuvers = tour["legs"][0].get("maneuvers", [])
         index = tour.get("navigation_index", 0)
         if index >= len(maneuvers):
+            if final_leg:
+                return {"at_end": True, "stop_id": "end", "complete": False,
+                        "text": "At the final destination, confirm your arrival."}
             return {"at_stop": True, "stop_id": stop["stop_id"], "text": f"At {stop['label']}, confirm collection with Got it."}
-        instruction = maneuvers[index]
+        instruction = dict(maneuvers[index])
+        if final_leg:
+            instruction.update(stop_id="end", complete=False)
         tour["navigation_index"] = index + 1
         saved = self.store.save_tour(tour["session_id"], tour, expected_revision=tour["revision"])
         self.notify(tour["building_id"], {"type": "tour_updated", "tour_id": tour["tour_id"], "revision": saved["revision"]})

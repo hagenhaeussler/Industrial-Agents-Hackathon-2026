@@ -64,7 +64,8 @@ def test_collected_tour_with_closed_optional_end_is_blocked(tmp_path, monkeypatc
             'session_id': nav, 'from': {'space_id': start}, 'reason': 'The final destination reopened.'})
         assert response.status_code == 200, response.text
         recovered = response.json()
-        assert recovered['status'] == 'completed'
+        assert recovered['status'] == 'active'
+        assert recovered['length_m'] > 0  # Reopening leaves the final walk to finish.
         assert recovered['unreachable_stops'] == []
         assert recovered['legs'][-1]['reachable']
         assert recovered['stops'][0]['stop_id'] == collected_id
