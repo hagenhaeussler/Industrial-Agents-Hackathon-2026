@@ -1,57 +1,52 @@
 # STATUS: Hagen's codex (Core & Spatial Intelligence Lead)
-Last update: 2026-10-24T21:42+02:00 · Branch: `hagen/core` · HEAD: this checkpoint · Last sync: merged `origin/main` at `8baa2c6` without conflicts (merge `69f7ad8`); consumed platform `d187ce5`, bench `4d93bdb`, web `de81877`
+Last update: 2026-10-24 22:20 Europe/Berlin · Branch: `hagen/core` · Core fixes: `b1b8e2e` · Integration: `83d58d3` · Last sync with origin/main: `ea2a844`
 
 Single writer: Hagen's codex.
 
 ## Current task
-H01/H02 core delivered; H03 edits/validator delivered, measured venue data pending; H04 SVG spike measured (mention only). Core milestones complete with documented scope limits; final tested checkpoint published for captain integration.
+H01/H02 core, H03 edits/validation and H04 measured SVG spike delivered. Current pass consumes all three builders' latest published checkpoints, fixes core edge cases and verifies the integrated system locally and in the isolated Railway test project. Main and final release merges remain with the captain.
 
 ## Delivered (newest first)
-- All 15 deterministic solvers; current kit 1.1.0 walk/connector semantics, no kit edits.
-- Actual walk polylines, selected door/connector IDs, actual point endpoints, English maneuvers, constraints/unreachable reasons.
-- Exact collection tours up to 12 pending stops, explicit heuristic above 12, optional end, collected-stop and moved-part replanning.
-- Pure preview/event replay/targeted undo/what-if; JSON validation and typed core payloads.
-- Real snapshot/tour/tool fixtures under `fixtures/`; SVG L-room route examples.
-- SVG draft importer and measurement report in `core/plan_import/`; no paid vision calls. JSON input remains reliable path.
-- Consumed all three teammates' published checkpoints on this test branch without conflicts; main merges remain the captain's responsibility.
+- `b1b8e2e`: fixed a reproduced native crash when simultaneous point routes use one cached prepared GEOS geometry. A per-space lock covers native predicates/projections/visibility and the path cache; different rooms retain concurrency.
+- `b1b8e2e`: identical explicit positions now cost zero even in the wall-clearance band; invalid positions and closed rooms still reject. Distinct-point and kit anchor/door semantics are preserved.
+- `b1b8e2e`: step-free graphs exclude physical stairs even if an uploaded source contradictorily sets `step_free: true`. Shared core semantics cover public routing, inherited routes and spatial reachability; source data stays unchanged.
+- `b1b8e2e`: collecting and restoring a middle fixed-order stop preserves the prescribed sequence and collected snapshots; new moved-part splits stay beside their parent.
+- `b1b8e2e`: core tours with an outstanding optional final leg stay active until arrival. Server/UI follow-up is CR-H-4 below.
+- Cleanly merged main `ea2a844` (includes platform `2d68c03`), Lenard `e781afd` (L02/L03), Claude `47d28ee` (phone/admin/accessibility/reconnect). No other owner's source files edited.
+- Existing delivery: all 15 deterministic question kinds, actual walk geometry/maneuvers, exact tours through 12 stops and labelled heuristic beyond, pure preview/replay/undo/what-if, JSON validation, real fixtures, SVG draft importer and measured report. Venue H6 remains unmeasured; use the factory fallback.
 
 ## Interfaces exposed / changed
-- C4 accepts `step_free_reachable_count.closed` as the original string or an empty/single/multiple ID list. Requested by Lenard (CR-L-2), accepted by core owner; existing benchmark inputs unchanged.
-- Fixed-order replanning retains the full prescribed stop sequence across temporary disconnection/reopening. Added an executable regression.
-- `core.building.load_building`, `core.spatial.solve`, `core.resolve.resolve`.
-- `core.routing.route`, `core.tour.plan_tour` / `replan`.
-- `core.edits.resolve_edit` / `preview_edit` / `apply_events`, `core.whatif.what_if`, `core.validate.validate_building`.
-- `core.plan_import.import_plan(file_bytes,kind,floor_level,scale=None)` returns draft, validation, correction needs; never auto-commits.
-- Collection stop position objects now retain their actual target points in both order optimization and routed legs.
-- Pending-asset replanning also refreshes additive server `target` metadata; direct core regression passes.
-- C3 adds geometry_length_m/start_position/destination_position/building_closed; preserves C2 HTTP/session transport. Core tour_id is null until server assigns one.
+- Canonical **C6** consumed; this pass fixes behavior without changing payload schemas or kit files.
+- `Building.graph(step_free=True)` and `core.routing.route` share physical-stair exclusion. Core geometry cache operations now synchronize per space.
+- `core.tour.replan` preserves the full stable stop sequence across collected/pending transitions, closures, reopenings and moved parts. Pending targets follow current inventory; collected snapshots retain their history.
+- Core optional-end status reflects the remaining end leg; the platform must preserve it and expose final-leg navigation (CR-H-4).
+- Existing APIs: `load_building`, `solve`, `resolve`, `route`, `plan_tour`/`replan`, pure edit/validation APIs and `core.plan_import.import_plan`. Import returns a draft/correction needs, never auto-commits. PNG/vision unavailable.
 
 ## Evidence
-- `scripts/check.sh` on full core with M01: 113 Python tests passed in 21.69 s; kit oracle 369/369; dev text 138/138. Bun skip explicitly reported at that point.
-- Final combined Python check after fixed-order recovery and closure-list compatibility: **217 passed in 24.93 s**. Point-stop/server-metadata checkpoint: 215 passed in 25.13 s. Earlier integrated checkpoint: 214 passed in 26.08 s.
-- Full integrated `scripts/check.sh` passed after consuming all three builder branches: 214 Python tests, oracle 369/369, dev text 138/138, 39 Bun tests and production frontend/device-gate build.
-- `core.evaluate data/dev --check text`: **138/138**; dev structured **138/138**; train structured **517/517**. Train text **510/517**, seven genuinely ambiguous labels, no guessing. Reports: ignored `agent_output/reports/core/`.
-- All **369** dev warm-up regressions pass, exact space/element paths, lengths within inclusive 1 cm. Cache correction reduced full warm-up regression 71.54 s -> 21.56 s.
-- `core.check_geometry data/dev`: **40 buildings, 269 legs, 1,232 walks, zero fallbacks/failures** (22.47 s). Two synthetic L-room examples: `fixtures/route_geometry_l_examples.svg`.
-- Validator over **280 buildings: zero errors**, 242 door-boundary warnings, 0.871 s; malformed-input checks covered 360 field mutations without uncaught exceptions.
-- Warm factory route mean **1.795 ms**; 5-stop exact tour **16.064 ms**. Largest building first graph **2.096 s**; another complex OSM cold route ~11 s (Shapely visibility dominates), warm repeat ~0.002 s. Warm chosen demo buildings before timing; no universal cold latency claim.
-- Factory wheelchair lift-close preview **16.6 ms**, 107.65 m -> unreachable, one active tour affected; normal walking still uses stairs.
-- H04 three floor results: factory 47/47, campus 28/28, OSM 21/21 polygons; matched IoU 1.0; internal adjacency 50/50, 27/27, 25/25. Evaluation uses oracle bounds solely to simulate perfect user calibration. Recommendation **mention only**; labels/types/width/accessibility/height and arbitrary plans remain unproven.
-- Railway plugin created isolated project `146f7fb5-46aa-42fb-a164-9f14159e2e23`, testing env `0eac3d7a-01e4-4c78-b401-9c55840f33f2`, service `6cead871-bd0b-4447-a182-92d8a03b40ec`, 500 MB `/state` volume. Public URL (human-approved): https://hagen-core-test-testing.up.railway.app . First pinned checkpoint `49a7e6b` deployed successfully; health + real 79-space factory snapshot verified. Combined checkpoint `cdd4f67` deployed successfully. Three real cloud lift-close/replan/undo trials passed: **719.3 / 758.4 / 723.9 ms** commit-to-reroute, 107.65 m -> unreachable -> 107.65 m; all test closures undone. These are API timings, not phone/voice timings. Final code revision `b2b8ddd` deployed successfully (deployment `aa2543dc-5366-48f1-856f-332ab33ce711`); health reports the expected commit, 280 buildings and writable state. Its reversible close/replan/undo smoke passed at **652.8 ms**; 107.65 m restored and closures undone.
+- Initial latest-team integration full check after core fixes: **356 Python passed in 46.57 s**, oracle **369/369**, core dev text **138/138** (12.13 s), **50 Bun passed**, strict TS/Vite production build and device-gate bundle; exit 0. Log: ignored `agent_output/reports/core/integration-fixed-check.log`.
+- Native crash reproduced before the fix with two concurrent explicit-point walks over the same prepared room (exit 139). Independent post-fix stress: **100 rounds / 200 walks**, peak shared native helper concurrency **1**, exit 0 (1.40 s), Shapely 2.2.0 / GEOS 3.14.1. Deterministic lock/parallel-room regressions and 40 concurrent real point routes are checked in under `tests/core/`.
+- New core regressions also cover conflicting stair flags, closures, zero point routes, optional end status, fixed-order progress restoration and split identity. Focused existing core/server tests passed, including C6 partial overrides and moved-part HTTP journeys.
+- Real local HTTP smoke passed: exact CNC lookup, real geometry, wheelchair lift closure -> blocked, explicit C6 stairs override within the same tour, closure undo -> 107.65 m restored, pending-part move/replan/undo, fixed-order collected->pending restoration, **8 concurrent HTTP routes**. Commit-to-blocked-replan **291.7 ms** (API timing). All test edits undone. Report: ignored `agent_output/reports/core/local-integration-smoke.json`. Local source had the committed fixes on top of its health-reported base; final cloud health must match the pushed revision exactly.
+- Local browser: real demo desk planned 3 stops / 97 m in 85 ms, QR opened the same tour in a second tab, start confirmation displayed real core guidance. No paid model or physical phone claim.
+- Final full check at integration `83d58d3` after L03/accessibility/reconnect: **389 Python passed in 47.77 s**, oracle **369/369**, core dev text **138/138**, **50 Bun**, strict TypeScript/Vite and device-gate bundle; **exit 0**. Log: ignored `agent_output/reports/core/integration-final-check.log`.
+- Earlier broad core baselines: dev structured 138/138, train structured 517/517; train text 510/517 with seven genuine duplicate-label ambiguities. All 369 dev warm-ups reproduce paths/lengths. Geometry: 40 buildings / 269 legs / 1,232 walks, no fallbacks/failures. Validator: 280 buildings, zero errors, 242 door-boundary warnings.
+- Railway test service: `talk-to-your-building-hagen-test` project `146f7fb5-46aa-42fb-a164-9f14159e2e23`, testing env `0eac3d7a-01e4-4c78-b401-9c55840f33f2`, service `6cead871-bd0b-4447-a182-92d8a03b40ec`, persistent 500 MB `/state` volume. Public URL approved by the human: https://hagen-core-test-testing.up.railway.app . Prior pinned `b2b8ddd` was verified; this pass will deploy the new tested checkpoint explicitly.
 
 ## Blockers and resource requests
-- Venue measurements H6 not supplied. No invented venue building; `demo/hero/README.md` records needed dimensions/objects/marker headings. Validated factory fallback is ready for Claude's scenario.
-- No paid vision/model calls, live voice, physical phone tracking or complete UI journey acceptance claimed. Railway trial issue resolved by human enabling Hobby.
+- Venue H6 dimensions/objects/marker headings remain absent; no invented hero building. `demo/hero/README.md` records the required measurements and factory fallback.
+- Paid LLM/voice, physical phone permissions/localization and complete journey acceptance are not established by offline/API tests. No paid model calls made.
+- Main integration remains captain-owned. Latest web is included here for test coverage; unresolved owner-side behaviors below must not be treated as G3/G4 acceptance.
 
 ## Change requests
-- **CR-L-2 accepted C4 (§4):** live closure lists supported without changing existing benchmark strings; core and server tool tests pass.
-- **CR-H-1 accepted C3 (§5):** distinguish raw physical geometry from graph costs rounded to 0.001 m; documented additive result fields, current closures and pending moved-part semantics. C2 platform changes preserved.
-- **CR-H-3 to Manuel's codex (deployment):** `.dockerignore` currently filters plan images but not `data/**/questions*.jsonl` or test question/answer CSVs; Docker COPY includes these evaluation files. Please exclude them so runtime bundles contain only building.json/equipment.csv and selected demo data, as the master plan requires. Core inference itself never reads labels.
-- **CR-H-2 to Manuel's codex (§6/server seam):** `server.service._plan` restores old stops by old space after planning and `replan_tour` bypasses `core.tour.replan`. A pending asset moved to another room needs its server stop target/space updated before core planning (and ID-based reconciliation afterwards), or use core.replan. Reproduced against the real local API: move preview/commit succeeds, then POST tour replan returns HTTP 400 invalid_args because the pending stop still refers to the old room. Otherwise a stale canonical stop with asset_ids in its old room raises invalid_args. Core.replan itself retargets correctly and its regression passes. Please add server-level move-during-tour test; no platform files edited by Hagen.
+- **CR-H-4 to Manuel's codex (§5/§7/§8, C6): optional end completion/navigation.** Core now returns active for an outstanding positive-length final leg with no pending collection stops, completed once at the end, blocked if the end is unreachable. `server.service._plan` still unconditionally forces completed when no stops remain; `next_step` also returns complete without traversing the final leg. Please preserve core status, navigate the end leg and define arrival/progress for it in both adapters. Repro: factory first space -> second space, no collection items, `end=second`: a 17.1 m remaining leg was labelled completed. Core regression: `tests/core/test_tour_end_status.py`.
+- **CR-H-5 to Manuel's Claude, follow-ups to CR-M-2/3/4 (§7/§8/§9, C6):** consume C6 by passing `constraints: {step_free:false}` on the explicit stairs replan after the checked walk-profile PATCH. Existing fallback creates a new tour and loses collected identity/desk tracking. `Journey` still omits the VoiceProvider `onDisplay` callback. Fully blocked real payload (`order=[]`, UPS in `unreachable_stops`) gives `blockedReason=null` and voice context "replanned: 0 m, next none"; use unreachable pending stops for speech. The new reconnect handler at `1ecbc7d` detects changes against the cached snapshot; also compare the stored tour's building_version so a fresh reload of an already-stale tour replans. Core close/reopen payloads have correct floors, indices, geometry joins and unreachable stops.
+- **CR-H-2 resolved** by platform `d55d0ac`: core replan delegation and moved-part recovery; consumed real HTTP regressions pass.
+- **CR-H-3 resolved** by platform `1a5c491`: production context excludes evaluation questions/answers/submissions while retaining building/inventory/manifest. Consumed `.dockerignore` inspected.
+- **CR-L-1/2/3 resolved** in C4/C5: mobility persistence, full closure lists and cross-kind exact lookup precedence. The unchanged exact-name L02 regression passes in this integration.
+- **CR-H-1 accepted C3:** physical geometry vs rounded graph costs remains explicit. No profile/serializer/kit changes this pass.
 
 ## Next handoff
-- PR handoff: https://github.com/hagenhaeussler/Industrial-Agents-Hackathon-2026/pull/1 .
-- Captain: merge published Hagen branch, run integrated checks, expose new real core APIs through existing adapter. This branch consumes teammates' checkpoints for seam checks; do not duplicate their modules.
-- Lenard: consume solve/resolve + real parser integration; run your own dev evaluation and test CSV. Temporary reference parser adapter automatically yields to `bench.templates` now present.
-- Claude: real C3 snapshot/tour/tool fixtures ready; geometry is reconstructed, not provisional. Use factory fallback until venue data arrives.
-- Manuel's codex: separate Railway test project/URL available; final production project ownership stays with captain. Resolve CR-H-2; missing venue dimensions remain human input.
+- Captain: consume `b1b8e2e` core fixes or this integration branch after reviewing the latest teammates' checkpoints. Preserve main merge ownership and do not retag G3/G4 until actual acceptance. Resolve CR-H-4 with the core's end-status regressions as the reference.
+- Claude: consume C6 and CR-H-5; HTTPS test URL is available. Core routes/maneuvers look correct on the real factory journey.
+- Lenard: latest L02/L03 consumed; rerun only warranted evaluations after any new solver changes. No paid allocation has been inferred.
+- Hagen: record final full-check and exact Railway revision/smoke evidence, then push the clean handoff without force pushes.
