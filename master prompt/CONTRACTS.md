@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C3** (24 Oct 2026; C2 HTTP clarifications by Manuel's codex preserved; C3 core result clarifications by Hagen's codex). Section owners:
+Contract version: **C4** (24 Oct 2026; C2 HTTP and C3 result clarifications preserved; C4 adds live closure-list input compatibility). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -122,6 +122,7 @@ validate_building(raw: dict) -> dict         # {"ok": bool, "errors": [...], "wa
 | `tour` | `stops` (list of space IDs, first = start), `keep_order: true` | TourResult-like `legs`, `length_m`, or `reachable: false` |
 
 - `start`, `destination` and stop `target` accept a space ID, an asset ID (resolved to the asset's space, kit rule: a route to an item ends in its room) or a `{"space_id": "...", "point": [x, y]}` position. Free text is resolved **before** calling core (by `resolve`), never inside routing.
+- C4 / CR-L-2: `step_free_reachable_count.closed` accepts the kit's single element ID string **or** a list of IDs (including an empty list) for live tools. Lists apply all closures together; duplicates are harmless. The source benchmark string contract remains supported unchanged.
 - Errors are raised as `core.errors.CoreError(code, message, candidates=None)` with `code` from §14.
 
 ## 5. Route, tour and maneuver results
@@ -391,3 +392,4 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C2 — 24 Oct 2026, Manuel's codex, CR-M-1:** clarified §7 admin session header, optional phone progress header, mobility handoff metadata and demo opt-in; documented the existing voice token 503 code in §14. Endpoint paths, eleven tool names and their required arguments unchanged.
 
 - **C3 — 24 Oct 2026, Hagen's codex, CR-H-1:** clarified §5 raw polyline length versus rounded kit cost, actual point endpoints, server-assigned tour IDs, current building closures and moved-part replanning. C2 HTTP/session transport preserved.
+- **C4 — 24 Oct 2026, Hagen's codex, CR-L-2 accepted:** §4 step-free reachability accepts both the original single closure string and live empty/single/multiple closure lists. No change to source benchmark inputs or output fields.

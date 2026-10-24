@@ -16,6 +16,8 @@ H01/H02 core delivered; H03 edits/validator delivered, measured venue data pendi
 - Consumed all three teammates' published checkpoints on this test branch without conflicts; main merges remain the captain's responsibility.
 
 ## Interfaces exposed / changed
+- C4 accepts `step_free_reachable_count.closed` as the original string or an empty/single/multiple ID list. Requested by Lenard (CR-L-2), accepted by core owner; existing benchmark inputs unchanged.
+- Fixed-order replanning retains the full prescribed stop sequence across temporary disconnection/reopening. Added an executable regression.
 - `core.building.load_building`, `core.spatial.solve`, `core.resolve.resolve`.
 - `core.routing.route`, `core.tour.plan_tour` / `replan`.
 - `core.edits.resolve_edit` / `preview_edit` / `apply_events`, `core.whatif.what_if`, `core.validate.validate_building`.
@@ -26,7 +28,7 @@ H01/H02 core delivered; H03 edits/validator delivered, measured venue data pendi
 
 ## Evidence
 - `scripts/check.sh` on full core with M01: 113 Python tests passed in 21.69 s; kit oracle 369/369; dev text 138/138. Bun skip explicitly reported at that point.
-- Latest combined Python check after actual point-stop support and server metadata regression: **215 passed in 25.13 s**. Earlier integrated checkpoint: 214 passed in 26.08 s.
+- Final combined Python check after fixed-order recovery and closure-list compatibility: **217 passed in 24.93 s**. Point-stop/server-metadata checkpoint: 215 passed in 25.13 s. Earlier integrated checkpoint: 214 passed in 26.08 s.
 - Full integrated `scripts/check.sh` passed after consuming all three builder branches: 214 Python tests, oracle 369/369, dev text 138/138, 39 Bun tests and production frontend/device-gate build.
 - `core.evaluate data/dev --check text`: **138/138**; dev structured **138/138**; train structured **517/517**. Train text **510/517**, seven genuinely ambiguous labels, no guessing. Reports: ignored `agent_output/reports/core/`.
 - All **369** dev warm-up regressions pass, exact space/element paths, lengths within inclusive 1 cm. Cache correction reduced full warm-up regression 71.54 s -> 21.56 s.
@@ -42,6 +44,7 @@ H01/H02 core delivered; H03 edits/validator delivered, measured venue data pendi
 - No paid vision/model calls, live voice, physical phone tracking or complete UI journey acceptance claimed. Railway trial issue resolved by human enabling Hobby.
 
 ## Change requests
+- **CR-L-2 accepted C4 (§4):** live closure lists supported without changing existing benchmark strings; core and server tool tests pass.
 - **CR-H-1 accepted C3 (§5):** distinguish raw physical geometry from graph costs rounded to 0.001 m; documented additive result fields, current closures and pending moved-part semantics. C2 platform changes preserved.
 - **CR-H-3 to Manuel's codex (deployment):** `.dockerignore` currently filters plan images but not `data/**/questions*.jsonl` or test question/answer CSVs; Docker COPY includes these evaluation files. Please exclude them so runtime bundles contain only building.json/equipment.csv and selected demo data, as the master plan requires. Core inference itself never reads labels.
 - **CR-H-2 to Manuel's codex (§6/server seam):** `server.service._plan` restores old stops by old space after planning and `replan_tour` bypasses `core.tour.replan`. A pending asset moved to another room needs its server stop target/space updated before core planning (and ID-based reconciliation afterwards), or use core.replan. Reproduced against the real local API: move preview/commit succeeds, then POST tour replan returns HTTP 400 invalid_args because the pending stop still refers to the old room. Otherwise a stale canonical stop with asset_ids in its old room raises invalid_args. Core.replan itself retargets correctly and its regression passes. Please add server-level move-during-tour test; no platform files edited by Hagen.

@@ -84,3 +84,16 @@ def test_collection_stop_honors_explicit_position():
     result = plan_tour(b,start,[{'target':target}])
     assert result['length_m_exact']==pytest.approx(.2,abs=.001)
     assert result['legs'][0]['destination_position']==target['point']
+
+
+def test_fixed_order_survives_temporarily_unreachable_stop():
+    b = load_building('data/dev/proc-factory-dev-003')
+    ids = list(b.spaces)
+    tour = plan_tour(b,ids[0],ids[1:4],keep_order=True)
+    prescribed = list(tour['order'])
+    b.closed.add(ids[2])
+    blocked = replan(b,tour,ids[0])
+    assert len(blocked['order'])==2
+    b.closed.clear()
+    reopened = replan(b,blocked,ids[0])
+    assert reopened['order']==prescribed
