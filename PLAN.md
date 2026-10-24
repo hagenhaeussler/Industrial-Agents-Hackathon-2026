@@ -4,7 +4,7 @@
 **Stack:** Web-Apps auf **Railway** (ein Node-Service), **alles in TypeScript** · vorberechnete SQLite-Datenbank aus `building.json` · Agent Harness mit dem Tool Runner des Anthropic SDK · ElevenLabs Agent mit Eleven v4 Turbo · Claude (600 USD Anthropic-Credits)
 **Grundlage:**
 - dieses Team-Repo: Meeting-Notizen, Q&A mit dem Challenge-Lead, Route-Scoring-Spec, Challenge-PDF
-- das offizielle Synera-Kit (`../repo/`, Commit `cb51a6f`, aktuell) mit unserer lokalen Vorarbeit
+- das offizielle Synera-Kit, Version 1.1.0 (Branch `patch/fix-answers-ruleset`, Commit `6a2cdec`): neue Antworten nach den Routenregeln der Jury, siehe `CHANGELOG.md`
 - ein Review durch Codex (gpt-6.1-sol, medium), siehe Abschnitt 10
 
 ---
@@ -13,7 +13,7 @@
 
 | # | Fund | Quelle | Folge |
 |---|---|---|---|
-| 1 | **Für Routen gibt es ein zweites Distanzmodell.** Gemessen wird Tür zu Tür *innerhalb* der Räume, 15 cm Abstand zur Wand, um Ecken herum. Treppe = 2 m pro Höhenmeter, Lift = 15 m + 1 m pro Höhenmeter. Bewertet wird die **Raumfolge**. Score = beste Länge ÷ unsere Länge, innerhalb 1 % gibt volle Punkte, eine ungültige Route gibt 0. | `2026-10-24-route-scoring-specifications.md` | Für Routenfragen brauchen wir ein **geodätisches Modell** (Abschnitt 5). Das README-Modell bleibt für `errand` und `what_if_door` im Testset, weil die dev-Antworten damit übereinstimmen. |
+| 1 | **Es gibt nur noch ein Routenmodell (Kit 1.1.0).** Gemessen wird Tür zu Tür *innerhalb* der Räume, 15 cm Abstand zur Wand, um Ecken herum. Treppe = 2 m pro Höhenmeter, Lift = 15 m einmal pro Fahrt + 1 m pro Höhenmeter. Kein Weg außen herum. Bewertet wird die **Raumfolge**. Score = beste Länge ÷ unsere Länge, innerhalb 1 % gibt volle Punkte, eine ungültige Route gibt 0. | `CHANGELOG.md`, README Abschnitt 3, `2026-10-24-route-scoring-specifications.md` | Alle Routenfragen nutzen dieses Modell. Das alte README-Modell (Ankerpunkt, 12 m pro Etage, 15 + 6 m, `outside`-Knoten) ist ungültig. |
 | 2 | **Neue Routing-Regeln:** Ein Gabelstapler fährt nur durch Gänge und Öffnungen ab 3 m. Produktionsbereiche sind nur Ziel, kein Transit. Eine Route zu einem Gerät endet im Raum, der es enthält. Wenn es keine Route gibt, sagen wir das. | dieselbe Datei | Das kommt als Constraints in den Graphen. In den Fabrikdaten gibt es Hallen-Öffnungen mit 4–20 m. |
 | 3 | **Das Sonntagsformat ist widersprüchlich.** Das PDF verlangt `answers.json` mit Route als Knotenliste und Länge. Die README verlangt CSV mit einer `Answer:`-Zeile. | PDF vs. README | Parser und Serializer müssen austauschbar sein. Wir schreiben beide Formate und decken alle 15 Fragearten ab, auch die Warm-up-Arten. |
 | 4 | **Build heißt vor allem lokale Änderungen und What-if.** Eine Web-App reicht. Post-Training ist unerwünscht. Die Jury testet mit eigenen Keys (OpenAI oder Anthropic). Im Video zählt die Interaktion am meisten. | Q&A mit dem Lead | Event-Log-Änderungen sind Pflicht. Einen Bildimport gibt es nicht: Wir arbeiten nur mit JSON. Die Jury hat keinen bestätigten ElevenLabs-Zugang. Deshalb wird die Agent-Konfiguration exportiert, und der Benchmark läuft **lokal und ohne ElevenLabs und Railway**. |
@@ -113,21 +113,23 @@ Die Zustandshoheit liegt beim Server: Gebäudeversion pro Gebäude, `commit_edit
 
 **Fallback ohne Mikrofon oder Credits:** Textchat im selben UI über `/api/chat`, mit denselben Tools.
 
-## 5. Core: Datenbank und zwei Kostenmodelle
+## 5. Core: Datenbank und Routenmodell
 
 **Vorberechnete Datenbank (SQLite):**
 - **Basistabellen** wie in `building.json`: `buildings`, `floors`, `spaces`, `openings`, `connectors`, `connector_stops`, `assets`.
-- **Vorberechnet** beim Import: Fläche, Mittelpunkt und Ankerpunkt pro Raum; gemeinsame Wandlänge zwischen Räumen (`space_adjacency`, Regel 0,35 m / 1 m); Raum darüber und darunter (`space_stacking`); Weg zum nächsten Eingang. Kürzeste Wege zwischen allen Räumen (normal und stufenlos) nur, wenn die Tabelle klein genug bleibt.
-- **Ein Schreibweg:** Import und Änderungen (Tür, Sperrung, Raum) laufen durch denselben Code. Bei einer Änderung rechnet er nur die betroffenen Werte neu.
+- **Vorberechnet** beim Import: Fläche, Mittelpunkt und Ankerpunkt pro Raum; Ankunftspunkt jeder Tür im Raum; Gehwege innerhalb jedes Raums (Ankerpunkt zu Tür, Tür zu Tür); gemeinsame Wandlänge zwischen Räumen (`space_adjacency`, Regel 0,35 m / 1 m); Raum darüber und darunter (`space_stacking`); Weg zum nächsten Eingang. Kürzeste Wege zwischen allen Räumen (normal und stufenlos) nur, wenn die Tabelle klein genug bleibt.
+- **Ein Schreibweg:** Import und Änderungen (Tür, Sperrung, Raum) laufen durch denselben Code. Bei einer Änderung rechnet er nur die betroffenen Werte neu. Eine neue Tür ändert nur die Gehwege der zwei Räume, die sie verbindet.
 - Der Agent liest die DB nur. Routen mit Bedingungen (Türbreite, Sperrung, neue Tür) berechnen Tools zur Laufzeit.
-- **Geometrie ohne shapely:** Ankerpunkt (`representative_point`) nachgebaut, Flächen und Mittelpunkte mit Standardformeln, Überlappungen mit einem reinen JS-Paket. Geprüft mit Vitest gegen die Routenlängen der Warm-up-Fragen in train und dev.
+- **Geometrie ohne shapely:** Ankerpunkt (`representative_point`), Verkleinern und Vergrößern von Polygonen (`buffer`), nächster Punkt und "Segment liegt im Polygon" in TypeScript. Flächen und Mittelpunkte mit Standardformeln. Das Verkleinern muss die runden Ecken wie shapely erzeugen, sonst stimmen die Längen nicht auf den Zentimeter. Wir prüfen mit Vitest gegen die Routenlängen der Warm-up-Fragen in train und dev.
 
-- **`readme`:** exakt wie `building_map.py` (Ankerpunkt, 12 m pro Etage, 15 + 6 m). Gilt für errand, what_if und die Warm-up-Routen. Wird gegen die dev-Antworten geprüft.
-- **`geodesic`:** nach der Spec von Synera. Das Modell wird **im Code nach Fragetyp gewählt**, nicht vom LLM, und im Ergebnis protokolliert.
-  - **Portalgraph statt Raumknoten:** Knoten sind die Türen, Kanten sind Wege innerhalb eines Raums von Tür zu Tür. Die Kosten für das Durchqueren eines Raums hängen von Eingangs- und Ausgangstür ab. Aus dem Graphen wird am Ende die Raumfolge exportiert.
-  - Der Raum wird um 0,15 m nach innen verkleinert, dann wird ein Sichtbarkeitsgraph gebaut. Schmale Bereiche, die dabei zerfallen, Türen außerhalb des verkleinerten Polygons und ungültige Polygone behandeln wir ausdrücklich: Türpunkt auf den Rand projizieren. Zerfallene Teilflächen verbinden wir **nicht pauschal**, weil das verbotene Abkürzungen erzeugen kann. Erlaubt sind nur geometrisch gültige Übergänge. Wie Start und Ziel in der neuen Distanzregel zählen, ist noch offen (Frage an Synera).
-  - Den kostenlosen `outside`-Knoten übernehmen wir nicht ungeprüft. Die Lift-Wartepauschale fällt nur einmal pro Fahrt an.
-  - **Tests:** Handprüfbare L- und U-Räume, keine Strecke durch Wände, Konnektivität. Der Vergleich „geodätisch ≥ README“ ist **kein** gültiger Test, weil auch der README-Anker Umwege erzeugt.
+**Routenmodell** (README Abschnitt 3, gilt für alle Routenfragen, Warm-up und Benchmark):
+- **Knoten:** ein Ankerpunkt pro Raum (`representative_point`) und ein Knoten pro Tür.
+- **Gehen im Raum:** Jede Tür landet 30 cm im Raum (nächster Punkt von `buffer(-0.30)`, bei schmalen Räumen `buffer(-0.05)`). Der Schritt von der Tür zur Landung zählt mit. Zwischen Ankerpunkt und Türen eines Raums gilt der kürzeste Weg auf `buffer(-0.15)`: Sichtbarkeitsgraph aus den Punkten und den Ecken der verkleinerten Fläche. Ein Segment ist frei, wenn `buffer(0.02)` der verkleinerten Fläche es abdeckt. Gibt es keinen freien Weg, zählt die Luftlinie × 1,5. Kantenlängen auf 3 Nachkommastellen gerundet.
+- **Ein Flur, durch den man nur geht,** wird von Tür zu Tür gemessen, nicht über seinen Ankerpunkt. Start und Ziel sind die Ankerpunkte der Räume.
+- **Treppe:** 2 m pro Höhenmeter, nur zwischen benachbarten Halten. **Lift:** 15 m einmal pro Fahrt + 1 m pro Höhenmeter, eine Kante zwischen jedem Paar von Halten. Höhe = Differenz der `elevation_m`.
+- **Kein Weg außen herum:** Eingänge verbinden nichts miteinander. Sind zwei Teile nur außen verbunden, ist die Antwort `reachable: false`.
+- **Parallele Verbindungen** bleiben erhalten (Treppe und Lift, zwei Türen zwischen denselben Räumen). `space_path` listet jeden durchquerten Raum.
+- **Tests:** Warm-up-Routen in train und dev auf den Zentimeter, dazu handprüfbare L- und U-Räume ohne Strecke durch Wände.
 - **Constraints:** `step_free, min_door_width, vehicle(forklift), allow_stairs, allow_lifts, closed, extra_doors, no_transit_types`. Produktionsbereiche bleiben als Start und Ziel erreichbar. Eine Öffnung ab 3 m beweist allein noch keinen Gabelstapler-Gang (Frage an Synera). „Gang blockiert“ heißt in der Demo, dass ein **vorhandener** Gang gesperrt wird; Teilsperrungen innerhalb einer Halle bauen wir nicht.
 
 ## 6. Modelle und Budget (600 USD Anthropic)
@@ -160,7 +162,7 @@ Der Puffer im Benchmark ist für den Fall gedacht, dass wir auf Sonnet wechseln 
 
 | Wo | Inhalt | Zustand |
 |---|---|---|
-| `starter_agent/building_map.py` | MultiGraph nach README, Dijkstra, Sperrungen, `add_door` | Python-Referenz für unseren TypeScript-Core. Warm-up-Oracle 369/369 |
+| `starter_agent/building_map.py` (Kit 1.1.0) | Routenmodell nach README Abschnitt 3: Gehwege Tür zu Tür, Treppen- und Liftkosten, kein Außenweg, Sperrungen, `add_door` | Nur Nachschlagewerk für Details des Modells. Wir übernehmen keinen Code |
 | Lenards UI-Prototyp "Building Guide" (`web/mobile/`) | Mobile-Ansicht mit Vollbildkamera, Route, Minimap, Chat und Blobatar-Avatar. React 19, Vite, Bun | Vorlage für B.2 Mobile. Nutzt Bun statt pnpm |
 | `../repo/ARCHITECTURE.md`, `VIDEO_TAKEAWAYS.md`, `SYNERA.md`, `RESEARCH*.md` | Tool-Schnitt, Prompt-Regeln, ElevenLabs-Wege, Synera-Pitch-Sprache | Referenz. Server-Struktur und Voice-Weg „A“ sind durch Abschnitt 2–4 ersetzt |
 | Dieses Repo | Notizen, PDFs, Skizze, dieser Plan | `.env` wird nicht mehr verfolgt, `.gitignore` ist gefüllt (Commit `62074c2`). `agent.py` ist leer |
@@ -178,7 +180,7 @@ Testset (145 Fragen): floor_area_total 33 · shared_walls 26 · largest_room 21 
 | **A Voice** | Realtime-Voice-Layer mit ElevenLabs für Mobile und Desktop. Token-Endpunkt, Client-Tools auf dieselbe Tool-API wie der Agent | Eine gesprochene Frage zeigt eine Route, auf Mobile und Desktop |
 | **B.1 Visualisierung** | 2D (SVG) und 3D (extrudiert), **deterministisch aus der DB**: Etagen, Räume, Türen, Assets, Route, Highlights, Vorschau von Änderungen | Gleiche Daten ergeben immer dasselbe Bild. Alle Etagen eines dev-Gebäudes korrekt |
 | **B.2 UI/UX** | Zwei Web-Apps, siehe unten | **M2:** Demo-Abläufe aus Abschnitt 12 laufen auf der öffentlichen URL |
-| Danach | Geodäsie und Fahrzeuge (Abschnitt 5): Portalgraph, Gabelstapler, kein Transit durch Produktion | Tests aus Abschnitt 5 sind grün |
+| Danach | Fahrzeuge (Abschnitt 5): Gabelstapler, kein Transit durch Produktion | Tests aus Abschnitt 5 sind grün |
 
 ### UI/UX: zwei Web-Apps, keine nativen Apps
 
@@ -208,7 +210,7 @@ Testset (145 Fragen): floor_area_total 33 · shared_walls 26 · largest_room 21 
 | **17:45–18:30** | Phase 1 Datenbank | Node-Service öffentlich auf Railway, Secret-Test. Dann B.1 minimale 2D-Karte | A: `/tools/route`, `useConversation`. C hält den Vertrag für Tools und Voice, B die Infrastruktur |
 | **18:30** | **Integrationsgate (alle):** Voice → Tool → Karte, lokal, auf dem Referenzgebäude | | |
 | **18:30–21:00** | Phase 2 Agent → **M1** (145 Zeilen + dev-Score pro Typ) | Deploy, **20:00 Abnahme**, dann B.1 Visualisierung | Alle Client-Tools, Voice-Prompt-Regeln, Textchat |
-| **21:00–00:30** | Geodäsie + Constraints | B.2 Mobile und Desktop, Änderungen mit Vorschau, Bestätigung und Undo | Voice auf Mobile und Desktop, Rückfrage-Logik → **M2** |
+| **21:00–00:30** | Constraints (Gabelstapler, Produktion) | B.2 Mobile und Desktop, Änderungen mit Vorschau, Bestätigung und Undo | Voice auf Mobile und Desktop, Rückfrage-Logik → **M2** |
 | **00:30 Gate** | Bestätigte Änderung, QR-Code vom Desktop öffnet die Mobile-Ansicht, Undo, Wiederherstellung nach Neustart des Service (Volume). **Danach keine neue Infrastruktur** | | |
 | **00:30–03:00** | Regression auf dev, Checkpointing | Handy-Test auf der öffentlichen URL (HTTPS), AR mit Timebox | Rohschnitt fürs Video |
 | 03:00–07:00 | **Schlafen** (dank Zeitumstellung eine Stunde mehr) | | |
@@ -221,20 +223,18 @@ Testset (145 Fragen): floor_area_total 33 · shared_walls 26 · largest_room 21 
 
 ## 10. Offene Fragen an Synera (heute per Discord)
 
-1. Gilt für die `errand`-Distanzen im **Testset** noch das README-Modell oder schon das geodätische?
-2. Sonntagsformat: **`answers.json` (PDF) oder CSV (README)**? Sind die Knoten-IDs `space_id`s? Wie wird „unerreichbar“ dargestellt? Wann wird veröffentlicht, wie lange haben wir?
-3. Woran erkennt man **Gabelstapler-Gänge und Fußwege** in den Daten? Welche Raumtypen sind „Produktionsbereich“?
-4. Kommen am Sonntag auch locate-, route- und tour-Fragen?
-5. Kann die Jury eine ElevenLabs-Agent-Konfiguration nutzen, oder reicht die öffentliche URL plus Video und Textchat?
-6. Wie zählt das geodätische Modell Start und Ziel: ab dem Raummittelpunkt, ab der ersten Tür oder anders?
+Beantwortet durch Kit 1.1.0: welches Routenmodell für errand und Routen gilt (nur noch eines) und wo Start und Ziel liegen (Ankerpunkt des Raums).
+
+1. Sonntagsformat: **`answers.json` (PDF) oder CSV (README)**? Sind die Knoten-IDs `space_id`s? Wie wird „unerreichbar“ dargestellt? Wann wird veröffentlicht, wie lange haben wir?
+2. Woran erkennt man **Gabelstapler-Gänge und Fußwege** in den Daten? Welche Raumtypen sind „Produktionsbereich“?
+3. Kommen am Sonntag auch locate-, route- und tour-Fragen?
+4. Kann die Jury eine ElevenLabs-Agent-Konfiguration nutzen, oder reicht die öffentliche URL plus Video und Textchat?
 
 ## 11. Codex-Review: übernommen und abweichend
 
 Übernommen:
 - Abrechnung als Entscheidungspunkt am Anfang
-- Portalgraph statt Raumknoten, mit den Randfällen beim Verkleinern der Polygone
-- „geodätisch ≥ README“ ist kein Test
-- Modellwahl im Code, nicht im LLM
+- Randfälle beim Verkleinern der Polygone (jetzt im Routenmodell der Jury geregelt)
 - Integrationsgate um 18:30
 - Budgetaufteilung
 - Feature Freeze um 10:00, Zeitumstellung, „Voice bleibt Pflicht“

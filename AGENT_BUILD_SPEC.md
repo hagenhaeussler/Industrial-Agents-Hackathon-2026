@@ -34,13 +34,14 @@ No external database is required: `building.json` is loaded into an in-memory mo
 - Space types: room, corridor, stair, lift, hall, outdoor. Openings: door | opening | entrance (`space_ids` contains `"outside"`).
 - Opening has `width_m`, `step_free`, `position`. Vertical connectors: stairs | lifts with `floor_ids`, `space_ids`, `step_free`.
 - Assets: category furniture | fixture | machine | equipment, with `space_id`, `position`, footprint.
-- Route graph (must match dataset to the centimetre):
-  - nodes: one per space at `shapely.Polygon(polygon).representative_point()`, plus one per opening at `position`
-  - edges: space <-> each of its openings, weight = straight-line distance
-  - stairs 12 m per floor between consecutive stops; lifts 15 m wait + 6 m per floor
-  - step-free drops edges with `step_free: false`
-  - keep parallel connections (stair and lift between same spaces)
-  - all entrances meet at one `"outside"` node at cost 0
+- Route graph (kit 1.1.0, README section 3, must match dataset to the centimetre):
+  - nodes: one per space at `representative_point()` of its polygon (`buffer(0)` if invalid), plus one per opening
+  - walking inside a space: an opening lands 30 cm inside the space (nearest point of `buffer(-0.30)`); the step to the landing counts
+  - between the space's centre point and its openings: shortest walk on `buffer(-0.15)` via a visibility graph of the points and the shrunken corners (segment clear if `buffer(0.02)` covers it); a corridor you pass through is walked door to door; edge lengths rounded to 3 decimals
+  - stairs 2 m per metre climbed, consecutive stops only; lifts 15 m once per ride + 1 m per metre climbed, every pair of stops; height = difference of `elevation_m`
+  - step-free drops every stair and every opening with `step_free: false`; closed items can't be used
+  - keep parallel connections (stair and lift between same spaces, two doors between same rooms)
+  - no way round the outside: entrances join nothing; parts that only meet outside are `reachable: false`
 - Space names usually contain the room ref (`Office 0.30`). Asset names unique per building.
 
 ## 3. Tools to implement (name, purpose, key params, returns)

@@ -8,7 +8,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 | Rank | Priority | Ask about | Decision it changes |
 |---|---|---|---|
-| 1 | Critical | Which routing/scoring rules apply to which evaluation? | Correctness of the core and numerical answers. |
+| 1 | Answered | Which routing/scoring rules apply to which evaluation? (kit 1.1.0) | Correctness of the core and numerical answers. |
 | 2 | Critical | Exact Sunday input/output schema and question families. | Parser, serializer and valid submission. |
 | 3 | Critical | Sunday execution, release window and runtime limits. | Reproducible evaluation and processing budget. |
 | 4 | High | Minimum Build scope and whether raw-plan import is assessed. | Whether image import is optional in practice. |
@@ -24,6 +24,8 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 ## Questions to ask
 
 ### 1. Which scoring model is authoritative for each evaluation?
+
+**Answered by kit 1.1.0 (24 October 2026):** one route model now applies to all expected answers, including the hidden test answers. See `CHANGELOG.md` and README section 3. Routes start and end at the room's centre point (`representative_point`), the lift's 15 m counts once per ride, and there is no way round the outside. Do not ask this question. The text below is kept as history.
 
 > Could you confirm, separately for the published 145-question test set and the unseen-building check, which route model and scorer apply? Does the new door-to-door geometry announcement replace the README model everywhere, or only for explicit route questions? In particular, what applies to `errand` distances and `what_if_door` counts?
 
