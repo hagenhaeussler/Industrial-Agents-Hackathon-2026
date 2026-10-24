@@ -76,3 +76,11 @@ Nur Admin: vor jeder Änderung `propose_edit`, die Vorschau beschreiben und auf 
 - **Secrets:** `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID_NAVIGATOR` und `ELEVENLABS_AGENT_ID_ADMIN` liegen lokal in `.env` und auf Railway in den Service-Variablen, nie in dieser Datei. Der Key bleibt auf dem Server; der Browser sieht nur den kurzlebigen Token.
 - **Kosten:** Das Agent-LLM wird über ElevenLabs-Credits abgerechnet, nicht über das Anthropic-Guthaben.
 - **Abgabe:** Beide Agent-Konfigurationen ohne Secrets exportieren und neben diese Datei legen.
+
+## Live preview update — 2026-10-25
+
+The Navigator preview now allows **10 calls/day, 180 seconds/call, one concurrent call**, as approved by Hagen. Admin limits remain unchanged. This ongoing preview allowance is separate from the team's $5 paid testing budget. Authenticated tokens and the no-audio-recording privacy settings remain enabled.
+
+The app uses a real two-way ElevenLabs WebRTC conversation with transcripts, a small audio-responsive orb, mute/End/Retry and safe connection errors. Typed messages while connected call `sendUserMessage`, keeping the current voice conversation; disconnected text chat uses the existing backend.
+
+`desk-ui-tools.json` describes two additional **browser-only planning desk actions** (`update_selection`, `focus_floor`). They validate current building asset/floor IDs before modifying selection or floor focus. They do not add endpoints to the canonical eleven server tools. Current desk context supplies selected parts, floors, position and mobility, with session bearers and admin codes excluded. The Navigator must not invoke these two tools on phone/admin surfaces.

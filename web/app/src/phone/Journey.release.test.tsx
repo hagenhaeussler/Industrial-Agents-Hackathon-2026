@@ -7,17 +7,21 @@ import type { Display, Position, ReachableRoute, ServerMessage, Session, Snapsho
 import snapshotJson from '../mocks/data/building_proc-factory-dev-003.json';
 import payloads from './fixtures/final-destination-c7.json';
 import scenarioJson from '../../../../demo/scenario.json';
+import type { VoiceClientTool } from '../voice/useBuildingVoice';
 
 // Keep the real Journey state and request handlers; replace visual/device
 // integrations so HTTP rejection and cold-load behavior can be tested offline.
 const voice = { available: false, status: 'disconnected', isSpeaking: false, error: null as string | null,
-  start: async () => undefined, stop: async () => undefined, sendContext: () => undefined };
+  start: async () => undefined, stop: async () => undefined, sendContext: () => undefined,
+  messages: [] as { id: string; role: 'user' | 'agent'; text: string }[], inputLevel: 0, outputLevel: 0,
+  isMuted: false, setMuted: () => undefined, sendText: (_text: string) => true };
 let emitDisplay: (display: Display) => void = () => undefined;
-mock.module('./voice', () => ({ VoiceRoot: ({ children }: { children: ReactNode }) => children, useVoiceSession: (_id: string | null, handler: (display: Display) => void) => { emitDisplay = handler; return voice; }, VoiceButton: () => null }));
+let registeredVoiceTools: Record<string, VoiceClientTool> | undefined;
+mock.module('./voice', () => ({ VoiceRoot: ({ children }: { children: ReactNode }) => children, useVoiceSession: (_id: string | null, handler: (display: Display) => void, options?: { clientTools?: Record<string, VoiceClientTool> }) => { emitDisplay = handler; registeredVoiceTools = options?.clientTools; return voice; }, VoiceButton: () => null }));
 let socketMessage: (event: ServerMessage) => void = () => undefined;
 let socketReconnect: () => void = () => undefined;
 mock.module('../api/ws', () => ({ useBuildingSocket: (_id: string | null, onMessage: typeof socketMessage, onReconnect: typeof socketReconnect) => { socketMessage = onMessage; socketReconnect = onReconnect; return 'live'; } }));
-mock.module('../map/MapView', () => ({ MapView: ({ route, tour, highlightSpaceIds }: { route?: ReachableRoute | null; tour?: Tour | null; highlightSpaceIds?: string[] }) => <div data-testid="route-map" data-route-target={route?.to_space_id} data-tour-id={tour?.tour_id} data-highlights={highlightSpaceIds?.join(',')}/> }));
+mock.module('../map/MapView', () => ({ MapView: ({ route, tour, highlightSpaceIds, floorId, selected }: { route?: ReachableRoute | null; tour?: Tour | null; highlightSpaceIds?: string[]; floorId?: string; selected?: ReadonlySet<string> }) => <div data-testid="route-map" data-route-target={route?.to_space_id} data-tour-id={tour?.tour_id} data-highlights={highlightSpaceIds?.join(',')} data-floor-id={floorId} data-selected={selected ? [...selected].join(',') : undefined}/> }));
 mock.module('@blobatar/react', () => ({ Blobatar: () => <span aria-hidden="true"/> }));
 mock.module('../demo/scenario', () => ({ scenario: scenarioJson }));
 
@@ -30,9 +34,18 @@ let loaded: Tour;
 let snapshot: Snapshot;
 let phone: Session;
 
+function enterText(input: HTMLElement, value: string) {
+  // ReactDOM's feature probe runs before happy-dom is installed in this suite.
+  Object.assign(input, { attachEvent: () => undefined, detachEvent: () => undefined });
+  fireEvent.focusIn(input); fireEvent.change(input, { target: { value } }); fireEvent.keyUp(input, { key: 'a' });
+}
+
 beforeAll(async () => { Journey = (await import('./Journey')).Journey; Desk = (await import('../desk/Desk')).Desk; });
 beforeEach(() => {
-  voice.available = false; voice.status = 'disconnected'; voice.error = null;
+  voice.available = false; voice.status = 'disconnected'; voice.error = null; voice.isSpeaking = false;
+  voice.isMuted = false; voice.messages = []; voice.inputLevel = 0; voice.outputLevel = 0;
+  voice.start = async () => undefined; voice.stop = async () => undefined;
+  voice.sendText = (_text: string) => true; registeredVoiceTools = undefined;
   dom = new Window({ url: 'http://localhost/go/release-test' });
   Object.defineProperties(globalThis, {
     window: { value: dom, configurable: true }, document: { value: dom.document, configurable: true },
@@ -60,6 +73,47 @@ beforeEach(() => {
 
 describe('actual screen shared text/voice display handlers', () => {
   const routeForSnapshot = () => ({ ...structuredClone(finalLeg.legs[0]) as ReachableRoute, building_version: snapshot.building_version, content_hash: snapshot.content_hash });
+
+  test('the connected desk sends typed messages through voice and shows the provider transcript', async () => {
+    voice.available = true; voice.status = 'connected';
+    voice.messages = [{ id: 'real-user', role: 'user', text: 'Find the wrench.' }, { id: 'real-agent', role: 'agent', text: 'It is in the tool room.' }];
+    const sent: string[] = [];
+    let requests = 0;
+    voice.sendText = text => { sent.push(text); return true; };
+    api.chat = async () => { requests++; throw new Error('The live conversation must receive typed input.'); };
+    const screen = render(<Desk/>);
+    await waitFor(() => expect(screen.queryByRole('textbox', { name: 'What do you need?' })).not.toBeNull());
+    await act(async () => { enterText(screen.getByRole('textbox', { name: 'What do you need?' }), '  Select the wrench  '); });
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Ask' }) as HTMLButtonElement).disabled).toBe(false));
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Ask' })); });
+    expect(sent).toEqual(['Select the wrench']);
+    expect(requests).toBe(0);
+    expect(screen.getAllByText('Find the wrench.')).toHaveLength(1);
+    expect(screen.getAllByText('It is in the tool room.')).toHaveLength(1);
+    expect((screen.getByRole('textbox', { name: 'What do you need?' }) as HTMLInputElement).value).toBe('');
+  });
+
+  test('the actual desk UI tool callbacks select assets and focus an exact floor', async () => {
+    const screen = render(<Desk/>);
+    await waitFor(() => expect(screen.queryByTestId('route-map')).not.toBeNull());
+    const asset = snapshot.building.assets[0]!;
+    const floor = snapshot.building.floors.at(-1)!;
+    let selection: { ok: boolean } | undefined;
+    await act(async () => { selection = JSON.parse(await registeredVoiceTools!.update_selection!({ action: 'replace', items: asset.id })); });
+    expect(selection!.ok).toBe(true);
+    expect(screen.getByTestId('route-map').getAttribute('data-selected')).toBe(asset.id);
+    expect(screen.queryByRole('button', { name: 'Plan collection tour · 1 part' })).not.toBeNull();
+    let focused: { ok: boolean; result: { floor_id: string } } | undefined;
+    await act(async () => { focused = JSON.parse(await registeredVoiceTools!.focus_floor!({ floor: floor.name.toUpperCase() })); });
+    expect(focused!.ok).toBe(true);
+    expect(focused!.result.floor_id).toBe(floor.id);
+    expect(screen.getByTestId('route-map').getAttribute('data-floor-id')).toBe(floor.id);
+    await act(async () => {
+      const rejected = JSON.parse(await registeredVoiceTools!.update_selection!({ action: 'replace', items: 'unknown-asset' }));
+      expect(rejected.ok).toBe(false);
+    });
+    expect(screen.getByTestId('route-map').getAttribute('data-selected')).toBe(asset.id);
+  });
 
   test('the desk renders standalone route geometry', async () => {
     const route = routeForSnapshot();
@@ -105,6 +159,42 @@ describe('actual screen shared text/voice display handlers', () => {
     await act(async () => { screen.rerender(<Journey tourId={loaded.tour_id}/>); });
     expect(screen.queryByRole('dialog', { name: 'Ask the building' })).not.toBeNull();
     expect(screen.queryByRole('button', { name: 'Next step' })).not.toBeNull();
+  });
+
+  test('the phone orb uses real voice phases and levels while retaining start and stop actions', async () => {
+    voice.available = true;
+    let starts = 0; let stops = 0;
+    voice.start = async () => { starts++; };
+    voice.stop = async () => { stops++; };
+    const screen = render(<Journey tourId={loaded.tour_id}/>);
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Start voice guidance' })).not.toBeNull());
+    const idle = screen.getByRole('button', { name: 'Start voice guidance' });
+    expect(idle.classList.contains('voice-orb--idle')).toBe(true);
+    await act(async () => { fireEvent.click(idle); });
+    expect(starts).toBe(1);
+    voice.status = 'connecting';
+    screen.rerender(<Journey tourId={loaded.tour_id}/>);
+    const connecting = screen.getByRole('button', { name: 'Connecting voice guidance' });
+    expect(connecting.classList.contains('voice-orb--connecting')).toBe(true);
+    expect((connecting as HTMLButtonElement).disabled).toBe(true);
+    voice.status = 'connected'; voice.inputLevel = 0.37; voice.outputLevel = 0.81;
+    screen.rerender(<Journey tourId={loaded.tour_id}/>);
+    let live = screen.getByRole('button', { name: 'Stop voice guidance' });
+    expect(live.classList.contains('voice-orb--listening')).toBe(true);
+    expect(live.getAttribute('style')).toContain('--orb-level: 0.37');
+    voice.isSpeaking = true;
+    screen.rerender(<Journey tourId={loaded.tour_id}/>);
+    live = screen.getByRole('button', { name: 'Stop voice guidance' });
+    expect(live.classList.contains('voice-orb--speaking')).toBe(true);
+    expect(live.getAttribute('style')).toContain('--orb-level: 0.81');
+    voice.isSpeaking = false; voice.isMuted = true;
+    screen.rerender(<Journey tourId={loaded.tour_id}/>);
+    live = screen.getByRole('button', { name: 'Stop voice guidance' });
+    expect(live.classList.contains('voice-orb--muted')).toBe(true);
+    expect(live.getAttribute('style')).toContain('--orb-level: 0');
+    expect(screen.getAllByText('Microphone muted').length).toBeGreaterThan(0);
+    await act(async () => { fireEvent.click(live); });
+    expect(stops).toBe(1);
   });
 });
 afterEach(() => { cleanup(); Object.assign(api, originalApi); dom.happyDOM.abort(); });
