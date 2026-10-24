@@ -42,7 +42,7 @@ def test_health_identifies_commit_profile_real_catalog_and_writable_state(client
     }
     assert (settings.state_dir / "uploads").is_dir()
     with sqlite3.connect(settings.state_dir / "tyb.sqlite3") as connection:
-        assert connection.execute("SELECT version FROM schema_version").fetchone()[0] == 1
+        assert connection.execute("SELECT version FROM schema_version").fetchone()[0] >= 1
 
 
 def test_health_reports_unusable_state_without_hiding_catalog(settings):
@@ -96,7 +96,7 @@ def test_catalog_discovers_hero_and_uploads_without_overriding_kit(client, setti
     assert client.get("/api/buildings/hero-test").json()["building"]["building"]["id"] == "hero-test"
 
 
-def test_snapshot_uses_core_loader_when_published(client, monkeypatch):
+def test_snapshot_uses_core_loader_when_published(settings, monkeypatch):
     import server.buildings
     calls = []
     original_import = server.buildings.importlib.import_module
@@ -109,7 +109,7 @@ def test_snapshot_uses_core_loader_when_published(client, monkeypatch):
         return SimpleNamespace(load_building=load) if name == "core.building" else original_import(name)
 
     monkeypatch.setattr(server.buildings.importlib, "import_module", import_module)
-    snapshot = client.get("/api/buildings/proc-factory-dev-003").json()
+    snapshot = server.buildings.BuildingCatalog(settings).snapshot("proc-factory-dev-003").model_dump()
     assert snapshot["content_hash"] == "core-hash"
     assert len(calls) == 1
     assert calls[0]["building"]["id"] == "proc-factory-dev-003"

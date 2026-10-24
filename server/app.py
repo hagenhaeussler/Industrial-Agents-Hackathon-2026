@@ -1,13 +1,16 @@
 """One-worker FastAPI service; API routes precede the SPA history fallback."""
 
 from contextlib import asynccontextmanager
+import asyncio
+import anyio
 import logging
 import os
 from pathlib import Path
 import sqlite3
 import subprocess
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -18,6 +21,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from .buildings import BuildingCatalog, BuildingSnapshot, BuildingSummary
 from .config import REPO_ROOT, Settings
 from .state import StateStore
+from .errors import ServiceError
+from .service import PlatformService
+from .tools import ToolRegistry, registry
+from .markers import MarkerService
+from .ws import BuildingHub
+from .routes_live import router as live_router
+from .voice import router as voice_router
 
 logger = logging.getLogger(__name__)
 
@@ -53,24 +63,59 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(application: FastAPI):
         try:
-            application.state.store.initialize()
+            await anyio.to_thread.run_sync(application.state.store.initialize)
             application.state.state_dir_writable = True
         except (OSError, sqlite3.Error):
             logger.exception("Cannot initialise persistent state directory")
             application.state.state_dir_writable = False
+        registry.configure(application.state.service, application.state.hub.notify)
+        application.state.hub.start()
+        # Warm real base snapshots without blocking health/startup on geometry.
+        async def warm():
+            records = await anyio.to_thread.run_sync(catalog.records)
+            targets = [key for key in records if key.startswith('hero-')]
+            if 'proc-factory-dev-003' in records:
+                targets.append('proc-factory-dev-003')
+            for building_id in targets:
+                try:
+                    await anyio.to_thread.run_sync(application.state.service.current, building_id)
+                except Exception:
+                    logger.exception('Could not warm building %s', building_id)
+        task = asyncio.create_task(warm()) if application.state.state_dir_writable else None
         yield
+        if task:
+            await task
+        await application.state.hub.close()
 
-    application = FastAPI(title="Talk to Your Building", version="C1", lifespan=lifespan)
+    application = FastAPI(title="Talk to Your Building", version="C2", lifespan=lifespan)
     application.state.settings = settings
     application.state.catalog = catalog
     application.state.store = StateStore(settings.state_dir)
     application.state.state_dir_writable = False
+    application.state.hub = BuildingHub()
+    application.state.service = PlatformService(catalog, application.state.store, settings.profile, application.state.hub.notify)
+    application.state.registry = ToolRegistry(application.state.service, application.state.hub.notify)
+    application.state.markers = MarkerService(application.state.service, settings.public_base_url)
+    application.state.service.marker_generator = application.state.markers.generate
+    application.state.chat_agent = None
     application.add_middleware(GZipMiddleware, minimum_size=1000)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
         allow_methods=["*"], allow_headers=["*"],
     )
+
+    @application.exception_handler(ServiceError)
+    async def service_error_handler(request: Request, exc: ServiceError):
+        return JSONResponse(status_code=exc.status, content={'detail': exc.message, 'error': exc.payload()})
+
+    @application.exception_handler(Exception)
+    async def internal_error_handler(request: Request, exc: Exception):
+        from .state import identifier
+        request_id = identifier('req')
+        logger.exception('Request failed (%s)', request_id)
+        return JSONResponse(status_code=500, content={'detail': 'The building request failed.',
+            'error': {'code': 'internal', 'message': 'The building request failed.', 'request_id': request_id}})
 
     @application.exception_handler(StarletteHTTPException)
     async def http_error_handler(request: Request, exc: StarletteHTTPException):
@@ -86,7 +131,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @application.exception_handler(RequestValidationError)
     async def validation_error_handler(request: Request, exc: RequestValidationError):
         return JSONResponse(status_code=422, content={
-            "detail": exc.errors(), "error": {"code": "invalid_args", "message": "Request arguments are invalid."},
+            "detail": jsonable_encoder(exc.errors()), "error": {"code": "invalid_args", "message": "Request arguments are invalid."},
         })
 
     @application.get("/health", response_model=HealthResponse)
@@ -106,17 +151,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.get("/api/buildings/{building_id}", response_model=BuildingSnapshot)
     def snapshot(building_id: str, version: int | None = Query(default=None, ge=0)):
-        if version not in (None, 0):
-            raise api_error(409, "version_conflict", "Only base version 0 is available before the event store is connected.")
+        return application.state.service.snapshot(building_id, version)
+
+    application.include_router(live_router)
+    application.include_router(voice_router)
+
+    @application.websocket('/ws/buildings/{building_id}')
+    async def building_socket(socket: WebSocket, building_id: str):
         try:
-            return catalog.snapshot(building_id)
-        except KeyError as exc:
-            raise api_error(404, "not_found", str(exc.args[0])) from exc
+            await anyio.to_thread.run_sync(catalog.get, building_id)
+        except KeyError:
+            await socket.close(code=1008)
+            return
+        await application.state.hub.connection(socket, building_id, lambda: application.state.store.version(building_id))
+
 
     @application.get("/{path:path}", include_in_schema=False)
     def spa(path: str):
         if path.split("/", 1)[0] in {"api", "ws", "health"}:
             raise api_error(404, "not_found", "This API endpoint does not exist.")
+        if path == "devtest":
+            path = "devtest.html"
         static_root = settings.static_dir.resolve()
         candidate = (static_root / path).resolve()
         if not candidate.is_relative_to(static_root):
