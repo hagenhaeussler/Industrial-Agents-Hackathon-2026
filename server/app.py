@@ -87,7 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await task
         await application.state.hub.close()
 
-    application = FastAPI(title="Talk to Your Building", version="C8", lifespan=lifespan)
+    application = FastAPI(title="Talk to Your Building", version="C9", lifespan=lifespan)
     application.state.settings = settings
     application.state.catalog = catalog
     application.state.store = StateStore(settings.state_dir)

@@ -35,6 +35,7 @@ class DerivedGeometry(BaseModel):
 class BuildingSnapshot(BaseModel):
     building: dict[str, Any]
     building_version: int
+    building_state_id: str | None = None
     content_hash: str
     closed: list[str]
     derived: DerivedGeometry

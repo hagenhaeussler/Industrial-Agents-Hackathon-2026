@@ -183,6 +183,7 @@ class TourResult(BaseModel):
     status: str
     building_id: str
     building_version: int
+    building_state_id: str | None = Field(default=None, description="Opaque building-state identity; compare with the snapshot even when numeric versions match after a reset.")
     order_policy: str
     building_closed: list[str] = Field(default_factory=list)
     start: dict[str, Any]

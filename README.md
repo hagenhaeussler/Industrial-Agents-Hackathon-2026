@@ -300,7 +300,7 @@ The data comes under several licences: CC BY 4.0 (Swiss Dwellings, ResPlan), ODb
 
 ## Run it locally
 
-The Talk to Your Building service needs Python 3.12+, [uv](https://docs.astral.sh/uv/), and [Bun](https://bun.sh/) for the frontend. The building list, snapshots, and deterministic benchmark checks run without API keys. Copy the environment template and add provider keys only for chat and voice:
+The Talk to Your Building service needs Python 3.12+, [uv](https://docs.astral.sh/uv/), and [Bun](https://bun.sh/) for the frontend. The building list, snapshots, routing and deterministic benchmark checks run without API keys. Copy the environment template before starting:
 
 ```bash
 uv sync
@@ -316,7 +316,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-Until the C01 move is merged, the prototype is at `web/mobile` instead. Open the development UI at `http://localhost:5173`; the API is at `http://localhost:8000`, with docs at `/docs` and readiness at `/health`. For the production SPA, run `bun run build` in `web/app` and open `http://localhost:8000`.
+Open the development UI at `http://localhost:5173`; the API is at `http://localhost:8000`, with docs at `/docs` and readiness at `/health`. For the production SPA, run `bun run build` in `web/app` and open `http://localhost:8000`.
 
 Run the integration checks from the repository root before requesting a merge:
 
@@ -324,7 +324,13 @@ Run the integration checks from the repository root before requesting a merge:
 scripts/check.sh
 ```
 
-The script runs pytest, the unchanged kit oracle, the core text evaluation when H01 is available, and the frontend build when Bun and `web/app` are available. Skipped checks print warnings.
+The script runs pytest, the unchanged kit oracle, the core text evaluation, and the frontend tests/build when Bun is available. Skipped checks print warnings. For isolated live HTTP/WebSocket, restart and two-cycle demo-reset checks, run:
+
+```bash
+uv run python scripts/check_live_integration.py --output agent_output/reports/live-integration.json
+```
+
+This command starts its own loopback server with temporary state, a generated admin code and local demo mode, then cleans up. It makes no provider calls.
 
 Build and run the production image (Docker builds the frontend with Bun):
 
@@ -334,7 +340,7 @@ mkdir -p .state
 docker run --rm -p 8000:8000 --env-file .env -e STATE_DIR=/state -v "$PWD/.state:/state" tyb
 ```
 
-The image includes kit JSON and CSV data; floor-plan PNG/SVG files are excluded. Mount persistent state at `/state`. The server starts one worker and initializes state on startup. Railway uses this Dockerfile, a volume at `/state`, and `/health` as its healthcheck. The public URL is recorded in the platform builder's [STATUS](<master prompt/Manuel's codex/STATUS.md>) once H3 access is available.
+The image includes building geometry, equipment inventory and the catalog manifest. Floor-plan PNG/SVG files, evaluation questions, answer CSVs and submissions are excluded. Mount persistent state at `/state`. The server starts one worker and initializes state on startup. Railway uses this Dockerfile, a volume at `/state`, and `/health` as its healthcheck. Deployment evidence is recorded in the platform builder's [STATUS](<master prompt/Manuel's codex/STATUS.md>).
 
 The kit oracle is free to run:
 
@@ -342,13 +348,13 @@ The kit oracle is free to run:
 uv run python -m starter_agent.evaluate data/dev --oracle
 ```
 
-After L01 is merged, run the team's deterministic benchmark and validate its submission with:
+Run the team's deterministic benchmark and validate its submission with:
 
 ```bash
 uv run python -m benchmark.evaluate data/dev --agent bench.agent:answer --name dev-official
 uv run python -m bench.validate_submission submissions/test_answers.csv data/test/submission_template.csv
 ```
 
-See `BENCHMARK.md` when published by the evaluation lead for measured results and the Sunday command. [Attribution and dataset licences](ATTRIBUTION.md) apply to the included building data.
+See [BENCHMARK.md](BENCHMARK.md) for measured results and the Sunday handoff. [Attribution and dataset licences](ATTRIBUTION.md) apply to the included building data.
 
-Platform endpoints, phone handoff, admin headers and current adapter limits are documented in [`server/README.md`](server/README.md). Set a server-only `TYB_ADMIN_TOKEN` to create admin sessions using `X-Admin-Token`; missing configuration fails closed. The integrated admin UI will ask for this code. Set `TYB_DEMO_MODE=true` only for the rehearsed demo reset; its default is off.
+Platform endpoints, phone handoff, admin headers and current adapter limits are documented in [`server/README.md`](server/README.md). Set a server-only `TYB_ADMIN_TOKEN` to create admin sessions using `X-Admin-Token`; missing configuration fails closed. The pending admin UI asks for this code. Chat/voice need their server-side provider configuration; chat also needs an approved positive budget as described in the server documentation. Set `TYB_DEMO_MODE=true` only for the rehearsed demo reset; its default is off.

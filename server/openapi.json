@@ -8,6 +8,17 @@
             "title": "Building",
             "type": "object"
           },
+          "building_state_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Building State Id"
+          },
           "building_version": {
             "title": "Building Version",
             "type": "integer"
@@ -1185,6 +1196,18 @@
             "title": "Building Id",
             "type": "string"
           },
+          "building_state_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opaque building-state identity; compare with the snapshot even when numeric versions match after a reset.",
+            "title": "Building State Id"
+          },
           "building_version": {
             "title": "Building Version",
             "type": "integer"
@@ -1410,7 +1433,7 @@
   },
   "info": {
     "title": "Talk to Your Building",
-    "version": "C8"
+    "version": "C9"
   },
   "openapi": "3.1.0",
   "paths": {

@@ -68,7 +68,8 @@ environment.update(ANTHROPIC_API_KEY='', ELEVENLABS_API_KEY='',
                    OPENAI_API_KEY='', TYB_CHAT_BUDGET_USD='0',
                    PYTHON_DOTENV_DISABLED='1', DATA_DIR=str(source / 'data'),
                    PYTHONDONTWRITEBYTECODE='1', TYB_PROFILE='kit_1_1_0',
-                   TYB_ADMIN_TOKEN=admin_code, TYB_ADMIN_OPEN_INSECURE='')
+                   TYB_ADMIN_TOKEN=admin_code, TYB_ADMIN_OPEN_INSECURE='',
+                   TYB_DEMO_MODE='true')
 
 
 def interrupted(signum, frame):
@@ -182,6 +183,7 @@ try:
         plan = tool(desk, 'plan_tour', {'items': ', '.join([printer['id'], cnc['id'], ups['id']]), 'keep_order': True})
         plan_ms = round((time.perf_counter() - plan_started) * 1000, 2)
         tour = plan['result']
+        assert tour['building_state_id'] == get('/api/buildings/' + bid)['building_state_id']
         tid = tour['tour_id']
         tour_path = '/api/tours/' + tid
         assert len(tour['stops']) == 3 and not tour['unreachable_stops']
@@ -351,6 +353,60 @@ try:
             'commit_retry_after_restart_idempotent': True, 'websocket_hello_and_ping': True,
             'blocked_pending_survives': True, 'collected_stop_ids': collected,
             'post_restart_undo_restores_route': True, 'restored_pending_order': recovered['order']}
+
+        reset_cycles = []
+        with connect(socket_url, open_timeout=5, proxy=None) as ws:
+            assert until(ws, 'hello')['building_version'] == get('/api/buildings/' + bid)['building_version']
+            for cycle in (1, 2):
+                proposal = tool(admin, 'propose_edit', {'action': 'close', 'target': lift['id']})['result']
+                committed = tool(admin, 'commit_edit', {'proposal_id': proposal['proposal_id'],
+                                                       'op_id': f'local-reset-close-{cycle}'})['result']
+                assert until(ws, 'building_changed')['event']['event_id'] == committed['event_id']
+                blocked = replan()
+                assert until(ws, 'tour_updated')['revision'] == blocked['revision']
+                assert blocked['status'] == 'blocked' and blocked['unreachable_stops']
+                check_progress(blocked)
+                pending = tool(admin, 'propose_edit', {'action': 'open', 'target': lift['id']})['result']
+                saved_session = get('/api/sessions/' + phone)
+                reset = post('/api/demo/reset', {'building_id': bid}, {'X-Session-ID': admin})
+                assert reset == {'building_id': bid, 'building_version': 0}
+                assert until(ws, 'building_reset')['building_version'] == 0
+                snapshot = get('/api/buildings/' + bid)
+                assert snapshot['building_version'] == 0 and not snapshot['closed']
+                assert snapshot['building_state_id'] != blocked['building_state_id']
+                assert get('/api/buildings/' + bid + '/events') == []
+                assert get(tour_path) == blocked and get('/api/sessions/' + phone) == saved_session
+                expired = tool(admin, 'commit_edit', {'proposal_id': pending['proposal_id']}, ok=False)
+                assert expired['error']['code'] == 'not_found'
+                assert get('/api/buildings/' + bid)['building_version'] == 0
+                restored = replan()
+                assert until(ws, 'tour_updated')['revision'] == restored['revision']
+                assert restored['building_version'] == 0 and not restored['unreachable_stops']
+                assert restored['building_state_id'] == snapshot['building_state_id']
+                assert restored['order'] == pending_order
+                check_progress(restored)
+                reset_cycles.append({'cycle': cycle, 'previous_version': committed['building_version'],
+                                     'version_after_reset': 0, 'archived_event_id': committed['event_id'],
+                                     'public_events_empty': True, 'old_proposal_refused': True,
+                                     'stored_tour_and_session_retained': True,
+                                     'replan_after_version_decrease': True, 'fresh_state_identity': True,
+                                     'collected_ids_preserved': collected})
+
+        expected_reset = {'tour': get(tour_path), 'session': get('/api/sessions/' + phone),
+                          'events': get('/api/buildings/' + bid + '/events')}
+        server.kill()
+        server.wait(timeout=10)
+        server = launch()
+        ready()
+        actual_reset = {'tour': get(tour_path), 'session': get('/api/sessions/' + phone),
+                        'events': get('/api/buildings/' + bid + '/events')}
+        assert actual_reset == expected_reset
+        reset_snapshot = get('/api/buildings/' + bid)
+        assert reset_snapshot['building_version'] == 0
+        assert reset_snapshot['building_state_id'] == actual_reset['tour']['building_state_id']
+        report['checks']['demo_reset_twice'] = {'cycles': reset_cycles, 'local_demo_mode_only': True,
+            'exact_reset_state_survives_hard_restart': True,
+            'automatic_ui_reset_catchup_verified': False}
         assert git('rev-parse', 'HEAD') == expected_sha
         final_diff = subprocess.check_output(['git', '-C', str(source), 'diff', 'HEAD'])
         report['source_after_diff_sha256'] = hashlib.sha256(final_diff).hexdigest()

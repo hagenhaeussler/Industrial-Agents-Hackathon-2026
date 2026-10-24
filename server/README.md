@@ -1,4 +1,4 @@
-# Platform integration (C8)
+# Platform integration (C9)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -15,9 +15,11 @@ The server loads `.env` without overriding existing environment variables. One p
 3. `POST /api/tours` with `{session_id, items: ["asset or space ID"], keep_order: false}`. The same operation is available through `plan_tour` in the tool registry.
 4. The QR encodes only `PUBLIC_BASE_URL/go/{tour_id}`. On the phone create a `phone` session for the tour's building, then PATCH `active_tour_id`. This copies the mobility constraints and gives a low-confidence `tour_start` position. Ask the person to confirm it.
 5. Send `X-Session-ID: <phone session_id>` with progress requests so "Got it" advances the phone position. Replan with `{session_id, from: <current position>, reason}`; ignore stale responses by revision.
-6. Subscribe to `/ws/buildings/{building_id}`. On reconnect refetch the snapshot and active tour; if the snapshot's building_version is newer, replan from the latest known position. GET tour returns its stored revision and does not recompute a route. Refetch/replan after `building_changed` or `building_reset`. `hello` follows subscriber registration, so a concurrent commit cannot fall through a subscription gap.
+6. Subscribe to `/ws/buildings/{building_id}`. On load/reconnect refetch the snapshot and active tour; replan an unfinished tour from the latest known position when `building_version` differs or `building_state_id` differs. This includes blocked tours and all-collected final legs. A legacy tour missing its ID gets one refresh against a C9 snapshot. GET tour returns stored state without recomputing. Refetch after building-change notifications and always process `building_reset`: versions can decrease to zero and later be reused. `hello` follows subscriber registration, so a concurrent commit cannot fall through a subscription gap.
 
 The server emits `tour_opened` when a phone opens the handoff, and `tour_updated` after progress/replan/instruction advancement. WebSocket heartbeats occur every 20 seconds. UI reconnect backoff (0.5–5 seconds) belongs to the frontend.
+
+C9's `building_state_id` is opaque metadata identifying building content and active edit history. It is stable across reads/restarts and is not an authorization credential. Equal numeric versions or equal base `content_hash` values do not prove the same closures after a reset. `next_step` checks state identity independently before giving directions. The captured C8 reset fixture in `fixtures/server_demo_reset.json` demonstrates the version-decrease case; C9 also covers equal-version reuse after a different edit.
 
 ## Shared tools and chat
 
