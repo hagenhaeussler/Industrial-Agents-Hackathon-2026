@@ -32,13 +32,13 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .ask label { font-size: 26px; font-weight: 750; letter-spacing: -1px; line-height: 1.15; }
 .ask-field { display: flex; align-items: center; gap: 6px; border: 1.5px solid #d8dcd0; border-radius: 17px; padding: 6px 6px 6px 14px; background: #fff; }
 .ask-field:focus-within { border-color: var(--ink); }
-.ask-field input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; padding: 8px 0; }
+.ask-field input { flex: 1; min-width: 0; min-height: 44px; border: 0; outline: 0; background: transparent; font-size: 16px; padding: 8px 0; }
 .ask-field .icon-button { width: 44px; height: 44px; }
 .voice-slot:empty { display: none; }
 .agent-reply { margin: 10px 20px 0; padding: 12px 14px; border-radius: 15px 15px 15px 5px; background: #f4f5ef; font-size: 13px; line-height: 1.55; }
 .agent-reply.error { background: #fdf0ee; color: #6d1f1d; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.chips button { background: #fff; border: 1px solid #d8dcd0; border-radius: 11px; padding: 0 12px; min-height: 40px; font-size: 13px; font-weight: 650; }
+.chips button { background: #fff; border: 1px solid #d8dcd0; border-radius: 11px; padding: 0 12px; min-height: 44px; font-size: 13px; font-weight: 650; }
 .chips button span { font-weight: 450; color: var(--muted); }
 .start-chip { margin: 12px 20px 0; display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px 12px; min-height: 48px; border-radius: 14px; background: #f5f5f1; font-size: 13px; }
 .start-chip > span:nth-child(2) { flex: 1; min-width: 0; }
@@ -50,7 +50,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .search-field { display: flex; align-items: center; gap: 8px; margin: 0 20px; padding: 0 6px 0 12px; border-radius: 13px; background: #f2f3ed; color: var(--muted); }
 .search-field input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; padding: 11px 0; color: var(--ink); }
 .search-field:focus-within { box-shadow: 0 0 0 2px var(--ink) inset; }
-.search-field .clear { width: 36px; height: 36px; border-radius: 10px; background: transparent; display: grid; place-items: center; }
+.search-field .clear { width: 44px; height: 44px; border-radius: 10px; background: transparent; display: grid; place-items: center; }
 .parts-scroll { flex: 1; overflow-y: auto; padding: 6px 12px 12px; overscroll-behavior: contain; }
 .empty { padding: 20px 8px; font-size: 13px; color: var(--muted); line-height: 1.5; }
 .floor-heading { position: sticky; top: 0; z-index: 1; background: #fff; font-size: 12px; font-weight: 800; padding: 12px 8px 6px; }
@@ -183,15 +183,15 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .journey { height: 100svh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
 .journey > .map-view { grid-row: 2; position: relative; inset: auto; min-height: 0; }
 .journey .floor-switch { top: 10px; right: 12px; padding: 4px; }
-.journey .floor-switch button { min-width: 0; min-height: 40px; font-size: 12px; }
+.journey .floor-switch button { min-width: 0; min-height: 44px; font-size: 12px; }
 .journey .map-controls { right: 12px; bottom: 10px; }
 .journey-top { grid-row: 1; padding: max(12px, env(safe-area-inset-top)) 12px 6px; display: grid; gap: 8px; max-width: 620px; width: 100%; margin: 0 auto; z-index: 2; }
 .journey-top .route-banner { min-height: 76px; }
 .journey-notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 8px 12px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45; font-weight: 650; }
 .journey-notice > div { flex: 1; display: grid; gap: 8px; }
 .journey-notice.change { background: var(--accent); }
-.journey-notice .icon-button { width: 36px; height: 36px; background: transparent; }
-.journey-notice .secondary-button { justify-self: start; min-height: 40px; background: #fff; }
+.journey-notice .icon-button { width: 44px; height: 44px; background: transparent; }
+.journey-notice .secondary-button { justify-self: start; min-height: 44px; background: #fff; }
 .journey-offline { justify-self: center; display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 12px; border-radius: 20px; }
 .journey-badges { justify-self: start; }
 .journey-dock { grid-row: 3; padding: 6px 12px max(12px, env(safe-area-inset-bottom)); display: grid; gap: 10px; max-width: 520px; width: 100%; margin: 0 auto; z-index: 2; }
@@ -214,7 +214,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .dock-actions .icon-button { width: 56px; height: 56px; border-radius: 16px; background: #fff; box-shadow: var(--shadow); }
 .dock-actions .primary-button { flex: 1; min-height: 56px; font-size: 16px; border-radius: 16px; }
 .got-it { background: var(--ink); color: var(--accent); }
-.link-button { background: transparent; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; min-height: 32px; justify-self: center; }
+.link-button { background: transparent; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0 8px; justify-self: center; }
 .confirm-card, .done-card { border-radius: 24px; padding: 20px; display: grid; gap: 10px; }
 .confirm-card h1, .done-card h1 { font-size: 24px; font-weight: 750; letter-spacing: -.8px; line-height: 1.2; }
 .confirm-card .primary-button { min-height: 56px; font-size: 16px; }
@@ -224,7 +224,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .done-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; text-align: left; font-size: 13px; }
 .done-card li { display: flex; gap: 8px; align-items: center; }
 .route-steps section { margin-bottom: 14px; }
-.step-jump { background: transparent; padding: 0; text-align: left; font-size: 12px; font-weight: 650; min-height: 32px; }
+.step-jump { background: transparent; padding: 0; text-align: left; font-size: 12px; font-weight: 650; min-height: 44px; }
 .route-steps li strong { font-size: 12px; }
 .scanner-sheet .scanner-view { position: relative; aspect-ratio: 3 / 4; max-height: 56svh; border-radius: 18px; overflow: hidden; background: #20251b; }
 .scanner-view video { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -252,7 +252,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .event-log strong { font-size: 13px; }
 .event-log span span { font-size: 11px; color: var(--muted); }
 .event-log li.undone strong { text-decoration: line-through; color: var(--muted); }
-.event-log button { min-height: 40px; padding: 6px 12px; font-size: 13px; }
+.event-log button { min-height: 44px; padding: 6px 12px; font-size: 13px; }
 .preview-card { border-radius: 18px; padding: 16px; display: grid; gap: 8px; background: #fff; border: 2px solid var(--ink); box-shadow: var(--shadow); }
 .preview-card h2 { font-size: 22px; font-weight: 750; letter-spacing: -.6px; line-height: 1.2; }
 .effects { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
@@ -284,4 +284,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .validation summary { cursor: pointer; font-size: 12px; font-weight: 700; min-height: 32px; display: flex; align-items: center; }
 .profile-chip { margin: 6px 20px 0; display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px 12px; min-height: 48px; border-radius: 14px; background: #f5f5f1; font-size: 13px; }
 .profile-chip > span { flex-shrink: 0; color: var(--muted); }
-.profile-chip select { flex: 1; min-width: 0; min-height: 40px; border: 0; border-radius: 10px; background: #fff; font: inherit; font-size: 13px; font-weight: 650; padding: 0 8px; color: var(--ink); }
+.profile-chip select { flex: 1; min-width: 0; min-height: 44px; border: 0; border-radius: 10px; background: #fff; font: inherit; font-size: 13px; font-weight: 650; padding: 0 8px; color: var(--ink); }
+
+#tour-title:focus { outline: none; }
+#tour-title:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; border-radius: 6px; }

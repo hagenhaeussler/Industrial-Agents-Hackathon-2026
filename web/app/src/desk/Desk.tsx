@@ -123,6 +123,7 @@ export function Desk() {
       setTour(next); setOpenedOnPhone(false); setFocusId(null); setFrameSpaces([]);
       setFloorId(next.start.floor_id);
       console.info(`[timing] plan → route visible: ${Math.round(performance.now() - started)} ms (tour ${next.tour_id})`);
+      requestAnimationFrame(() => document.getElementById('tour-title')?.focus());
     }, error => setPlanError(message(error)));
     setPlanning(false);
   };
@@ -227,7 +228,7 @@ export function Desk() {
       </label>
 
       {tour
-        ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => setTour(null)} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}/>
+        ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}/>
         : <>
           <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>
           <footer className="plan-bar">
