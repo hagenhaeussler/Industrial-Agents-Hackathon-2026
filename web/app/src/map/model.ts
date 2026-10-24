@@ -1,4 +1,4 @@
-import type { Asset, Connector, Floor, Opening, Point, ReachableRoute, Snapshot, Space, Tour } from '../api/types';
+import type { Asset, Connector, Floor, Opening, Point, Position, ReachableRoute, Snapshot, Space, Tour, TourPoint } from '../api/types';
 import { bounds, centroid } from '../geo/transform';
 import type { Box } from '../geo/transform';
 
@@ -50,10 +50,20 @@ export const floorName = (model: Model, floorId: string) => model.floor.get(floo
 export const spaceName = (model: Model, spaceId: string) => model.space.get(spaceId)?.name ?? spaceId;
 export const assetPlace = (model: Model, asset: Asset) => `${spaceName(model, asset.space_id)} · ${floorName(model, asset.floor_id)}`;
 
+export type Place = { space_id: string; floor_id: string; point: Point };
+/** A position with floor and point filled in from the room when the server left them out. */
+export function placeOf(model: Model, position: Position | TourPoint | null | undefined): Place | null {
+  if (!position || !model.space.has(position.space_id)) return null;
+  return { space_id: position.space_id, floor_id: position.floor_id ?? model.space.get(position.space_id)!.floor_id, point: position.point ?? anchorOf(model, position.space_id) };
+}
+
 /** Parts shown in the desk list by default; furniture stays searchable but does not crowd the list. */
 export const isPart = (asset: Asset) => asset.category !== 'furniture';
 
 export type StopMark = { stopId: string; n: number; spaceId: string; floorId: string; point: Point; collected: boolean; label: string };
+
+/** True while route lines are provisional (fixture flag or the server's kit adapter), so the UI can say so. */
+export const isProvisional = (tour: Tour | null) => !!tour && ((tour as { _fixture?: { geometry?: string } })._fixture?.geometry === 'provisional' || tour.legs.some(leg => leg.geometry === 'provisional'));
 
 export const reachableLegs = (tour: Tour | null): ReachableRoute[] => (tour?.legs ?? []).filter((leg): leg is ReachableRoute => leg.reachable);
 

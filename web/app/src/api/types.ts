@@ -1,6 +1,7 @@
 /**
  * Payload types from CONTRACTS C1 (§5, §7, §8, §9, §10).
- * Interim: replaced by `schema.gen.ts` (`bun run gen:api`) once Manuel's codex commits `server/openapi.json`.
+ * The generated OpenAPI types (`schema.gen.ts`) keep most payloads as open dictionaries; these are the
+ * precise contract shapes, and `schema.check.ts` keeps them assignable to the generated ones.
  */
 export type Point = [number, number];
 
@@ -27,7 +28,7 @@ export type Segment =
   | { floor_id: string; kind: 'lift' | 'stairs'; element_id: string; points: Point[]; to_floor_id: string; length_m: number };
 export type ManeuverKind = 'depart' | 'straight' | 'turn_left' | 'turn_right' | 'slight_left' | 'slight_right' | 'u_turn' | 'enter' | 'take_lift' | 'take_stairs' | 'arrive';
 export type Maneuver = { i: number; kind: ManeuverKind; floor_id: string; at: Point; distance_m: number; text: string; landmark: string | null; element_id: string | null };
-type Stamp = { constraints: Constraints; profile: string; building_id: string; building_version: number; content_hash: string };
+type Stamp = { constraints: Constraints; profile: string; building_id: string; building_version: number; content_hash: string; geometry?: 'provisional' | string };
 export type ReachableRoute = Stamp & {
   reachable: true; from_space_id: string; to_space_id: string; length_m: number;
   space_path: string[]; element_path: string[]; node_path: string[]; segments: Segment[]; maneuvers: Maneuver[];
@@ -46,6 +47,7 @@ export type Tour = {
   order_policy: OrderPolicy; start: TourPoint; end: TourPoint | null; stops: TourStop[]; order: string[];
   legs: RouteResult[]; length_m: number; unreachable_stops: UnreachableStop[];
   changed_because: { event_id: string; summary: string } | null; profile: string; constraints: Constraints;
+  mobility_profile?: MobilityProfile;
 };
 
 export type ErrorCode = 'ambiguous' | 'not_found' | 'no_route' | 'invalid_args' | 'version_conflict' | 'forbidden' | 'not_available' | 'internal';
@@ -59,11 +61,12 @@ export type ToolResponse = {
 };
 export type ChatReply = { reply: string; tool_calls: ToolResponse[]; display: Display | null };
 
+export type MobilityProfile = 'walk' | 'wheelchair' | 'pram' | 'trolley';
 export type PositionSource = 'desk' | 'tour_start' | 'marker' | 'manual';
-export type Position = { space_id: string; floor_id: string; point: Point; heading_deg: number | null; source: PositionSource; marker_id: string | null; confidence: 'high' | 'medium' | 'low'; updated_at?: string };
+export type Position = { space_id: string; floor_id?: string; point?: Point; heading_deg?: number | null; source: PositionSource; marker_id?: string | null; confidence: 'high' | 'medium' | 'low'; updated_at?: string };
 export type Device = 'desk' | 'phone';
 export type Role = 'navigator' | 'admin';
-export type Session = { session_id: string; building_id: string; device: Device; role: Role; profile: string; constraints: Constraints; position: Position | null; active_tour_id: string | null };
+export type Session = { session_id: string; building_id: string; device: Device; role: Role; profile: MobilityProfile | string; constraints: Constraints; position: Position | null; active_tour_id: string | null; updated_at?: string };
 export type Marker = { marker_id: string; building_id: string; floor_id: string; space_id: string; point: Point; heading_deg: number; label: string };
 
 export type BuildingEvent = { event_id: string; kind: string; edit: Record<string, unknown>; summary: string };
