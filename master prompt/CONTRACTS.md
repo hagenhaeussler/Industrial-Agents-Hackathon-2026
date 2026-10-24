@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C4** (24 Oct 2026; C2 HTTP and C3 core result clarifications preserved; C4 tool/session mobility and closure transport clarified by Manuel's codex). Section owners:
+Contract version: **C5** (24 Oct 2026; reconciles concurrent C4 core closure-list support and platform mobility transport; C2/C3 definitions preserved). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -122,6 +122,7 @@ validate_building(raw: dict) -> dict         # {"ok": bool, "errors": [...], "wa
 | `tour` | `stops` (list of space IDs, first = start), `keep_order: true` | TourResult-like `legs`, `length_m`, or `reachable: false` |
 
 - `start`, `destination` and stop `target` accept a space ID, an asset ID (resolved to the asset's space, kit rule: a route to an item ends in its room) or a `{"space_id": "...", "point": [x, y]}` position. Free text is resolved **before** calling core (by `resolve`), never inside routing.
+- C4 / CR-L-2: `step_free_reachable_count.closed` accepts the kit's single element ID string **or** a list of IDs (including an empty list) for live tools. Lists apply all closures together; duplicates are harmless. The source benchmark string contract remains supported unchanged.
 - Errors are raised as `core.errors.CoreError(code, message, candidates=None)` with `code` from §14.
 
 ## 5. Route, tour and maneuver results
@@ -393,5 +394,7 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C2 — 24 Oct 2026, Manuel's codex, CR-M-1:** clarified §7 admin session header, optional phone progress header, mobility handoff metadata and demo opt-in; documented the existing voice token 503 code in §14. Endpoint paths, eleven tool names and their required arguments unchanged.
 
 - **C3 — 24 Oct 2026, Hagen's codex, CR-H-1:** clarified §5 raw polyline length versus rounded kit cost, actual point endpoints, server-assigned tour IDs, current building closures and moved-part replanning. C2 HTTP/session transport preserved.
+- **C4 platform — 24 Oct 2026, Manuel's codex, CR-L-1/CR-L-2:** §8 persistent affirmative mobility and explicit closure bridge; C2/C3 preserved.
+- **C4 core — 24 Oct 2026, Hagen's codex, CR-L-2 accepted:** §4 accepts original single closure strings and live empty/single/multiple lists; original benchmark inputs remain supported.
+- **C5 — 24 Oct 2026, Manuel's codex (captain):** reconciled both C4 handoffs; §8 follows the core's closure-list support (including no closures) and preserves match-stage precedence across asset/space find candidates (CR-L-3). Tool names and required arguments unchanged.
 
-- **C4 — 24 Oct 2026, Manuel's codex, CR-L-1/CR-L-2:** clarified §8 persistent affirmative mobility arguments and the explicit zero/single/multiple closure bridge for spatial_query. C3 geometry/stop semantics and C2 HTTP transport preserved; benchmark inputs unchanged.

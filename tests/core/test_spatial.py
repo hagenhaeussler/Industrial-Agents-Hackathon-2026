@@ -68,6 +68,17 @@ def test_parallel_connectors_kit_1_1_costs_and_closures():
     assert core.reachable_rooms("a", "f1", Constraints(True)) == []
 
 
+def test_reachable_count_accepts_single_and_live_list_closures():
+    b = load_building(fixture())
+    args = {"start":"a", "floor_id":"f1"}
+    assert solve(b,"step_free_reachable_count",{**args,"closed":[]})['value']==1
+    single = solve(b,"step_free_reachable_count",{**args,"closed":"lift"})
+    assert single == solve(b,"step_free_reachable_count",{**args,"closed":["lift"]})
+    assert solve(b,"step_free_reachable_count",{**args,"closed":["lift","ab"]})['value']==0
+    with pytest.raises(CoreError):
+        solve(b,"step_free_reachable_count",{**args,"closed":[3]})
+
+
 def test_width_threshold_closures_and_no_transit_edges():
     core = SpatialCore(fixture())
     assert set(core.reachable_rooms("a", "f0", Constraints(True, .9))) == {"a", "b"}

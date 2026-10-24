@@ -191,9 +191,8 @@ def replan(b, tour, from_position, reason_event=None):
             if asset_ids:
                 stop["label"] = ", ".join(b.assets[a]["name"] for a in asset_ids) + " · " + b.spaces[sid]["name"]
             pending.append(stop)
-    by_id = {s["stop_id"]:s for s in pending}
-    if old.get("order_policy")=="fixed":
-        pending = [by_id[sid] for sid in old.get("order",[]) if sid in by_id] + [s for s in pending if s["stop_id"] not in old.get("order",[])]
+    # The retained stops carry the prescribed sequence, including blocked stops.
+    # The previous reachable `order` omits them and must not become a new order.
     result = plan_tour(b,from_position,pending,old.get("constraints"),old.get("order_policy")=="fixed",old.get("end"))
     result["stops"] = [s for s in old.get("stops",[]) if s.get("status")=="collected"] + result["stops"]
     result["tour_id"] = old.get("tour_id")
