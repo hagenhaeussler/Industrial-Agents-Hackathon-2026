@@ -125,10 +125,11 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .map-you-label { fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: .25px; }
 .route-draw { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: route-draw 1.2s cubic-bezier(.45, .05, .25, 1) forwards; }
 @keyframes route-draw { to { stroke-dashoffset: 0; } }
-.floor-switch { position: absolute; top: 20px; right: 20px; display: grid; gap: 4px; padding: 6px; border-radius: 16px; }
-.floor-switch button { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; min-width: 132px; padding: 0 12px; border-radius: 11px; background: transparent; font-size: 13px; font-weight: 650; text-align: left; }
-.floor-switch button.active { background: var(--ink); color: #fff; }
-.floor-stops { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent); color: var(--ink); font-size: 11px; font-weight: 800; display: grid; place-items: center; }
+.floor-switch { position: absolute; top: 20px; right: 20px; display: grid; gap: 2px; }
+.floor-switch button { display: grid; place-items: center; width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; border-radius: 50%; background: transparent; }
+.floor-level { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--ink); box-shadow: var(--shadow); font-size: 13px; font-weight: 700; }
+.floor-switch button:hover .floor-level { background: #ecefe5; }
+.floor-switch button.active .floor-level { background: var(--ink); color: var(--accent); }
 /* Exploded desk model; floor geometry and route distances remain in building metres. */
 .isometric-building { padding: 24px; }
 .isometric-camera { transition: transform 550ms cubic-bezier(.22,.7,.3,1); }
@@ -139,9 +140,6 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .desk-panel > .parts { min-height: 180px; }
 .isometric-floor.active { opacity: 1; }
 .isometric-floor.active .isometric-slab polygon { stroke: #7f8d6e; }
-.desk-planner .floor-switch { padding: 4px; gap: 2px; border-radius: 12px; }
-.desk-planner .floor-switch button { min-width: 100px; padding: 0 9px; gap: 6px; border-radius: 9px; font-size: 12px; }
-.desk-planner .floor-stops { min-width: 18px; height: 18px; padding: 0 4px; font-size: 10px; }
 
 .map-controls { position: absolute; right: 20px; bottom: 20px; display: grid; padding: 4px; border-radius: 14px; }
 .map-controls button { width: 44px; height: 44px; border-radius: 10px; background: transparent; display: grid; place-items: center; }
@@ -183,7 +181,6 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .go { position: relative; height: 100svh; overflow: hidden; }
 .go .map-view { bottom: 38svh; }
 .go .floor-switch { top: max(14px, env(safe-area-inset-top)); right: 14px; }
-.go .floor-switch button { min-width: 0; }
 .go .map-controls { right: 14px; bottom: 14px; }
 .go-sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 40svh; border-radius: 26px 26px 0 0; padding: 10px 20px max(18px, env(safe-area-inset-bottom)); overflow-y: auto; }
 .go-sheet .sheet-handle { margin-bottom: 14px; }
@@ -194,7 +191,6 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
   .desk-map { grid-row: 1; }
   .desk-panel { grid-row: 2; margin: -20px 0 0; border-radius: 24px 24px 0 0; }
   .floor-switch { top: 12px; right: 12px; }
-  .floor-switch button { min-width: 0; }
   .map-controls { right: 12px; bottom: 32px; }
   .focus-card { left: 12px; bottom: 32px; max-width: calc(100% - 90px); }
   .home { grid-template-columns: 1fr; padding: 24px 16px; gap: 24px; }
@@ -221,8 +217,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 /* phone journey: banner on top, map in the middle, guidance dock at the thumb */
 .journey { height: 100svh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
 .journey > .map-view { grid-row: 2; position: relative; inset: auto; min-height: 0; }
-.journey .floor-switch { top: 10px; right: 12px; padding: 4px; }
-.journey .floor-switch button { min-width: 0; min-height: 44px; font-size: 12px; }
+.journey .floor-switch { top: 10px; right: 12px; }
 .journey .map-controls { right: 12px; bottom: 10px; }
 .journey-top { grid-row: 1; padding: max(12px, env(safe-area-inset-top)) 12px 6px; display: grid; gap: 8px; max-width: 620px; width: 100%; margin: 0 auto; z-index: 2; }
 .journey-top .route-banner { min-height: 76px; }

@@ -7,7 +7,7 @@ import type { Box } from '../geo/transform';
 import { FloorMap } from './FloorMap';
 import { IsometricBuilding } from './IsometricBuilding';
 import type { FloorMapProps } from './FloorMap';
-import { routeBox, stopMarks } from './model';
+import { routeBox } from './model';
 
 type Props = FloorMapProps & {
   /** Desk-only building overview; phone guidance and admin keep their flat floor maps. */
@@ -76,7 +76,6 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, isometric = fa
     return () => { observer.disconnect(); clearTimeout(timer); };
   }, []);
 
-  const stopsOn = (id: string) => stopMarks(model, tour ?? null).filter(mark => mark.floorId === id).length;
   const floors = [...model.floors].reverse();
 
   return <div className={`map-view${stacked ? ' isometric-view' : ''}`} ref={view}>
@@ -85,13 +84,10 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, isometric = fa
         {stacked ? <IsometricBuilding {...map} fit={{ id: fitId, box }}/> : <FloorMap {...map} fit={{ id: fitId, box }}/>}
       </TransformComponent>
     </TransformWrapper>
-    {floors.length > 1 && <nav className="floor-switch surface" aria-label="Floors">
-      {floors.map(floor => {
-        const n = stopsOn(floor.id);
-        return <button key={floor.id} className={floor.id === floorId ? 'active' : ''} aria-pressed={floor.id === floorId} onClick={() => onFloor?.(floor.id)} title={floor.name}>
-          <span>{floor.name}</span>{n > 0 && <span className="floor-stops" aria-label={`${n} stops`}>{n}</span>}
-        </button>;
-      })}
+    {floors.length > 1 && <nav className="floor-switch" aria-label="Floors">
+      {floors.map(floor => <button key={floor.id} className={floor.id === floorId ? 'active' : ''} aria-label={floor.name} aria-pressed={floor.id === floorId} onClick={() => onFloor?.(floor.id)}>
+        <span className="floor-level" aria-hidden="true">{floor.level}</span>
+      </button>)}
     </nav>}
     <div className="map-controls surface" role="group" aria-label="Map zoom">
       <button onClick={() => ref.current?.zoomIn(0.5)} aria-label="Zoom in"><Plus size={18}/></button>
