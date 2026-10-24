@@ -5,6 +5,7 @@ import math
 import networkx as nx
 
 from starter_agent.building_map import DOOR_PREFIX, LENGTH_DECIMALS
+from .building import step_free_connector
 from .errors import CoreError
 from .geometry import walk_polyline
 from .profiles import LIFT_FIXED_M, LIFT_M_PER_RISE, STAIRS_M_PER_RISE
@@ -58,7 +59,7 @@ def constrained_graph(b, constraints=None, start_space=None, destination_space=N
     levels = {f: floor["level"] for f, floor in b.floors.items()}
     elevations = {f: floor["elevation_m"] for f, floor in b.floors.items()}
     for cid, connector in b.connectors.items():
-        if cid in closed or (c["step_free"] and not connector["step_free"]):
+        if cid in closed or (c["step_free"] and not step_free_connector(connector)):
             continue
         stops = sorted(zip(connector["floor_ids"], connector["space_ids"], strict=True), key=lambda s: levels[s[0]])
         pairs = itertools.combinations(stops, 2) if connector["kind"] == "lift" else itertools.pairwise(stops)
