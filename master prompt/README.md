@@ -3,7 +3,7 @@
 Execution package for four builder agents, written by the master planning agent on 24 Oct 2026 (20:15–21:00 CEST) from `HagenFinalPrompt.md`, the team's consolidated proposal `2026-10-24-plan-review-zwei-ux.md` and a fresh audit of the repository.
 
 - **Audited base:** `main` at `a5656fe` (plus the uncommitted human edits to `2026-10-24-plan-review-zwei-ux.md` and `docs/elevenlabs-agent-config.md`).
-- **`BASE_SHA` (builders branch from this):** `<fill in: the commit that adds this package and the H1 reference copies>` — the humans write it here after committing (H2).
+- **`BASE_SHA` (builders branch from this):** `7d9c20213e1fa4107ea74a11a7e782196e809d39` (short `7d9c202`, pushed 24 Oct 2026). The follow-up commit that only writes this line may also be used as base — the humans write it here after committing (H2).
 - **Code freeze:** Sunday 25 Oct 2026, 13:00 CET. **Target launch:** 22:00 CEST Saturday.
 
 ## 1. What is in here
