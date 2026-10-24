@@ -1,5 +1,7 @@
 # Plan – Talk to Your Building (Track 01)
 
+> **Ersetzt (24.10.2026, ca. 21:15):** Dieser Plan ist durch [`master prompt/`](master%20prompt/README.md) ersetzt (Basis-Commit `7d9c202`). Dort gelten Architektur, Verträge, Zuständigkeiten und Zeitplan, insbesondere: Railway, Python für Core, Server und Benchmark, TypeScript im Frontend, ein Routenmodell nach Kit 1.1.0. Diese Datei bleibt nur zur Nachvollziehbarkeit; bei Widerspruch gilt `master prompt/`.
+
 **Stand:** Sa 24.10.2026, 17:00 · **Code Freeze:** So 25.10., 13:00 → **ca. 21 reale Stunden.** In der Nacht endet die Sommerzeit (3:00 → 2:00), das bringt eine Stunde extra.
 **Stack:** Web-Apps auf **Railway** (ein Node-Service), **alles in TypeScript** · vorberechnete SQLite-Datenbank aus `building.json` · Agent Harness mit dem Tool Runner des Anthropic SDK · ElevenLabs Agent mit Eleven v4 Turbo · Claude (600 USD Anthropic-Credits)
 **Grundlage:**
