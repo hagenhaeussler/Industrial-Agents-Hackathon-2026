@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 import { advanceStep, findDestination, getStep, initialDestination } from './routes';
 import { getDemoReply } from '../agent/replies';
 

@@ -1,13 +1,10 @@
 [project]
 name = "track01-student-kit"
 version = "1.1.0"
-description = "Track 01 Google Maps for Every Building: starter agent and scorer"
+description = "Track 01 Google Maps for Every Building: official scorer and evaluator"
 requires-python = ">=3.12"
 dependencies = [
     "anthropic>=2.1.0",
-    "matplotlib>=3.11.2",
-    "networkx>=3.7",
-    "shapely>=2.2.0",
 ]
 
 [build-system]
@@ -15,4 +12,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["starter_agent", "benchmark"]
+packages = ["benchmark"]

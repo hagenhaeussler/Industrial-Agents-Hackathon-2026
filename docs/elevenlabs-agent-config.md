@@ -1,13 +1,13 @@
 # ElevenLabs-Agent – Konfiguration
 
-**Stand:** 24.10.2026. Hier steht, wie die Voice-Agents im ElevenLabs-Dashboard eingestellt werden. Wer sie nachbauen will, etwa die Jury, kann diese Werte übernehmen. Architektur und Begründungen: [Plan-Review](../2026-10-24-plan-review-zwei-ux.md), Abschnitte 3, 6 und 7.
+**Stand:** 24.10.2026. Hier steht, wie die Voice-Agents im ElevenLabs-Dashboard eingestellt werden. Wer sie nachbauen will, etwa die Jury, kann diese Werte übernehmen. Architektur und Begründungen: [PLAN.md](../PLAN.md), Abschnitte 0, 3 und 4. Wo diese Datei von `PLAN.md` abweicht, gilt `PLAN.md`.
 
 ## Zwei Agents mit gleicher Basis
 
 | Agent | Gerät | Aufgabe |
 |---|---|---|
-| **Navigator** | Desktop-Ansicht und Handy | Teile finden, Touren planen, Weg führen, Schritt für Schritt ansagen |
-| **Admin** | Laptop (UX A) | Gebäude anlegen, Maßstab setzen, Änderungen vorschlagen, bestätigen, rückgängig machen |
+| **Navigator** | Handy (Navigation) und Desktop | Teile und Räume finden, Weg führen, Schritt für Schritt ansagen. Touren über mehrere Teile als Add-on |
+| **Admin** | Desktop (Verwaltung) | Objekte verschieben, Bereiche sperren, Änderungen vorschlagen, bestätigen und rückgängig machen, What-if |
 
 Beide Agents bekommen dieselben Basiseinstellungen:
 
@@ -19,7 +19,7 @@ Beide Agents bekommen dieselben Basiseinstellungen:
 | Spracherkennung (ASR) | Scribe v2 Realtime (`scribe_realtime`), Qualität `high` |
 | Turn-Taking | Modell `turn_v3`, Turn-Timeout 7 s |
 | Sprache | Englisch (über den Prompt) |
-| LLM im Agent | **Soll:** Claude Sonnet 5.5, niedriger Reasoning-Aufwand. Endgültig nach dem A/B-Test (Review §6); das Ergebnis wird hier eingetragen. **Ist (Dashboard-Standard):** Qwen3.5-397B-A17B |
+| LLM im Agent | **Soll:** Claude Sonnet 5.5, niedriger Reasoning-Aufwand. Offen, ob das LLM in ElevenLabs bleibt oder ElevenLabs unseren Agent Harness als Custom LLM nutzt (`PLAN.md` §4). **Ist (Dashboard-Standard):** Qwen3.5-397B-A17B |
 | Backup-LLM | „Default“ (nicht „Disabled“), damit ein Ausfall des Haupt-LLM das Gespräch nicht beendet |
 | Sicherheit | Enable authentication an. Die App holt pro Gespräch einen **Conversation Token (WebRTC)** vom Server |
 
@@ -32,7 +32,7 @@ Alle Tools sind vom Typ **Client** und haben **„Wait for response“** an. Nur
 | Tool | Parameter | Wirkung |
 |---|---|---|
 | `find` | `query` (String, Pflicht): Name, Typ oder Raumnummer, wie gesagt, z. B. „3D printer“, „room 0.21“ | Treffer mit Ort; bei mehreren Treffern die Kandidaten für eine Rückfrage |
-| `plan_tour` | `items` (String, Pflicht): Teile oder Orte, durch Komma getrennt; `keep_order` (Boolean, Standard false); `step_free` (Boolean) | beste Reihenfolge und Route über alle Stopps ab der aktuellen Position; liefert `tour_id` für den Übergabe-QR |
+| `plan_tour` (Add-on) | `items` (String, Pflicht): Teile oder Orte, durch Komma getrennt; `keep_order` (Boolean, Standard false); `step_free` (Boolean) | gute Reihenfolge und Route über alle Stopps ab der aktuellen Position; liefert `tour_id` für den QR-Code |
 | `route` | `destination` (String, Pflicht); `step_free` (Boolean); `min_door_width_m` (Number) | Route ab der aktuellen Position aus der Sitzung, Karte bzw. Kamera zeigt sie sofort |
 | `next_step` | – | nächste Anweisung mit Landmarke; in einer Tour auch der nächste Stopp |
 
@@ -40,14 +40,12 @@ Alle Tools sind vom Typ **Client** und haben **„Wait for response“** an. Nur
 
 | Tool | Parameter | Wirkung |
 |---|---|---|
-| `set_scale` | `reference` (String, Pflicht): Raum oder Wand; `length_m` (Number, Pflicht) | Maßstab eines hochgeladenen Plans setzen |
 | `propose_edit` | `action` (String, Pflicht): `close`, `open`, `add_door`, `move_asset`, `set_room_type`; `target` (String, Pflicht); `second_target` (String); `value` (String) | Vorschau mit betroffenen Routen, liefert `proposal_id`, ändert nichts |
 | `commit_edit` | `proposal_id` (String, Pflicht) | übernimmt die Änderung genau einmal (idempotent) |
 | `undo` | – | macht die letzte eigene Änderung rückgängig |
 | `what_if` | wie `propose_edit` | Was-wäre-wenn ohne Vorschlag zum Speichern |
-| `generate_markers` | – | QR-Blatt für Eingänge und wichtige Türen erzeugen |
 
-**Was kein Tool ist:** QR-Scan (Übergabe-QR mit `tour_id`, Positions-QR an Türen) und Plan-Upload laufen über die Oberfläche. Der Browser kann keinen Dateidialog aus einem Tool-Aufruf öffnen. Die App teilt dem Agenten das Ergebnis per `sendContextualUpdate` mit, z. B. „Position: north entrance, ground floor“ oder „Plan uploaded: 14 rooms detected, scale missing“. Das löst keine Antwort aus.
+**Was kein Tool ist:** Der QR-Code vom Desktop ist nur ein Link. Er öffnet die Mobile-Ansicht mit einem Objekt oder einer Tour als Ziel. Der Import eines `building.json` läuft über die Oberfläche. Die App teilt dem Agenten solche Ereignisse per `sendContextualUpdate` mit, z. B. „Destination from QR code: CNC mill 0.21“ oder „Lift V02 closed“. Das löst keine Antwort aus. QR-Codes dienen nicht zur Ortung.
 
 Ein Tool-Fehler wird als Fehler zurückgegeben, nie als „Route angezeigt“.
 
@@ -59,7 +57,7 @@ Für beide Agents (aus `PLAN.md` §4):
 - Landmarken statt Raumnummern.
 - Genau eine Rückfrage, wenn ein Pflichtparameter fehlt oder es mehrere Treffer gibt. Nie still den ähnlichsten Treffer nehmen („Press 4“ ist nicht „Press 14“).
 - Nichts erfinden: Gibt es ein Objekt oder eine Route nicht, das klar sagen.
-- Positionen, Gebäude und Profil („wheelchair“) kommen aus der Sitzung, nicht aus dem Gesprächsverlauf.
+- Gebäude, Ziel, Position (falls bekannt) und Profil („wheelchair“) kommen aus der Sitzung, nicht aus dem Gesprächsverlauf.
 
 Nur Navigator: höchstens drei Schritte auf einmal, dann auf „next“ warten. Fällt unterwegs etwas aus (Lift gesperrt), meldet die App das per `sendContextualUpdate`; der Agent sagt die neue Route kurz an.
 

@@ -1,17 +1,17 @@
 # Alain building guide
 
-Phone-first indoor navigation prototype. React, TypeScript, Vite and Bun.
+Phone-first indoor navigation prototype. React, TypeScript, Vite, pnpm and Vitest.
 
 ```sh
-bun install
-bun run dev
+pnpm install
+pnpm dev
 ```
 
 Open the printed localhost URL. For a phone, use the private HTTPS deployment and sign in with the owner account. Camera access needs HTTPS or localhost. A plain HTTP LAN address can show the demo, but cannot start the camera.
 
 ```sh
-bun run build
-bun test
+pnpm build
+pnpm test
 ```
 
 ## What works
@@ -25,6 +25,8 @@ bun test
 ## Prototype limits
 
 The route, floor map, distances and position are example data. The line is a screen-space illustration, not a tracked physical-world anchor. No Gaussian Splat, visual localization, route backend, building-document retrieval, microphone or language model is connected. Chat replies are local templates. The corridor is an SVG illustration shown while the camera is off.
+
+Planned later: camera-only AR with server-side localization (hloc and MegaLoc), see `PLAN.md` section 8.
 
 ## Where things live
 

@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, describe, expect, mock, test } from 'bun:test';
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest';
 import { Window } from 'happy-dom';
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { useCamera } from './useCamera';
@@ -10,7 +10,7 @@ beforeAll(() => {
     document: { value: dom.document, configurable: true },
     navigator: { value: dom.navigator, configurable: true },
     HTMLElement: { value: dom.HTMLElement, configurable: true },
-    IS_REACT_ACT_ENVIRONMENT: { value: true, configurable: true },
+    IS_REACT_ACT_ENVIRONMENT: { value: true, configurable: true, writable: true },
   });
   Object.defineProperty(window, 'isSecureContext', { value: true });
 });
@@ -21,7 +21,7 @@ function installCamera(getUserMedia: () => Promise<unknown>) {
 }
 
 function createStream() {
-  const track = Object.assign(new EventTarget(), { stop: mock(() => undefined) });
+  const track = Object.assign(new EventTarget(), { stop: vi.fn(() => undefined) });
   return { track, stream: { getTracks: () => [track], getVideoTracks: () => [track] } };
 }
 
