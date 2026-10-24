@@ -58,6 +58,8 @@ def test_find_never_confuses_numbers_and_ambiguity_changes_nothing(platform):
     response = tools.call("find", nav, {"query": "Press 4"})
     assert response["ok"] is True
     assert response["result"]["id"] == "asset4"
+    assert response["display"]["asset_ids"] == ["asset4"]
+    assert response["display"]["floor_id"] == "ground"
     assert response["trace"][0]["_adapter"] == "kit"
     response = tools.call("find", nav, {"query": "Press 5"})
     assert response["ok"] is False

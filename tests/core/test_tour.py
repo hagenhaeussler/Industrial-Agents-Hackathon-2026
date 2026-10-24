@@ -73,3 +73,14 @@ def test_thirteen_stops_are_explicitly_heuristic():
     stops = [sid for sid in b.spaces if sid in reachable][:13]
     tour = plan_tour(b,start,stops)
     assert tour['order_policy']=='optimized_heuristic'
+
+
+def test_collection_stop_honors_explicit_position():
+    b = load_building('data/dev/proc-factory-dev-003')
+    sid = next(iter(b.spaces))
+    p = b.polygons[sid].representative_point()
+    start = {'space_id':sid, 'point':[p.x,p.y]}
+    target = {'space_id':sid, 'point':[p.x+.2,p.y]}
+    result = plan_tour(b,start,[{'target':target}])
+    assert result['length_m_exact']==pytest.approx(.2,abs=.001)
+    assert result['legs'][0]['destination_position']==target['point']

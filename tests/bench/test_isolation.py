@@ -2,7 +2,6 @@ import builtins
 import subprocess
 import sys
 from pathlib import Path
-from types import ModuleType
 
 from bench import agent
 
@@ -22,14 +21,6 @@ def test_inference_does_not_open_question_files(monkeypatch):
     monkeypatch.setattr(builtins, "open", protect(original_open))
     monkeypatch.setattr(Path, "open", protect(original_path_open))
     monkeypatch.setattr(Path, "read_text", protect(original_read))
-    # The core dispatch is not published yet. This test exercises real file loading,
-    # template parsing and serialization with a computed count, without gold data.
-    spatial = ModuleType("core.spatial")
-    spatial.solve = lambda building, kind, inputs: {"value": sum(
-        item["type"] == inputs["asset_type"] and item["floor_id"] == inputs["floor_id"]
-        for item in building.assets.values()
-    )}
-    monkeypatch.setitem(sys.modules, "core.spatial", spatial)
     agent._cached_building.cache_clear()
     assert agent.answer(directory, question) == "Answer: 3"
 

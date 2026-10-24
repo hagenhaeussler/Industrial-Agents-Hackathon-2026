@@ -22,7 +22,8 @@ def _group_stops(b, stops):
     for raw in stops:
         item = raw if isinstance(raw, dict) else {"target": raw}
         target = item.get("target", item.get("space_id", item.get("id")))
-        sid, _ = _endpoint(b, target)
+        sid, point = _endpoint(b, target)
+        point = point or item.get("point")
         assets = [target] if isinstance(target, str) and target in b.assets else list(item.get("asset_ids", []))
         if any(a not in b.assets or b.assets[a]["space_id"] != sid for a in assets):
             raise CoreError("invalid_args", "A stop's assets must exist in its target room.")
@@ -31,6 +32,8 @@ def _group_stops(b, stops):
             groups[key] = {"stop_id": item.get("stop_id", f"s{len(groups)+1}"),
                            "space_id": sid, "asset_ids": [], "label": item.get("label", b.spaces[sid]["name"]),
                            "status": item.get("status", "pending")}
+            if point is not None:
+                groups[key]["point"] = list(point)
         group = groups[key]
         for aid in assets:
             if aid not in group["asset_ids"]:
@@ -40,6 +43,10 @@ def _group_stops(b, stops):
     if len({s["stop_id"] for s in groups.values()}) != len(groups):
         raise CoreError("invalid_args", "Stop IDs must be unique.")
     return list(groups.values())
+
+
+def _stop_target(stop):
+    return {"space_id": stop["space_id"], "point": stop["point"]} if stop.get("point") is not None else stop["space_id"]
 
 
 def optimal_order(matrix, end_costs=None):
@@ -105,8 +112,8 @@ def plan_tour(b, start, stops, constraints=None, keep_order=False, end=None):
     feasible = []
     first_routes = {}
     for stop in pending:
-        leg = route(b, start, stop["space_id"], c)
-        first_routes[stop["space_id"]] = leg
+        leg = route(b, start, _stop_target(stop), c)
+        first_routes[stop["stop_id"]] = leg
         if not leg["reachable"]:
             unreachable.append({"stop_id": stop["stop_id"], "space_id": stop["space_id"], "reason": leg["reason"]})
         else:
@@ -115,32 +122,33 @@ def plan_tour(b, start, stops, constraints=None, keep_order=False, end=None):
     policy = "fixed" if keep_order else "optimized_exact" if len(feasible)<=12 else "optimized_heuristic"
     if feasible and not keep_order:
         ids = [start_pos["space_id"]] + [s["space_id"] for s in feasible]
+        targets = [start] + [_stop_target(s) for s in feasible]
         matrix = [[0.0]*len(ids) for _ in ids]
         graph = constrained_graph(b, c)
         for i, source in enumerate(ids):
             lengths = nx.single_source_dijkstra_path_length(graph, source, weight="weight") if source in graph else {}
             for j,target in enumerate(ids):
                 if i == 0 and j:
-                    matrix[i][j] = first_routes[target]["length_m_exact"]
-                elif c["no_transit_room_types"] and i!=j:
-                    result = route(b,source,target,c)
+                    matrix[i][j] = first_routes[feasible[j-1]["stop_id"]]["length_m_exact"]
+                elif i != j and (c["no_transit_room_types"] or isinstance(targets[i],dict) or isinstance(targets[j],dict)):
+                    result = route(b,targets[i],targets[j],c)
                     matrix[i][j] = result.get("length_m_exact", math.inf)
                 else:
                     matrix[i][j] = lengths.get(target,math.inf)
         end_costs = None
         if end_pos:
-            end_costs = [route(b,s["space_id"],end,c).get("length_m_exact", math.inf) for s in feasible]
+            end_costs = [route(b,_stop_target(s),end,c).get("length_m_exact", math.inf) for s in feasible]
         order,_ = optimal_order(matrix,end_costs) if len(feasible)<=12 else _heuristic_order(matrix,end_costs)
     legs, current = [], start
     ordered = []
     for index in order:
         stop = feasible[index]
-        leg = route(b,current,stop["space_id"],c)
+        leg = route(b,current,_stop_target(stop),c)
         if not leg["reachable"]:
             unreachable.append({"stop_id":stop["stop_id"],"space_id":stop["space_id"],"reason":leg["reason"]})
             continue
         legs.append(leg)
-        current = stop["space_id"]
+        current = _stop_target(stop)
         ordered.append(stop["stop_id"])
     end_route = route(b,current,end,c) if end_pos else None
     if end_route and end_route["reachable"]:
@@ -175,6 +183,8 @@ def replan(b, tour, from_position, reason_event=None):
             locations[original["space_id"]] = []
         for i, (sid, asset_ids) in enumerate(locations.items()):
             stop = dict(original, target=sid, space_id=sid, asset_ids=asset_ids, _preserve_identity=True)
+            if sid != original["space_id"]:
+                stop.pop("point", None)
             if i:
                 stop["stop_id"] = f"s{next_id}"
                 next_id += 1
