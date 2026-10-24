@@ -60,5 +60,17 @@ benchmark labels and existing agent inference were not edited.
 
 ## Final integration and release
 
-Pending final combined check and PR/release record. No new cloud deployment is
-claimed by this status until a verified deployment ID and exact SHA are recorded.
+- Teammate voice integration `origin/main` at `dece140` was merged normally into
+  this branch as `0348374`, without conflicts or changes to the human checkout.
+- Combined check completed successfully on the integrated tree:
+  `PATH=/private/tmp/tyb-builder-tools/bin:$PATH UV_CACHE_DIR=/private/tmp/tyb-uv-cache XDG_CACHE_HOME=/private/tmp/tyb-colab-cache MPLCONFIGDIR=/private/tmp/tyb-colab-mpl scripts/check.sh`.
+  Result: **533 Python passed**, kit oracle **369/369**, core dev text **138/138**,
+  **258 Bun tests passed / zero failed**, TypeScript/Vite production build and
+  device-gate bundle passed; exit **0**. Log: `/private/tmp/tyb-colab-final-check.log`.
+- The 18 focused Colab server/model regressions were repeated after integrating
+  main: **18 passed** in 2.98 seconds. `git diff --check` is clean.
+- The Vite build retains the existing large Three.js chunk warning. It builds
+  successfully; the new Colab page is loaded as a separate route chunk.
+- No new cloud deployment is claimed here. PR/release verification is the place
+  to record a later exact deployed SHA and Railway deployment ID. Real device
+  calibration and positioning accuracy remain separate physical acceptance.
