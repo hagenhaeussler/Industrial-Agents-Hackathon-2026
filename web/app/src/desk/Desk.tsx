@@ -230,7 +230,7 @@ function DeskScreen() {
   if (loadError) return <main className="desk desk-message"><div className="surface notice"><h1>The building did not load</h1><p>{loadError}</p><div className="row"><button className="primary-button" onClick={() => void loadBuilding()}>Try again</button><button className="secondary-button" onClick={() => navigate('/')}>Choose a building</button></div></div></main>;
   if (!model) return <main className="desk desk-message"><p className="loading"><LoaderCircle className="spin" size={20}/>Loading the building…</p></main>;
 
-  return <main className="desk">
+  return <main className={`desk desk-planner${tour ? '' : ' is-selecting'}`}>
     <aside className="desk-panel surface" aria-label="Plan a collection tour">
       <header className="desk-brand">
         <button className="brand-mark" onClick={() => navigate('/')} aria-label="Choose another building"><Building2 size={18}/></button>
@@ -270,21 +270,7 @@ function DeskScreen() {
       {tour
         ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}
             busy={planning} responses={lastCalls} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
-        : <>
-          <TracePanel model={model} responses={lastCalls}/>
-          <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>
-          <footer className="plan-bar">
-            {planError && <p className="plan-error" role="alert">{planError}</p>}
-            <div className="plan-options">
-              <label className="toggle"><input type="checkbox" checked={keepOrder} onChange={event => setKeepOrder(event.target.checked)}/><span>Keep my order</span></label>
-              <button className="link-button" onClick={() => setEndPicker(true)}>{end ? `Finish at ${spaceName(model, end)}` : 'Finish anywhere'}</button>
-            </div>
-            <button className="primary-button" onClick={() => void plan()} disabled={!selected.size || planning || !session}>
-              {planning ? <LoaderCircle className="spin" size={18}/> : <Route size={18}/>}
-              {selected.size ? `Plan collection tour · ${selected.size} ${selected.size === 1 ? 'part' : 'parts'}` : 'Select parts to plan a tour'}
-            </button>
-          </footer>
-        </>}
+        : <TracePanel model={model} responses={lastCalls}/>}
     </aside>
 
     <section className="desk-map" aria-label="Building map">
@@ -299,6 +285,21 @@ function DeskScreen() {
       </div>}
       {link === 'offline' && <p className="link-status surface" role="status">Reconnecting to live updates…</p>}
     </section>
+
+    {!tour && <aside className="desk-parts-panel surface" aria-labelledby="parts-title">
+      <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>
+    </aside>}
+    {!tour && <footer className="plan-bar desk-plan-bar surface" aria-label="Tour planning">
+      {planError && <p className="plan-error" role="alert">{planError}</p>}
+      <div className="plan-options">
+        <label className="toggle"><input type="checkbox" checked={keepOrder} onChange={event => setKeepOrder(event.target.checked)}/><span>Keep my order</span></label>
+        <button className="link-button" onClick={() => setEndPicker(true)}>{end ? `Finish at ${spaceName(model, end)}` : 'Finish anywhere'}</button>
+      </div>
+      <button className="primary-button" onClick={() => void plan()} disabled={!selected.size || planning || !session}>
+        {planning ? <LoaderCircle className="spin" size={18}/> : <Route size={18}/>}
+        {selected.size ? `Plan collection tour · ${selected.size} ${selected.size === 1 ? 'part' : 'parts'}` : 'Select parts to plan a tour'}
+      </button>
+    </footer>}
 
     <StartPicker model={model} open={picker} current={you?.space_id ?? null} onPick={id => void pickStart(id)} onClose={() => setPicker(false)}/>
     <StartPicker model={model} open={endPicker} current={end} title="Where should the tour end?" hint="The last leg leads here, for example back to your workplace." clearLabel="Finish anywhere" onClear={() => { setEnd(null); setEndPicker(false); }} onPick={id => { setEnd(id); setEndPicker(false); }} onClose={() => setEndPicker(false)}/>
