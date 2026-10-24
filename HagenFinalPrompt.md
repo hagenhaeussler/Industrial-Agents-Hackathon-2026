@@ -21,7 +21,7 @@ Your immediate assignment is **planning and prompt authoring**. Inspect, reason,
 The non-negotiable outcomes are:
 
 - Meet the actual challenge and submission requirements, including generalization to a previously unseen building and new question wording.
-- Preserve the customer needs and journey expressed by Hagen and the team. **`Hagen UX explanation transcript.md` is a central product source. Read it in full, not just its summary.**
+- Preserve the customer needs and journey expressed by Hagen and the team. **`docs/sources/Hagen UX explanation transcript.md` is a central product source. Read it in full, not just its summary.**
 - Produce a coherent system in which answers, routes, edits, and displayed state are grounded in building data and observable tool results.
 - Coordinate exactly four builder roles: three Codex agents and one Claude agent, with the exact folder names below.
 - Give Claude primary ownership of UI, design, and the customer journey; use Claude Design where actually available. Respect the team's preference to give Claude selected difficult design and integration problems without making it the bottleneck.
@@ -52,11 +52,11 @@ This is a starting map, **not an exhaustive allowlist**. Discover and incorporat
 
 | Source | What you must extract |
 |---|---|
-| `Hagen UX explanation transcript.md` | The full customer journey, intended outcomes, optional embellishments, and explicitly uncertain details. Highest emphasis for product interpretation. |
-| `README.md` (kit 1.1.0); `CHANGELOG.md`; `Hackathon Challenge - Talk to Your Building-1.pdf`; `Industrial Agents Hackathon Kick-Off.pdf`; `ATTRIBUTION.md` | Official task, levels, scoring, route model (README section 3), inputs/outputs, deliverables, deadline, data rights. The 1.1.0 README is newer than the PDF: it asks for a 3–5 minute live demo without a restart and no longer mentions finalists or `BENCHMARK.md`. |
-| `2026-10-24-challenge-lead-qa.md`; `2026-10-24-route-scoring-specifications.md`; `2026-10-24-weitere-aufnahmen-relevante-infos.md` | Organizer statements, route measurement, provenance limits, and unresolved evaluation semantics. |
+| `docs/sources/Hagen UX explanation transcript.md` | The full customer journey, intended outcomes, optional embellishments, and explicitly uncertain details. Highest emphasis for product interpretation. |
+| `README.md` (kit 1.1.0); `CHANGELOG.md`; `docs/sources/Hackathon Challenge - Talk to Your Building-1.pdf`; `docs/sources/Industrial Agents Hackathon Kick-Off.pdf`; `ATTRIBUTION.md` | Official task, levels, scoring, route model (README section 3), inputs/outputs, deliverables, deadline, data rights. The 1.1.0 README is newer than the PDF: it asks for a 3–5 minute live demo without a restart and no longer mentions finalists or `BENCHMARK.md`. |
+| `docs/sources/2026-10-24-challenge-lead-qa.md`; `docs/sources/2026-10-24-route-scoring-specifications.md`; `docs/sources/2026-10-24-weitere-aufnahmen-relevante-infos.md` | Organizer statements, route measurement, provenance limits, and unresolved evaluation semantics. |
 | `PLAN.md` section 10; archived `docs/archive/2026-10-24-fragen-an-juroren.md` and `docs/archive/open questions for judge .md` | What is still unanswered. Kit 1.1.0 answered the route model questions. |
-| `docs/brainstorming/2026-10-24-transkript.md`; `2026-10-24-brainstorming-zusammenfassung.md` | Team intent, priorities, proposed differentiators, and uncertainty in automatic transcripts. |
+| `docs/sources/2026-10-24-brainstorming-transkript.md`; `docs/sources/2026-10-24-brainstorming-zusammenfassung.md` | Team intent, priorities, proposed differentiators, and uncertainty in automatic transcripts. |
 | `PLAN.md` | The current plan. Section 0 is fixed. |
 | `docs/archive/` (Codex review, two-UX review, `AGENT_BUILD_SPEC.md`, research reports, experiments, architecture pictures) | Earlier proposals and reasoning. Useful ideas such as tool lists, state contracts and edge cases. Their Python, image-import, position-QR and two-route-model parts are superseded. |
 | `benchmark/`; `pyproject.toml`; `uv.lock`; `data/manifest.csv`; representative `building.json`, `equipment.csv` and questions | The official evaluator and scorer (Python, unchanged), schema, data quirks and test labels. The starter agent was removed; the routing reference is README section 3 and the expected answers. |

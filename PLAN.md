@@ -3,7 +3,7 @@
 **Stand:** Sa 24.10.2026, 17:00 · **Code Freeze:** So 25.10., 13:00 → **ca. 21 reale Stunden.** In der Nacht endet die Sommerzeit (3:00 → 2:00), das bringt eine Stunde extra.
 **Stack:** eine Web-App mit zwei Ansichten auf **Railway** (ein Node-Service), **alles in TypeScript** · vorberechnete SQLite-Datenbank aus `building.json` · Agent Harness mit dem Claude Agent SDK (TypeScript) · zwei ElevenLabs-Agents mit Eleven v4 Turbo · Claude (600 USD Anthropic-Credits)
 **Grundlage:**
-- dieses Team-Repo: Meeting-Notizen, Q&A mit dem Challenge-Lead, Route-Scoring-Spec, Challenge-PDF
+- Quellen in `docs/sources/`: Meeting-Notizen, Transkripte, Q&A mit dem Challenge-Lead, Route-Scoring-Spec, Challenge-PDF und Kick-off-Folien
 - das offizielle Synera-Kit, Version 1.1.0 (Branch `patch/fix-answers-ruleset`, Commit `6a2cdec`): neue Antworten nach den Routenregeln der Jury, siehe `CHANGELOG.md`
 - ein Review durch Codex (gpt-6.1-sol, medium), siehe Abschnitt 11
 - Ältere Pläne, Reviews und Recherchen liegen in `docs/archive/`. Sie gelten nicht mehr, wo sie von diesem Plan abweichen.
@@ -27,7 +27,7 @@ Diese Punkte gelten für alle Menschen und Agenten im Team. Andere Dokumente, au
 
 | # | Fund | Quelle | Folge |
 |---|---|---|---|
-| 1 | **Es gibt nur noch ein Routenmodell (Kit 1.1.0).** Gemessen wird Tür zu Tür *innerhalb* der Räume, 15 cm Abstand zur Wand, um Ecken herum. Treppe = 2 m pro Höhenmeter, Lift = 15 m einmal pro Fahrt + 1 m pro Höhenmeter. Kein Weg außen herum. Bewertet wird die **Raumfolge**. Score = beste Länge ÷ unsere Länge, innerhalb 1 % gibt volle Punkte, eine ungültige Route gibt 0. | `CHANGELOG.md`, README Abschnitt 3, `2026-10-24-route-scoring-specifications.md` | Alle Routenfragen nutzen dieses Modell. Das alte README-Modell (Ankerpunkt, 12 m pro Etage, 15 + 6 m, `outside`-Knoten) ist ungültig. |
+| 1 | **Es gibt nur noch ein Routenmodell (Kit 1.1.0).** Gemessen wird Tür zu Tür *innerhalb* der Räume, 15 cm Abstand zur Wand, um Ecken herum. Treppe = 2 m pro Höhenmeter, Lift = 15 m einmal pro Fahrt + 1 m pro Höhenmeter. Kein Weg außen herum. Bewertet wird die **Raumfolge**. Score = beste Länge ÷ unsere Länge, innerhalb 1 % gibt volle Punkte, eine ungültige Route gibt 0. | `CHANGELOG.md`, README Abschnitt 3, `docs/sources/2026-10-24-route-scoring-specifications.md` | Alle Routenfragen nutzen dieses Modell. Das alte README-Modell (Ankerpunkt, 12 m pro Etage, 15 + 6 m, `outside`-Knoten) ist ungültig. |
 | 2 | **Neue Routing-Regeln:** Ein Gabelstapler fährt nur durch Gänge und Öffnungen ab 3 m. Produktionsbereiche sind nur Ziel, kein Transit. Eine Route zu einem Gerät endet im Raum, der es enthält. Wenn es keine Route gibt, sagen wir das. | dieselbe Datei | Das kommt als Constraints in den Graphen. In den Fabrikdaten gibt es Hallen-Öffnungen mit 4–20 m. |
 | 3 | **Das Sonntagsformat ist widersprüchlich.** Das PDF verlangt `answers.json` mit Route als Knotenliste und Länge. Die README verlangt CSV mit einer `Answer:`-Zeile. | PDF vs. README | Parser und Serializer müssen austauschbar sein. Wir schreiben beide Formate und decken alle 15 Fragearten ab, auch die Warm-up-Arten. |
 | 4 | **Build heißt vor allem lokale Änderungen und What-if.** Eine Web-App reicht. Post-Training ist unerwünscht. Die Jury prüft das ganze System mit eigenen Keys. Die Organisatoren haben Zugang zu OpenAI, Anthropic und ElevenLabs. Im Video zählt die Interaktion am meisten. | Q&A mit dem Lead | Änderungen über das Event-Log sind Pflicht. Wir arbeiten nur mit JSON. Die ElevenLabs-Agent-Konfiguration exportieren wir ohne Secrets. Der Benchmark läuft **lokal und ohne ElevenLabs und Railway**. |
@@ -223,7 +223,7 @@ Testset (145 Fragen): floor_area_total 33 · shared_walls 26 · largest_room 21 
 - **Multi-User nur als Mock:** Andere Nutzer, Anwesenheit und Aktivitäten sehen echt aus, sind aber nicht implementiert. Die App soll wie ein vollständiges Produkt wirken.
 - Klick auf ein Objekt, zum Beispiel eine Maschine, zeigt einen **QR-Code**. Mit dem Handy gescannt, startet er die Mobile-Ansicht mit Navigation zu diesem Objekt.
 
-**Add-ons aus Hagens User Journey** (nach den Phasen 1, 2, A und B, Quelle: `Hagen UX explanation transcript.md`):
+**Add-ons aus Hagens User Journey** (nach den Phasen 1, 2, A und B, Quelle: `docs/sources/Hagen UX explanation transcript.md`):
 - **Tour mit mehreren Teilen:** Am Desktop mehrere Teile wählen, das System schlägt eine gute Reihenfolge vor. Der QR-Code bringt die ganze Tour aufs Handy. Bis 7 Stopps rechnen wir alle Reihenfolgen durch, darüber eine Heuristik, die wir als solche benennen.
 - **Störung während der Tour:** Ein Lift wird in der Verwaltung gesperrt. Das Handy bekommt das Ereignis über den WebSocket, sagt es an und berechnet die restliche Tour neu. Mit Rollstuhlprofil wird daraus nie still eine Treppenroute. „Keine Route“ ist eine gültige Antwort.
 - **Teile bewegen sich:** kleine Animation in der Verwaltungsansicht, keine echte Ortung.

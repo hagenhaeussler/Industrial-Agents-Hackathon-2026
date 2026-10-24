@@ -2,7 +2,7 @@
 
 **Stand:** 24. Oktober 2026. Grundlage ist das ca. 50-minütige Fireflies-Meeting „Oct 24, 02:08 PM“. Gesprächsaussagen sind unten vom nachträglichen Repo-Abgleich und von Empfehlungen getrennt.
 
-**Dateien:** [Bereinigtes Transkript](docs/brainstorming/2026-10-24-transkript.md) · [Fragen für Juroren und Organisatoren](docs/archive/2026-10-24-fragen-an-juroren.md) · [Fireflies-Quelle](https://app.fireflies.ai/view/01M5PX0WV7MKXJ3VN6CXRAQH74).
+**Dateien:** [Bereinigtes Transkript](2026-10-24-brainstorming-transkript.md) · [Fragen für Juroren und Organisatoren](../archive/2026-10-24-fragen-an-juroren.md) · [Fireflies-Quelle](https://app.fireflies.ai/view/01M5PX0WV7MKXJ3VN6CXRAQH74).
 
 Fireflies liefert keine verifizierten Sprechernamen und meldet teilweise fehlende Felder. Deshalb werden hier keine Aufgaben oder Zusagen einzelnen Personen zugeschrieben. Die Zeitmarken beziehen sich auf die Aufzeichnung.
 
@@ -76,4 +76,4 @@ Diese Punkte waren am Ende noch offen:
 - [README: Levels, Bewertung und Einreichungsprozess](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026/blob/cb51a6f2e357db743b0c8b2b377fe902ee3ced13/README.md#L43-L112).
 - [README: Daten und Fragen](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026/blob/cb51a6f2e357db743b0c8b2b377fe902ee3ced13/README.md#L116-L281).
 - [README: Evaluation, Submission und Regeln](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026/blob/cb51a6f2e357db743b0c8b2b377fe902ee3ced13/README.md#L285-L362).
-- Starter-Dokumentation, Routingkern, Tools und Viewer aus `starter_agent/` (inzwischen entfernt, siehe Git-Historie) und [Evaluator](benchmark/evaluate.py).
+- Starter-Dokumentation, Routingkern, Tools und Viewer aus `starter_agent/` (inzwischen entfernt, siehe Git-Historie) und [Evaluator](../../benchmark/evaluate.py).

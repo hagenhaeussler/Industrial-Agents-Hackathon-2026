@@ -81,13 +81,13 @@ Auf die Frage nach einer Scoring-Plattform wird auf die vorhandenen Validierungs
 | Müssen wir für bekannte Gebäude PNG analysieren? | Bilder und JSON werden gemeinsam als verfügbare Eingaben erklärt. | Daraus folgt keine eindeutige Bildanalysepflicht; Build aus einem neuen Plan separat klären. |
 | Welche UI-Richtung passt? | Verständliche Visualisierung und natürliche Bedienung werden begrüßt; 3D wird als mögliche Erweiterung beschrieben. | Geräte, Browser, Sprache, Live-/Videoformat und Zeitlimits der Bewertung. |
 
-Die vorhandenen Dateien [Zusammenfassung](2026-10-24-brainstorming-zusammenfassung.md) und [Jurorenfragen](docs/archive/2026-10-24-fragen-an-juroren.md) bleiben als ursprünglicher Gesprächsstand erhalten. Dieses Dokument ergänzt den Wissensstand; es behauptet keine bereits eingeholten Antworten auf alle Jurorenfragen.
+Die vorhandenen Dateien [Zusammenfassung](2026-10-24-brainstorming-zusammenfassung.md) und [Jurorenfragen](../archive/2026-10-24-fragen-an-juroren.md) bleiben als ursprünglicher Gesprächsstand erhalten. Dieses Dokument ergänzt den Wissensstand; es behauptet keine bereits eingeholten Antworten auf alle Jurorenfragen.
 
 ## 5. Konsequenzen für unseren nächsten Schritt
 
 Die folgenden Punkte sind redaktionelle Ableitungen, keine neu gefassten Team-Beschlüsse:
 
-1. Den gemeinsamen Gebäudekern aus der [initialen Architektur](docs/archive/2026-10-24-tech-stack-initial.png) beibehalten: automatisierte räumliche Tools für App und Benchmark, statt Antworten nur durch Prompting oder manuelle Bearbeitung zu erzeugen.
+1. Den gemeinsamen Gebäudekern aus der [initialen Architektur](../archive/2026-10-24-tech-stack-initial.png) beibehalten: automatisierte räumliche Tools für App und Benchmark, statt Antworten nur durch Prompting oder manuelle Bearbeitung zu erzeugen.
 2. Einen vollständigen Nutzerablauf mit sichtbarer Route und verständlicher Rückmeldung priorisieren. Voice und Visualisierung sollen dieselben verlässlichen Ergebnisse nutzen.
 3. Keine Wi-Fi-Datenbeschaffung einplanen, bevor eine optionale Erweiterung bewusst gewählt wurde. Bei Kamera/AR zuerst Machbarkeit und Aufwand begrenzen.
 4. Bei den nächsten Rückfragen auf **Build-Input und Mindestumfang, Sonntagsformat und Laufzeit, Funktionsgewichtung, Interaktionstest sowie Final-/Einreichungsformat** fokussieren. Diese Lücken schließen die weiteren Aufnahmen nicht.
