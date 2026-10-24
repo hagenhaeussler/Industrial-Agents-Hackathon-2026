@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useConversation } from '@elevenlabs/react'
-import { createClientTools } from './clientTools'
+import { createClientTools, createNavigationRequestGuard } from './clientTools'
 import type { ToolDisplay, ToolResponse } from './clientTools'
 
 export type BuildingVoiceOptions = {
@@ -12,40 +12,74 @@ export type BuildingVoiceOptions = {
 /** Must be rendered inside the app's ConversationProvider; UI stays with the caller. */
 export function useBuildingVoice({ agent, sessionId, onDisplay }: BuildingVoiceOptions) {
   const [error, setError] = useState<string | null>(null)
-  const starting = useRef(false)
-  const tools = useMemo(() => createClientTools({ sessionId, onDisplay }), [sessionId, onDisplay])
+  const display = useRef(onDisplay)
+  display.current = onDisplay
+  // This lifecycle belongs to one hook/session, including handlers the SDK
+  // retained from an earlier render. A retired session cannot start new work.
+  const scope = useMemo(() => {
+    const state = { active: true, starting: false, attempt: 0, controller: null as AbortController | null }
+    return { state, navigation: createNavigationRequestGuard(() => state.active) }
+  }, [agent, sessionId])
+  const invalidate = useCallback(() => {
+    scope.state.attempt++
+    scope.state.controller?.abort()
+    scope.state.controller = null
+    scope.state.starting = false
+    scope.navigation.invalidate()
+  }, [scope])
+  useEffect(() => {
+    scope.state.active = true
+    return () => { scope.state.active = false; invalidate() }
+  }, [scope, invalidate])
+  const tools = useMemo(() => createClientTools({ sessionId, navigationGuard: scope.navigation,
+    onDisplay: (payload, response) => { if (scope.state.active) display.current?.(payload, response) } }), [sessionId, onDisplay, scope])
   const { status, isSpeaking, startSession, endSession, sendContextualUpdate } = useConversation({ clientTools: tools })
 
   const start = useCallback(async () => {
-    if (starting.current || status !== 'disconnected') return
+    if (!scope.state.active || scope.state.starting || status !== 'disconnected') return
     if (!sessionId) {
       const message = 'Choose a building and start a session first.'
       setError(message)
       throw new Error(message)
     }
-    starting.current = true
+    const attempt = ++scope.state.attempt
+    const controller = new AbortController()
+    scope.state.controller = controller
+    scope.state.starting = true
+    const current = () => scope.state.active && scope.state.attempt === attempt && !controller.signal.aborted
     setError(null)
     try {
-      const response = await fetch(`/api/voice/token?agent=${agent}`, { cache: 'no-store' })
+      const response = await fetch(`/api/voice/token?agent=${agent}`, { cache: 'no-store', signal: controller.signal })
+      if (!current()) return
       const payload: unknown = await response.json()
+      if (!current()) return
       const body = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {}
       if (!response.ok || typeof body.token !== 'string' || !body.token) {
         throw new Error('Voice is unavailable. Please use text chat.')
       }
-      await startSession({ conversationToken: body.token })
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : 'Voice is unavailable. Please use text chat.'
+      startSession({ conversationToken: body.token })
+    } catch {
+      if (!current()) return
+      const message = 'Voice is unavailable. Please use text chat.'
       setError(message)
       throw new Error(message)
     } finally {
-      starting.current = false
+      // An old cancelled request may settle after its replacement has started.
+      if (scope.state.attempt === attempt) {
+        scope.state.starting = false
+        scope.state.controller = null
+      }
     }
-  }, [agent, sessionId, startSession, status])
+  }, [agent, sessionId, startSession, status, scope])
 
-  const stop = useCallback(async () => { await endSession() }, [endSession])
+  const stop = useCallback(async () => {
+    if (!scope.state.active) return
+    invalidate()
+    await endSession()
+  }, [endSession, invalidate, scope])
   const sendContext = useCallback((text: string) => {
-    if (status === 'connected' && text.trim()) sendContextualUpdate(text)
-  }, [sendContextualUpdate, status])
+    if (scope.state.active && status === 'connected' && text.trim()) sendContextualUpdate(text)
+  }, [sendContextualUpdate, status, scope])
 
   return { status, isSpeaking, error, start, stop, sendContext }
 }

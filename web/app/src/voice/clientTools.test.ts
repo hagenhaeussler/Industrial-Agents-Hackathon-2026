@@ -5,6 +5,27 @@ import type { Fetcher, ToolResponse } from './clientTools'
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
 describe('voice client tools', () => {
+  it('suppresses a delayed next_step after a newer no_route before display and speech', async () => {
+    let release: ((response: Response) => void) | undefined
+    let requests = 0
+    const shown: unknown[] = []
+    const tools = createClientTools({ sessionId: 'session-race',
+      fetcher: async () => ++requests === 1
+        ? new Promise<Response>(resolve => { release = resolve })
+        : json({ ok: false, speech: 'The lift is closed.', error: { code: 'no_route' } }),
+      onDisplay: display => { shown.push(display) },
+    })
+    const old = tools.next_step()
+    expect(JSON.parse(await tools.next_step()).error.code).toBe('no_route')
+    release!(json({ ok: true, speech: 'Take the closed lift.',
+      result: { kind: 'take_lift' }, display: { kind: 'instruction' } }))
+    const superseded = JSON.parse(await old)
+    expect(superseded.ok).toBe(false)
+    expect(superseded.error.code).toBe('version_conflict')
+    expect(superseded.speech).not.toContain('Take the closed lift')
+    expect(shown).toEqual([])
+  })
+
   it('publishes exactly the eleven contract names', () => {
     expect(Object.keys(createClientTools({ sessionId: 'session-test' }))).toEqual([...TOOL_NAMES])
   })
