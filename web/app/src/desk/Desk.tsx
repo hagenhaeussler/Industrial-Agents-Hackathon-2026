@@ -10,6 +10,7 @@ import { anchorOf, assetPlace, buildModel, floorName, isProvisional, placeOf, sp
 import type { Model } from '../map/model';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
+import { VoiceButton, VoiceRoot, useVoiceSession } from '../phone/voice';
 import { scenario } from '../demo/scenario';
 import { HandoffDialog } from './HandoffDialog';
 import { fallbackReply } from './matchParts';
@@ -31,6 +32,10 @@ function defaultStart(model: Model, demo: boolean): string {
 }
 
 export function Desk() {
+  return <VoiceRoot agent="navigator"><DeskScreen/></VoiceRoot>;
+}
+
+function DeskScreen() {
   const { query } = useLocation();
   const demo = query.get('demo') === 'hero';
   const buildingId = query.get('building') ?? scenario.building_id;
@@ -45,6 +50,8 @@ export function Desk() {
   const [frameSpaces, setFrameSpaces] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [keepOrder, setKeepOrder] = useState(false);
+  const [end, setEnd] = useState<string | null>(null);
+  const [endPicker, setEndPicker] = useState(false);
   const [tour, setTour] = useState<Tour | null>(null);
   const [plannedMs, setPlannedMs] = useState<number | null>(null);
   const [planning, setPlanning] = useState(false);
@@ -114,11 +121,11 @@ export function Desk() {
     return next;
   });
 
-  const plan = async () => {
-    if (!session || !selected.size) return;
+  const plan = async (items: string[] = [...selected]) => {
+    if (!session || !items.length) return;
     setPlanning(true); setPlanError(null);
     const started = performance.now();
-    await latestTour(() => api.planTour({ session_id: session.session_id, items: [...selected], keep_order: keepOrder }), next => {
+    await latestTour(() => api.planTour({ session_id: session.session_id, items, keep_order: keepOrder, end }), next => {
       setPlannedMs(performance.now() - started);
       setTour(next); setOpenedOnPhone(false); setFocusId(null); setFrameSpaces([]);
       setFloorId(next.start.floor_id);
@@ -140,6 +147,8 @@ export function Desk() {
     if (first) { focusAsset(first); setSelected(current => new Set([...current, ...assets])); }
     else if (display.space_id && model.space.has(display.space_id)) { setFrameSpaces([display.space_id]); setFloorId(model.space.get(display.space_id)!.floor_id); }
   };
+
+  const voice = useVoiceSession(session?.session_id ?? null, display => applyDisplay(display as Display));
 
   const localAnswer = (text: string) => {
     if (!model) return;
@@ -202,7 +211,7 @@ export function Desk() {
         <label htmlFor="ask-input">What do you need?</label>
         <div className="ask-field">
           <input ref={askRef} id="ask-input" value={ask} onChange={event => setAsk(event.target.value)} placeholder="“Where is the 3D printer?”" autoComplete="off" maxLength={500}/>
-          <div className="voice-slot" id="desk-voice-slot"/>
+          <VoiceButton voice={voice} onUnavailable={text => setAgent({ text: `${text} Type your request instead.`, candidates: [], tone: 'error' })}/>
           <button className="icon-button dark" type="submit" disabled={!ask.trim() || asking || !session} aria-label="Ask">{asking ? <LoaderCircle className="spin" size={18}/> : <ArrowUp size={19}/>}</button>
         </div>
       </form>
@@ -228,12 +237,16 @@ export function Desk() {
       </label>
 
       {tour
-        ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}/>
+        ? <TourPanel model={model} tour={tour} plannedMs={plannedMs} onHandoff={() => setHandoff(true)} onEdit={() => { setTour(null); requestAnimationFrame(() => document.getElementById('part-search')?.focus()); }} onFocusStop={(spaceId, floor) => { setFocusId(null); setFrameSpaces([spaceId]); setFloorId(floor); }}
+            busy={planning} onRemoveStop={assetIds => { const rest = [...selected].filter(id => !assetIds.includes(id)); setSelected(new Set(rest)); void plan(rest); }}/>
         : <>
           <PartsList model={model} query={search} onQuery={setSearch} selected={selected} onToggle={toggle} focusId={focusId} onFocus={focusAsset}/>
           <footer className="plan-bar">
             {planError && <p className="plan-error" role="alert">{planError}</p>}
-            <label className="toggle"><input type="checkbox" checked={keepOrder} onChange={event => setKeepOrder(event.target.checked)}/><span>Keep my order</span></label>
+            <div className="plan-options">
+              <label className="toggle"><input type="checkbox" checked={keepOrder} onChange={event => setKeepOrder(event.target.checked)}/><span>Keep my order</span></label>
+              <button className="link-button" onClick={() => setEndPicker(true)}>{end ? `Finish at ${spaceName(model, end)}` : 'Finish anywhere'}</button>
+            </div>
             <button className="primary-button" onClick={() => void plan()} disabled={!selected.size || planning || !session}>
               {planning ? <LoaderCircle className="spin" size={18}/> : <Route size={18}/>}
               {selected.size ? `Plan collection tour · ${selected.size} ${selected.size === 1 ? 'part' : 'parts'}` : 'Select parts to plan a tour'}
@@ -255,6 +268,7 @@ export function Desk() {
     </section>
 
     <StartPicker model={model} open={picker} current={you?.space_id ?? null} onPick={id => void pickStart(id)} onClose={() => setPicker(false)}/>
+    <StartPicker model={model} open={endPicker} current={end} title="Where should the tour end?" hint="The last leg leads here, for example back to your workplace." clearLabel="Finish anywhere" onClear={() => { setEnd(null); setEndPicker(false); }} onPick={id => { setEnd(id); setEndPicker(false); }} onClose={() => setEndPicker(false)}/>
     <HandoffDialog tour={tour} open={handoff} opened={openedOnPhone} onClose={() => setHandoff(false)}/>
   </main>;
 }

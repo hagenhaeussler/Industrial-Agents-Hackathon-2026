@@ -13,6 +13,7 @@ import { humanSummary } from '../phone/guidance';
 import { navigate, useLocation } from '../router';
 import { DemoBadge } from '../ui/DemoBadge';
 import { TracePanel } from '../trace/TracePanel';
+import { VoiceButton, VoiceRoot, useVoiceSession } from '../phone/voice';
 import { Upload } from './Upload';
 
 type Target = { id: string; name: string; kind: 'lift' | 'stairs' | 'door' | 'room'; closed: boolean; detail: string };
@@ -35,6 +36,10 @@ function targetOf(model: Model, id: string): Target | null {
 
 /** `/admin`: facility changes with preview → confirm once → undo (UX J6, CONTRACTS §6). Desk users are not admins. */
 export function Admin() {
+  return <VoiceRoot agent="admin"><AdminScreen/></VoiceRoot>;
+}
+
+function AdminScreen() {
   const { query } = useLocation();
   const demo = query.get('demo') === 'hero';
   const buildingId = query.get('building') ?? scenario.building_id;
@@ -144,6 +149,16 @@ export function Admin() {
     }
   };
 
+  // voice admin: a spoken proposal shows the same preview card; a spoken commit or undo refreshes the log
+  const voice = useVoiceSession(session?.session_id ?? null, display => {
+    if (display.kind === 'edit_preview' && model) {
+      const proposal = display as unknown as EditPreview;
+      const target = targetOf(model, proposal.edit?.target ?? '');
+      if (target) setPreview({ ...proposal, target, opId: uuid() });
+    }
+    if (display.kind === 'edit_committed') { setPreview(null); void reload(); }
+  });
+
   const pick = (id: string) => { if (!model || busy) return; const space = model.space.get(id); const connector = [...model.connector.values()].find(item => item.space_ids.includes(id)); const target = targetOf(model, connector?.id ?? space?.id ?? id); if (target) void propose(target); };
 
   if (!model) return <main className="desk-message">{notice ? <div className="surface notice"><h1>Admin view</h1><p>{notice.text}</p></div> : <p className="loading"><LoaderCircle className="spin" size={20}/>Loading the building…</p>}</main>;
@@ -165,7 +180,7 @@ export function Admin() {
         <label htmlFor="admin-ask">What changed?</label>
         <div className="ask-field">
           <input id="admin-ask" value={ask} onChange={event => setAsk(event.target.value)} placeholder={`“${scenario.admin.say || 'Close the east lift.'}”`} autoComplete="off" maxLength={500}/>
-          <div className="voice-slot" id="admin-voice-slot"/>
+          <VoiceButton voice={voice} onUnavailable={text => setNotice({ text: `${text} Use the controls below.`, tone: 'error' })}/>
           <button className="icon-button dark" type="submit" disabled={!ask.trim() || !session} aria-label="Send"><ArrowUp size={19}/></button>
         </div>
       </form>

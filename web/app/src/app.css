@@ -34,7 +34,8 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .ask-field:focus-within { border-color: var(--ink); }
 .ask-field input { flex: 1; min-width: 0; min-height: 44px; border: 0; outline: 0; background: transparent; font-size: 16px; padding: 8px 0; }
 .ask-field .icon-button { width: 44px; height: 44px; }
-.voice-slot:empty { display: none; }
+.voice-button { width: 44px; height: 44px; }
+.voice-button.on { background: var(--ink); color: var(--accent); }
 .agent-reply { margin: 10px 20px 0; padding: 12px 14px; border-radius: 15px 15px 15px 5px; background: #f4f5ef; font-size: 13px; line-height: 1.55; }
 .agent-reply.error { background: #fdf0ee; color: #6d1f1d; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
@@ -75,7 +76,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .policy::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--ink) inset; }
 .tour-head h2, .go-sheet h1 { font-size: 30px; font-weight: 750; letter-spacing: -1.2px; margin: 4px 0 2px; }
 .stop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.stop-list li > button, .stop-list.compact li { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 12px; min-height: 56px; border-radius: 15px; background: #f5f5f1; }
+.stop-list li > button:first-child, .stop-list.compact li { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 12px; min-height: 56px; border-radius: 15px; background: #f5f5f1; }
 .stop-n { width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--accent); display: grid; place-items: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
 .collected .stop-n { background: var(--muted); color: #fff; }
 .stop-copy { flex: 1; min-width: 0; display: grid; gap: 2px; }
@@ -288,3 +289,11 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 
 #tour-title:focus { outline: none; }
 #tour-title:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; border-radius: 6px; }
+
+.plan-options { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.plan-options .link-button { padding: 0 4px; }
+.stop-list li.removable { position: relative; }
+.stop-list li.removable > button:first-child { padding-right: 52px; }
+.stop-remove { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 12px; background: transparent; display: grid; place-items: center; color: var(--muted); }
+.stop-remove:hover { background: #ebece5; color: var(--ink); }
+.picker-clear { margin-bottom: 8px; }

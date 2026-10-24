@@ -32,7 +32,7 @@ export const api = {
   createSession: (body: { building_id: string; device: Device; role: Role; profile?: MobilityProfile }) => send<Session>('POST', '/api/sessions', { profile: 'walk', ...body }),
   session: (id: string) => send<Session>('GET', `/api/sessions/${id}`),
   updateSession: (id: string, patch: { position?: Position | null; profile?: MobilityProfile; constraints?: Partial<Constraints>; active_tour_id?: string | null }) => send<Session>('PATCH', `/api/sessions/${id}`, patch),
-  planTour: (body: { session_id: string; items: string[]; keep_order: boolean; start?: { space_id: string; point?: [number, number] }; end?: null }) => send<Tour>('POST', '/api/tours', body),
+  planTour: (body: { session_id: string; items: string[]; keep_order: boolean; start?: { space_id: string; point?: [number, number] }; end?: string | null }) => send<Tour>('POST', '/api/tours', body),
   tour: (id: string) => send<Tour>('GET', `/api/tours/${encodeURIComponent(id)}`),
   /** `X-Session-ID` lets "Got it" advance the phone session's position (CONTRACTS C2). */
   progress: (id: string, stop_id: string, status: StopStatus, sessionId?: string) => send<Tour>('POST', `/api/tours/${encodeURIComponent(id)}/progress`, { stop_id, status }, sessionId ? { 'X-Session-ID': sessionId } : undefined),

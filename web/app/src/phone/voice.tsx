@@ -1,4 +1,5 @@
-import { createContext, lazy, Suspense, useContext, useEffect, useState } from 'react';
+import { Mic, MicOff } from 'lucide-react';
+import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 /**
@@ -51,4 +52,34 @@ export function VoiceProvider({ agent, sessionId, onDisplay, children }: { agent
     {children}
     {Bridge && ready && sessionId && <Suspense fallback={null}><Bridge key={sessionId} agent={agent} sessionId={sessionId} onDisplay={onDisplay} publish={setVoice}/></Suspense>}
   </VoiceContext.Provider>;
+}
+
+/** For screens that create their session themselves: register it (and the display handler) from inside. */
+type Register = (sessionId: string | null, onDisplay?: (display: Record<string, unknown>) => void) => void;
+const RegisterContext = createContext<Register>(() => undefined);
+
+export function VoiceRoot({ agent, children }: { agent: Agent; children: ReactNode }) {
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const handler = useRef<((display: Record<string, unknown>) => void) | undefined>(undefined);
+  const register = useCallback<Register>((id, onDisplay) => { setSessionId(id); handler.current = onDisplay; }, []);
+  const onDisplay = useCallback((display: Record<string, unknown>) => handler.current?.(display), []);
+  return <RegisterContext.Provider value={register}><VoiceProvider agent={agent} sessionId={sessionId} onDisplay={onDisplay}>{children}</VoiceProvider></RegisterContext.Provider>;
+}
+
+export function useVoiceSession(sessionId: string | null, onDisplay?: (display: Record<string, unknown>) => void): Voice {
+  const register = useContext(RegisterContext);
+  useEffect(() => { register(sessionId, onDisplay); });
+  return useVoice();
+}
+
+/** Mic button for the desk and admin ask fields; a failed start falls back to typing. */
+export function VoiceButton({ voice, onUnavailable }: { voice: Voice; onUnavailable: (message: string) => void }) {
+  if (!voice.available) return null;
+  const live = voice.status === 'connected';
+  const busy = voice.status === 'connecting';
+  return <button type="button" className={`icon-button voice-button ${live ? 'on' : ''}`} disabled={busy} aria-pressed={live}
+    aria-label={live ? (voice.isSpeaking ? 'Speaking. Stop voice' : 'Listening. Stop voice') : 'Talk instead of typing'}
+    onClick={() => void (live ? voice.stop() : voice.start().catch((error: unknown) => onUnavailable(error instanceof Error ? error.message : 'Voice is unavailable.')))}>
+    {live ? <Mic size={19}/> : <MicOff size={19}/>}
+  </button>;
 }
