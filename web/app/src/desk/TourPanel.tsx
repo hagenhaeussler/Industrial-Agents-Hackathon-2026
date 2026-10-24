@@ -19,7 +19,7 @@ type Props = { model: Model; tour: Tour; plannedMs: number | null; onHandoff: ()
 
 export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusStop, onRemoveStop, busy }: Props) {
   const stops = new Map(tour.stops.map(stop => [stop.stop_id, stop]));
-  const legTo = new Map(tour.legs.map(leg => [leg.to_space_id, leg]));
+  const legToStop = new Map(tour.order.map((stopId, index) => [stopId, tour.legs[index]]));
   const provisional = isProvisional(tour);
   return <section className="tour-panel" aria-labelledby="tour-title">
     <div className="tour-head">
@@ -33,7 +33,7 @@ export function TourPanel({ model, tour, plannedMs, onHandoff, onEdit, onFocusSt
       {displayOrder(tour).map((stopId, index) => {
         const stop = stops.get(stopId);
         if (!stop) return null;
-        const leg = legTo.get(stop.space_id);
+        const leg = legToStop.get(stopId);
         const floorId = model.space.get(stop.space_id)?.floor_id ?? '';
         return <li key={stopId} className={`${stop.status} ${onRemoveStop ? 'removable' : ''}`}>
           <button onClick={() => onFocusStop(stop.space_id, floorId)} aria-label={`Stop ${index + 1}: ${stop.label}`}>

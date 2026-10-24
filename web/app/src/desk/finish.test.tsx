@@ -16,10 +16,15 @@ describe('desk final destination summary', () => {
     const first = tour.legs[0]!;
     if (!first.reachable) throw new Error('Fixture needs a reachable first leg');
     first.to_space_id = tour.end!.space_id; first.length_m = 91;
+    tour.stops[0]!.space_id = tour.end!.space_id;
     const last = tour.legs[tour.legs.length - 1]!;
     if (!last.reachable) throw new Error('Fixture needs a reachable final leg');
     last.length_m = 17;
-    const line = finish(render(tour));
+    const html = render(tour);
+    const partRow = /<ol class="stop-list">(.*?)<\/ol>/.exec(html)?.[1] ?? '';
+    expect(partRow).toContain('91 m');
+    expect(partRow).not.toContain('17 m');
+    const line = finish(html);
     expect(line).toContain('Finish:');
     expect(line).toContain('17 m');
     expect(line).not.toContain('91 m');
