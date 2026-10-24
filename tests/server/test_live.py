@@ -14,7 +14,7 @@ from server.config import Settings, REPO_ROOT
 
 @pytest.fixture
 def settings(tmp_path):
-    return Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist')
+    return Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_token='server-test-admin-code')
 
 
 @pytest.fixture
@@ -23,7 +23,8 @@ def raw():
 
 
 def session(client, building_id, role='navigator', device='desk', profile='walk'):
-    response = client.post('/api/sessions', json={'building_id': building_id, 'role': role, 'device': device, 'profile': profile})
+    response = client.post('/api/sessions', json={'building_id': building_id, 'role': role, 'device': device, 'profile': profile},
+                           headers={'X-Admin-Token': client.app.state.settings.admin_token} if role == 'admin' else {})
     assert response.status_code == 200, response.text
     return response.json()
 

@@ -87,10 +87,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await task
         await application.state.hub.close()
 
-    application = FastAPI(title="Talk to Your Building", version="C7", lifespan=lifespan)
+    application = FastAPI(title="Talk to Your Building", version="C8", lifespan=lifespan)
     application.state.settings = settings
     application.state.catalog = catalog
-    application.state.store = StateStore(settings.state_dir)
+    application.state.store = StateStore(settings.state_dir,
+        admin_token=settings.admin_token if isinstance(settings.admin_token, str) else "", demo_mode=settings.demo_mode)
     application.state.state_dir_writable = False
     application.state.hub = BuildingHub()
     application.state.service = PlatformService(catalog, application.state.store, settings.profile, application.state.hub.notify)

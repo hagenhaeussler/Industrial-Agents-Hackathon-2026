@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import secrets
 import shutil
 import signal
 import socket
@@ -62,6 +63,8 @@ environment.update(ANTHROPIC_API_KEY='', ELEVENLABS_API_KEY='',
                    OPENAI_API_KEY='', TYB_CHAT_BUDGET_USD='0',
                    PYTHON_DOTENV_DISABLED='1', DATA_DIR=str(source / 'data'),
                    PYTHONDONTWRITEBYTECODE='1', TYB_PROFILE='kit_1_1_0')
+admin_code = secrets.token_urlsafe(32)
+environment.update(TYB_ADMIN_TOKEN=admin_code, TYB_DEMO_MODE='0')
 
 
 def interrupted(signum, frame):
@@ -129,7 +132,14 @@ try:
 
         def session(role='navigator', device='desk', profile='walk'):
             return post('/api/sessions', {'building_id': bid, 'role': role,
-                                         'device': device, 'profile': profile})['session_id']
+                                         'device': device, 'profile': profile},
+                        {'X-Admin-Token': admin_code} if role == 'admin' else None)['session_id']
+
+        for headers in ({}, {'X-Admin-Token': 'incorrect-code'}):
+            denied = client.post('/api/sessions', json={'building_id': bid, 'role': 'admin'}, headers=headers)
+            assert denied.status_code == 403
+        report['checks']['admin_authorization'] = {'missing_and_wrong_code_forbidden': True,
+                                                   'ephemeral_code_not_recorded': True}
 
         desk = session(profile='wheelchair')
         phone = session(device='phone')

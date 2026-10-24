@@ -1,4 +1,4 @@
-# Platform integration (C7)
+# Platform integration (C8)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -41,7 +41,15 @@ The voice hook is documented in [the browser bridge README](../web/app/src/voice
 
 ## Admin and markers
 
-Create an admin session in the admin view. Tools use its body `session_id`; raw upload/marker/reset endpoints use `X-Session-ID`. Propose before commit. A proposal expires after ten minutes; version conflicts require a new preview. Repeat `proposal_id` or `op_id` commits return the original event. Undo appends an event.
+Set a long random `TYB_ADMIN_TOKEN` as a private server environment variable. The admin view sends it in `X-Admin-Token` only when creating a `role: "admin"` session with `POST /api/sessions`. Missing or wrong codes return 403; choosing the admin role alone grants no access. Navigator sessions require no code. Keep the code and admin session ID in browser `sessionStorage`, never in a URL, frontend build variable or bundled source. Tools use the returned body `session_id`; raw upload/marker/reset endpoints use `X-Session-ID`.
+
+The database stores a private session-specific HMAC proof, never the admin code. Existing role-only admin sessions are revoked on upgrade; their GET and privileged operations return 403 and the user must authenticate again. Changing `TYB_ADMIN_TOKEN` and restarting revokes previously authenticated admin sessions while preserving navigator sessions, event history and uploads. A restart with the same code preserves authenticated authority. No proof or code appears in public session responses. For an explicitly enabled local demo, `TYB_DEMO_MODE=true` permits code-free admin creation only if `TYB_ADMIN_TOKEN` is unset; a configured code remains mandatory even in demo mode.
+
+Session IDs are bearer credentials. Shared event feeds, WebSocket messages, tour responses and tool results omit ownership `session_id` fields, including nested event authors; storage retains them for permission checks, undo and idempotency. Session endpoints return the caller's own ID for subsequent authenticated requests.
+
+`create_app` always binds the state store to this policy and fails closed with an unset code outside demo mode. A direct `StateStore(path)` is a trusted in-process fixture/integration seam, rather than a public authorization boundary; externally accessible integrations must pass `admin_token` and `demo_mode` explicitly as `create_app` does. Its trusted sessions do not carry authority into a secured HTTP application.
+
+Propose before commit. A proposal expires after ten minutes; version conflicts require a new preview. Repeat `proposal_id` or `op_id` commits return the original event. Undo appends an event.
 
 Uploads use the core validator and get a server-assigned `upl-…` building ID. When the core validator is unavailable the endpoint returns `not_available`, rather than accepting unchecked data. Marker standing points must be in their rooms; marker sheets escape labels and print 12 cm QR codes. A scanned marker is a known point/heading under the standing protocol, not a camera pose.
 

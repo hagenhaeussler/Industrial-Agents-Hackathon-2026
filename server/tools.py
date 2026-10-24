@@ -10,6 +10,7 @@ from typing import Literal
 from . import core_adapter as adapter
 from .errors import ServiceError
 from .state import encode, identifier, now
+from .public import public_payload
 
 logger = logging.getLogger(__name__)
 
@@ -131,18 +132,18 @@ class ToolRegistry:
             version = self.service.store.version(building_id)
             building = self.service.current(building_id)
             source = result.get("_adapter", building.adapter) if isinstance(result, dict) else building.adapter
-            return {"ok": True, "tool": name, "request_id": request_id,
+            return public_payload({"ok": True, "tool": name, "request_id": request_id,
                     "building_id": building_id, "building_version": version,
                     "result": result, "speech": speech, "display": display,
-                    "trace": [{"fn": name, "args": values, "ms": round((time.perf_counter() - started) * 1000, 2), "_adapter": source}]}
+                    "trace": [{"fn": name, "args": values, "ms": round((time.perf_counter() - started) * 1000, 2), "_adapter": source}]})
         except ServiceError as exc:
             error = exc.payload()
             if isinstance(error.get("candidates"), list):
                 error["candidates"] = [{**candidate, "name": candidate.get("name") or candidate.get("label") or candidate.get("id")}
                                        if isinstance(candidate, dict) else candidate for candidate in error["candidates"]]
-            return {"ok": False, "tool": name, "request_id": request_id, "building_id": building_id,
+            return public_payload({"ok": False, "tool": name, "request_id": request_id, "building_id": building_id,
                     "building_version": version, "error": error, "speech": exc.message,
-                    "trace": [{"fn": name, "args": {}, "ms": round((time.perf_counter() - started) * 1000, 2)}]}
+                    "trace": [{"fn": name, "args": {}, "ms": round((time.perf_counter() - started) * 1000, 2)}]})
         except Exception:
             logger.exception("Tool failed request_id=%s tool=%s", request_id, name)
             return {"ok": False, "tool": name, "request_id": request_id, "building_id": building_id,

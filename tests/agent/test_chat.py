@@ -155,8 +155,10 @@ def live_registry(tmp_path, monkeypatch):
     # Only the HTTP route's configuration check sees this placeholder. The
     # injected client below is offline and cannot make provider requests.
     monkeypatch.setenv("ANTHROPIC_API_KEY", "offline-test-placeholder")
-    with TestClient(create_app(Settings(state_dir=tmp_path / "state", static_dir=tmp_path / "web"))) as client:
-        session = client.post("/api/sessions", json={"building_id": "proc-factory-dev-003", "device": "desk", "role": "admin"}).json()
+    settings = Settings(state_dir=tmp_path / "state", static_dir=tmp_path / "web", admin_token="chat-test-admin-code")
+    with TestClient(create_app(settings)) as client:
+        session = client.post("/api/sessions", json={"building_id": "proc-factory-dev-003", "device": "desk", "role": "admin"},
+                              headers={"X-Admin-Token": settings.admin_token}).json()
         client.patch("/api/sessions/" + session["session_id"], json={"position": {"space_id": "proc-factory-dev-003-F0-S019", "source": "desk"}})
         yield client, session["session_id"]
 

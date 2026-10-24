@@ -39,7 +39,7 @@ def recovery_api(tmp_path, monkeypatch, request):
     hero = tmp_path / "hero"
     hero.mkdir()
     (hero / "fixture.json").write_text(json.dumps(raw))
-    settings = Settings(data_dir=tmp_path / "data", hero_dir=hero,
+    settings = Settings(data_dir=tmp_path / "data", hero_dir=hero, admin_token='server-test-admin-code',
                         state_dir=tmp_path / "state", static_dir=tmp_path / "web")
     with TestClient(create_app(settings)) as client:
         assert client.app.state.service.current(raw["building"]["id"]).adapter == request.param
@@ -47,7 +47,8 @@ def recovery_api(tmp_path, monkeypatch, request):
 
 
 def session(client, building_id, start, role="navigator", profile="walk"):
-    response = client.post("/api/sessions", json={"building_id": building_id, "role": role, "profile": profile})
+    response = client.post("/api/sessions", json={"building_id": building_id, "role": role, "profile": profile},
+                           headers={'X-Admin-Token': client.app.state.settings.admin_token} if role == 'admin' else {})
     assert response.status_code == 200, response.text
     session_id = response.json()["session_id"]
     response = client.patch("/api/sessions/" + session_id, json={"position": {"space_id": start, "source": "desk"}})

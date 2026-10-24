@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C7** (24 Oct 2026; explicit final-destination navigation/arrival; C2–C6 definitions preserved). Section owners:
+Contract version: **C8** (24 Oct 2026; authenticated admin sessions; C2–C7 journey definitions preserved). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -220,7 +220,7 @@ Rules, verified on 24 Oct 2026 against the kit answers (161/161 reachable dev ro
 
 - Base data is immutable. The materialised building at version *v* is `apply_events(base, events[:v])`.
 - **Benchmark isolation:** benchmark and Sunday runs always load base files from disk and never read `/state`. Each question starts from the original building.
-- Edits are permitted only for sessions with `role: "admin"`. An LLM-provided argument is not a permission.
+- Edits require a server-authenticated admin session (§7 C8). Requesting `role: "admin"` or an LLM-provided argument grants no permission.
 
 ## 7. HTTP API
 
@@ -247,6 +247,8 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `GET /api/voice/token` | `?agent=navigator|admin` | `{"token", "agent_id"}`; 503 `voice_unavailable` when no key; the API key never leaves the server |
 | `POST /api/chat` | `{"session_id", "message"}` | `{"reply", "tool_calls": [ToolResponse], "display": {...}}` |
 | `POST /api/demo/reset` | `{"building_id"}` (admin; demo mode) | archives the building's event log, restarts it at version 0 and broadcasts `building_reset`; never available outside demo mode |
+
+**Admin authentication (C8, CR-C-2):** `POST /api/sessions` with `role: "admin"` requires `X-Admin-Token` matching the private server `TYB_ADMIN_TOKEN`; comparison is constant-time. Missing/wrong codes return 403 `forbidden`. Navigator creation requires no code. With no configured code, admin creation is denied unless `TYB_DEMO_MODE=true` explicitly enables a local demo; a configured code is mandatory even in demo mode. The database stores a private session-bound HMAC authority proof, never the code. Legacy role-only admin sessions and proofs from a previous code are rejected; same-code restarts retain authority. Public session payloads omit authority data. Public event feeds, tour payloads, tool displays/results and WebSocket broadcasts omit session bearer IDs; internal storage keeps ownership for authorization and undo. The admin UI keeps its code and session ID in `sessionStorage`, sends the code only on admin-session creation, and asks again after revoked/expired authority. It never embeds it in a URL, build variable or source.
 
 **Session header and handoff metadata (C2, additive):** Administrative raw-HTTP requests (building upload, marker creation, demo reset, plan import) carry `X-Session-ID: <admin session_id>`; tools already carry `session_id` in their JSON body. `POST /api/tours/{id}/progress` accepts optional `X-Session-ID` to advance the calling phone's position; include it on the phone. Without it, the stored tour session is used for compatibility. The caller must belong to the same building and have opened that tour. Server tours also carry `mobility_profile` (`walk|wheelchair|pram|trolley`) separately from the cost `profile`; the phone copies it and `constraints` when opening the handoff. `TYB_DEMO_MODE=true` is required to enable demo reset; it is disabled by default. `GET /devtest` serves the unlinked device-gate page after the frontend build.
 
@@ -322,7 +324,7 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 
 ## 10. Sessions, position, handoff and markers
 
-**Session:** `{"session_id", "building_id", "device", "role", "profile", "constraints", "position": null | {"space_id", "floor_id", "point": [x, y], "heading_deg": null | 90, "source": "desk|tour_start|marker|manual", "marker_id": null, "confidence": "high|medium|low", "updated_at"}, "active_tour_id"}`. Session state is separate from building state. Sessions persist in SQLite so a reload or reconnect keeps them; the browser stores `session_id` in `localStorage`.
+**Session:** `{"session_id", "building_id", "device", "role", "profile", "constraints", "position": null | {"space_id", "floor_id", "point": [x, y], "heading_deg": null | 90, "source": "desk|tour_start|marker|manual", "marker_id": null, "confidence": "high|medium|low", "updated_at"}, "active_tour_id"}`. Session state is separate from building state. Sessions persist in SQLite so a reload or reconnect keeps them; the browser stores navigator `session_id` in `localStorage`; admin credentials/session IDs use `sessionStorage` only (§7 C8).
 
 **Desktop start position:** the desk user picks or confirms "I am at …" (default in demo mode: the scenario start). Without a position, `plan_tour` asks for one.
 
@@ -406,3 +408,5 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C6 — 24 Oct 2026, Manuel's codex, CR-M-4:** §7 adds optional partial replan constraints for an explicit mobility change while preserving tour identity/progress and profile safeguards. No changes to core interfaces or the eleven tools.
 - **C7 — 24 Oct 2026, Manuel's codex, CR-H-4:** §7/§8 transport preserves optional-end status, navigates its remaining leg and reserves progress stop_id=end for explicit final arrival. No synthetic collection stop, new endpoint or new tool; C6 explicit mobility overrides remain unchanged.
 
+
+- **C8 — 24 Oct 2026, Hagen release coordination, CR-C-2:** §6/§7/§10 require authenticated admin-session creation, private session-bound authority and legacy/rotated-code revocation; UI credentials use sessionStorage. C7 final-destination and C6 explicit mobility semantics preserved. Human explicitly authorized the coordinated fixes, main merge and deployment.

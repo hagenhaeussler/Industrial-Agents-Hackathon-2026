@@ -1,6 +1,8 @@
 """Durable, transactional state. Kit files and benchmark runs never write here."""
 from contextlib import contextmanager
 import base64
+import hashlib
+import hmac
 from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
@@ -34,7 +36,11 @@ def encode(value):
 
 
 class StateStore:
-    def __init__(self, state_dir: Path):
+    def __init__(self, state_dir: Path, *, admin_token: str | None = None, demo_mode=False):
+        # None is a trusted in-process integration seam, never used by the HTTP
+        # app. Public applications always pass Settings.admin_token (even "").
+        self.admin_token = admin_token
+        self.demo_mode = demo_mode
         self.directory = Path(state_dir)
         self.path = self.directory / "tyb.sqlite3"
 
@@ -78,6 +84,34 @@ class StateStore:
                     PRIMARY KEY(content_hash, key));
             """)
         self._migrate_events()
+        self._migrate_session_authority()
+
+    def _migrate_session_authority(self):
+        """Legacy role-only sessions receive no authority during migration."""
+        with self.connect(write=True) as db:
+            columns = {row["name"] for row in db.execute("PRAGMA table_info(sessions)")}
+            if "admin_authority" not in columns:
+                db.execute("ALTER TABLE sessions ADD COLUMN admin_authority TEXT")
+
+    def _authority(self, session_id):
+        if self.admin_token is None:
+            return "trusted-internal"
+        if self.admin_token:
+            digest = hmac.new(self.admin_token.encode("utf-8"),
+                              ("tyb-admin-v1:" + session_id).encode("utf-8"), hashlib.sha256).hexdigest()
+            return "token-v1:" + digest
+        return "demo-v1:" + session_id if self.demo_mode else None
+
+    def _authorize_admin_creation(self, supplied_token):
+        if self.admin_token is None:
+            return
+        if self.admin_token:
+            candidate = supplied_token if isinstance(supplied_token, str) else ""
+            if hmac.compare_digest(candidate.encode("utf-8"), self.admin_token.encode("utf-8")):
+                return
+        elif self.demo_mode:
+            return
+        raise ServiceError("forbidden", "Admin access requires a valid admin code.", status=403)
 
     def _migrate_events(self):
         """Schema 2 allows evt-1 in each building and again after a demo reset."""
@@ -116,20 +150,30 @@ class StateStore:
         finally:
             db.close()
 
-    @staticmethod
-    def _session(row):
+    def _session(self, row):
         if row is None:
             raise ServiceError("not_found", "Session not found.", status=404)
         body = dict(row)
+        authority = body.pop("admin_authority", None)
+        if body["role"] == "admin" and self.admin_token is not None:
+            expected = self._authority(body["session_id"])
+            if (not expected or not isinstance(authority, str)
+                    or not hmac.compare_digest(authority.encode("utf-8"), expected.encode("utf-8"))):
+                raise ServiceError("forbidden", "Admin access has expired. Enter the admin code again.", status=403)
+        body["_admin_authorized"] = body["role"] == "admin"
         body["constraints"] = json.loads(body.pop("constraints_json"))
         body["position"] = json.loads(body.pop("position_json") or "null")
         return body
 
-    def create_session(self, building_id, device, role, profile="walk", constraints=None):
+    def create_session(self, building_id, device, role, profile="walk", constraints=None, *, admin_token=None):
+        if role == "admin":
+            self._authorize_admin_creation(admin_token)
         sid = identifier("session")
         with self.connect(write=True) as db:
-            db.execute("INSERT INTO sessions VALUES(?,?,?,?,?,?,?,?,?)", (
-                sid, building_id, device, role, profile, encode(constraints or {}), None, None, now()))
+            db.execute("""INSERT INTO sessions(session_id,building_id,device,role,profile,constraints_json,
+                       position_json,active_tour_id,updated_at,admin_authority) VALUES(?,?,?,?,?,?,?,?,?,?)""", (
+                sid, building_id, device, role, profile, encode(constraints or {}), None, None, now(),
+                self._authority(sid) if role == "admin" else None))
         return self.get_session(sid)
 
     def get_session(self, session_id):
@@ -196,7 +240,7 @@ class StateStore:
 
     @staticmethod
     def _require_admin(session):
-        if session["role"] != "admin":
+        if session["role"] != "admin" or not session.get("_admin_authorized"):
             raise ServiceError("forbidden", "Changes need an admin session.", status=403)
 
     def commit(self, session_id, proposal_id, expected_version=None, op_id=None):

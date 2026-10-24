@@ -17,10 +17,11 @@ def test_fixed_order_returns_after_reopening_a_stop(tmp_path, monkeypatch, adapt
     raw = json.loads((REPO_ROOT / 'data/dev/proc-factory-dev-003/building.json').read_text())
     room_ids = [space['id'] for space in raw['spaces'][:4]]
     start = room_ids[0]
-    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist')
+    settings = Settings(state_dir=tmp_path / 'state', hero_dir=tmp_path / 'hero', static_dir=tmp_path / 'dist', admin_token='server-test-admin-code')
     with TestClient(create_app(settings)) as client:
         def session(role):
-            response = client.post('/api/sessions', json={'building_id': raw['building']['id'], 'role': role})
+            response = client.post('/api/sessions', json={'building_id': raw['building']['id'], 'role': role},
+                                   headers={'X-Admin-Token': settings.admin_token} if role == 'admin' else {})
             assert response.status_code == 200, response.text
             return response.json()['session_id']
 
