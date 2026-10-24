@@ -14,6 +14,8 @@ const voice = useBuildingVoice({
 
 The hook fetches `/api/voice/token?agent=navigator|admin` and starts WebRTC using `startSession({ conversationToken })`. The server exchanges its key at ElevenLabs and returns only `{token, agent_id}`. Missing configuration or a provider failure returns HTTP 503 `voice_unavailable`; no live or paid provider calls are needed for the repository tests. Keys stay in the local/server environment.
 
+`package.json` temporarily overrides `livekit-client` to `2.16.1`, as recommended by the ElevenLabs Agents integration guide. Newer clients can request `/rtc/v1`, which the ElevenLabs LiveKit server may not support, preventing the WebRTC handshake. Remove the override and refresh `bun.lock` after the upstream server/SDK compatibility issue is fixed and a WebRTC smoke test passes.
+
 All eleven C1 client tools use `POST /api/tools/{name}` with `{session_id, args}`. A stable `op_id` is stored per session/proposal for `commit_edit`, including retries and page reloads. The server independently enforces roles and proposal idempotency. The callback receives `(display, fullResponse)` only after success. The agent receives valid JSON of at most 1,500 characters; large results keep key IDs and direct the user to the application. Failures remain `ok:false`. Configure every ElevenLabs client tool to **Wait for response**.
 
 Use `voice.sendContext(text)` after real application state changes; it wraps `sendContextualUpdate` while connected, which does not itself trigger a spoken reply. C1 phrasings:

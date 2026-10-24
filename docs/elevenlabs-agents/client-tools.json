@@ -1,0 +1,307 @@
+[
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "find",
+      "description": "Find a named item or place; ask once if ambiguous.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "query"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "plan_tour",
+      "description": "Plan a tour from the session position through comma-separated items. Use for one or more destinations when the user wants a visible route and step-by-step guidance. Items is one exact destination or a comma-separated list.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "string",
+            "description": "items"
+          },
+          "keep_order": {
+            "type": "boolean",
+            "description": "keep order"
+          },
+          "step_free": {
+            "type": "boolean",
+            "description": "step free"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "route",
+      "description": "Compute a route from the session position, respecting mobility constraints. Computes a standalone route; for a visible guided journey use plan_tour with the destination as items.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "destination": {
+            "type": "string",
+            "description": "destination"
+          },
+          "step_free": {
+            "type": "boolean",
+            "description": "step free"
+          },
+          "min_door_width_m": {
+            "type": "number",
+            "description": "min door width m Minimum: 0."
+          }
+        },
+        "required": [
+          "destination"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "next_step",
+      "description": "Return the next instruction of the active tour, including final destination directions and an explicit arrival confirmation.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "spatial_query",
+      "description": "Answer a spatial question through the deterministic core.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "kind Allowed values: largest_room, floor_area_total, errand, wide_delivery_count, step_free_reachable_count, room_stacked, shared_walls_count, straight_line_3d, what_if_door."
+          },
+          "target": {
+            "type": "string",
+            "description": "target"
+          },
+          "second_target": {
+            "type": "string",
+            "description": "For step_free_reachable_count, an optional additional connector, door or room to close. With no current or requested closures, count the unmodified building. For other kinds, the second comparison target."
+          },
+          "floor": {
+            "type": "string",
+            "description": "floor"
+          },
+          "room_type": {
+            "type": "string",
+            "description": "room type"
+          },
+          "asset_type": {
+            "type": "string",
+            "description": "asset type"
+          },
+          "direction": {
+            "type": "string",
+            "description": "direction Allowed values: above, below."
+          },
+          "min_width_m": {
+            "type": "number",
+            "description": "min width m Minimum: 0."
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "propose_edit",
+      "description": "Preview an edit without changing the building.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "action Allowed values: close, open, add_door, move_asset, set_room_type."
+          },
+          "target": {
+            "type": "string",
+            "description": "target"
+          },
+          "second_target": {
+            "type": "string",
+            "description": "second target"
+          },
+          "value": {
+            "type": "string",
+            "description": "value"
+          }
+        },
+        "required": [
+          "action",
+          "target"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "commit_edit",
+      "description": "Commit a confirmed proposal exactly once.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "description": "proposal id"
+          },
+          "expected_version": {
+            "type": "integer",
+            "description": "expected version Minimum: 0."
+          }
+        },
+        "required": [
+          "proposal_id"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "undo",
+      "description": "Undo the last own change or a specified event.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "description": "event id"
+          }
+        },
+        "required": []
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "what_if",
+      "description": "Preview a hypothetical edit without saving it.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "action Allowed values: close, open, add_door, move_asset, set_room_type."
+          },
+          "target": {
+            "type": "string",
+            "description": "target"
+          },
+          "second_target": {
+            "type": "string",
+            "description": "second target"
+          },
+          "value": {
+            "type": "string",
+            "description": "value"
+          }
+        },
+        "required": [
+          "action",
+          "target"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "set_scale",
+      "description": "Set the scale of an imported floor plan when import is available.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "description": "reference"
+          },
+          "length_m": {
+            "type": "number",
+            "description": "length m Must be greater than 0."
+          }
+        },
+        "required": [
+          "reference",
+          "length_m"
+        ]
+      },
+      "execution_mode": "immediate"
+    }
+  },
+  {
+    "tool_config": {
+      "type": "client",
+      "name": "generate_markers",
+      "description": "Create position markers and return a printable sheet URL.",
+      "expects_response": true,
+      "response_timeout_secs": 30,
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "execution_mode": "immediate"
+    }
+  }
+]

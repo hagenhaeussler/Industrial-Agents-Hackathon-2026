@@ -10,6 +10,9 @@
     "test": "bun test src",
     "gen:api": "bun scripts/gen-api.ts"
   },
+  "overrides": {
+    "livekit-client": "2.16.1"
+  },
   "dependencies": {
     "@blobatar/react": "^2.7.0",
     "@elevenlabs/react": "1.19.1",
