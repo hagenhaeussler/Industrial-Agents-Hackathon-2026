@@ -23,7 +23,7 @@ def _group_stops(b, stops):
         item = raw if isinstance(raw, dict) else {"target": raw}
         target = item.get("target", item.get("space_id", item.get("id")))
         sid, _ = _endpoint(b, target)
-        assets = [target] if target in b.assets else list(item.get("asset_ids", []))
+        assets = [target] if isinstance(target, str) and target in b.assets else list(item.get("asset_ids", []))
         if any(a not in b.assets or b.assets[a]["space_id"] != sid for a in assets):
             raise CoreError("invalid_args", "A stop's assets must exist in its target room.")
         key = (sid, item.get("stop_id")) if item.get("_preserve_identity") else sid
@@ -174,7 +174,7 @@ def replan(b, tour, from_position, reason_event=None):
         if not assets:
             locations[original["space_id"]] = []
         for i, (sid, asset_ids) in enumerate(locations.items()):
-            stop = dict(original, space_id=sid, asset_ids=asset_ids, _preserve_identity=True)
+            stop = dict(original, target=sid, space_id=sid, asset_ids=asset_ids, _preserve_identity=True)
             if i:
                 stop["stop_id"] = f"s{next_id}"
                 next_id += 1
