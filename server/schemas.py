@@ -88,6 +88,7 @@ class TourReplan(Input):
     session_id: str
     position: Position = Field(alias='from')
     reason: str | dict[str, Any] | None = None
+    constraints: Constraints | None = None
 
 
 class MarkerInput(Input):

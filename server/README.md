@@ -1,4 +1,4 @@
-# Platform integration (C5)
+# Platform integration (C6)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -15,7 +15,7 @@ The server loads `.env` without overriding existing environment variables. One p
 3. `POST /api/tours` with `{session_id, items: ["asset or space ID"], keep_order: false}`. The same operation is available through `plan_tour` in the tool registry.
 4. The QR encodes only `PUBLIC_BASE_URL/go/{tour_id}`. On the phone create a `phone` session for the tour's building, then PATCH `active_tour_id`. This copies the mobility constraints and gives a low-confidence `tour_start` position. Ask the person to confirm it.
 5. Send `X-Session-ID: <phone session_id>` with progress requests so "Got it" advances the phone position. Replan with `{session_id, from: <current position>, reason}`; ignore stale responses by revision.
-6. Subscribe to `/ws/buildings/{building_id}`. On reconnect refetch the building snapshot and active tour. Refetch/replan after `building_changed` or `building_reset`. `hello` follows subscriber registration, so a concurrent commit cannot fall through a subscription gap.
+6. Subscribe to `/ws/buildings/{building_id}`. On reconnect refetch the snapshot and active tour; if the snapshot's building_version is newer, replan from the latest known position. GET tour returns its stored revision and does not recompute a route. Refetch/replan after `building_changed` or `building_reset`. `hello` follows subscriber registration, so a concurrent commit cannot fall through a subscription gap.
 
 The server emits `tour_opened` when a phone opens the handoff, and `tour_updated` after progress/replan/instruction advancement. WebSocket heartbeats occur every 20 seconds. UI reconnect backoff (0.5–5 seconds) belongs to the frontend.
 
@@ -30,6 +30,8 @@ schemas = registry.json_schemas()
 ```
 
 For `spatial_query(kind="step_free_reachable_count")`, `second_target` can name the closed element. All existing session/building closures are included; an empty set returns the count without closures. The live core accepts a closure list while preserving its original single-string benchmark input. Exact item matches precede normalized/fuzzy matches across entity kinds, so a perfect fuzzy score cannot displace an exact name.
+
+Replan accepts optional partial `constraints`; only supplied fields override the saved tour. Omitting it preserves mobility. A wheelchair/pram/trolley profile still forces step-free routing. To explicitly allow stairs on an existing step-free tour, PATCH the session to `profile: "walk"` with its existing constraints plus `step_free: false`, then POST replan with `constraints: {"step_free": false}`. Check both responses. Stop identities and collected progress are retained; other constraints remain in effect. Replan does not mutate session mobility itself.
 
 An independent process can instantiate `ToolRegistry(PlatformService(catalog, store))` after initializing `StateStore`. `/api/chat` constructs `agent.chat.ChatAgent(registry, store.get_session)` and calls `reply(session_id, message)` when Lenard's agent and an Anthropic key are installed. Otherwise it returns explicit `not_available`.
 

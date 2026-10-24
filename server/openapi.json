@@ -1130,6 +1130,16 @@
       "TourReplan": {
         "additionalProperties": false,
         "properties": {
+          "constraints": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Constraints"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "from": {
             "$ref": "#/components/schemas/Position"
           },
@@ -1399,7 +1409,7 @@
   },
   "info": {
     "title": "Talk to Your Building",
-    "version": "C5"
+    "version": "C6"
   },
   "openapi": "3.1.0",
   "paths": {

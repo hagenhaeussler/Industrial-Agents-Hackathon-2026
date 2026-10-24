@@ -5,9 +5,12 @@ import json
 import hashlib
 import threading
 
+from pydantic import ValidationError
+
 from . import core_adapter as adapter
 from .buildings import BuildingSnapshot, DerivedGeometry
 from .errors import ServiceError
+from .schemas import Constraints
 from .state import identifier, now
 from starter_agent.building_map import MapError, outline
 
@@ -128,7 +131,7 @@ class PlatformService:
         self.store.update_session(session_id, {"active_tour_id": tour["tour_id"]})
         return tour
 
-    def replan_tour(self, tour_id, session_id, position, reason=None):
+    def replan_tour(self, tour_id, session_id, position, reason=None, constraints=None):
         session = self.store.get_session(session_id)
         tour = self.store.get_tour(tour_id)
         if session["building_id"] != tour["building_id"]:
@@ -137,7 +140,12 @@ class PlatformService:
         start = session["position"] if position is None else position
         if not start:
             raise ServiceError("invalid_args", "Confirm your current room before replanning.")
-        result = self._plan(building, start, tour["stops"], self.constraints(session, tour.get("constraints")), tour.get("keep_order", tour["order_policy"] == "fixed"), tour.get("end"), order=tour["order"])
+        try:
+            overrides = Constraints.model_validate({} if constraints is None else constraints).model_dump(exclude_unset=True)
+        except ValidationError as exc:
+            raise ServiceError("invalid_args", "Replan constraints are invalid.", status=422) from exc
+        requested_constraints = {**tour.get("constraints", {}), **overrides}
+        result = self._plan(building, start, tour["stops"], self.constraints(session, requested_constraints), tour.get("keep_order", tour["order_policy"] == "fixed"), tour.get("end"), order=tour["order"])
         result.update(tour_id=tour_id, session_id=session_id, keep_order=tour.get("keep_order", False), mobility_profile=session["profile"])
         events = self.store.events(tour["building_id"])
         result["changed_because"] = ({"event_id": events[-1]["event_id"], "summary": events[-1]["summary"]} if events else {"event_id": None, "summary": reason}) if reason or events else None
