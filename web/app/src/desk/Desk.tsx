@@ -274,7 +274,7 @@ function DeskScreen() {
     </aside>
 
     <section className="desk-map" aria-label="Building map">
-      <MapView model={model} floorId={floorId} onFloor={setFloorId} tour={route ? null : tour} route={route} selected={selected} focusAssetId={focusId} highlightSpaceIds={highlight} you={you}
+      <MapView isometric model={model} floorId={floorId} onFloor={setFloorId} tour={route ? null : tour} route={route} selected={selected} focusAssetId={focusId} highlightSpaceIds={highlight} you={you}
         onAsset={id => { toggle(id); focusAsset(id); }} onSpace={picker ? id => void pickStart(id) : undefined}
         frame={route ? 'route' : tour && !frameSpaces.length && !focusId ? 'route' : highlight.length ? 'space' : tour ? 'route' : 'all'} frameSpaceIds={highlight}
         frameKey={route ? `route:${route.from_space_id}:${route.to_space_id}:${route.length_m}` : tour && !frameSpaces.length && !focusId ? `tour:${tour.tour_id}:${tour.revision}` : focusId ? `focus:${focusId}` : highlight.join(',') || 'all'}/>
