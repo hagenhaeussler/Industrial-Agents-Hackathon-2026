@@ -9,7 +9,7 @@ from typing import Literal
 
 from . import core_adapter as adapter
 from .errors import ServiceError
-from .state import identifier
+from .state import encode, identifier, now
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class RouteArgs(Args):
 class SpatialArgs(Args):
     kind: Literal["largest_room", "floor_area_total", "errand", "wide_delivery_count", "step_free_reachable_count", "room_stacked", "shared_walls_count", "straight_line_3d", "what_if_door"]
     target: str | None = None
-    second_target: str | None = None
+    second_target: str | None = Field(default=None, description="For step_free_reachable_count, the connector, door or room to close; optional when the building or session already has closures. For other kinds, the second comparison target.")
     floor: str | None = None
     room_type: str | None = None
     asset_type: str | None = None
@@ -136,8 +136,12 @@ class ToolRegistry:
                     "result": result, "speech": speech, "display": display,
                     "trace": [{"fn": name, "args": values, "ms": round((time.perf_counter() - started) * 1000, 2), "_adapter": source}]}
         except ServiceError as exc:
+            error = exc.payload()
+            if isinstance(error.get("candidates"), list):
+                error["candidates"] = [{**candidate, "name": candidate.get("name") or candidate.get("label") or candidate.get("id")}
+                                       if isinstance(candidate, dict) else candidate for candidate in error["candidates"]]
             return {"ok": False, "tool": name, "request_id": request_id, "building_id": building_id,
-                    "building_version": version, "error": exc.payload(), "speech": exc.message,
+                    "building_version": version, "error": error, "speech": exc.message,
                     "trace": [{"fn": name, "args": {}, "ms": round((time.perf_counter() - started) * 1000, 2)}]}
         except Exception:
             logger.exception("Tool failed request_id=%s tool=%s", request_id, name)
@@ -161,13 +165,35 @@ class ToolRegistry:
         space = building.kit.spaces[position["space_id"]]
         floor = building.kit.floors[space["floor_id"]]
         result = {**candidate, **position}
-        return result, f"{candidate['label']} is in {space['name']} on {floor['name']}.", {"kind": "highlight", "space_id": space["id"], "asset_id": candidate["id"] if candidate["kind"] == "asset" else None}
+        return result, f"{candidate['label']} is in {space['name']} on {floor['name']}.", {"kind": "highlight", "space_id": space["id"], "asset_id": candidate["id"] if candidate["kind"] == "asset" else None, "asset_ids": [candidate["id"]] if candidate["kind"] == "asset" else [], "floor_id": space["floor_id"]}
+
+    def _persist_mobility(self, session, args):
+        """Merge validated intent atomically with the latest shared session."""
+        store = self.service.store
+        with store.connect(write=True) as db:
+            current = store._session(db.execute("SELECT * FROM sessions WHERE session_id=?", (session["session_id"],)).fetchone())
+            constraints = dict(current["constraints"])
+            profile = current["profile"]
+            if args.get("step_free") is True:
+                constraints["step_free"] = True
+                if profile == "walk":
+                    profile = "wheelchair"
+            if "min_door_width_m" in args:
+                constraints["min_door_width_m"] = args["min_door_width_m"]
+            if profile != current["profile"] or constraints != current["constraints"]:
+                db.execute("UPDATE sessions SET profile=?,constraints_json=?,updated_at=? WHERE session_id=?", (
+                    profile, encode(constraints), now(), current["session_id"]))
+                return store._session(db.execute("SELECT * FROM sessions WHERE session_id=?", (current["session_id"],)).fetchone())
+            return current
 
     def _route(self, session, args):
         if not session["position"]:
             raise ServiceError("invalid_args", "Where are you starting? Confirm your room first.")
         building = self.service.current(session["building_id"])
         destination = adapter.require_id(building, args.pop("destination"))
+        adapter.position(building, destination)
+        adapter.position(building, session["position"])
+        session = self._persist_mobility(session, args)
         result = adapter.route(building, session["position"], destination, self.service.constraints(session, args))
         if not result["reachable"]:
             raise ServiceError("no_route", "No route is available under your current mobility constraints.", reason=result["reason"], route=result)
@@ -175,6 +201,16 @@ class ToolRegistry:
 
     def _tour(self, session, args):
         items = [item.strip() for item in args["items"].split(",") if item.strip()]
+        if not items:
+            raise ServiceError("invalid_args", "Choose at least one item or place.")
+        if not session["position"]:
+            raise ServiceError("invalid_args", "Where are you starting? Confirm your room first.")
+        building = self.service.current(session["building_id"])
+        items = [adapter.require_id(building, item) for item in items]
+        for item in items:
+            adapter.position(building, item)
+        adapter.position(building, session["position"])
+        session = self._persist_mobility(session, args)
         overrides = {"step_free": args["step_free"]} if "step_free" in args else None
         result = self.service.create_tour(session["session_id"], items, keep_order=args["keep_order"], constraints=overrides)
         blocked = result.get("unreachable_stops", [])
@@ -213,9 +249,24 @@ class ToolRegistry:
                 entity_kind = "floor" if source == "floor" else source if source in {"room_type", "asset_type"} else "any"
                 value = adapter.require_id(building, value, entity_kind)
             inputs[target] = value
+        solve_building = building.core
         if kind == "step_free_reachable_count":
-            inputs["closed"] = sorted(building.closed | set(session["constraints"].get("closed", [])))
-        result = adapter._call(solve, building.core, kind, inputs)
+            closed = set(building.closed) | set(session["constraints"].get("closed", []))
+            if args.get("second_target", "").strip():
+                closed.add(adapter.require_id(building, args["second_target"]))
+            known = building.kit.spaces.keys() | building.kit.openings.keys() | building.kit.connectors.keys()
+            if closed - known:
+                raise ServiceError("invalid_args", "Closed elements must be connectors, doors or rooms in this building.")
+            if not closed:
+                raise ServiceError("invalid_args", "Which connector, door or room should be closed for this count?")
+            # The official solver takes one required closure string. Preserve
+            # that interface while applying every live/session/explicit closure
+            # to an isolated materialisation, never to the cached live object.
+            load = adapter.core_function("building", "load_building")
+            solve_building = adapter._call(load, building.core)
+            solve_building.closed = set(closed)
+            inputs["closed"] = sorted(closed)[0]
+        result = adapter._call(solve, solve_building, kind, inputs)
         value = result.get("value", result.get("area_m2", result.get("space_id")))
         return result, f"The computed result is {value}.", {"kind": "spatial_result", "result": result}
 

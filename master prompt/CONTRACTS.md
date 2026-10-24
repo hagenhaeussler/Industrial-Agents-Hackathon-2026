@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C3** (24 Oct 2026; C2 HTTP clarifications by Manuel's codex preserved; C3 core result clarifications by Hagen's codex). Section owners:
+Contract version: **C4** (24 Oct 2026; C2 HTTP and C3 core result clarifications preserved; C4 tool/session mobility and closure transport clarified by Manuel's codex). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -287,6 +287,8 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 | admin | `generate_markers` | – | creates markers for entrances and doors of the demo route; returns sheet URL |
 
 - ElevenLabs tools are type **Client** with **"Wait for response"** enabled (verified in the ElevenLabs React docs on 24 Oct 2026: without blocking, the agent assumes success). The browser handler calls `POST /api/tools/{name}`, updates the view from `display`, and returns `JSON.stringify({ok, speech, result})` truncated to ≤ 1,500 characters.
+- **Mobility persistence (C4, CR-L-1):** a valid, resolved `route`/`plan_tour` request with affirmative `step_free: true` persists step-free mobility in its session (a `walk` session becomes `wheelchair`; existing `wheelchair|pram|trolley` remains). A route's `min_door_width_m` persists as well. Required position and entity validation precede session mutation; a valid `no_route` still preserves the user's stated mobility need. `step_free: false` cannot silently downgrade a persisted non-walk profile; an explicit profile change belongs to the session UI/PATCH API.
+- **Step-free spatial closure bridge (C4, CR-L-2):** for `spatial_query(kind="step_free_reachable_count")`, existing optional `second_target` may name a closed connector/opening/space. Without it, use current building/session closures; with none, ask which element is closed (`invalid_args`). All current session closures are applied to an isolated core copy; one selected closure is passed as the required nonempty string `inputs.closed` to the unchanged benchmark solver. Multiple closures are all honored, never discarded or passed as a list into the singular benchmark field. This transport clarification changes neither §4's benchmark schema nor tool names/required arguments.
 - Position, building and profile come from the session, never from the conversation.
 - Context the app pushes with `sendContextualUpdate` (no reply is triggered), exact phrasing:
   - `Position: <space name> (<floor name>), source <marker|manual|tour start>.`
@@ -391,3 +393,5 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 - **C2 — 24 Oct 2026, Manuel's codex, CR-M-1:** clarified §7 admin session header, optional phone progress header, mobility handoff metadata and demo opt-in; documented the existing voice token 503 code in §14. Endpoint paths, eleven tool names and their required arguments unchanged.
 
 - **C3 — 24 Oct 2026, Hagen's codex, CR-H-1:** clarified §5 raw polyline length versus rounded kit cost, actual point endpoints, server-assigned tour IDs, current building closures and moved-part replanning. C2 HTTP/session transport preserved.
+
+- **C4 — 24 Oct 2026, Manuel's codex, CR-L-1/CR-L-2:** clarified §8 persistent affirmative mobility arguments and the explicit zero/single/multiple closure bridge for spatial_query. C3 geometry/stop semantics and C2 HTTP transport preserved; benchmark inputs unchanged.

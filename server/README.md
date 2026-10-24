@@ -1,4 +1,4 @@
-# Platform integration (C2)
+# Platform integration (C4)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
@@ -6,7 +6,7 @@ Run `uv sync`, copy `.env.example` to `.env`, then run:
 uv run uvicorn server.app:app --reload --port 8000
 ```
 
-The server loads `.env` without overriding existing environment variables. One production uvicorn worker owns WebSocket fan-out. SQLite, uploads and derived walking caches live in `STATE_DIR`; kit files remain immutable. Schema migrations run at startup.
+The server loads `.env` without overriding existing environment variables. One production uvicorn worker owns WebSocket fan-out. SQLite, uploads and derived walking caches live in `STATE_DIR`; kit files remain immutable. Schema migrations run at startup. Production images include building geometry/inventory and the catalog; evaluation questions, answer CSVs and submissions are excluded.
 
 ## Client handoff
 
@@ -21,13 +21,15 @@ The server emits `tour_opened` when a phone opens the handoff, and `tour_updated
 
 ## Shared tools and chat
 
-`POST /api/tools/{name}` takes `{session_id, args}`. Eleven tool names and required arguments remain the C1 names. Domain failures return HTTP 200 with `ok:false`; transport failures use 4xx/5xx. Never treat a failed result as success.
+`POST /api/tools/{name}` takes `{session_id, args}`. Eleven tool names and required arguments remain the C1 names. Domain failures return HTTP 200 with `ok:false`; transport failures use 4xx/5xx. Never treat a failed result as success. Valid affirmative `step_free` route/tour requests persist session mobility, and route width persists atomically across concurrent tools. A valid no-route result keeps that mobility need; invalid/ambiguous inputs do not mutate it. Explicit profile changes use the session PATCH API.
 
 ```python
 from server.tools import registry  # bound by the FastAPI lifespan
 schemas = registry.json_schemas()
 # registry.call("find", session_id, {"query": "CNC mill"})
 ```
+
+For `spatial_query(kind="step_free_reachable_count")`, `second_target` can name the closed element. Existing session/building closures are all honored on an isolated copy; without any closure the tool asks which element is closed. The official solver still receives its singular string input.
 
 An independent process can instantiate `ToolRegistry(PlatformService(catalog, store))` after initializing `StateStore`. `/api/chat` constructs `agent.chat.ChatAgent(registry, store.get_session)` and calls `reply(session_id, message)` when Lenard's agent and an Anthropic key are installed. Otherwise it returns explicit `not_available`.
 
