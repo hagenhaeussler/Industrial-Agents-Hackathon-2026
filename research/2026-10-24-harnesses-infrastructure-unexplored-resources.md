@@ -372,4 +372,3 @@ Die Arbeit an A–F kann auf Verantwortungsbereiche verteilt werden, ohne eine b
 | Generalisierung des Imports | Kit-Renderer, fremde Scans und Fabrikpläne haben unterschiedliche Eigenschaften. | Unabhängige zulässige Eingaben, überprüfte Annotationen und getrennte Auswertung von Maßstab, Erkennung und Topologie. |
 | Fachliche Qualität externer Agenten | Sessionfortsetzung und Erfolgsstatus eines Anbieters garantieren keine gültige Gebäudeänderung. | Ergebnisartefakt gegen eigenen Validator, erwarteten Zustand und tatsächlichen Nutzerauftrag prüfen. |
 | Weiterer industrieller Betrieb | Mehrere Standorte, echte Rollen, lang laufende Jobs und viele gleichzeitige Nutzer sind nicht durch die Hackathondemo validiert. | Reale Last-/Betriebsanforderungen erfassen; daraus erst zusätzliche Worker, Workflowdienst oder externe Agentengrenzen ableiten. |
-
