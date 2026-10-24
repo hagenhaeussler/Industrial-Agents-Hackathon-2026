@@ -24,6 +24,7 @@ export function Home() {
       <h1>Say what you need, not where it is.</h1>
       <p className="lede">Find parts, plan the shortest collection tour and take it with you on your phone.</p>
       <a className="primary-button hero-cta" href={withSticky('/desk?demo=hero')} onClick={linkHandler('/desk?demo=hero')}>Open the demo{demoName ? `: ${demoName}` : ''}<ArrowRight size={18}/></a>
+      <a className="home-colab-link" href="/colab" onClick={linkHandler('/colab')}>Explore Munich Urban Colab <ArrowRight size={15}/></a>
     </section>
     <section className="home-list surface" aria-labelledby="buildings-title">
       <div className="parts-head"><h2 id="buildings-title">Buildings</h2>{buildings && <span className="muted">{buildings.length}</span>}</div>

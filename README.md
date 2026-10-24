@@ -309,6 +309,14 @@ and the [readiness checklist](docs/project-readiness.md) for remaining acceptanc
 
 ## Run it locally
 
+The dedicated [Munich Urban Colab showcase](docs/colab-demo.md) is available at
+`/colab`: a five-level architectural view, photo-informed floor 3/4 schematics,
+occasional shared furniture animation, and explicitly sourced visitor markers.
+Its kit-format model is in `demo/colab/building.json`. Android/laptop Wi-Fi
+fingerprinting needs a real on-site survey and a paired native collector;
+browser/mobile-data access alone does not establish an indoor position. See
+the [positioning research](research/2026-10-25-colab-wifi-positioning.md).
+
 The Talk to Your Building service needs Python 3.12+, [uv](https://docs.astral.sh/uv/), and [Bun](https://bun.sh/) for the frontend. The building list, snapshots, routing and deterministic benchmark checks run without API keys. Copy the environment template before starting:
 
 ```bash

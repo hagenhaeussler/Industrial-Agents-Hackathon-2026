@@ -124,6 +124,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/colab/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Demo */
+        post: operations["demo_api_colab_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/demo/walk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Demo Walk */
+        post: operations["demo_walk_api_colab_demo_walk_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/model": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Model */
+        get: operations["model_api_colab_model_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/pair": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pair */
+        post: operations["pair_api_colab_pair_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Position */
+        post: operations["position_api_colab_positions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** State */
+        get: operations["state_api_colab_state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/wifi/calibration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Calibration */
+        post: operations["calibration_api_colab_wifi_calibration_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/wifi/capture": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Capture */
+        post: operations["capture_api_colab_wifi_capture_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/wifi/scans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Wifi Scan */
+        post: operations["wifi_scan_api_colab_wifi_scans_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/colab/wifi/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Wifi Status */
+        get: operations["wifi_status_api_colab_wifi_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/demo/reset": {
         parameters: {
             query?: never;
@@ -358,6 +528,22 @@ export interface components {
             /** Split */
             split: string | null;
         };
+        /** Capture */
+        Capture: {
+            /** Device Id */
+            device_id: string;
+            /** Floor Id */
+            floor_id: string;
+            /**
+             * Label
+             * @default Survey point
+             */
+            label: string;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
         /** ChatInput */
         ChatInput: {
             /** Message */
@@ -377,6 +563,119 @@ export interface components {
             tool_calls: {
                 [key: string]: unknown;
             }[];
+        };
+        /** ColabAsset */
+        ColabAsset: {
+            /** Asset Id */
+            asset_id: string;
+            /** Floor Id */
+            floor_id: string;
+            /** Position */
+            position: [
+                number,
+                number
+            ];
+            /** Space Id */
+            space_id: string;
+        };
+        /** ColabModel */
+        ColabModel: {
+            /** Anchors */
+            anchors: {
+                [key: string]: [
+                    number,
+                    number
+                ];
+            };
+            /** Building */
+            building: {
+                [key: string]: unknown;
+            };
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /**
+             * Model Revision
+             * @default
+             */
+            model_revision: string;
+        };
+        /** ColabMovement */
+        ColabMovement: {
+            /** Asset Id */
+            asset_id: string;
+            /** Duration S */
+            duration_s: number;
+            /** Floor Id */
+            floor_id: string;
+            /** From */
+            from: [
+                number,
+                number
+            ];
+            /** Started At */
+            started_at: number;
+            /** To */
+            to: [
+                number,
+                number
+            ];
+        };
+        /** ColabPosition */
+        ColabPosition: {
+            /** Accuracy M */
+            accuracy_m: number | null;
+            /**
+             * Confidence
+             * @enum {string}
+             */
+            confidence: "low" | "confirmed" | "simulated";
+            /** Device Id */
+            device_id: string;
+            /** Floor Id */
+            floor_id: string;
+            /** Label */
+            label: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "wifi_fingerprint" | "manual" | "simulated";
+            /** Space Id */
+            space_id: string;
+            /** Stale */
+            stale: boolean;
+            /** Uncertainty Kind */
+            uncertainty_kind?: string | null;
+            /** Updated At */
+            updated_at: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
+        /** ColabState */
+        ColabState: {
+            /** Assets */
+            assets: components["schemas"]["ColabAsset"][];
+            /** Demo Running */
+            demo_running: boolean;
+            /**
+             * Model Revision
+             * @default
+             */
+            model_revision: string;
+            /** Movements */
+            movements: components["schemas"]["ColabMovement"][];
+            /** Positions */
+            positions: components["schemas"]["ColabPosition"][];
+            /** Sequence */
+            sequence: number;
+            /** Server Time */
+            server_time: number;
+            /** Walk Running */
+            walk_running: boolean;
         };
         /** Constraints */
         Constraints: {
@@ -456,6 +755,28 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** ManualPosition */
+        ManualPosition: {
+            /** Device Id */
+            device_id?: string | null;
+            /** Floor Id */
+            floor_id: string;
+            /**
+             * Label
+             * @default Demo visitor
+             */
+            label: string;
+            /**
+             * Source
+             * @default manual
+             * @enum {string}
+             */
+            source: "manual" | "simulated";
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
         /** MarkerCreate */
         MarkerCreate: {
             /** Markers */
@@ -474,6 +795,27 @@ export interface components {
             ];
             /** Space Id */
             space_id: string;
+        };
+        /** Pair */
+        Pair: {
+            /** Device Id */
+            device_id?: string | null;
+            /**
+             * Label
+             * @default Android visitor
+             */
+            label: string;
+        };
+        /** PairedCollector */
+        PairedCollector: {
+            /** Device Id */
+            device_id: string;
+            /** Expires At */
+            expires_at: number;
+            /** Scan Endpoint */
+            scan_endpoint: string;
+            /** Token */
+            token: string;
         };
         /** Position */
         Position: {
@@ -639,6 +981,11 @@ export interface components {
             position?: components["schemas"]["Position"] | null;
             /** Profile */
             profile?: ("walk" | "wheelchair" | "pram" | "trolley") | null;
+        };
+        /** Switch */
+        Switch: {
+            /** Running */
+            running: boolean;
         };
         /** ToolCall */
         ToolCall: {
@@ -820,6 +1167,48 @@ export interface components {
             agent_id: string;
             /** Token */
             token: string;
+        };
+        /** WifiDevice */
+        WifiDevice: {
+            /** Device Id */
+            device_id: string;
+            /** Label */
+            label: string;
+            /** Last Scan At */
+            last_scan_at: number;
+            /** Readings Count */
+            readings_count: number;
+        };
+        /** WifiScan */
+        WifiScan: {
+            /** Device Id */
+            device_id: string;
+            /**
+             * Label
+             * @default Android visitor
+             */
+            label: string;
+            /** Scan */
+            scan: {
+                [key: string]: unknown;
+            };
+        };
+        /** WifiStatus */
+        WifiStatus: {
+            /** Accuracy Validated */
+            accuracy_validated: boolean;
+            /** Browser Scan Supported */
+            browser_scan_supported: boolean;
+            /** Calibration Points */
+            calibration_points: number;
+            /** Devices */
+            devices: components["schemas"]["WifiDevice"][];
+            /** Method */
+            method: string;
+            /** Ready */
+            ready: boolean;
+            /** Synthetic */
+            synthetic: boolean;
         };
     };
     responses: never;
@@ -1091,6 +1480,307 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_api_colab_demo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Switch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ColabState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_walk_api_colab_demo_walk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Switch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ColabState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    model_api_colab_model_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ColabModel"];
+                };
+            };
+        };
+    };
+    pair_api_colab_pair_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Admin-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Pair"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PairedCollector"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    position_api_colab_positions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualPosition"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ColabPosition"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    state_api_colab_state_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ColabState"];
+                };
+            };
+        };
+    };
+    calibration_api_colab_wifi_calibration_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Admin-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WifiStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    capture_api_colab_wifi_capture_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Admin-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Capture"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WifiStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    wifi_scan_api_colab_wifi_scans_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Colab-Token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WifiScan"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    wifi_status_api_colab_wifi_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WifiStatus"];
                 };
             };
         };
