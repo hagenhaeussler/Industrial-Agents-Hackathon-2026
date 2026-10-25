@@ -33,4 +33,3 @@ packages = ["benchmark", "building_agent", "building_api", "building_db", "build
 line-length = 120
 # Kit files are read-only.
 extend-exclude = ["benchmark", "data"]
-

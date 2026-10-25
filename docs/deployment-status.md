@@ -15,14 +15,14 @@ The voice service keeps its existing pre-deploy sync and health check.
 
 ## Integration
 
-The rewrite at `02a6795` has a separate Git history from the old main at `dc289ba`. The merge preserves both
-histories and uses the rewrite's file tree. Old application files are removed by this replacement. Open
-follow-up pull requests are separate work and are not part of this merge.
+The rewrite has a separate Git history from the old main at `dc289ba`. The merge preserves both histories and
+uses the rewrite's file tree, including `898f35f` with phone camera localization and voice transcript feedback.
+Old application files are removed by this replacement. Work not merged into that rewrite revision is separate.
 
 ## Checks
 
-- `scripts/check.sh`: passed on 25 October 2026. Python: 105 tests. Ruff: clean. Building view: 22 tests and
-  TypeScript/build passed. Web app: 12 tests and TypeScript/build passed. No paid provider calls.
+- `scripts/check.sh`: passed on 25 October 2026. Python: 112 tests. Ruff: clean. Building view: 22 tests and
+  TypeScript/build passed. Web app: 23 tests and TypeScript/build passed. No paid provider calls.
 - Vite reports bundles above 500 kB. This does not stop either build.
 - Git whitespace checks accept the rewrite's existing CSV files with Windows line endings.
 - Pending: Railway source configuration, builds and live HTTP checks.
