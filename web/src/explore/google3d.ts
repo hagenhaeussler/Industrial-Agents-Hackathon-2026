@@ -1,4 +1,5 @@
 import type { CampusBuilding } from "./geography";
+import { buildingBearing } from "./earth-scene";
 
 export interface ExteriorPose { heading: number; tilt: number; }
 export interface GoogleMapElement extends HTMLElement {
@@ -63,7 +64,7 @@ export function exteriorCamera(building: CampusBuilding, aspect = 1.5) {
   return {
     center: { lat: building.center[1], lng: building.center[0], altitude: 0 },
     altitudeMode: "RELATIVE_TO_GROUND", range: Math.max(220, Math.hypot(width, height) * 2.4 / Math.min(1, aspect)),
-    tilt: 56, heading: 336,
+    tilt: 56, heading: (buildingBearing(building.outline) + 360) % 360,
   };
 }
 

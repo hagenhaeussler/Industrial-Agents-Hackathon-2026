@@ -3,15 +3,21 @@
 ## Handoff for the main developer
 
 This branch is a working feature prototype for review and selective reuse. It does not deploy or
-replace the main branch. The routing choice is deliberate for the demo: the explorer occupies `/`,
-and the previous building list moves to `/buildings`. If the main app should retain its existing
-landing page, mount `CampusExplorer` at a separate route instead. The existing workspace and phone
-guide remain separate entry points. Only CIT currently has calibrated indoor assets; its ID belongs
-to the catalogue and generated data, not application branching logic.
+replace the main branch. The existing Locora home remains at `/`, with an **Explore on globe** action
+opening `/explore`; `/buildings` remains an alias of the building list. Existing local preview links
+at `/?building=<id>` still render the explorer, preserving the current component and its in-memory
+session when navigating to the canonical explorer URL. The existing workspace and phone guide remain
+separate entry points. Only CIT currently has calibrated indoor assets; its ID belongs to the catalogue
+and generated data, not application branching logic.
+
+The illustrated collections UI on `origin/t3/home-collections` (`b601c75`) is not merged into this
+branch. The globe entry is a small Home-header action that can be transplanted into that layout without
+replacing its collection cards or adopting its separate API-query changes.
 
 Useful parts to reuse independently:
 
 - `web/src/explore/CampusExplorer.tsx`: catalogue, arrival sequence and exterior/interior state.
+- `earth-scene.ts`: photographic Earth style, attribution and footprint-derived exterior bearing.
 - `GoogleExterior.tsx` and `GoogleIndoorLayer.ts`: optional Google scene, building replacement,
   room highlighting and restoration without recreating the map.
 - `indoor-camera.ts`, `model-placement.ts` and `geography.ts`: camera framing and geographic transforms.
@@ -30,15 +36,16 @@ uv run python -m building_api serve buildings.sqlite3 --host 127.0.0.1 --port 80
 BUILDING_API=http://127.0.0.1:8011 pnpm --dir web dev --host 127.0.0.1 --port 8013
 ```
 
-Open `http://127.0.0.1:8013/?building=osm-way27917482&map=photo`. Enter a Google browser key in the UI
+Open `http://127.0.0.1:8013/explore` for the Earth entrance, or
+`http://127.0.0.1:8013/explore?building=osm-way27917482&map=photo` for the Google demo. Enter a Google browser key in the UI
 and select **Open Google 3D**. Do not put it in source, an environment file, a commit or the PR.
 For the demo, select **Go inside**, level 2, search for `02.06.011`, select the room, close its card,
 show all floors, vary their separation, then use **Back to 3D**. Campus and Aerial also work without a key.
 
 The checked-in map data and generated models total approximately 18.8 MiB. These are OSM metadata and
 our own source-derived models; no Google imagery, tiles, browser captures or credentials are included.
-Before production adoption, review the Google API version and billing/key restrictions, decide the
-landing-page route, and verify Google rendering on target phones. The original live Google checks
+Before production adoption, review the Google API version and billing/key restrictions and verify
+Google rendering on target phones. The original live Google checks
 are documented below; offline checks do not contact paid providers.
 
 Model freshness is currently a build-time responsibility: runtime checks verify the building/floor
@@ -50,7 +57,7 @@ The production build also reports large JavaScript chunks; review loading perfor
 
 ## Product and implementation plan
 
-The entry page becomes a geographic building explorer. Selecting a building starts on a globe, flies to
+The explorer is a geographic entry point alongside the existing building list. Selecting a building starts on a globe, flies to
 its real OSM location, then tilts into an architectural campus view. The featured example is the TUM
 Mathematics and Informatics building in Garching. Its five dataset levels include the basement.
 
@@ -84,11 +91,53 @@ The generated concept is a layout reference only. Its invented campus geometry, 
 building placements and floor labels must not replace actual data. Preview thumbnails use real aerial
 imagery. Attribution remains visible. Campus and Aerial do not require a paid provider or account.
 
+## Earth arrival and current UI integration
+
+The separate Claude globe prototype informed the photographic Earth and staged-arrival concept. This
+branch implements those ideas through its own explorer style adapter and controller; no files were
+imported from the other worktree, and that worktree was left unchanged.
+
+`earth-scene.ts` adds EOX Sentinel-2 cloudless 2016 imagery, an atmospheric edge and a dark space canvas
+without replacing the existing campus basemap or Locora controls. The Earth layer fades between zoom
+9.5 and 12, revealing the original vector style at city scale. Its attribution credits EOX, modified
+Copernicus Sentinel data 2016 and CC BY 4.0. The imagery is a dated global mosaic, not a live image.
+An unavailable Earth source restores the original low-zoom vector layers and shows one notice, so
+the globe remains navigable even when satellite tiles fail.
+
+From the globe, the camera turns to the selected location, descends in a top-down view, then tilts as
+schematic buildings rise. Later building selections use a shorter approach; **Replay arrival** can
+repeat the longer entrance. **Skip arrival** finishes at the latest selected building. Slow rotation
+stops on user interaction; reduced-motion preferences disable rotation and skip the arrival animation.
+The exterior angle is derived from the area principal axis of the real footprint, subtracting courtyard
+holes. MapLibre and Google exterior cameras share this angle; individual-floor detail remains oriented
+for reading the plan. Source elevations, doors and equipment remain part of our indoor pipeline.
+
+The Earth treatment stays inside the map canvas. Home, the explorer header, white controls, Manrope
+type and lime actions follow the existing Locora UI. The map remains lazy-loaded so ordinary building
+selection and phone routes do not load the explorer merely to display the main page.
+
+Verification for this iteration on 25 October 2026: 93 web tests, 23 building-view tests, four focused
+Python tests, both TypeScript checks and the production build pass. New offline checks cover routing
+and preservation of the mounted legacy preview, city-style preservation, courtyard-aware bearings,
+whole-globe phone framing, superseded flights/queued frames, Skip arrival, user interruption,
+initial/runtime reduced motion, teardown, Earth-source fallback and Google's ready/error visibility.
+
+CUA in the in-app browser verified the Home entry, photographic Earth, natural CIT arrival, campus
+interior/level selection and return at 1100×853. A confirmed 390×844 viewport also exercised the
+bottom sheet, whole-Earth framing, Skip arrival and interior-to-globe return. The phone view tools
+move to the left while floors are open to avoid intercepting the bottom floor button. No application
+console errors or warnings were reported. The Browser plugin was unavailable. Screenshots remain
+outside the repository. The changed Google camera bearing and readiness fade were checked offline;
+this iteration did not make additional paid Google calls or read/store a browser key. Earlier live
+Google results below describe the previous camera iteration, not a fresh provider test of this one.
+
 ## Data sources
 
 - MapLibre GL JS, BSD-3-Clause: <https://maplibre.org/maplibre-gl-js/docs/>
 - OpenFreeMap/OpenMapTiles, OSM-derived basemap: <https://openfreemap.org/>
 - OSM API, building and room geometry, ODbL: <https://www.openstreetmap.org/copyright>
+- Earth imagery: Sentinel-2 cloudless by EOX IT Services GmbH, containing modified Copernicus Sentinel
+  data 2016, CC BY 4.0: <https://s2maps.eu>, <https://creativecommons.org/licenses/by/4.0/>
 - Google 3D Maps, optional, proprietary imagery, runtime browser key:
   <https://developers.google.com/maps/documentation/javascript/3d/overview>
   <https://developers.google.com/maps/documentation/javascript/reference/3d-map>
@@ -102,8 +151,8 @@ and our own floor models. The calibrated CIT building is replaced within that sa
 
 ## Current implementation and verification
 
-The explorer is the home page; `/buildings` retains the full building list, `/admin/:id` the original
-Three.js workspace and `/b/:id` the phone guide. `?building=<id>` starts the arrival sequence for a
+The explorer is at `/explore`; `/` and `/buildings` retain the full building list, `/admin/:id` the original
+Three.js workspace and `/b/:id` the phone guide. `/explore?building=<id>` starts the arrival sequence for a
 specific catalogue entry. Only the featured building currently has a verified geographic indoor frame.
 The other 16 buildings support exterior views and open their existing workspace for interior work.
 
@@ -118,7 +167,7 @@ also supply `--calibrate <id> --room-map <osm-map-api-json>`. The OSM map API ex
 building's footprint and contain room refs, levels and their nodes. `--raw` accepts the preparer's saved
 building outlines and metadata for offline regeneration. Evaluation files are never read.
 
-Verification on 25 October 2026:
+Initial campus verification on 25 October 2026, before the Earth/UI integration iteration:
 
 - TypeScript and Vite production build pass; MapLibre's worker is bundled as an ES worker for deployment.
 - 40 web tests, 22 existing building-view tests and 15 focused Python tests pass.

@@ -4,11 +4,14 @@ import type { BuildingScene } from "@locora/view";
 import type { FeatureCollection, Point, Polygon } from "geojson";
 import { buildingFeatures, facadeFeatures, indoorFeatures, type CampusBuilding, type CampusCatalog } from "./geography";
 import type { ExteriorPose } from "./google3d";
+import { adaptEarthStyle, buildingBearing, earthOverviewZoom, EARTH_LAYER_ID, EARTH_SOURCE_ID } from "./earth-scene";
 
 export type JourneyStage = "globe" | "flying" | "arriving" | "campus" | "inside";
 export interface RoomPick { id: string; name: string; ref: string; floorId: string; level: number; }
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 const STYLE_URL = "https://tiles.openfreemap.org/styles/bright";
+const RISE: ExpressionSpecification = ["global-state", "campus-rise"];
+const rising = (height: ExpressionSpecification): ExpressionSpecification => ["*", height, RISE];
 
 // MapLibre 6 ships a separate worker; let Vite bundle and locate it in dev and production.
 setWorkerUrl(workerUrl);
@@ -24,6 +27,17 @@ export class CampusMap {
   private stage: JourneyStage = "globe";
   private movement = 0;
   private resizeObserver: ResizeObserver;
+  private spinning = true;
+  private spinFrame?: number;
+  private earthFailed = false;
+  private earthLayerZooms: { id: string; minzoom: number; maxzoom: number }[] = [];
+  private readonly motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  private readonly motionChanged = () => {
+    if (this.motion.matches) {
+      this.spinning = false;
+      if (this.flight) this.skipArrival(); else this.map.stop();
+    }
+  };
 
   constructor(container: HTMLElement, private catalog: CampusCatalog, private callbacks: {
     onStage: (stage: JourneyStage) => void;
@@ -33,13 +47,14 @@ export class CampusMap {
     onReady: () => void;
   }) {
     this.map = new Map({ container, style: { version: 8, sources: {}, layers: [
-      { id: "background", type: "background", paint: { "background-color": "#e6edf0" } },
-    ] }, center: [12, 30], zoom: 1.65, pitch: 0, attributionControl: { compact: true },
+      { id: "background", type: "background", paint: { "background-color": "#09130f", "background-opacity": 0 } },
+    ] }, center: [12, 30], zoom: earthOverviewZoom(container.clientWidth, container.clientHeight, window.matchMedia("(max-width: 760px)").matches), pitch: 0, attributionControl: { compact: true },
       maxPitch: 75, maxZoom: 22, canvasContextAttributes: { antialias: true } });
     this.resizeObserver = new ResizeObserver(() => {
       this.map.resize();
       const mobile = window.matchMedia("(max-width: 760px)").matches;
-      this.map.setPadding({ top: 35, bottom: mobile ? 265 : 35, left: 0, right: 0 });
+      this.map.setPadding({ top: mobile && this.stage === "globe" ? 10 : 35, bottom: mobile && this.stage === "globe" ? 300 : mobile ? 265 : 35, left: 0, right: 0 });
+      if (this.ready && !this.flight && this.stage === "globe") this.map.jumpTo({ zoom: this.globeZoom() });
       if (this.selected && !this.flight && (this.stage === "campus" || this.stage === "inside")) {
         this.map.jumpTo({ center: this.selected.center, zoom: this.targetZoom(this.selected) });
       }
@@ -47,11 +62,17 @@ export class CampusMap {
     this.resizeObserver.observe(container);
     this.map.addControl(new NavigationControl({ visualizePitch: true }), "bottom-right");
     this.map.addControl(new ScaleControl({ maxWidth: 120 }), "bottom-left");
-    this.map.on("dragstart", () => {
-      if (!this.flight) return;
-      this.flight.abort(); this.flight = undefined;
-      this.changeStage(this.map.getZoom() < 8 ? "globe" : "campus");
+    this.motion.addEventListener("change", this.motionChanged);
+    this.map.on("movestart", (event) => {
+      if (!event.originalEvent) return;
+      this.spinning = false;
+      if (this.flight) {
+        this.flight.abort(); this.flight = undefined;
+        this.setRise(1);
+        this.changeStage(this.map.getZoom() < 8 ? "globe" : "campus");
+      }
     });
+    this.map.on("moveend", () => this.queueSpin());
     this.map.on("click", (event) => {
       if (!this.ready) return;
       const rooms = this.map.queryRenderedFeatures(event.point, { layers: ["indoor-rooms"] });
@@ -74,6 +95,13 @@ export class CampusMap {
       if ((event as { sourceId?: string }).sourceId === "bavaria-aerial" && this.aerial) {
         this.setAerial(false);
         callbacks.onError("Aerial imagery is temporarily unavailable. The campus map is still available.");
+      } else if ((event as { sourceId?: string }).sourceId === EARTH_SOURCE_ID && this.alive) {
+        if (!this.earthFailed) {
+          this.earthFailed = true;
+          this.map.setLayoutProperty(EARTH_LAYER_ID, "visibility", "none");
+          for (const layer of this.earthLayerZooms) this.map.setLayerZoomRange(layer.id, layer.minzoom, layer.maxzoom);
+          callbacks.onError("Earth imagery is temporarily unavailable. Showing the map instead.");
+        }
       } else if (!this.ready && this.alive) {
         callbacks.onError("The 3D map could not start. Please retry, or open the building list.");
       }
@@ -83,11 +111,16 @@ export class CampusMap {
 
   private changeStage(stage: JourneyStage) { this.stage = stage; this.callbacks.onStage(stage); }
 
+  private globeZoom() {
+    const container = this.map.getContainer();
+    return earthOverviewZoom(container.clientWidth, container.clientHeight, window.matchMedia("(max-width: 760px)").matches);
+  }
+
   private async load() {
     try {
       const response = await fetch(STYLE_URL);
       if (!response.ok) throw new Error(`Map service returned ${response.status}`);
-      const style = await response.json() as StyleSpecification;
+      let style = await response.json() as StyleSpecification;
       if (!this.alive) return;
       // The campus surface emphasises buildings and paths; dense POI symbols obscure both.
       style.layers = style.layers.filter((layer) => !(layer.type === "symbol" && layer["source-layer"] === "poi" && layer.id !== "poi_transit"));
@@ -102,6 +135,9 @@ export class CampusMap {
         if (layer.type === "fill" && /water/.test(layer.id)) layer.paint = { ...layer.paint, "fill-color": "#a9cbd9" };
         if (layer.type === "fill" && layer["source-layer"] === "building") layer.paint = { ...layer.paint, "fill-color": "#deddd1" };
       }
+      this.earthLayerZooms = style.layers.map(layer => ({ id: layer.id, minzoom: layer.minzoom ?? 0, maxzoom: layer.maxzoom ?? 24 }));
+      style = adaptEarthStyle(style);
+      style.state = { ...style.state, "campus-rise": { default: 1 } };
       this.map.once("style.load", () => {
         if (!this.alive) return;
         this.map.setProjection({ type: "globe" });
@@ -109,6 +145,7 @@ export class CampusMap {
         void this.addTrees();
         if (this.selected) this.setSelected(this.selected);
         this.callbacks.onReady();
+        this.queueSpin();
       });
       this.map.setStyle(style);
     } catch (error) {
@@ -124,18 +161,18 @@ export class CampusMap {
     this.map.addLayer({ id: "aerial", type: "raster", source: "bavaria-aerial", layout: { visibility: "none" },
       paint: { "raster-fade-duration": 350 } }, firstLabel);
     this.map.addLayer({ id: "context-buildings", type: "fill-extrusion", source: "openmaptiles", "source-layer": "building", minzoom: 14,
-      paint: { "fill-extrusion-color": "#e4e1d4", "fill-extrusion-height": ["coalesce", ["get", "render_height"], 8],
-        "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0], "fill-extrusion-opacity": 0.97 } }, firstLabel);
+      paint: { "fill-extrusion-color": "#e4e1d4", "fill-extrusion-height": rising(["coalesce", ["get", "render_height"], 8]),
+        "fill-extrusion-base": rising(["coalesce", ["get", "render_min_height"], 0]), "fill-extrusion-opacity": 0.97 } }, firstLabel);
     this.map.addSource("known", { type: "geojson", data: buildingFeatures(this.catalog.buildings) });
     this.map.addLayer({ id: "known-buildings", source: "known", type: "fill-extrusion", minzoom: 13,
-      paint: { "fill-extrusion-color": "#aabfc3", "fill-extrusion-height": ["get", "height"], "fill-extrusion-opacity": 0.98 } }, firstLabel);
+      paint: { "fill-extrusion-color": "#aabfc3", "fill-extrusion-height": rising(["get", "height"]), "fill-extrusion-opacity": 0.98 } }, firstLabel);
     this.map.addSource("selection", { type: "geojson", data: EMPTY });
     this.map.addLayer({ id: "selection-outline", source: "selection", type: "line", minzoom: 13,
       paint: { "line-color": "#c9f23e", "line-width": 4, "line-opacity": 0.95 } });
     this.map.addSource("facade", { type: "geojson", data: EMPTY });
     this.map.addLayer({ id: "facade-windows", source: "facade", type: "fill-extrusion", minzoom: 15,
-      paint: { "fill-extrusion-color": "#617a7d", "fill-extrusion-base": ["get", "base"],
-        "fill-extrusion-height": ["+", ["get", "base"], ["get", "height"]], "fill-extrusion-opacity": 0.85 } });
+      paint: { "fill-extrusion-color": "#617a7d", "fill-extrusion-base": rising(["get", "base"]),
+        "fill-extrusion-height": rising(["+", ["get", "base"], ["get", "height"]]), "fill-extrusion-opacity": 0.85 } });
     this.map.addSource("pins", { type: "geojson", data: { type: "FeatureCollection", features: this.catalog.buildings.map((b) => ({
       type: "Feature", geometry: { type: "Point", coordinates: b.center }, properties: { id: b.id, name: b.label },
     })) } });
@@ -177,8 +214,8 @@ export class CampusMap {
       }
       this.map.addSource("campus-trees", { type: "geojson", data: crowns });
       this.map.addLayer({ id: "campus-trees", type: "fill-extrusion", source: "campus-trees", minzoom: 15,
-        paint: { "fill-extrusion-color": ["get", "color"], "fill-extrusion-base": ["get", "base"],
-          "fill-extrusion-height": ["get", "height"], "fill-extrusion-opacity": 0.96 } }, "known-buildings");
+        paint: { "fill-extrusion-color": ["get", "color"], "fill-extrusion-base": rising(["get", "base"]),
+          "fill-extrusion-height": rising(["get", "height"]), "fill-extrusion-opacity": 0.96 } }, "known-buildings");
     } catch { /* Optional landscape detail must not block building navigation. */ }
   }
 
@@ -196,25 +233,79 @@ export class CampusMap {
 
   private source(id: string) { return this.map.getSource(id) as GeoJSONSource; }
 
-  async flyTo(building: CampusBuilding) {
+  async flyTo(building: CampusBuilding, options: { cinematic?: boolean } = {}) {
     if (!this.ready) return;
+    const cinematic = options.cinematic ?? this.stage === "globe";
+    this.spinning = false;
     this.flight?.abort(); this.map.stop();
+    this.map.setPadding({ top: 35, bottom: window.matchMedia("(max-width: 760px)").matches ? 265 : 35, left: 0, right: 0 });
     this.setSelected(building);
     const flight = new AbortController(); this.flight = flight;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      this.map.jumpTo({ center: building.center, zoom: this.targetZoom(building), pitch: 56, bearing: -24 });
-      this.flight = undefined; this.changeStage("campus"); return;
+    if (this.motion.matches) {
+      this.skipArrival(); return;
     }
-    this.map.jumpTo({ center: [building.center[0], 34], zoom: 1.8, pitch: 0, bearing: 0 });
+    this.setRise(0);
     this.changeStage("flying");
+    if (cinematic) {
+      if (this.map.getZoom() > 3.2) {
+        await this.move((step) => this.map.flyTo({ zoom: 1.85, pitch: 0, bearing: 0, duration: 1600 }, { journeyStep: step }), flight.signal);
+        if (flight.signal.aborted || !this.alive) return;
+      }
+      await this.move((step) => this.map.easeTo({ center: building.center, zoom: 2.2, pitch: 0, bearing: 0,
+        duration: 1000 }, { journeyStep: step }), flight.signal);
+      if (flight.signal.aborted || !this.alive) return;
+    }
     await this.move((step) => this.map.flyTo({ center: building.center, zoom: this.targetZoom(building) - 0.7,
-      pitch: 0, bearing: 0, duration: 4200, curve: 1.25 }, { journeyStep: step }), flight.signal);
+      pitch: 0, bearing: 0, duration: cinematic ? 4200 : 1600, curve: 1.25 }, { journeyStep: step }), flight.signal);
     if (flight.signal.aborted || !this.alive) return;
     this.changeStage("arriving");
-    await this.move((step) => this.map.easeTo({ zoom: this.targetZoom(building), pitch: 56, bearing: -24, duration: 1500 }, { journeyStep: step }), flight.signal);
+    await Promise.all([
+      this.animateRise(flight.signal),
+      this.move((step) => this.map.easeTo({ zoom: this.targetZoom(building), pitch: 56,
+        bearing: buildingBearing(building.outline), duration: 1500 }, { journeyStep: step }), flight.signal),
+    ]);
     if (flight.signal.aborted || !this.alive) return;
     this.flight = undefined; this.changeStage("campus");
+  }
+
+  /** Skip/cancel must finish at the latest selected building, never an earlier flight's target. */
+  skipArrival() {
+    if (!this.ready || !this.selected) return;
+    this.spinning = false;
+    this.flight?.abort(); this.flight = undefined; this.map.stop();
+    this.setRise(1);
+    this.map.jumpTo({ center: this.selected.center, zoom: this.targetZoom(this.selected),
+      pitch: 56, bearing: buildingBearing(this.selected.outline) });
+    this.changeStage("campus");
+  }
+
+  private setRise(value: number) { this.map.setGlobalStateProperty("campus-rise", value); }
+
+  private animateRise(signal: AbortSignal) {
+    return new Promise<void>((resolve) => {
+      if (signal.aborted || !this.alive) return resolve();
+      const started = performance.now();
+      let frame = 0;
+      const finish = () => { cancelAnimationFrame(frame); signal.removeEventListener("abort", finish); resolve(); };
+      const tick = (now: number) => {
+        if (signal.aborted || !this.alive) return finish();
+        const t = Math.min(1, (now - started) / 1400);
+        this.setRise(t * t * (3 - 2 * t));
+        if (t < 1) frame = requestAnimationFrame(tick); else finish();
+      };
+      signal.addEventListener("abort", finish, { once: true });
+      frame = requestAnimationFrame(tick);
+    });
+  }
+
+  private queueSpin() {
+    if (this.spinFrame !== undefined || !this.ready || !this.alive || !this.spinning || this.motion.matches) return;
+    this.spinFrame = requestAnimationFrame(() => {
+      this.spinFrame = undefined;
+      if (!this.alive || !this.spinning || this.motion.matches || this.flight || this.stage !== "globe" || this.map.isMoving()) return;
+      const center = this.map.getCenter();
+      this.map.easeTo({ center: [center.lng - 6, center.lat], duration: 6000, easing: t => t });
+    });
   }
 
   private targetZoom(building: CampusBuilding) {
@@ -228,18 +319,26 @@ export class CampusMap {
 
   private move(action: (step: number) => void, signal: AbortSignal): Promise<void> {
     return new Promise((resolve) => {
+      if (signal.aborted || !this.alive) return resolve();
       const step = ++this.movement;
       const cleanup = () => { this.map.off("moveend", done); signal.removeEventListener("abort", cleanup); resolve(); };
       const done = (event: unknown) => { if ((event as { journeyStep?: number }).journeyStep === step) cleanup(); };
       signal.addEventListener("abort", cleanup, { once: true }); this.map.on("moveend", done); action(step);
+      if (!this.map.isMoving()) cleanup();
     });
   }
 
   globe() {
     if (!this.ready) return;
+    this.spinning = false;
     this.flight?.abort(); this.flight = undefined; this.map.stop(); this.showExterior();
-    this.map.flyTo({ center: [12, 30], zoom: 1.65, pitch: 0, bearing: 0, duration: 2000 });
+    this.setRise(1);
     this.changeStage("globe");
+    this.spinning = !this.motion.matches;
+    const mobile = window.matchMedia("(max-width: 760px)").matches;
+    this.map.setPadding({ top: mobile ? 10 : 35, bottom: mobile ? 300 : 35, left: 0, right: 0 });
+    this.map.flyTo({ center: [12, 30], zoom: this.globeZoom(), pitch: 0, bearing: 0, duration: this.motion.matches ? 0 : 2000 });
+    this.queueSpin();
   }
 
   setAerial(enabled: boolean) {
@@ -293,8 +392,13 @@ export class CampusMap {
 
   topDown() {
     if (!this.ready) return;
-    this.map.easeTo({ pitch: this.map.getPitch() > 20 ? 0 : 56, duration: 800 });
+    this.map.easeTo({ pitch: this.map.getPitch() > 20 ? 0 : 56, duration: this.motion.matches ? 0 : 800 });
   }
 
-  destroy() { this.alive = false; this.resizeObserver.disconnect(); this.flight?.abort(); this.map.remove(); }
+  destroy() {
+    this.alive = false; this.spinning = false;
+    if (this.spinFrame !== undefined) cancelAnimationFrame(this.spinFrame);
+    this.motion.removeEventListener("change", this.motionChanged);
+    this.resizeObserver.disconnect(); this.flight?.abort(); this.map.remove();
+  }
 }

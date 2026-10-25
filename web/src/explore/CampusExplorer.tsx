@@ -49,11 +49,11 @@ function Explorer({ catalog }: { catalog: CampusCatalog }) {
   const document = useBuilding(selected.id, inside && !!selected.localFrame);
   const flying = stage === "flying" || stage === "arriving";
 
-  const choose = useCallback((building: CampusBuilding) => {
+  const choose = useCallback((building: CampusBuilding, cinematic?: boolean) => {
     setSelected(building); setInside(false); setFloor(null); setRoom(undefined); setPickerOpen(false); setNotice("");
     const url = new URL(location.href); url.searchParams.set("building", building.id);
     history.replaceState(null, "", url.pathname + url.search);
-    void controller.current?.flyTo(building);
+    void controller.current?.flyTo(building, { cinematic });
   }, []);
 
   useEffect(() => {
@@ -124,7 +124,8 @@ function Explorer({ catalog }: { catalog: CampusCatalog }) {
   return <main className="campus-explorer">
     <header className="explore-header">
       <a className="explore-brand" href="/" aria-label="Locora home"><Box size={31} strokeWidth={1.5} /><span>Locora</span></a>
-      <nav aria-label="Main navigation"><a className="active" href="/" aria-current="page">Explore</a>
+      <nav aria-label="Main navigation"><a href="/" onClick={event => { event.preventDefault(); navigate("/"); }}>Buildings</a>
+        <a className="active" href="/explore" aria-current="page" onClick={event => { event.preventDefault(); navigate(`/explore${location.search}`); }}>Explore</a>
         <a href={`/admin/${encodeURIComponent(selected.id)}`}>Workspace <ArrowUpRight size={13} /></a></nav>
       <a className="explore-library" href="/buildings"><Building2 size={16} /><span>All buildings</span></a>
     </header>
@@ -169,7 +170,7 @@ function Explorer({ catalog }: { catalog: CampusCatalog }) {
         <footer className="explore-rail-footer"><a href="https://www.geodaten.bayern.de/" target="_blank" rel="noreferrer">Aerial imagery © Bayerische Vermessungsverwaltung</a>
           <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a></footer>
       </aside>
-      <section className="explore-canvas" aria-label="Interactive campus map">
+      <section className={`explore-canvas ${stage === "globe" || flying ? "is-earth" : ""} ${inside ? "has-interior" : ""}`} aria-label="Interactive campus map" data-stage={stage}>
         <div className="explore-map" ref={container} />
         {photographic && !flying && stage !== "globe" && <Suspense fallback={<div className="explore-map-loading">Opening Google 3D…</div>}>
           <GoogleExterior building={selected} inside={inside} scene={document.data?.scene} gap={gap} floor={floor} room={room}
@@ -185,7 +186,8 @@ function Explorer({ catalog }: { catalog: CampusCatalog }) {
         {!ready && !notice && <div className="explore-map-loading"><LoaderCircle size={22} className="explore-spin" /><span>Loading the map…</span></div>}
         {stage === "globe" && ready && <div className="explore-globe-prompt"><Globe2 size={22} /><div><strong>A world of buildings.</strong><span>Choose a place. We’ll take you there.</span></div>
           <button onClick={() => choose(selected)} aria-label={`Fly to ${selected.label}`}><ArrowRight size={20} /></button></div>}
-        {flying && <div className="explore-journey" role="status"><span className="explore-journey-track"><i /></span><strong>{selected.label}</strong><span>{selected.address ?? "Following the map to your building"}</span></div>}
+        {flying && <div className="explore-journey" role="status"><span className="explore-journey-track"><i /></span><strong>{selected.label}</strong><span>{stage === "arriving" ? "Your building, coming to life." : selected.address ?? "Following the map to your building"}</span>
+          <button onClick={() => controller.current?.skipArrival()}>Skip arrival <ArrowRight size={14}/></button></div>}
         {notice && <div className="explore-notice" role="alert"><span>{notice}</span>{!ready && <button onClick={() => setRetry((value) => value + 1)}>Retry</button>}
           <button onClick={() => setNotice("")} aria-label="Dismiss notice"><X size={16} /></button></div>}
         {inside && document.isError && <div className="explore-notice" role="alert"><span>The indoor plan could not load. {document.error.message}</span>
@@ -201,8 +203,8 @@ function Explorer({ catalog }: { catalog: CampusCatalog }) {
         {room && <div className="explore-room-card"><button className="explore-room-close" aria-label="Close room details" onClick={() => setRoom(undefined)}><X size={16} /></button>
           <span>{levelName(room.level)}</span><strong>{room.name}</strong><small>Room {room.ref}</small>
           <a href={`/admin/${encodeURIComponent(selected.id)}`}>Explore in workspace <ArrowUpRight size={14} /></a></div>}
-        <div className="explore-view-tools"><button onClick={() => { setInside(false); controller.current?.globe(); }} disabled={!ready} title="Globe overview" aria-label="Globe overview"><Globe2 size={19} /></button>
-          <button onClick={() => photoVisible ? setPhotoReplay((value) => value + 1) : choose(selected)} disabled={!ready} title={inside && photoVisible ? "Refocus floors" : "Replay arrival"} aria-label={inside && photoVisible ? "Refocus floors" : "Replay arrival"}><RotateCcw size={18} /></button>
+        <div className="explore-view-tools"><button onClick={() => { setInside(false); setRoom(undefined); setFloor(null); controller.current?.globe(); }} disabled={!ready} title="Globe overview" aria-label="Globe overview"><Globe2 size={19} /></button>
+          <button onClick={() => photoVisible ? setPhotoReplay((value) => value + 1) : choose(selected, true)} disabled={!ready} title={inside && photoVisible ? "Refocus floors" : "Replay arrival"} aria-label={inside && photoVisible ? "Refocus floors" : "Replay arrival"}><RotateCcw size={18} /></button>
           <button onClick={() => photoVisible ? setPhotoTopDown((value) => value + 1) : controller.current?.topDown()} disabled={!ready} title="Toggle top-down view" aria-label="Toggle top-down view"><Layers3 size={19} /></button></div>
         {stage !== "globe" && !flying && <div className="explore-map-caption"><Navigation size={14} /><span>{inside ? "Inside your building" : selected.label}</span>
           <a href={selected.osmUrl} target="_blank" rel="noreferrer" aria-label="View building in OpenStreetMap"><ArrowUpRight size={14} /></a></div>}

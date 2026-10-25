@@ -1,6 +1,7 @@
 import type { BuildingScene } from "@locora/view";
 import { planToGeographic, type CampusBuilding } from "./geography";
 import { floorAltitude } from "./model-placement";
+import { buildingBearing } from "./earth-scene";
 
 /** Fit the actual footprint and visible floor heights into the space between map controls. */
 export function indoorCamera(building: CampusBuilding, scene: BuildingScene, gap: number,
@@ -19,7 +20,7 @@ export function indoorCamera(building: CampusBuilding, scene: BuildingScene, gap
   const heights = floors.map(f=>floorAltitude(f,scene.floors.indexOf(f),lowest,gap,focus));
   const bottom = Math.min(...heights), top = Math.max(...heights)+1.5;
   const altitude = (bottom+top)/2;
-  const tilt = focus ? 16 : 60, heading = focus ? 0 : 336;
+  const tilt = focus ? 16 : 60, heading = focus ? 0 : (buildingBearing(building.outline) + 360) % 360;
   const radians = Math.PI/180, pitch = tilt*radians, yaw = heading*radians;
   // Google's explicit 35-degree FOV. Leave space for the level rail and top/bottom controls.
   const tangent = Math.tan(17.5*radians), safeAspect = Math.max(.3,aspect);

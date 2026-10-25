@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 export type Page =
   | { name: "home" }
   | { name: "library" }
+  | { name: "explore" }
   | { name: "guide"; buildingId: string }
   | { name: "admin"; buildingId: string }
   | { name: "missing" };
@@ -12,6 +13,7 @@ export function parsePage(pathname: string): Page {
   const [first, second, ...rest] = pathname.split("/").filter(Boolean).map(decodeURIComponent);
   if (first === undefined) return { name: "home" };
   if (first === "buildings" && second === undefined) return { name: "library" };
+  if (first === "explore" && second === undefined) return { name: "explore" };
   if (second !== undefined && rest.length === 0) {
     if (first === "b") return { name: "guide", buildingId: second };
     if (first === "admin") return { name: "admin", buildingId: second };

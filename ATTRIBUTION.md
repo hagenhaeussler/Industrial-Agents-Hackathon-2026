@@ -10,3 +10,19 @@ Every building's `building.json` names its own source, licence and attribution, 
 | `procedural` | CC0 1.0 | Generated for the Munich hackathon | Everything is generated. |
 
 Furniture with `source: generated` comes from rules in `config/furniture_catalog.yaml`. Fixtures with `source: dataset` come from the original data.
+
+## Campus explorer map layers
+
+The optional geographic explorer at `/explore` uses these additional sources. Provider attribution
+remains visible in the map. These layers do not replace the per-building source and licence metadata.
+
+| Layer | Source and attribution | Licence / terms | Use |
+|---|---|---|---|
+| Photographic Earth | [Sentinel-2 cloudless](https://s2maps.eu) by EOX IT Services GmbH, containing modified Copernicus Sentinel data 2016 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Raster globe entrance; fades out at city scale. No tiles are committed. |
+| Vector campus basemap | [OpenFreeMap](https://openfreemap.org), OpenMapTiles, © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) | OSM-derived data under ODbL | Geographic context and schematic building extrusions. |
+| Bavarian aerial imagery | © [Bayerische Vermessungsverwaltung](https://geodaten.bayern.de/opengeodata/) | CC BY 4.0 | DOP20 WMS orthophoto, loaded from the public service. No imagery is committed. |
+| Optional photographic 3D | [Google Maps Platform](https://developers.google.com/maps/documentation/javascript/3d/overview) | Proprietary Google Maps Platform terms | Runtime browser-key mode with Google's required attribution. No Google imagery, tiles or credentials are committed. |
+
+The staged Earth-to-building interaction was informed by a separate Claude prototype. This branch
+implements the concept within the Locora explorer; it does not import that worktree's files or alter
+that worktree. Generated indoor models remain traceable to the source `building.json` and its licence.

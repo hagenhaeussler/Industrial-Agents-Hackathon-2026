@@ -54,7 +54,7 @@ export function GoogleExterior({ building, inside, scene, gap, floor, room, onRo
     try {
       const b = latest.current.building;
       map = new sdk.Map3DElement({ center: { lat: b.center[1], lng: b.center[0] }, range: exteriorCamera(b).range,
-        tilt: 56, heading: 336, fov:35, mode: "HYBRID", description: `Photorealistic exterior of ${b.label}` });
+        tilt: 56, heading: exteriorCamera(b).heading, fov:35, mode: "HYBRID", description: `Photorealistic exterior of ${b.label}` });
       mapRef.current = map;
       setGoogleMap(map);
       const steady = (event: Event) => {
@@ -107,7 +107,7 @@ export function GoogleExterior({ building, inside, scene, gap, floor, room, onRo
     catch { setStatus("key"); setMessage("Google could not load. Check your connection and key, then try again."); }
   };
 
-  return <div className="explore-google" aria-label="Photorealistic campus and floor model">
+  return <div className="explore-google" data-status={status} aria-label="Photorealistic campus and floor model">
     <div className="explore-google-map" ref={host} />
     {status === "key" && <div className="explore-google-setup"><form onSubmit={(event) => void connect(event)} autoComplete="off">
       <span className="explore-eyebrow">GOOGLE 3D · THIS TAB ONLY</span>

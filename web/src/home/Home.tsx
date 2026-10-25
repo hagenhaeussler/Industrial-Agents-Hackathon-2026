@@ -1,4 +1,4 @@
-import { ArrowLeft, Building2, ChevronRight, Monitor, Smartphone } from "lucide-react";
+import { Building2, ChevronRight, Globe2, Monitor, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useBuildings } from "../api/buildings";
 import { Avatar } from "../avatar/Avatar";
@@ -17,13 +17,19 @@ export function Home() {
   );
   return (
     <main className="mx-auto grid max-w-[720px] gap-6 px-5 py-10">
-      <a href="/" className="flex items-center gap-2 text-xs text-muted"><ArrowLeft size={14} /> Back to map</a>
-      <header className="flex items-center gap-4">
+      <header className="flex flex-wrap items-center gap-4">
         <Avatar phase="off" size={84} />
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-[30px] leading-tight font-[800] tracking-[-1.2px]">Locora</h1>
           <p className="mt-1 text-sm text-muted">Choose a building to explore, plan a route or send it to a phone.</p>
         </div>
+        <button
+          type="button"
+          onClick={() => navigate("/explore")}
+          className="flex items-center justify-center gap-2 rounded-[13px] bg-accent px-4 py-3 text-sm font-[750] text-ink sm:ml-auto"
+        >
+          <Globe2 size={17} /> Explore on globe
+        </button>
       </header>
       <input
         value={text}

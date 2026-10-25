@@ -4,10 +4,16 @@ One React app with these routes:
 
 | Route | For | What it does |
 |---|---|---|
-| `/` | Everyone | Globe, flight to a real OSM building, 3D campus and aerial imagery; calibrated CIT interior |
-| `/buildings` | Everyone | Full building list, including unlocated datasets |
+| `/` | Everyone | Existing Locora building list, including unlocated datasets; **Explore on globe** entry |
+| `/explore` | Everyone | Photographic Earth, flight to a real OSM building, 3D campus and aerial imagery; calibrated CIT interior |
+| `/buildings` | Everyone | Alias of the full building list |
 | `/b/:buildingId?from=…&to=…&step_free=1` | Phone, QR target | Map, step list or camera view, with the avatar and the voice assistant in every view |
 | `/admin/:buildingId` | Desktop | 3D building and floor plans, search, position by click, routes, QR code to a phone, team sidebar |
+
+Use `/explore?building=<id>` to fly to a catalogue building, with `&map=photo` for optional Google 3D.
+Legacy local preview links `/?building=<id>` still open the explorer; navigating to its canonical route
+keeps that explorer mounted. The illustrated collections branch (`t3/home-collections`, `b601c75`)
+is not included here; the small Home-header globe action can be reused in that UI independently.
 
 ## Run
 
@@ -45,6 +51,11 @@ app's origin in `VOICE_CORS_ORIGINS`.
 The map explorer and its data preparation, sources and limitations are described in
 [Campus explorer](../docs/campus-explorer.md). `web/public/maps/` ships with the web build. The aerial
 layer uses the public Bavarian DOP20 WMS; the campus basemap uses OpenFreeMap. These modes need no API key.
+The Earth entrance uses EOX Sentinel-2 cloudless imagery containing modified Copernicus Sentinel data
+2016 (CC BY 4.0). It rotates slowly, flies down to a top-down view and tilts while buildings rise. The
+globe treatment remains inside the existing Locora map UI. Later selections have a shorter flight;
+**Skip arrival** finishes immediately, and reduced-motion preferences disable rotation and the arrival
+animation. The real footprint determines the exterior camera angle in both MapLibre and Google.
 The optional **3D Photo** mode uses Google's Maps JavaScript API. Enter a restricted browser key or
 Demo Key in the on-screen password field. It is used only in the running tab; no environment file,
 repository file, browser storage or build artifact holds the key. A reload requires entering it again.

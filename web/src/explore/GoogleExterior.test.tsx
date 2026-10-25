@@ -32,6 +32,29 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe("Google exterior", () => {
+  it("reveals the Google scene only after a steady event and keeps it visible during later camera movement", () => {
+    render(<GoogleExterior building={building} inside={false} gap={6} floor={null} onRoom={vi.fn()} onEnter={vi.fn()} onCancel={vi.fn()} replay={0} topDown={0} />);
+    const scene = screen.getByLabelText("Photorealistic campus and floor model");
+    const map = document.querySelector("test-google-map")!;
+    expect(scene.getAttribute("data-status")).toBe("loading");
+    expect(screen.getByRole("status").textContent).toContain("Loading photographic 3D");
+
+    const moving = new Event("gmp-steadychange");
+    Object.assign(moving, { isSteady: false });
+    fireEvent(map, moving);
+    expect(scene.getAttribute("data-status")).toBe("loading");
+
+    const steady = new Event("gmp-steadychange");
+    Object.assign(steady, { isSteady: true });
+    fireEvent(map, steady);
+    expect(scene.getAttribute("data-status")).toBe("ready");
+    expect(screen.queryByRole("status")).toBeNull();
+
+    fireEvent(map, moving);
+    expect(scene.getAttribute("data-status")).toBe("ready");
+    expect(loadGoogle3d).not.toHaveBeenCalled();
+  });
+
   it("opens the matching floor plan with the current viewing direction, then preserves the exterior on return", () => {
     const onEnter = vi.fn(), onCancel = vi.fn();
     const props = {building,onEnter,onCancel,replay:0,topDown:0,gap:6,floor:null,onRoom:vi.fn()};
@@ -74,8 +97,10 @@ describe("Google exterior", () => {
     const cancel = vi.fn();
     render(<GoogleExterior building={building} inside={false} gap={6} floor={null} onRoom={vi.fn()} onEnter={vi.fn()} onCancel={cancel} replay={0} topDown={0} />);
     fireEvent(document.querySelector("test-google-map")!,new Event("gmp-error"));
+    expect(screen.getByLabelText("Photorealistic campus and floor model").getAttribute("data-status")).toBe("error");
     expect(screen.getByRole("alert").textContent).toContain("Google 3D is unavailable");
     fireEvent.click(screen.getByText("Use Campus")); expect(cancel).toHaveBeenCalledOnce();
+    expect(loadGoogle3d).not.toHaveBeenCalled();
   });
   it("hides Google labels, focuses floors and rooms, then restores the exterior on the same map",async()=>{
     const layer={show:vi.fn(),hide:vi.fn(),destroy:vi.fn()};

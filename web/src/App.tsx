@@ -17,7 +17,10 @@ export function App() {
       </Suspense>
     );
   }
-  if (page.name === "library") return <Home />;
-  if (page.name === "home") return <Suspense fallback={null}><CampusExplorer /></Suspense>;
+  // Keep the main app's home. Existing local preview links retain their running explorer/session.
+  if (page.name === "explore" || (page.name === "home" && query.has("building"))) {
+    return <Suspense fallback={<main className="grid min-h-svh place-items-center text-sm text-muted" role="status">Opening Earth…</main>}><CampusExplorer /></Suspense>;
+  }
+  if (page.name === "home" || page.name === "library") return <Home />;
   return <p className="grid h-svh place-items-center text-sm text-muted">This page does not exist.</p>;
 }
