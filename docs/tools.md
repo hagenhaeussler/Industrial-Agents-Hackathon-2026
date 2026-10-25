@@ -120,5 +120,5 @@ above against all train and dev answers, and that every labelled space is found 
 
 ## References
 
-- [README section 4](../README.md#4-questions): question kinds and the spatial definitions.
+- [Challenge kit section 4](challenge-kit.md#4-questions): question kinds and the spatial definitions.
 - [Shapely](https://github.com/shapely/shapely): polygon area, intersection, buffer and centroid.

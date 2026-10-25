@@ -36,7 +36,7 @@ These are responsibilities, not separate deployments or a requirement for one pa
 Use focused files and small interfaces as implementation needs become clear.
 
 The building tools use Shapely, backed by GEOS, for planar geometry and NetworkX for graph operations.
-Follow the route model in [README.md](README.md). Changing the geometric engine or its parameters
+Follow the route model in [docs/challenge-kit.md](docs/challenge-kit.md). Changing the geometric engine or its parameters
 requires a check against that model.
 
 ## Shared tools, separate agent hosts

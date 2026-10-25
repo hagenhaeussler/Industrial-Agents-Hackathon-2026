@@ -10,7 +10,7 @@
 ## Building data and calculations
 
 - `building.json` is the source for each building's geometry and equipment. Stored and derived data must remain traceable to it.
-- Follow the route model documented in `README.md` and the official rules in `benchmark/score.py`.
+- Follow the route model documented in `docs/challenge-kit.md` and the official rules in `benchmark/score.py`.
 - The language model interprets requests and selects tools. Tools calculate geometry, routes and numeric results.
 - Do not replace reliable logic with arbitrary heuristics or building-specific special cases. Do not hard-code building or entity IDs in application logic.
 - Handle missing or ambiguous information explicitly. Ask the user when it affects the answer. Do not add clarification steps to an already clear question.

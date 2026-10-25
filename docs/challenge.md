@@ -1,7 +1,7 @@
 # Organizer information
 
 Messages from the Synera track lead (Bhushan Kotnis) and the event organizer (Sid) in the hackathon channel,
-24–25 Oct 2026. They add to the kit README. Where they differ from the README, these messages are newer.
+24–25 Oct 2026. They add to the [kit README](challenge-kit.md). Where they differ from the README, these messages are newer.
 
 ## Deadline
 
