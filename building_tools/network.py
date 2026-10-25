@@ -15,7 +15,7 @@ from shapely.geometry import LineString, Polygon
 from shapely.ops import linemerge, nearest_points
 
 from building_db.source import OUTSIDE, Opening
-from building_tools.building import Building, ToolInputError
+from building_tools.building import Building, ToolInputError, normalize
 from building_tools.walks import Point2, Walk, space_walks
 
 STAIRS_M_PER_RISE = 2.0
@@ -89,9 +89,10 @@ class RouteNetwork:
         ]
         self.openings |= {opening.id: opening for opening in self.added_openings}
         self.check_closed()
-        no_pass_through = {room_type.casefold() for room_type in conditions.no_pass_through_room_types}
+        # Room types compare like everywhere else, so "production zone" matches "production_zone".
+        no_pass_through = {normalize(room_type) for room_type in conditions.no_pass_through_room_types}
         self.pass_through = {
-            space.id for space in building.document.spaces if space.room_type.casefold() not in no_pass_through
+            space.id for space in building.document.spaces if normalize(space.room_type) not in no_pass_through
         }
         self.leavable = self.pass_through | leavable
         """Spaces whose centre a walk may leave again: all but no-pass-through spaces, unless they are a start."""

@@ -11,7 +11,7 @@ from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, Tool
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from benchmark.score import score_reply
-from building_agent.agent import answer, load_from_directory
+from building_agent.agent import answer, load_from_directory, save_record
 from building_agent.answers import (
     CountAnswer,
     Failure,
@@ -102,6 +102,17 @@ class AgentTests(unittest.TestCase):
         self.assertTrue(format_reply(closed, self.building).endswith("Answer: No route exists under these rules."))
         self.assertEqual(answer_result(closed, self.building)["space_path"], [])
 
+    def test_unreachable_tour_lists_no_elements(self) -> None:
+        # The first leg is reachable, the second is not: the route as a whole has no path.
+        answer = RouteAnswer(
+            stops=["S-lift-1", "S-office", "S-lift-0"],
+            leg_conditions=[RouteConditions(), RouteConditions(closed=["O-door"])],
+            explanation="x",
+        )
+        result = answer_result(answer, self.building)
+        self.assertFalse(result["reachable"])
+        self.assertEqual((result["space_path"], result["element_path"]), ([], []))
+
     def test_route_with_unknown_ids_is_sent_back_for_repair(self) -> None:
         def model(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
             retried = any(
@@ -179,6 +190,12 @@ class AgentTests(unittest.TestCase):
         reply = answer(self.building_directory, QUESTION, model=FunctionModel(model))
         self.assertIn("already called with these arguments", reply)
 
+    def test_runs_of_the_same_question_keep_separate_records(self) -> None:
+        # The same question text about two buildings, saved in the same second.
+        for building_id in ("A", "B"):
+            save_record(self.root / "runs", {"question": QUESTION, "building_id": building_id, "reply": "x"})
+        self.assertEqual(sorted(record["building_id"] for record in self.run_records()), ["A", "B"])
+
     def test_stopped_run_is_an_explicit_failure(self) -> None:
         def endless(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
             return ModelResponse(parts=[ToolCallPart("building_overview", {})])
@@ -209,6 +226,9 @@ class SubmissionTests(unittest.TestCase):
         self.assertEqual(self.read('{"Q1": {"text": "Where is the kitchen?"}}'), expected)
         self.assertEqual(self.read('{"Q1": "Where is the kitchen?"}'), expected)
         self.assertEqual(self.read('{"id": "Q1", "question": "Where is the kitchen?"}\n'), expected)
+
+    def test_numeric_ids_are_read_as_text_also_zero(self) -> None:
+        self.assertEqual(self.read('[{"id": 0, "text": "A?"}, {"id": 1, "text": "B?"}]'), [("0", "A?"), ("1", "B?")])
 
     def test_constraints_reach_the_agent_as_text(self) -> None:
         ((_, text),) = self.read('[{"id": "Q1", "text": "Route to A?", "constraints": {"step_free": true}}]')

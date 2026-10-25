@@ -8,6 +8,7 @@ from pathlib import Path
 
 from shapely.geometry import Polygon
 
+from building_db.source import BuildingDocument
 from building_db.store import connect, import_building
 from building_tools.building import Building, ToolInputError, load
 from building_tools.lookup import find_spaces
@@ -104,6 +105,17 @@ class FixtureRouteTests(unittest.TestCase):
     def test_rooms_without_a_pass_through_can_still_be_reached(self) -> None:
         conditions = RouteConditions(no_pass_through_room_types=["lift"])
         result = reachable_spaces(self.building, "S-office", conditions)
+        self.assertEqual([match.space.id for match in result.spaces], ["S-office", "S-lift-0"])
+
+    def test_room_types_without_a_pass_through_match_in_plain_words(self) -> None:
+        content = fixture_with_second_wing()
+        for space in content["spaces"]:
+            if space["type"] == "lift":
+                space["room_type"] = "lift_shaft"
+        document = BuildingDocument.model_validate_json(json.dumps(content))
+        building = Building(document, {space.id: Polygon(space.polygon).area for space in document.spaces})
+        conditions = RouteConditions(no_pass_through_room_types=["Lift shaft"])
+        result = reachable_spaces(building, "S-office", conditions)
         self.assertEqual([match.space.id for match in result.spaces], ["S-office", "S-lift-0"])
 
     def test_exit_changes_report_lost_ways_out_and_refuse_doors_without_a_wall(self) -> None:

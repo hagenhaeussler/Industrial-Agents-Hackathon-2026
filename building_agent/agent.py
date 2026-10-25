@@ -12,6 +12,7 @@ from decimal import Decimal
 from hashlib import sha1
 from pathlib import Path
 from typing import get_args
+from uuid import uuid4
 
 from dotenv import load_dotenv
 from pydantic_ai import Agent, ModelRetry, RunContext, ToolFailed, ToolOutput, capture_run_messages
@@ -207,5 +208,7 @@ def usage_of(messages: list[ModelMessage]) -> dict:
 def save_record(directory: Path, record: dict) -> None:
     """Keep each run's question, tool calls, usage and reply, so failures can be inspected."""
     directory.mkdir(parents=True, exist_ok=True)
-    name = f"{time.strftime('%Y%m%d-%H%M%S')}-{sha1(record['question'].encode()).hexdigest()[:12]}.json"
+    # Parallel runs of the same question text can end in the same second, so a random part keeps names unique.
+    question = sha1(record["question"].encode()).hexdigest()[:12]
+    name = f"{time.strftime('%Y%m%d-%H%M%S')}-{question}-{uuid4().hex[:8]}.json"
     (directory / name).write_text(json.dumps(record, indent=2, ensure_ascii=False))
