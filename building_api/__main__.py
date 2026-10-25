@@ -8,6 +8,7 @@ from pathlib import Path
 import uvicorn
 
 from building_api.app import create_app
+from building_api.localize import Localization
 from building_api.web import add_web_app
 
 
@@ -29,7 +30,8 @@ def main() -> None:
         return
     if not args.database.is_file():
         sys.exit(f"building database {args.database} does not exist")
-    app = create_app(args.database)
+    # LOCALIZATION_URL and LOCALIZATION_TOKEN switch on the camera localization route.
+    app = create_app(args.database, Localization.from_environment())
     if args.web:
         add_web_app(app, args.web)
     uvicorn.run(app, host=args.host, port=args.port)

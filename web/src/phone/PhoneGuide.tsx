@@ -3,6 +3,7 @@ import { ConversationProvider } from "@elevenlabs/react";
 import { Accessibility, MapPin, Search, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useBuilding, useRoute, type RouteRequest } from "../api/buildings";
+import type { Fix } from "../camera/localize";
 import { navigate } from "../router";
 import { directions, type Step } from "../route/directions";
 import { guidePath, readGuideLink } from "../route/link";
@@ -59,6 +60,7 @@ function Guide({
   const [stepIndex, setStepIndex] = useState(0);
   const [picker, setPicker] = useState<"from" | "to">();
   const [panel, setPanel] = useState<"chat" | "settings">();
+  const [fix, setFix] = useState<Fix>();
   const step: Step | undefined = steps[Math.min(stepIndex, steps.length - 1)];
 
   useEffect(() => {
@@ -86,13 +88,24 @@ function Guide({
     setViewFloor(step?.at.floor_id ?? startFloor);
   }, [step, startFloor]);
 
+  // A camera position counts while the camera view is open. Elsewhere the confirmed step marks the position.
+  const located = mode === "camera" ? fix : undefined;
+  const marker: Overlay["position"] = located
+    ? { floorId: located.floorId, x: located.x, y: located.y, headingDeg: located.headingDeg }
+    : step && toFloorPoint(step.at);
+  const onFix = (next: Fix) => {
+    setFix(next);
+    // A new room becomes the start, so the route is planned again from where the camera says you are.
+    if (next.spaceId !== link.from) update({ stops: [next.spaceId, ...link.to] });
+  };
+
   const overlay: Overlay = useMemo(
     () => ({
       route: route.data?.path.map(toFloorPoint),
-      position: step ? toFloorPoint(step.at) : undefined,
+      position: marker,
       highlightIds: destinationId ? [destinationId] : [],
     }),
-    [route.data, step, destinationId],
+    [route.data, marker?.floorId, marker?.x, marker?.y, marker?.headingDeg, destinationId],
   );
 
   return (
@@ -107,7 +120,7 @@ function Guide({
           className="absolute inset-0 -z-10 bg-paper"
         />
       )}
-      {mode === "camera" && <CameraLayer turn={step?.turn} />}
+      {mode === "camera" && <CameraLayer turn={step?.turn} buildingId={buildingId} onFix={onFix} />}
       {mode === "steps" && (
         <StepList steps={steps} current={stepIndex} onSelect={setStepIndex} empty={!request} />
       )}
@@ -149,7 +162,7 @@ function Guide({
           {mode === "map" && scene.floors.length > 1 && (
             <FloorDots scene={scene} floorId={viewFloor} onChange={setViewFloor} />
           )}
-          {mode === "camera" && step && (
+          {mode === "camera" && marker && (
             <button
               type="button"
               onClick={() => setMode("map")}
@@ -158,10 +171,10 @@ function Guide({
             >
               <FloorPlanView
                 scene={scene}
-                floorId={step.at.floor_id}
+                floorId={marker.floorId}
                 overlay={overlay}
                 options={{ interactive: false, labels: false, assets: false }}
-                focus={{ x: step.at.x, y: step.at.y, width: 28 }}
+                focus={{ x: marker.x, y: marker.y, width: 28 }}
                 className="size-full rounded-[9px] bg-paper"
               />
             </button>
@@ -335,8 +348,11 @@ function GuideSettings({
       </button>
       <section className="mt-2 grid gap-1.5 text-xs leading-relaxed text-muted">
         <h3 className="font-[750] text-ink">About this guide</h3>
-        <p>Your position comes from the QR code or from the steps you confirm. The guide does not track you.</p>
-        <p>The camera view draws the next turn over your camera image. The image stays on your phone.</p>
+        <p>Your position comes from the QR code, the steps you confirm, or the camera view.</p>
+        <p>
+          In the camera view, the guide sends a still image about once per second to the localization server to find
+          your position. Images are not stored.
+        </p>
         <p>Routes and answers come from the building data. The assistant talks about this building only.</p>
       </section>
     </div>
