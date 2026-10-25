@@ -62,6 +62,8 @@ function VoiceDemo() {
     const text = draft.trim();
     if (!text) return;
     conversation.sendUserMessage(text);
+    // Typed messages do not come back through onMessage, so add them to the transcript here.
+    setEntries((current) => [...current, { key: `typed-${crypto.randomUUID()}`, kind: "message", role: "user", text }]);
     setDraft("");
   }
 
