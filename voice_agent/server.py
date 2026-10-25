@@ -7,7 +7,7 @@ from elevenlabs import ElevenLabs
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.routing import Route
+from starlette.routing import Mount, Route
 
 from voice_agent.settings import VoiceSettings, require_agent_id
 
@@ -23,7 +23,9 @@ def elevenlabs_token_source(settings: VoiceSettings) -> TokenSource:
     return lambda: client.conversational_ai.conversations.get_webrtc_token(agent_id=agent_id).token
 
 
-def create_app(token_source: TokenSource) -> Starlette:
+def create_app(token_source: TokenSource, tools: Starlette | None = None) -> Starlette:
+    """`tools` is the MCP app from `voice_agent.tools`; it serves its own path and lifespan."""
+
     def conversation_token(request: Request) -> JSONResponse:
         try:
             token = token_source()
@@ -33,4 +35,7 @@ def create_app(token_source: TokenSource) -> Starlette:
             return JSONResponse({"error": "Could not start a voice conversation."}, status_code=502)
         return JSONResponse({"token": token}, headers={"Cache-Control": "no-store"})
 
-    return Starlette(routes=[Route("/api/voice/token", conversation_token, methods=["GET"])])
+    routes: list[Route | Mount] = [Route("/api/voice/token", conversation_token, methods=["GET"])]
+    if tools is None:
+        return Starlette(routes=routes)
+    return Starlette(routes=[*routes, Mount("/", app=tools)], lifespan=tools.router.lifespan_context)

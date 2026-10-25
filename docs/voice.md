@@ -1,29 +1,30 @@
 # Voice agent
 
-Status: the ElevenLabs agent definition, the token server and a minimal test page exist. The building tools
-are not connected yet. They follow when the shared MCP server is committed.
+Status: the agent runs at ElevenLabs and answers from the building tools. The voice server is deployed on Railway
+with one demo building. A minimal test page starts conversations.
 
 ## What it does
 
 The voice agent answers spoken questions about one building. It does not change buildings or control the app.
 ElevenLabs runs speech recognition, the language model and speech output. Our server only issues conversation
-tokens and, later, serves the building tools over MCP. The benchmark agent is separate and unaffected.
+tokens and serves the building tools over MCP. The benchmark agent is separate and unaffected.
 
 ```mermaid
 flowchart LR
   UI["Test page<br/>web/voice-demo"] -- "1. GET /api/voice/token" --> Server["voice_agent server"]
   Server -- "API key" --> EL["ElevenLabs agent<br/>speech + LLM"]
   UI <-- "2. WebRTC audio" --> EL
-  EL -. "3. MCP tool calls (planned)" .-> Server
+  EL -- "3. MCP tool calls, bearer token" --> Server
 ```
 
 ## Files
 
 | Path | Owns |
 |---|---|
-| `voice_agent/agent.py` | The agent's settings: model, backup model, language, authentication. Source of truth. |
+| `voice_agent/agent.py` | The agent's settings and the MCP integration, with `sync`. Source of truth. |
 | `voice_agent/prompt.md` | The agent's system prompt |
-| `voice_agent/server.py` | Starlette app with the token route |
+| `voice_agent/server.py` | Starlette app: token route, with the tools mounted under `/mcp` |
+| `voice_agent/tools.py` | Loads the building, adapts tool schemas for ElevenLabs, checks the bearer token |
 | `voice_agent/settings.py` | Environment settings |
 | `web/voice-demo/` | Test page: start and end a conversation, transcript, tool calls, typed messages |
 
@@ -44,13 +45,16 @@ dashboard are overwritten by the next sync.
 
 ## Run the demo
 
-1. Put `ELEVENLABS_API_KEY` in `.env`.
-2. Create the agent: `uv run python -m voice_agent sync`. Add the printed `ELEVENLABS_AGENT_ID` to `.env`.
-3. Start the server: `uv run python -m voice_agent serve`.
-4. Start the page: `cd web/voice-demo && pnpm install && pnpm dev`, then open the printed URL.
+1. Put `ELEVENLABS_API_KEY` and `BUILDING_MCP_TOKEN` (`openssl rand -hex 32`) in `.env`.
+2. Deploy the server (see below), then create or update the agent:
+   `uv run python -m voice_agent sync --mcp-url https://voice-agent-production-653b.up.railway.app/mcp`.
+   On first run, add the printed `ELEVENLABS_AGENT_ID` to `.env`.
+3. Start the page against the deployed server:
+   `cd web/voice-demo && pnpm install && VOICE_SERVER=https://voice-agent-production-653b.up.railway.app pnpm dev`.
 
-To use the deployed server instead of step 3, start the page with
-`VOICE_SERVER=https://voice-agent-production-653b.up.railway.app pnpm dev`.
+ElevenLabs calls the tools at the URL given to `sync`, so the tools answer from the deployed building. A local
+`uv run python -m voice_agent serve data/dev/<id>/building.json` only issues tokens for the page; ElevenLabs
+cannot reach it.
 
 ## Deployment
 
@@ -59,26 +63,35 @@ To use the deployed server instead of step 3, start the page with
 | Railway project, service, environment | `talk-to-your-building`, `voice-agent`, `production` |
 | Public URL | https://voice-agent-production-653b.up.railway.app |
 | Build | `voice_agent/Dockerfile`, selected by the service variable `RAILWAY_DOCKERFILE_PATH` |
-| Secrets | `ELEVENLABS_API_KEY` and `ELEVENLABS_AGENT_ID` as Railway service variables |
+| Demo building | `proc-factory-dev-003` ("Fertigung Ost 27"), the `BUILDING` build argument in the Dockerfile |
+| Secrets | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` and `BUILDING_MCP_TOKEN` as Railway service variables |
 | Deploy | `railway up` from the repository root, linked to the service |
 
-`.railwayignore` keeps `data/`, `benchmark/`, tests, the web app and `.env` out of the upload, so evaluation
-questions and answers never reach Railway. The image itself contains only the locked dependencies and `voice_agent`.
-The ElevenLabs API key needs only the ElevenAgents Write permission.
+`.railwayignore` uploads only the `building.json` files from `data/` and leaves out `benchmark/`, `SUBMISSION/`,
+tests, the web app and `.env`, so evaluation questions and answers never reach Railway. The image contains the
+locked dependencies, `building_db`, `building_tools`, `voice_agent` and one `building.json`.
 
-## Building tools, next step
+The ElevenLabs API key needs only the ElevenAgents Write permission. MCP was enabled once for the workspace with
+`can_use_mcp_servers`. The MCP token is stored as the ElevenLabs workspace secret `building-mcp-authorization`.
 
-The agent will reach the building tools from the shared FastMCP server in `building_tools`. Plan:
+## Building tools
 
-- The voice server mounts the MCP server under `/mcp` for one building, chosen by a command line argument
-  at start. No building is configured in `.env` or in code.
-- The endpoint is public because ElevenLabs calls it from the internet, so it rejects requests without the
-  bearer token. The token is sent as an `Authorization` header in the ElevenLabs MCP integration.
+The agent uses the shared FastMCP server from `building_tools` for one building.
+
+- `serve` takes the building as a command line argument. No building is configured in `.env` or in code.
+- The endpoint is public because ElevenLabs calls it from the internet. It rejects requests without the bearer
+  token. ElevenLabs sends the token in an `Authorization` header that reads the workspace secret.
 - The tools only read, so they run without approval prompts (`approval_policy: auto_approve_all`).
 - `sync` registers the MCP integration and attaches it to the agent. ElevenLabs cannot change an integration's
   URL, so `sync` replaces the integration when the public URL changes.
-- The Railway URL is the public MCP endpoint. The demo building's `building.json` must be added to the image
-  explicitly, because `data/` is excluded from the upload.
+- The server is stateless, so a redeploy does not break running conversations.
+
+ElevenLabs silently drops tools whose parameters contain objects. The shared server passes route rules as a
+`RouteConditions` object, so ElevenLabs showed only 6 of 9 tools. `voice_agent/tools.py` therefore gives `route`
+and `reachable_spaces` flat parameters (`step_free`, `min_door_width_m`, `closed`, `no_pass_through_room_types`)
+and builds `RouteConditions` from them. The calculation stays in `building_tools`. Two things are not available
+by voice: per-leg conditions and added doors, and with them `exit_distance_change`, which answers benchmark
+what-if questions. A test fails if a tool schema with objects reaches ElevenLabs again.
 
 ## Later, for the real UI
 
