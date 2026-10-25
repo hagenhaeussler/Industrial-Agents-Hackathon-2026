@@ -73,6 +73,7 @@ validation and authority. Do not add placeholder write tools or allow raw SQL, s
 ## Structured output and formatting
 
 Our agent returns structured output. A deterministic formatter writes the benchmark `Answer:` line from it.
+These answer shapes apply only to benchmark submissions. The ElevenLabs conversational agent answers freely.
 The nine benchmark kinds need only three answer shapes, plus failure:
 
 | Shape | Fields | `Answer:` line | Kinds |
