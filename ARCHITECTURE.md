@@ -2,7 +2,7 @@
 
 Status: the evaluator, the building database, nine building tools with the route model, their MCP server and
 the benchmark agent exist. The agent answers all 138 dev questions. The benchmark submission is in `SUBMISSION/`.
-The web application is planned. Organizer rules and the submission format are in
+The read-only building API and the 2D and 3D building views exist. The web application is planned. Organizer rules and the submission format are in
 [docs/challenge.md](docs/challenge.md).
 
 ## Confirmed direction
