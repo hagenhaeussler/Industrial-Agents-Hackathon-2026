@@ -1,7 +1,8 @@
 # Track 01: rewrite baseline
 
 This branch starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
-at commit `dc03c44`. It contains building data and evaluation tools. No application or agent is implemented yet.
+at commit `dc03c44`. It contains building data, the evaluator and the building database. No agent or application
+is implemented yet.
 
 The starter agent, PNG and SVG plan exports, duplicate equipment tables, duplicate test-question table,
 and student-kit marker have been removed. `building.json` is the source for each building's geometry and
@@ -9,17 +10,16 @@ equipment. The backend will use Python and SQLite. The frontend will use TypeScr
 
 ## Project guide
 
-Only the evaluator is implemented. The database importer, building tools, agent harness and web application
-are planned. These documents separate confirmed requirements from proposals:
+The evaluator and the building database are implemented. Building tools, the agent and the web application
+are planned. These documents describe the decisions and the current state:
 
 - [AGENTS.md](AGENTS.md): working rules and evaluation-data isolation.
 - [ARCHITECTURE.md](ARCHITECTURE.md): responsibilities, shared tools and implementation order.
-- [docs/db.md](docs/db.md): SQLite storage, derived facts and the import workflow.
-- [docs/agent.md](docs/agent.md): harness requirements, model configuration and output options.
+- [docs/db.md](docs/db.md): SQLite schema, stored room areas, import and verification.
+- [docs/agent.md](docs/agent.md): harness, MCP tools, model configuration and output design.
 
-Start with the database. Its first implementation must document database setup, migrations, import and
-verification commands here. Those commands do not exist yet. The agent follows once the data interface
-and its checks are ready.
+Import buildings into a SQLite file with `uv run python -m building_db import DATABASE BUILDING_JSON...`.
+See section 5 and [docs/db.md](docs/db.md). The agent and its tools build on this database next.
 
 `.env.example` records the planned model setting, `BUILDING_AGENT_MODEL=anthropic:claude-sonnet-5-5`.
 The agent will read this setting when it is implemented. The current evaluator does not consume it.
@@ -70,10 +70,11 @@ Shortly before code freeze on Sunday, a new, unseen building is released, and yo
 README.md                  this file
 CHANGELOG.md               what changed between kit versions (1.1.0: stair and lift costs)
 ATTRIBUTION.md             data sources and licences (read before you share anything)
-pyproject.toml             Python package and dependencies for evaluation
+pyproject.toml             Python package and dependencies
+building_db/               SQLite schema, building.json validation, import and read-back
 .env.example               example Anthropic credentials, if your agent uses them
 benchmark/                 score.py (the official scorer) and evaluate.py (runs an agent, writes the submission)
-tests/                     offline evaluator checks
+tests/                     offline evaluator and database checks
 data/
   manifest.csv             one row per building: split, source, licence, size, lifts, stairs, ...
   train/<building_id>/     200 buildings: geometry, equipment and questions with answers
@@ -232,12 +233,19 @@ The answers are well defined. The right room always beats the runner-up by a cle
 
 ## 5. Quick start
 
-You need Python 3.12+ and [uv](https://docs.astral.sh/uv/) (or pip) for the evaluator.
+You need Python 3.12+ and [uv](https://docs.astral.sh/uv/) (or pip).
 
 ```bash
 uv sync
 uv run python -m benchmark.evaluate --help
 uv run python -m unittest discover -s tests -v
+```
+
+Import buildings into a local database. The file is created if it is missing and is ignored by Git:
+
+```bash
+uv run python -m building_db import buildings.sqlite3 data/dev/osm-way22744230/building.json
+uv run python -m building_db import buildings.sqlite3 data/*/*/building.json
 ```
 
 No agent is included. Once you have implemented an agent module, measure it on **dev** before the test set:

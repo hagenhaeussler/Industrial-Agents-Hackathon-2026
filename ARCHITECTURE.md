@@ -1,6 +1,6 @@
 # Rewrite architecture
 
-Status: requirements and proposals. Only the evaluator exists today.
+Status: the evaluator and the building database exist. Tools, agent and web application are planned.
 
 ## Confirmed direction
 
@@ -10,6 +10,9 @@ Status: requirements and proposals. Only the evaluator exists today.
 - Adopt an existing agent harness. Do not build a custom model/tool execution loop.
 - Start with Claude Sonnet 5.5, selected through `BUILDING_AGENT_MODEL`. Write agent prompts in English.
 - Start with read-only agent tools. Keep later write operations possible without implementing them now.
+- Store derived room areas as `STORED` generated columns. See [docs/db.md](docs/db.md).
+- Use PydanticAI as the agent harness. Serve the building tools from one MCP server.
+- The agent returns structured output. A deterministic formatter writes the benchmark `Answer:` line.
 
 ## Responsibilities
 
@@ -30,17 +33,18 @@ requires a check against that model.
 
 ## Shared tools, separate agent hosts
 
-Keep one implementation of each building tool. Our harness calls it through Python registration.
-An ElevenLabs managed agent can call the same implementation through a thin HTTP tool adapter.
-FastAPI is the current candidate for that adapter.
+Keep one implementation of each building tool and publish it through one MCP server.
 
-ElevenLabs can own its conversational loop. Its requests need not pass through our own language model.
-Our own agent remains the initial benchmark entry point and can also serve later text conversations.
-Choose the user-facing conversation host when that feature starts.
+- Our benchmark agent (PydanticAI) uses the server in the same process. No network or token is involved.
+- The ElevenLabs conversational agent behind the later frontend connects to the same server over Streamable
+  HTTP. Because that endpoint is reachable from the internet, it requires a secret bearer token.
 
-Each adapter must preserve argument validation, units, entity identities, result meaning and failure behavior.
-Provider-specific schema conversion belongs in the adapter. Do not promise identical conversations from
-different hosts merely because their tools match.
+ElevenLabs owns its conversational loop. Its requests do not pass through our own agent. Our agent is the
+benchmark entry point. Same tools do not guarantee the same answer quality, so each host needs its own
+end-to-end checks.
+
+The MCP layer only translates. Argument validation, units, entity identities, result meaning and failure
+behavior belong to the tool implementation, so both hosts get the same behavior.
 
 ## Context and data isolation
 
@@ -58,19 +62,16 @@ validated operations rather than unrestricted file access, SQL or code execution
 
 ## Output and conversation
 
-Structured output is the first proposal for the own agent's final result. The harness validates it and
-can return validation errors to the model for repair. Schema validity does not prove numerical correctness.
-Results must remain tied to tool calculations.
-
-A small deterministic formatter is recommended for the benchmark's exact `Answer:` line. It converts a
-validated result to the required text; it does not interpret the question or calculate an answer. Conversation
-text and the benchmark line can use the same result. This output design is proposed, not implemented.
+Our agent's final result is structured output with a small set of answer shapes. The harness validates it and
+returns validation errors to the model for repair. A deterministic formatter turns the validated result into the
+benchmark `Answer:` line. It does not interpret the question or calculate anything. Schema validity does not
+prove numerical correctness; values must come from tool results. Details are in [docs/agent.md](docs/agent.md).
 
 ## Next implementation steps
 
-1. Agree on the first data interface and implement validated SQLite import and read access.
-2. Verify import fidelity, isolation and derived facts. Document the real commands in README.md.
-3. Adopt the harness and connect the first useful tools. Run one full question through the real evaluator.
+1. Done: validated SQLite import and read-back, with stored room areas.
+2. Design the first building tools and the MCP server over the database.
+3. Adopt PydanticAI with the answer shapes and formatter. Run one full question through the real evaluator.
 4. Expand tool coverage and evaluate on dev before adding the web application.
 
 The database details are in [docs/db.md](docs/db.md). Harness and output requirements are in

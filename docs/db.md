@@ -1,90 +1,105 @@
 # Building database
 
-Status: requirements and design options. No database schema or importer is implemented yet.
+Status: schema, validated import and full read-back are implemented in `building_db/`.
+Agent read tools and write operations are not implemented yet.
 
 ## Purpose and source
 
-Use SQLite to store and query building data. `building.json` is the import source for geometry and equipment.
-Preserve source IDs, units, coordinates, floor relationships, openings, vertical connectors, assets and attribution.
-Derived facts must be reproducible from that source.
+SQLite stores the building data. `building.json` is the only import source. Every row keeps its source ID,
+units, coordinates and references, so a stored building reads back unchanged.
 
-Import only building data. Do not load question files, expected answers, generator inputs or submissions into
-the runtime database. The agent must not be able to obtain these through any tool.
+Only building data is imported. Question files, expected answers, generator inputs and submissions never enter
+the database. The importer accepts only files named `building.json`. The agent must not reach evaluation data
+through any tool.
 
-The exact table layout and access library are open. Decide which entities need indexed queries before choosing
-between relational fields and JSON storage. Do not add an object-relational mapper solely for future flexibility.
+## Layout
+
+The schema is in [building_db/schema.sql](../building_db/schema.sql). All tables are `STRICT`.
+
+| Table | Content |
+|---|---|
+| `buildings` | Building metadata, content hash, source path and calculation version |
+| `floors` | Level, name, elevation and height. Levels are unique per building. |
+| `spaces` | Type, room type, name, ref, polygon as JSON and the stored `area_m2` |
+| `openings` | Kind, both sides, position, width and step-free flag |
+| `vertical_connectors` | Stairs and lifts |
+| `connector_stops` | One row per floor a stair or lift serves, in source order |
+| `assets` | Equipment with space, position and footprint |
+
+Entity IDs are unique per building, so primary keys pair them with `building_id`. Foreign keys enforce floor and
+space references. An entrance's outer side is the literal `"outside"`, so the importer checks opening sides
+instead of a foreign key. Fields the agent will filter on are columns. Polygons stay JSON because they are
+always read whole.
 
 ## Derived facts
 
-Room area comes from the room polygon. Width times length is only correct for a rectangle. Use the same
-validated geometry and repair policy as the building calculations. Never silently replace a failed calculation
-with a rectangle estimate or zero.
+`spaces.area_m2` is a `STORED` generated column: `polygon_area(polygon)`. `polygon_area` uses Shapely (GEOS)
+on the full polygon, so irregular rooms get their exact area. `building_db.store.connect` registers the function
+as deterministic.
 
-Shapely uses GEOS for these operations. Area is measured in square metres because the source coordinates
-are in metres. Validate coordinates and polygon validity during import. Reject invalid geometry with an
-actionable report unless an explicit repair policy has been agreed.
+Why `STORED` and not `VIRTUAL`: both recompute automatically when a polygon changes. `STORED` computes once
+per write, `VIRTUAL` on every read. In a test, ten area sums over 20,000 rooms took 0.004 s with `STORED` and
+1.07 s with `VIRTUAL`. A `STORED` value can also be read by any SQLite client. A `VIRTUAL` read fails without
+the registered function.
 
-SQLite generated columns are an option for row-local facts:
+Consequences of this choice:
 
-- `STORED` values are calculated when the row is written and stored in the database.
-- `VIRTUAL` values are calculated when read.
-- A generated expression can use deterministic scalar functions and fields from the same row.
-- It cannot use aggregate functions or subqueries to read other rooms.
+- Generated columns see only their own row. Totals across rooms, such as all offices on a floor, are queries.
+  A sum of space areas and the area of their geometric union are different operations.
+- If `polygon_area` changes, bump `CALCULATION_VERSION` in `building_db/store.py` and rewrite the stored values.
+- SQLite cannot add a `STORED` column with `ALTER TABLE`. A new derived column needs a table rebuild migration.
 
-A deterministic Python polygon-area function can therefore support a generated room-area column. Register
-the function through every application connection that needs it. Its behavior must be stable for the database's
-calculation version. Stored values need an explicit recomputation plan if the geometry algorithm changes.
+Request-dependent results stay out of the database. Route constraints, closures, target choices and what-if
+changes belong to tool requests. A later cache of graphs or geometry needs a key that includes the building
+content hash and the calculation version.
 
-A small isolated SQLite/Shapely check confirmed that a stored generated area handles an L-shaped polygon
-and updates when its polygon changes. This proves the mechanism, not a production schema or migration policy.
+## Import
 
-Recommendation: prototype a stored generated room-area column during the first database step. Compare it
-with an ordinary derived column maintained by the import/write transaction. Choose after checking connection
-setup, migrations and future updates. Neither option is implemented or final yet.
+```bash
+uv run python -m building_db import buildings.sqlite3 data/dev/osm-way22744230/building.json
+```
 
-## Aggregates and caches
+The command creates the database file if it is missing and prints one status line per file. It exits with 1
+if any file failed or conflicted. Pass several `building.json` paths to import several buildings, for example
+`data/*/*/building.json`.
 
-Compute area totals across rooms through a query or view over room areas. Define the filter explicitly:
-for example, offices on one floor. A sum of selected space areas and the area of their geometric union are
-different operations. Do not expose an ambiguous `floor_area` field without its meaning.
+| Status | Meaning |
+|---|---|
+| `imported` | Validated and stored in one transaction |
+| `unchanged` | A building with this ID and the same content is already stored |
+| `conflict` | A building with this ID but different content is stored. Nothing is overwritten. |
+| `failed` | The file was rejected. The message lists every problem found. Nothing is stored. |
 
-Keep reusable facts separate from request-dependent calculations. Route constraints, closures, target choices
-and what-if changes belong to tool requests. A cached graph or geometry must use a key that includes the
-building content or revision and the calculation version. A later edit must invalidate affected derived data.
+Validation rejects unknown fields, wrong types, non-finite numbers, duplicate IDs or floor levels, broken
+references, a space reference on the wrong floor, entrances without exactly one `"outside"` side, and invalid
+polygons. There is no automatic polygon repair. All 280 kit buildings pass.
 
-## Import workflow
+Content identity is a SHA-256 hash of the JSON content, independent of whitespace and key order. Replacing a
+stored building with changed content is not implemented. Until then, delete the database file and import again.
 
-The first importer must support both the existing dataset and later buildings in the same format:
+## Read access
 
-1. Accept an explicit input path and select only `building.json` files. Never bulk-ingest neighboring files.
-2. Validate structure, numeric values, references, IDs, units and geometry before making the building available.
-3. Insert a building and its dependent records atomically. A failed building import leaves no partial building.
-4. Record source provenance, content identity and calculation version with the import result.
-5. Return a report of imported, unchanged, conflicting and failed buildings with useful errors.
+`building_db.store.load_building(connection, building_id)` returns the stored building as a validated
+`BuildingDocument` in the source format. Each list is ordered by entity ID. Agent tools will build on this and on
+targeted queries. Agent access is read-only. Import is a separate operator action. Later write operations must
+use the same validation and must not expose raw SQL to the agent.
 
-Repeated import of unchanged content should be safe. A source ID with changed content needs an explicit
-replacement policy. Do not silently overwrite it. Dataset-wide all-or-nothing behavior versus per-building
-transactions remains an implementation decision.
+## Verification
 
-Agent access starts read-only. Import is a separate operator action. Later write operations must use the same
-validation and derived-data rules; future write access does not require exposing arbitrary SQL to the agent.
+`tests/test_building_db.py` checks:
 
-## Verification and documentation
+- A dev building reads back equal to its source.
+- Stored areas match the dev answers for `largest_room` and `floor_area_total`. The answers serve only as an
+  independent check.
+- The area follows a polygon change and is readable without the registered function.
+- Re-import of unchanged content is safe and changed content is not overwritten.
+- Invalid buildings are rejected with reasons and leave no rows.
 
-Test source-to-storage fidelity, references, idempotent imports, conflicts and failure rollback. Cover irregular
-polygons and derived-area updates. Check that agent reads cannot reach evaluation data. Use meaningful
-interface-level checks rather than tests that repeat SQL statements or geometry formulas.
+A one-off check imported all 280 kit buildings in 1.5 s into a 38 MB database. All 277 area answers in train and
+dev matched the stored areas within 0.005 m².
 
-When implemented, document prerequisites, database location, schema setup, migrations, import, verification
-and recovery in [README.md](../README.md). Keep detailed storage behavior here. Do not document invented
-commands as usable features.
+## References
 
-## Evidence and references
-
-The limited review of `origin/main` at `dc289ba` found SQLite tables for building metadata, application state
-and derived caches in `server/state.py`. `core/building.py` loads Shapely polygons in Python. The inspected
-schema does not define generated room-area columns. The rewrite is a new design, not a copy of that schema.
-
-- [SQLite generated columns](https://www.sqlite.org/gencol.html): stored/virtual behavior and expression limits.
+- [SQLite generated columns](https://www.sqlite.org/gencol.html): stored and virtual behavior, expression limits.
 - [SQLite deterministic functions](https://www.sqlite.org/deterministic.html): rules for application functions.
 - [Shapely](https://github.com/shapely/shapely): planar geometry through GEOS.

@@ -1,12 +1,20 @@
 # Agent and tools
 
-Status: requirements and proposals. No harness or building tools are implemented yet.
+Status: decisions recorded. No harness or building tools are implemented yet.
 
 ## Harness and configuration
 
 Adopt an existing harness. It must manage model/tool turns, validated tool arguments, conversation context,
 structured results, repair attempts, cancellation and useful run records. Do not write a custom execution loop.
-PydanticAI is the first candidate. Check these requirements before adopting it.
+
+Selected: **PydanticAI**. It is a plain Python library and independent of the model provider. Its `MCPToolset`
+connects to MCP servers in the same process, over stdio or over Streamable HTTP. It validates structured output
+and returns errors to the model for repair. Offline tests can replace the model with its test models, so they
+make no paid calls.
+
+Considered: the Claude Agent SDK. It has strong MCP and structured-output support, but it runs the Claude Code
+harness with built-in file and shell tools that we would have to disable for data isolation. It also supports only
+Claude models and stores sessions as files.
 
 Write prompts and tool descriptions in English. Start with Sonnet 5.5 through the direct Anthropic provider:
 
@@ -19,10 +27,10 @@ ANTHROPIC_API_KEY=
 model change without editing prompts or domain logic. The key remains server-side. This planned setting is
 recorded in `.env.example`; no runtime consumes it yet.
 
-Do not introduce small fixed tool-call caps that cut off valid reasoning. Inspect and consciously configure
-the harness's defaults. Use an agreed provider budget and cancellation/time controls to handle runaway runs.
-A stop or exhausted output-repair policy must return an explicit incomplete/error result, never a guessed
-answer. Validation retries and tool-call limits are separate controls. Exact policies remain to be chosen.
+Do not introduce small fixed tool-call caps that cut off valid reasoning. PydanticAI's `UsageLimits` allows
+50 model requests per run by default. Raise that limit deliberately. Use a generous `cost_limit` per run as the
+provider budget, so normal runs never stop midway. A stopped run or exhausted output repair returns an explicit
+failure result, never a guessed answer. The budget amounts are agreed before the first paid run.
 
 For Sonnet 5.5, do not send `temperature`, `top_p`, `top_k`, forced `tool_choice` or `thinking: disabled`.
 Any effort setting belongs in the provider's supported output configuration.
@@ -48,31 +56,46 @@ Tools should support useful operations over buildings: finding entities, filteri
 relationships and calculating routes under explicit constraints. Design their exact interfaces after the data
 interface is established. Return typed results with units, stable entity IDs and explicit failure states.
 
-Keep the calculation implementation independent of PydanticAI, Anthropic and ElevenLabs. Register the same
-Python operations with our harness and later expose them through authenticated HTTP tools for ElevenLabs.
-An ElevenLabs managed agent can own the conversational loop and call these tools directly. It need not call
-our own agent first. Check its schema, timeout and authentication constraints when building that adapter.
+Keep the calculation implementation independent of PydanticAI, Anthropic and ElevenLabs. Publish the tools
+through one MCP server, for example built with FastMCP:
+
+- Our agent passes the server instance to `MCPToolset`. It runs in the same process without a token.
+- ElevenLabs connects to the server's Streamable HTTP endpoint. MCP must be enabled once in the ElevenLabs
+  workspace. The endpoint is public, so the server rejects requests without the secret bearer token from
+  `BUILDING_MCP_TOKEN`. The same token is stored as a secret in the ElevenLabs tool settings.
+
+ElevenLabs owns the conversational loop and calls the tools directly. It does not call our own agent. Check its
+timeout and schema constraints when the HTTP endpoint is built.
 
 Start with read-only operations. Keep writes possible through the same domain rules later, with explicit
 validation and authority. Do not add placeholder write tools or allow raw SQL, shell or filesystem access.
 
 ## Structured output and formatting
 
-Structured output is the first option to test for our agent's final result. A candidate result distinguishes a
-numeric answer, a room answer and an explicit clarification/failure. Numbers need their units; room answers
-need stable references and an area when relevant. The exact schema is not decided yet.
+Our agent returns structured output. A deterministic formatter writes the benchmark `Answer:` line from it.
+The nine benchmark kinds need only three answer shapes, plus failure:
 
-The harness should validate the schema and feed validation errors back for repair. Provider-native schema
-output and tool-based structured output are both options. Verify their support with the chosen model and
-existing function tools. A valid schema cannot establish that a number is correct or supported by a tool.
+| Shape | Fields | `Answer:` line | Kinds |
+|---|---|---|---|
+| Number | value, unit | `Answer: 214.7` | `floor_area_total`, `errand`, `straight_line_3d` |
+| Count | integer | `Answer: 7` | `wide_delivery_count`, `step_free_reachable_count`, `shared_walls_count`, `what_if_door` |
+| Room | room ref, optional area | `Answer: N5325, 79.48 m²` | `largest_room` (with area), `room_stacked` |
+| Failure | reason | A line without a number | Any stopped or unanswerable run |
 
-Recommendation: retain a small deterministic formatter for the benchmark. It takes a validated result and
-writes the exact `Answer:` line. It must not parse the question, choose a result or calculate a value. Numeric
-answer lines contain one number; room lines identify the room before alternatives and include area when needed.
+Every shape also has an `explanation` field for a short natural-language answer. The agent picks the shape from
+the answer instruction in the question text, such as "Finish with a line 'Answer: <number>'". The dataset `kind`
+is not passed to the agent. The formatter does not parse the question, choose a result or calculate a value.
+It writes exactly one number for numbers and counts, and the room ref first for rooms.
 
-This keeps the submission contract independent of conversation wording and agent host. A conversational
-response can include explanations or a clarification request while using the same tools and computed facts.
-The formatter must reject incomplete results instead of converting a failure to a plausible answer.
+What each part catches:
+
+- A wrong form, such as `"area_m2": "about 80"`, fails validation. The model repairs it in one more step.
+- A wrong value in the right form, such as the runner-up room, passes. Only correct tools and dev evaluation
+  catch it.
+- A failure stays a failure. The formatter never turns it into a plausible answer.
+
+Exact field names, rounding and the repair limit are decided when the harness is built. Test the formatter
+against `benchmark/score.py`.
 
 ## Evaluation
 
@@ -88,4 +111,6 @@ live language-model quality. Use separately budgeted dev runs for end-to-end ans
 - [PydanticAI agent](https://github.com/pydantic/pydantic-ai/blob/main/docs/agent.md): execution and usage controls.
 - [PydanticAI output](https://github.com/pydantic/pydantic-ai/blob/main/docs/output.md): structured output and validation.
 - [Anthropic models](https://platform.claude.com/docs/en/about-claude/models/overview): initial model identity.
-- [ElevenLabs webhook tools](https://elevenlabs.io/docs/agents-platform/customization/tools/server-tools): shared backend access.
+- [PydanticAI MCP client](https://ai.pydantic.dev/mcp/client/): `MCPToolset` and transports.
+- [PydanticAI usage limits](https://pydantic.dev/docs/ai/api/pydantic-ai/usage/): default request limit and `cost_limit`.
+- [ElevenLabs MCP](https://elevenlabs.io/docs/eleven-agents/customization/tools/mcp): custom MCP servers for agents.
