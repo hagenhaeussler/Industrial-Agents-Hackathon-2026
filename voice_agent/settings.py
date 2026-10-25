@@ -17,6 +17,8 @@ class VoiceSettings:
     """None until `python -m voice_agent sync` has created the agent."""
     mcp_token: str | None
     """Bearer token that ElevenLabs sends to our MCP endpoint."""
+    cors_origins: tuple[str, ...] = ()
+    """Browser origins on other domains that may call the voice routes, such as the deployed UI."""
 
 
 def load_settings() -> VoiceSettings:
@@ -28,6 +30,11 @@ def load_settings() -> VoiceSettings:
         api_key=api_key,
         agent_id=os.environ.get("ELEVENLABS_AGENT_ID", "").strip() or None,
         mcp_token=os.environ.get("BUILDING_MCP_TOKEN", "").strip() or None,
+        cors_origins=tuple(
+            origin
+            for origin in (part.strip() for part in os.environ.get("VOICE_CORS_ORIGINS", "").split(","))
+            if origin
+        ),
     )
 
 

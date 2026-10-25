@@ -9,6 +9,9 @@ AGENT_NAME = "Building voice agent"
 FIRST_MESSAGE = "Hi! Ask me anything about this building."
 MCP_SERVER_NAME = "Building tools"
 MCP_SECRET_NAME = "building-mcp-authorization"
+# Optional context the UI passes as dynamic variables when it starts a conversation; prompt.md uses them. An empty
+# string means unknown. `building_id` is also set by the UI but only goes into the MCP header, so it has no default.
+CONTEXT_VARIABLES = ("current_space_id", "current_space_name", "destination_id", "destination_name")
 
 
 def system_prompt() -> str:
@@ -21,6 +24,7 @@ def conversation_config(mcp_server_id: str) -> dict[str, Any]:
         "agent": {
             "language": "en",
             "first_message": FIRST_MESSAGE,
+            "dynamic_variables": {"dynamic_variable_placeholders": dict.fromkeys(CONTEXT_VARIABLES, "")},
             "prompt": {
                 "prompt": system_prompt(),
                 "llm": "claude-sonnet-5-5",
@@ -42,15 +46,29 @@ def platform_settings() -> dict[str, Any]:
     }
 
 
-def mcp_server_config(mcp_url: str, secret_id: str) -> dict[str, Any]:
+def mcp_server_identity(mcp_url: str) -> dict[str, Any]:
+    """Fields ElevenLabs sets only when it creates an integration."""
     return {
         "name": MCP_SERVER_NAME,
-        "description": "Read-only tools for one building: rooms, equipment, distances and routes.",
+        "description": "Read-only tools for the selected building: rooms, equipment, distances and routes.",
         "url": mcp_url,
         "transport": "STREAMABLE_HTTP",
+    }
+
+
+def mcp_server_behavior(secret_id: str) -> dict[str, Any]:
+    """Fields sync updates on an existing integration."""
+    return {
         # The tools only read, so they run without asking the user first.
         "approval_policy": "auto_approve_all",
-        "request_headers": {"Authorization": {"secret_id": secret_id}},
+        "request_headers": {
+            "Authorization": {"secret_id": secret_id},
+            # The UI sets building_id when it starts the conversation; the server answers for that building.
+            "X-Building-Id": {"variable_name": "building_id"},
+        },
+        # Speech before a tool call was repeated after the result. A sound fills the pause instead.
+        "pre_tool_speech": "off",
+        "tool_call_sound": "typing",
     }
 
 
@@ -71,16 +89,14 @@ def sync(client: ElevenLabs, agent_id: str | None, mcp_url: str, mcp_token: str)
     """
     servers = client.conversational_ai.mcp_servers
     secret_id = store_secret(client, MCP_SECRET_NAME, f"Bearer {mcp_token}")
-    config = mcp_server_config(mcp_url, secret_id)
+    behavior = mcp_server_behavior(secret_id)
     ours = [server for server in servers.list().mcp_servers if server.config.name == MCP_SERVER_NAME]
     current = next((server for server in ours if server.config.url == mcp_url), None)
     if current is None:
-        mcp_server_id = servers.create(config=config).id
+        mcp_server_id = servers.create(config=mcp_server_identity(mcp_url) | behavior).id
     else:
         mcp_server_id = current.id
-        servers.update(
-            mcp_server_id, approval_policy=config["approval_policy"], request_headers=config["request_headers"]
-        )
+        servers.update(mcp_server_id, **behavior)
 
     settings = {
         "name": AGENT_NAME,
