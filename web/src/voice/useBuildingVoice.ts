@@ -4,6 +4,9 @@ import type { RouteRequest } from "../api/buildings";
 import { routeFromToolCall } from "./toolCalls";
 import { toolLabel, upsert, withoutAudioTags, type TranscriptEntry } from "./transcript";
 
+/** The voice server that issues conversation tokens. Empty means the same origin, as with the dev proxy. */
+const VOICE_SERVER: string = import.meta.env.VITE_VOICE_SERVER ?? "";
+
 export interface Place {
   id: string;
   name: string;
@@ -82,7 +85,7 @@ export function useBuildingVoice(context: VoiceContext, onRoute: (request: Route
       // Ask for the microphone first so a denied permission shows here; the SDK opens its own stream.
       const microphone = await navigator.mediaDevices.getUserMedia({ audio: true });
       microphone.getTracks().forEach((track) => track.stop());
-      const response = await fetch("/api/voice/token");
+      const response = await fetch(`${VOICE_SERVER}/api/voice/token`);
       const body: { token?: string; error?: string } = await response.json().catch(() => ({}));
       if (!response.ok || !body.token) throw new Error(body.error ?? "The voice assistant is not available right now.");
       conversation.startSession({ conversationToken: body.token, dynamicVariables: dynamicVariables(context) });

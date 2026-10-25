@@ -26,6 +26,19 @@ pnpm test    # unit tests
 pnpm build
 ```
 
+## Deploy
+
+The Railway service `web` (project `talk-to-your-building`) runs the building API and serves the built app from
+one container. `web/deploy/deploy.sh` uploads the committed code and the `building.json` files only, and refuses
+to deploy if any other file from `data/` is staged. The image imports the buildings into SQLite at build time.
+
+```sh
+web/deploy/deploy.sh
+```
+
+The service variable `VITE_VOICE_SERVER` holds the voice server's public URL. The voice server must list the web
+app's origin in `VOICE_CORS_ORIGINS`.
+
 ## How the parts fit
 
 ```mermaid
