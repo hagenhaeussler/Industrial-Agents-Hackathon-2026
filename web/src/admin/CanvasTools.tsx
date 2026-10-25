@@ -61,9 +61,9 @@ export function CanvasTools({
         )}
       </div>
       {hint && (
-        <p className="float absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] font-[650]">
+        <p className="float absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-accent px-4 py-2 text-[13px] font-[650] text-ink">
           {hint}{" "}
-          <button type="button" onClick={() => onTool("select")} className="ml-1 text-muted underline">
+          <button type="button" onClick={() => onTool("select")} className="ml-1 text-ink underline">
             Cancel
           </button>
         </p>
@@ -93,7 +93,7 @@ function ToolButton({
       aria-label={label}
       title={label}
       aria-pressed={active}
-      className={`grid size-10 place-items-center rounded-[10px] ${active ? "bg-ink text-white" : "hover:bg-field"}`}
+      className={`grid size-10 place-items-center rounded-[10px] ${active ? "bg-accent text-ink" : "hover:bg-field"}`}
     >
       {children}
     </button>
