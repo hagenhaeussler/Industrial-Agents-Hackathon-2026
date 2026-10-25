@@ -3,18 +3,12 @@ import { Blobatar } from "@blobatar/react";
 import { DoorOpen, Package, QrCode, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { searchPlaces } from "../route/places";
+import { FloorSelector } from "./FloorSelector";
 import { MEMBERS } from "./team";
 import type { Selection } from "./Workspace";
 import type { View } from "./Sidebar";
 
-const TITLES: Record<View, string> = {
-  model: "3D building",
-  plans: "Floor plans",
-  routes: "Routes",
-  equipment: "Equipment",
-};
-
-/** Title, floor focus, search, who else is here, and sharing. */
+/** Floor focus, search, who else is here, and sharing. */
 export function TopBar({
   document,
   view,
@@ -33,59 +27,33 @@ export function TopBar({
   onShare: () => void;
 }) {
   return (
-    <header className="flex items-center gap-3 border-b border-line bg-white px-4 py-2.5">
-      <h1 className="shrink-0 text-[16px] font-[800] tracking-[-0.4px]">{TITLES[view]}</h1>
-      <div role="radiogroup" aria-label="Floor" className="flex shrink-0 items-center gap-1 rounded-full bg-field p-1">
-        {view !== "plans" && (
-          <FloorChip label="All" title="All floors" active={focusFloor === null} onClick={() => onFocusFloor(null)} />
-        )}
-        {floors.map((floor) => (
-          <FloorChip
-            key={floor.id}
-            label={String(floor.level)}
-            title={floor.name}
-            active={focusFloor === floor.id}
-            onClick={() => onFocusFloor(floor.id)}
-          />
-        ))}
-      </div>
-      <FindBox document={document} onFind={onFind} />
-      <div className="ml-auto flex shrink-0 items-center gap-3">
-        <div className="flex -space-x-2" aria-label={`${MEMBERS.length} people in this building`}>
-          {MEMBERS.slice(0, 3).map((member) => (
-            <span key={member.id} title={member.name} className="grid size-8 place-items-center rounded-full bg-white ring-2 ring-white">
-              <Blobatar name={member.id} size={28} />
+    <header className="@container min-w-0 shrink-0 border-b border-line bg-white px-4 py-2.5">
+      <div className="flex min-w-0 items-center gap-3 @max-[520px]:flex-wrap">
+        <FloorSelector floors={floors} view={view} focusFloor={focusFloor} onFocusFloor={onFocusFloor} />
+        <FindBox document={document} onFind={onFind} />
+        <div className="ml-auto flex shrink-0 items-center gap-3">
+          <div className="flex -space-x-2" aria-label={`${MEMBERS.length} people in this building`}>
+            {MEMBERS.slice(0, 3).map((member) => (
+              <span key={member.id} title={member.name} className="grid size-8 place-items-center rounded-full bg-white ring-2 ring-white">
+                <Blobatar name={member.id} size={28} />
+              </span>
+            ))}
+            <span className="grid size-8 place-items-center rounded-full bg-field text-[11px] font-[750] ring-2 ring-white">
+              +{MEMBERS.length - 3}
             </span>
-          ))}
-          <span className="grid size-8 place-items-center rounded-full bg-field text-[11px] font-[750] ring-2 ring-white">
-            +{MEMBERS.length - 3}
-          </span>
+          </div>
+          <button
+            type="button"
+            onClick={onShare}
+            aria-label="Send to phone"
+            title="Send to phone"
+            className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-ink text-white"
+          >
+            <QrCode size={20} aria-hidden="true" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onShare}
-          className="flex items-center gap-2 rounded-[11px] bg-ink px-3.5 py-2 text-[13px] font-[650] text-white"
-        >
-          <QrCode size={16} /> Send to phone
-        </button>
       </div>
     </header>
-  );
-}
-
-function FloorChip({ label, title, active, onClick }: { label: string; title: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={active}
-      title={title}
-      aria-label={title}
-      onClick={onClick}
-      className={`grid h-7 min-w-7 place-items-center rounded-full px-2 text-xs font-[750] ${active ? "bg-ink text-white" : ""}`}
-    >
-      {label}
-    </button>
   );
 }
 
@@ -99,7 +67,7 @@ function FindBox({ document, onFind }: { document: Building; onFind: (selection:
       ? document.assets.find((asset) => asset.id === id)?.floor_id
       : document.spaces.find((space) => space.id === id)?.floor_id) ?? "";
   return (
-    <div className="relative w-full max-w-[360px] min-w-[180px]">
+    <div className="relative min-w-[180px] max-w-[360px] flex-1 @max-[520px]:order-last @max-[520px]:max-w-none @max-[520px]:basis-full">
       <label className="flex items-center gap-2 rounded-[11px] bg-field px-3">
         <Search size={16} className="text-muted" />
         <span className="sr-only">Search rooms and equipment</span>
