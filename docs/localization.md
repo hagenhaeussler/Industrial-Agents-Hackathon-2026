@@ -77,11 +77,19 @@ Implemented in `localization/floor_plan.py` for one capture and one floor:
     4 x 4 transform `building_from_map`. Names, room types and furniture come from a small annotations file,
     because the scan cannot tell them.
 
+Implemented in `localization/layout.py`:
+
+11. Split the outline into rooms and add openings and equipment from a hand-written `layout.json` next to the
+    `building.json`. The scanned rooms must cover the scanned outline exactly, so the layout cannot move the
+    area the camera localizes in. Rooms behind walls that were not scanned are `synthetic`. All openings are
+    `synthetic`, because the scan shows no doors. Assets from the scan are kept; the layout's assets get
+    `source: "generated"`. `source_ref.layout` names the layout file. A second run gives the same file.
+
 Planned:
 
-11. Split the floor into rooms and add doors. Doors are where the camera path crosses a wall.
-    Try [SpatialLM](https://github.com/manycore-research/SpatialLM) for an automatic draft.
-12. Join several captures in one SfM reconstruction. Fit a similarity transform (Umeyama) to the ARKit centres for metres and gravity.
+12. Find doors automatically where the camera path crosses a wall. Try
+    [SpatialLM](https://github.com/manycore-research/SpatialLM) for a draft.
+13. Join several captures in one SfM reconstruction. Fit a similarity transform (Umeyama) to the ARKit centres for metres and gravity.
 
 ### Online: one localization request
 
@@ -187,8 +195,13 @@ For the capture above: 1,375,380 voxels from 1,666 keyframes in about 25 s on th
 - The walls are turned by 5.0° against the map frame. The floor lies 1.6 m below the phone.
   The ceiling is 2.53 m above the floor.
 - The outline has 16 corners and 581 m². All sides are straight.
-- The building has many glass walls and one open-plan office. So it is one space with two standing tables
-  (table tops 1.0 to 1.2 m above the floor).
+- The building has many glass walls and one open-plan office. The scan alone gives one space with two standing
+  tables (table tops 1.0 to 1.2 m above the floor).
+- For navigation tests, `data/scan/scan-233fe5f22a/layout.json` adds an invented layout: the outline is cut
+  into 10 rooms at its corners, 10 synthetic rooms lie behind the corridor walls, and 23 openings and 103
+  assets (desks with PCs, kitchen, 3D printers, server racks and more) are placed. Cuts through the open-plan
+  office are wide openings without a door leaf, so the views draw no wall where there is none. Every room can
+  be reached from both entrances. Names and equipment are made up.
 - All 200 held-out query cameras lie inside the outline after the transform, at a median height of 1.60 m.
 
 `building_from_map` maps a map point `(x, y, z)` with y up to the plan `(x, y, height above floor)`.
@@ -212,6 +225,15 @@ python -m localization.floor_plan --capture ~/data/raw/<capture> --map <map name
 ```
 
 `floor_plan` writes `building.json` and a preview image `plan.png`. The docstring shows the annotations format.
+
+After `floor_plan`, add the room layout. Run it again after each change of `layout.json`:
+
+```sh
+python -m localization.layout data/scan/<building>/building.json data/scan/<building>/layout.json
+```
+
+The localization service reads its own copy of `building.json` for the room it returns. Copy the new file to
+the VM and restart the service whenever the deployed app gets a new layout, so both use the same space IDs.
 
 For a visual check, `compare` localizes random frames of another recording. It draws each photo next to the
 coloured point cloud seen from the estimated pose, and the position on the floor plan. Run it after
@@ -259,7 +281,7 @@ Scans show real buildings and may show people. Keep them out of Git. Store them 
 | 1 | Request a Google Cloud GPU quota of 1 (`GPUS_ALL_REGIONS`), create an L4 VM | Lenard | Done. Moved from `europe-west4` (Spot) to `us-central1` (standard) |
 | 2 | Record one corridor slowly in both directions with Stray Scanner on the iPhone 12 Pro | Lenard | Done: 9.5 minutes on the VM |
 | 3 | Localization spike: import Stray Scanner data, build the hloc map, localize held-out frames and the fast video | Claude | Done: median error below 0.5 m and server time below 500 ms, see [Spike results](#spike-results) |
-| 4 | Floor plan spike: point cloud, density image, semi-automatic spaces and doors, first `building.json` | Claude | Done: one clean outline, see [Floor plan results](#floor-plan-results). Rooms and doors are planned |
+| 4 | Floor plan spike: point cloud, density image, semi-automatic spaces and doors, first `building.json` | Claude | Done: one clean outline, see [Floor plan results](#floor-plan-results). Rooms and doors come from a hand-written layout |
 | 5 | Localization API: HTTPS endpoint returning floor, space, position and heading | Claude | Done: public over HTTPS, a phone frame returns a floor, space and position in about 180 ms on the GPU. The Railway connection is open |
 | 6 | Web client: camera, frame upload, arrow to the next route point | Team | A person can follow a route on one floor |
 | 7 | Scale up: full floors, several floors, stairs and lifts | Team | Multi-floor route works in the test building |
