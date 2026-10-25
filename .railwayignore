@@ -7,7 +7,9 @@ benchmark/
 tests/
 web/
 SUBMISSION/
+results/
 agent_output/
+packages/
 .env*
 !.env.example
 *.sqlite3
