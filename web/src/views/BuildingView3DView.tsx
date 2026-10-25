@@ -1,5 +1,11 @@
 import { BuildingView3D, type BuildingScene, type BuildingView3DOptions, type Overlay, type PickResult } from "@building/view";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
+
+/** Camera commands for the workspace. */
+export interface View3DHandle {
+  reset: () => void;
+  centerOn: (floorId: string, x: number, y: number) => void;
+}
 
 /** React wrapper for the 3D exploded building view. */
 export function BuildingView3DView({
@@ -9,7 +15,9 @@ export function BuildingView3DView({
   onPick,
   options,
   className = "",
+  ref,
 }: {
+  ref?: Ref<View3DHandle>;
   scene: BuildingScene;
   focusFloorId: string | null;
   overlay: Overlay;
@@ -19,6 +27,12 @@ export function BuildingView3DView({
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<BuildingView3D>();
+
+  useImperativeHandle(
+    ref,
+    () => ({ reset: () => view?.resetCamera(), centerOn: (floorId, x, y) => view?.centerOn(floorId, x, y) }),
+    [view],
+  );
 
   useEffect(() => {
     const created = new BuildingView3D(container.current!, options);

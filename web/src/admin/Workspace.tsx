@@ -1,10 +1,10 @@
 import { compileScene, type Building, type Overlay, type PickResult } from "@building/view";
 import { ConversationProvider } from "@elevenlabs/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useBuilding, useRoute, type RouteRequest } from "../api/buildings";
 import { directions } from "../route/directions";
 import { spaceName } from "../route/places";
-import { BuildingView3DView } from "../views/BuildingView3DView";
+import { BuildingView3DView, type View3DHandle } from "../views/BuildingView3DView";
 import { FloorPlanView } from "../views/FloorPlanView";
 import { useBuildingVoice } from "../voice/useBuildingVoice";
 import { CanvasTools, SelectionCard, type Tool } from "./CanvasTools";
@@ -61,6 +61,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
   const [labels, setLabels] = useState(true);
   const [assets, setAssets] = useState(true);
   const [dialog, setDialog] = useState<"share" | "settings">();
+  const camera = useRef<View3DHandle>(null);
 
   const request: RouteRequest | undefined =
     position && destination ? { stops: [position.spaceId, destination], stepFree } : undefined;
@@ -128,6 +129,11 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
     [route.data, position, selection, destination, scene],
   );
 
+  const selectionPoint = (found: Selection) =>
+    found.kind === "asset"
+      ? document.assets.find((asset) => asset.id === found.id)?.position
+      : scene.floors.flatMap((floor) => floor.spaces).find((space) => space.id === found.id)?.labelPoint;
+
   const ground = scene.floors.find((floor) => floor.level === 0) ?? scene.floors[0]!;
   const planFloor = focusFloor ?? selection?.floorId ?? position?.floorId ?? ground.id;
 
@@ -158,6 +164,8 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
           onFind={(found) => {
             setSelection(found);
             setFocusFloor(found.floorId);
+            const point = selectionPoint(found);
+            if (point) camera.current?.centerOn(found.floorId, point[0], point[1]);
           }}
           onShare={() => setDialog("share")}
         />
@@ -173,6 +181,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
             />
           ) : (
             <BuildingView3DView
+              ref={camera}
               scene={scene}
               focusFloorId={focusFloor}
               overlay={overlay}
@@ -182,6 +191,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
             />
           )}
           <CanvasTools
+            onResetView={view === "plans" ? undefined : () => camera.current?.reset()}
             tool={tool}
             onTool={setTool}
             canMove={selection?.kind === "asset"}

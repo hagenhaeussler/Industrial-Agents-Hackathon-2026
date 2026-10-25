@@ -1,5 +1,5 @@
 import type { Building } from "@building/view";
-import { LocateFixed, MousePointer2, Move, Navigation, Package, Tag, X } from "lucide-react";
+import { Fullscreen, LocateFixed, MousePointer2, Move, Navigation, Package, Tag, X } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Selection } from "./Workspace";
 
@@ -13,6 +13,7 @@ const HINTS: Record<Tool, string | undefined> = {
 
 /** Floating tools over the building view. */
 export function CanvasTools({
+  onResetView,
   tool,
   onTool,
   canMove,
@@ -21,6 +22,7 @@ export function CanvasTools({
   assets,
   onAssets,
 }: {
+  onResetView?: () => void;
   tool: Tool;
   onTool: (tool: Tool) => void;
   canMove: boolean;
@@ -49,7 +51,20 @@ export function CanvasTools({
         <ToolButton label="Equipment" active={assets} onClick={() => onAssets(!assets)}>
           <Package size={18} />
         </ToolButton>
+        {onResetView && (
+          <>
+            <span className="mx-2 my-0.5 h-px bg-line" />
+            <ToolButton label="Show the whole building" active={false} onClick={onResetView}>
+              <Fullscreen size={18} />
+            </ToolButton>
+          </>
+        )}
       </div>
+      {onResetView && (
+        <p className="float absolute right-3 bottom-3 z-10 rounded-full px-3.5 py-2 text-[11px] text-muted">
+          Drag to turn · Right-drag or Shift-drag to move · Scroll to zoom at the pointer · Double-click to centre
+        </p>
+      )}
       {hint && (
         <p className="float absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] font-[650]">
           {hint}{" "}
