@@ -85,9 +85,7 @@ def main() -> None:
     rows = []
     for query in queries:
         image = cv2.imread(str(args.map / "images" / query["name"]))
-        result, row = localize_as_client(
-            localizer, image, np.array(query["K"]), args.long_side, args.jpeg_quality
-        )
+        result, row = localize_as_client(localizer, image, np.array(query["K"]), args.long_side, args.jpeg_quality)
         row["name"] = query["name"]
         truth = np.array(query["world_from_cam"])
         if result.world_from_cam is not None:

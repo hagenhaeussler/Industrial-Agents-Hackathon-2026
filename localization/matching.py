@@ -40,9 +40,7 @@ def load_features(path: Path, names: list[str], device: str) -> list[Features]:
 
 def create_matcher(device: str) -> LightGlue:
     """LightGlue with early stopping and point pruning, in half precision on the GPU."""
-    matcher = LightGlue(
-        features="superpoint", depth_confidence=0.95, width_confidence=0.99, mp=device == "cuda"
-    )
+    matcher = LightGlue(features="superpoint", depth_confidence=0.95, width_confidence=0.99, mp=device == "cuda")
     return matcher.eval().to(device)
 
 
@@ -78,9 +76,7 @@ def match_pairs(
 
 
 @torch.no_grad()
-def _match_shard(
-    pairs: list[tuple[str, str]], features_path: Path, matches_path: Path, device: str
-) -> None:
+def _match_shard(pairs: list[tuple[str, str]], features_path: Path, matches_path: Path, device: str) -> None:
     names = sorted({name for pair in pairs for name in pair})
     features = dict(zip(names, load_features(features_path, names, device)))
     matcher = create_matcher(device)
@@ -89,6 +85,4 @@ def _match_shard(
             result = matcher({"image0": as_input(features[name0]), "image1": as_input(features[name1])})
             group = out.create_group(names_to_pair(name0, name1))
             group.create_dataset("matches0", data=result["matches0"][0].short().cpu().numpy())
-            group.create_dataset(
-                "matching_scores0", data=result["matching_scores0"][0].half().cpu().numpy()
-            )
+            group.create_dataset("matching_scores0", data=result["matching_scores0"][0].half().cpu().numpy())

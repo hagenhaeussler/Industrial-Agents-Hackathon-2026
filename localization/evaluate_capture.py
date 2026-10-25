@@ -53,16 +53,12 @@ def main() -> None:
 
     estimated_centers = np.array([e[:3, 3] for e in estimates])
     recorded_centers = np.array([r[:3, 3] for r in recorded])
-    map_from_capture, inliers = ransac_yaw_translation(
-        recorded_centers, estimated_centers, ALIGNMENT_THRESHOLD_M
-    )
+    map_from_capture, inliers = ransac_yaw_translation(recorded_centers, estimated_centers, ALIGNMENT_THRESHOLD_M)
     aligned = apply(map_from_capture, recorded_centers)
     localized_rows = [r for r in rows if r.get("localized")]
     for row, estimate, truth, center in zip(localized_rows, estimates, recorded, aligned):
         row["position_error_m"] = float(np.linalg.norm(estimate[:3, 3] - center))
-        row["rotation_error_deg"] = rotation_angle_deg(
-            estimate[:3, :3], map_from_capture[:3, :3] @ truth[:3, :3]
-        )
+        row["rotation_error_deg"] = rotation_angle_deg(estimate[:3, :3], map_from_capture[:3, :3] @ truth[:3, :3])
 
     summary = summarize(rows) | {
         "capture": args.capture.name,

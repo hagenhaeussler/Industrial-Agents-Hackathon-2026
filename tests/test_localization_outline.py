@@ -11,7 +11,7 @@ CELL = 0.05
 
 
 def cells(metres: float) -> int:
-    return int(round(metres / CELL))
+    return round(metres / CELL)
 
 
 def fill(raster: np.ndarray, x0: float, x1: float, y0: float, y1: float) -> None:
@@ -26,10 +26,14 @@ class OutlineTests(unittest.TestCase):
         fill(interior, 1.3, 4, 5, 10)  # left wing, its left wall 30 cm further in
         fill(interior, 5, 7, 0.2, 1)  # seen through a glass part of the bottom wall
         for x0, x1, y0, y1 in [
-            (1, 1.05, 1, 5), (1.3, 1.35, 5, 10),  # left facade, not quite straight
-            (10.95, 11, 1, 5), (3.95, 4, 5, 10),  # right walls
-            (1, 5, 1, 1.05), (7, 11, 1, 1.05),  # bottom wall with glass between 5 and 7 m
-            (4, 11, 4.95, 5), (1.3, 4, 9.95, 10),  # top walls
+            (1, 1.05, 1, 5),
+            (1.3, 1.35, 5, 10),  # left facade, not quite straight
+            (10.95, 11, 1, 5),
+            (3.95, 4, 5, 10),  # right walls
+            (1, 5, 1, 1.05),
+            (7, 11, 1, 1.05),  # bottom wall with glass between 5 and 7 m
+            (4, 11, 4.95, 5),
+            (1.3, 4, 9.95, 10),  # top walls
             (7, 7.05, 1, 4),  # interior partition
         ]:
             fill(wall, x0, x1, y0, y1)
@@ -55,11 +59,13 @@ class OutlineTests(unittest.TestCase):
 
     def test_finds_the_turn_that_aligns_walls_with_the_axes(self) -> None:
         along, across = np.linspace(0, 10, 400), np.linspace(0, 6, 240)
-        points = np.concatenate([
-            np.stack([along, np.zeros(400)], 1),
-            np.stack([along, np.full(400, 6.0)], 1),
-            np.stack([np.zeros(240), across], 1),
-        ])  # three walls of a 10 x 6 m room
+        points = np.concatenate(
+            [
+                np.stack([along, np.zeros(400)], 1),
+                np.stack([along, np.full(400, 6.0)], 1),
+                np.stack([np.zeros(240), across], 1),
+            ]
+        )  # three walls of a 10 x 6 m room
         turn = np.radians(5.0)
         rotation = np.array([[np.cos(turn), -np.sin(turn)], [np.sin(turn), np.cos(turn)]])
 

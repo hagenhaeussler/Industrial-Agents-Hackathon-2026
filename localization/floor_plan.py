@@ -96,13 +96,11 @@ def building_from_map(angle: float, floor_y: float, origin: np.ndarray) -> np.nd
     Seen from above, the map's x and -z axes are the plan's x and y before the turn by `angle`.
     """
     c, s = np.cos(angle), np.sin(angle)
-    return np.array(
-        [[c, 0, s, -origin[0]], [s, 0, -c, -origin[1]], [0, 1, 0, -floor_y], [0, 0, 0, 1]], float
-    )
+    return np.array([[c, 0, s, -origin[0]], [s, 0, -c, -origin[1]], [0, 1, 0, -floor_y], [0, 0, 0, 1]], float)
 
 
 def disk(radius_m: float, cell_m: float) -> np.ndarray:
-    r = max(1, int(round(radius_m / cell_m)))
+    r = max(1, round(radius_m / cell_m))
     return cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
 
 
@@ -160,24 +158,28 @@ def asset_footprint(table: np.ndarray, near: np.ndarray, grid: Grid) -> dict | N
     mask = cv2.morphologyEx((table >= MIN_POINTS).astype(np.uint8), cv2.MORPH_OPEN, disk(0.1, grid.cell_m))
     _, labels, stats, _ = cv2.connectedComponentsWithStats(mask)
     row, col = (int(v[0]) for v in grid.index(near[None]))
-    r = int(round(1.0 / grid.cell_m))
+    r = round(1.0 / grid.cell_m)
     candidates = [
-        label for label in np.unique(labels[max(0, row - r) : row + r + 1, max(0, col - r) : col + r + 1])
-        if label > 0
+        label for label in np.unique(labels[max(0, row - r) : row + r + 1, max(0, col - r) : col + r + 1]) if label > 0
     ]
     if not candidates:
         return None
     label = max(candidates, key=lambda label: stats[label, cv2.CC_STAT_AREA])
-    x, y, w, h = (int(stats[label, i]) for i in (cv2.CC_STAT_LEFT, cv2.CC_STAT_TOP, cv2.CC_STAT_WIDTH, cv2.CC_STAT_HEIGHT))
+    x, y, w, h = (
+        int(stats[label, i]) for i in (cv2.CC_STAT_LEFT, cv2.CC_STAT_TOP, cv2.CC_STAT_WIDTH, cv2.CC_STAT_HEIGHT)
+    )
     lo = grid.lo + np.array([x, y]) * grid.cell_m
     size = np.array([w, h]) * grid.cell_m
     center = lo + size / 2
-    return {"position": [round(float(center[0]), 3), round(float(center[1]), 3)],
-            "footprint": {"width_m": round(float(size[0]), 2), "depth_m": round(float(size[1]), 2), "rotation_deg": 0.0}}
+    return {
+        "position": [round(float(center[0]), 3), round(float(center[1]), 3)],
+        "footprint": {"width_m": round(float(size[0]), 2), "depth_m": round(float(size[1]), 2), "rotation_deg": 0.0},
+    }
 
 
-def write_preview(path: Path, wall: np.ndarray, grid: Grid, outline: Polygon, path_xy: np.ndarray,
-                  assets: list[dict]) -> None:
+def write_preview(
+    path: Path, wall: np.ndarray, grid: Grid, outline: Polygon, path_xy: np.ndarray, assets: list[dict]
+) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -193,8 +195,16 @@ def write_preview(path: Path, wall: np.ndarray, grid: Grid, outline: Polygon, pa
     for asset in assets:
         (x, y), fp = asset["position"], asset.get("footprint")
         if fp:
-            ax.add_patch(Rectangle((x - fp["width_m"] / 2, y - fp["depth_m"] / 2), fp["width_m"], fp["depth_m"],
-                                   fill=False, ec="#2ca02c", lw=2))
+            ax.add_patch(
+                Rectangle(
+                    (x - fp["width_m"] / 2, y - fp["depth_m"] / 2),
+                    fp["width_m"],
+                    fp["depth_m"],
+                    fill=False,
+                    ec="#2ca02c",
+                    lw=2,
+                )
+            )
         ax.annotate(asset["name"], (x, y), color="#2ca02c", ha="center", va="center", fontsize=9)
     minx, miny, maxx, maxy = outline.bounds
     ax.set_xlim(minx - 2, maxx + 2)
@@ -234,8 +244,13 @@ def main() -> None:
     angle = wall_angle(unturned[in_wall_band, :2], cell)
     turned = building_from_map(angle, floor_y, np.zeros(2))
     points = apply(turned, scan.voxels)
-    logger.info("%d voxels from %d views, floor at map y %.2f, walls turned by %.2f°",
-                len(points), len(keyframes), floor_y, np.degrees(angle))
+    logger.info(
+        "%d voxels from %d views, floor at map y %.2f, walls turned by %.2f°",
+        len(points),
+        len(keyframes),
+        floor_y,
+        np.degrees(angle),
+    )
 
     lo = points[:, :2].min(0) - 1.0
     shape = tuple(np.ceil((points[:, :2].max(0) + 1.0 - lo) / cell).astype(int)[::-1])
@@ -266,10 +281,18 @@ def main() -> None:
         if found is None:
             logger.warning("No points at table height near %s, using the annotated position", note["name"])
             found = {"position": note["near"]}
-        assets.append({
-            "id": f"{building_id}-A{number:03d}", "name": note["name"], "category": note["category"],
-            "type": note["type"], "space_id": space_id, "floor_id": floor_id, **found, "source": "dataset",
-        })
+        assets.append(
+            {
+                "id": f"{building_id}-A{number:03d}",
+                "name": note["name"],
+                "category": note["category"],
+                "type": note["type"],
+                "space_id": space_id,
+                "floor_id": floor_id,
+                **found,
+                "source": "dataset",
+            }
+        )
 
     building = {
         "building": {
@@ -290,16 +313,27 @@ def main() -> None:
             "split": "scan",
             "units": "m",
         },
-        "floors": [{
-            "id": floor_id, "level": 0, "name": "Ground floor", "elevation_m": 0.0,
-            "height_m": ceiling_height(height, scan.counts),
-        }],
-        "spaces": [{
-            "id": space_id, "floor_id": floor_id, "type": space.get("type", "room"),
-            "room_type": space.get("room_type"), "name": space.get("name", "Room"), "ref": None,
-            "polygon": [[round(float(x), 3), round(float(y), 3)] for x, y in outline.exterior.coords[:-1]],
-            "synthetic": False,
-        }],
+        "floors": [
+            {
+                "id": floor_id,
+                "level": 0,
+                "name": "Ground floor",
+                "elevation_m": 0.0,
+                "height_m": ceiling_height(height, scan.counts),
+            }
+        ],
+        "spaces": [
+            {
+                "id": space_id,
+                "floor_id": floor_id,
+                "type": space.get("type", "room"),
+                "room_type": space.get("room_type"),
+                "name": space.get("name", "Room"),
+                "ref": None,
+                "polygon": [[round(float(x), 3), round(float(y), 3)] for x, y in outline.exterior.coords[:-1]],
+                "synthetic": False,
+            }
+        ],
         "openings": [],
         "vertical_connectors": [],
         "assets": assets,
@@ -307,8 +341,13 @@ def main() -> None:
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "building.json").write_text(json.dumps(building, indent=2, ensure_ascii=False))
     write_preview(args.out / "plan.png", wall, grid, outline, path_xy, assets)
-    logger.info("Outline %.0f m² with %d corners, %d assets, written to %s",
-                outline.area, len(outline.exterior.coords) - 1, len(assets), args.out)
+    logger.info(
+        "Outline %.0f m² with %d corners, %d assets, written to %s",
+        outline.area,
+        len(outline.exterior.coords) - 1,
+        len(assets),
+        args.out,
+    )
 
 
 if __name__ == "__main__":

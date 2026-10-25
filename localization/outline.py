@@ -4,6 +4,8 @@ Rasters use rows for y and columns for x. Row 0 and column 0 start at `lo`, the 
 raster's lower-left corner.
 """
 
+import itertools
+
 import numpy as np
 from shapely import box, unary_union
 from shapely.geometry import MultiPolygon, Polygon
@@ -35,7 +37,7 @@ def outer_walls(interior: np.ndarray, wall: np.ndarray, cell_m: float) -> tuple[
     Interior walls have interior on both sides, so they do not count. Transpose both rasters to get
     bottom and top walls per row.
     """
-    k = max(1, int(round(SIDE_M / cell_m)))
+    k = max(1, round(SIDE_M / cell_m))
     padded = np.pad(interior, ((0, 0), (k, k)))
     before, after = padded[:, : -2 * k], padded[:, 2 * k :]
     return (wall & after & ~before).sum(axis=0), (wall & before & ~after).sum(axis=0)
@@ -50,8 +52,7 @@ def wall_lines(profile: np.ndarray, cell_m: float, min_length_m: float, merge_m:
     """
     smooth = np.convolve(profile, np.ones(3), mode="same") * cell_m
     peaks = [
-        i for i in range(len(smooth))
-        if smooth[i] >= min_length_m and smooth[i] == smooth[max(0, i - 1) : i + 2].max()
+        i for i in range(len(smooth)) if smooth[i] >= min_length_m and smooth[i] == smooth[max(0, i - 1) : i + 2].max()
     ]
     groups: list[list[int]] = []
     for i in peaks:
@@ -96,9 +97,9 @@ def rectilinear_outline(
     xs, ys = lines
 
     cells = []
-    for x0, x1 in zip(xs, xs[1:]):
-        for y0, y1 in zip(ys, ys[1:]):
-            part = interior[int(round(y0)) : int(round(y1)), int(round(x0)) : int(round(x1))]
+    for x0, x1 in itertools.pairwise(xs):
+        for y0, y1 in itertools.pairwise(ys):
+            part = interior[round(y0) : round(y1), round(x0) : round(x1)]
             if part.size and part.mean() > min_fill:
                 cells.append(box(x0, y0, x1, y1))
     if not cells:

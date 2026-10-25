@@ -33,8 +33,16 @@ class VideoInfo:
 
 def probe(path: Path) -> VideoInfo:
     command = [
-        "ffprobe", "-v", "error", "-select_streams", "v:0",
-        "-show_entries", "stream=codec_name,width,height,color_range", "-of", "json", str(path),
+        "ffprobe",
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=codec_name,width,height,color_range",
+        "-of",
+        "json",
+        str(path),
     ]
     stream = json.loads(subprocess.run(command, capture_output=True, check=True, text=True).stdout)
     stream = stream["streams"][0]
@@ -73,9 +81,22 @@ def read_frames(path: Path, indices: Iterable[int]) -> Iterator[tuple[int, Video
     info = probe(path)
     shape = (info.height * 3 // 2, info.width)  # NV12: full-size luma, then quarter-size chroma
     command = [
-        "ffmpeg", "-nostdin", "-loglevel", "error", "-noautorotate",
-        "-c:v", f"{info.codec}_cuvid", "-i", str(path),
-        "-fps_mode", "passthrough", "-f", "rawvideo", "-pix_fmt", "nv12", "pipe:",
+        "ffmpeg",
+        "-nostdin",
+        "-loglevel",
+        "error",
+        "-noautorotate",
+        "-c:v",
+        f"{info.codec}_cuvid",
+        "-i",
+        str(path),
+        "-fps_mode",
+        "passthrough",
+        "-f",
+        "rawvideo",
+        "-pix_fmt",
+        "nv12",
+        "pipe:",
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
     skipped = np.empty(shape, np.uint8)

@@ -9,6 +9,7 @@ Run on the GPU machine:
 """
 
 import argparse
+import itertools
 import json
 import logging
 from collections import defaultdict
@@ -40,14 +41,9 @@ def write_upright(path: Path, frame: VideoFrame, turns: int) -> None:
     cv2.imwrite(str(path), np.rot90(frame.bgr(), k=-turns), [cv2.IMWRITE_JPEG_QUALITY, 95])
 
 
-def write_frames(
-    capture: Capture, targets: dict[str, tuple[int, int]], turns: int, image_dir: Path
-) -> dict[str, int]:
+def write_frames(capture: Capture, targets: dict[str, tuple[int, int]], turns: int, image_dir: Path) -> dict[str, int]:
     """Save the sharpest frame within each target's window. Targets map name to (frame, window)."""
-    windows = {
-        name: range(max(0, i - w), min(len(capture.frames), i + w + 1))
-        for name, (i, w) in targets.items()
-    }
+    windows = {name: range(max(0, i - w), min(len(capture.frames), i + w + 1)) for name, (i, w) in targets.items()}
     candidates = defaultdict(list)
     for name, window in windows.items():
         for j in window:
@@ -104,9 +100,7 @@ def pose_pairs(
     centers = np.array([frames[n].center for n in names])
     directions = np.array([frames[n].view_direction for n in names])
     distances = np.linalg.norm(centers[:, None] - centers[None], axis=-1)
-    valid = (directions @ directions.T >= np.cos(np.radians(max_angle_deg))) & (
-        distances <= max_distance_m
-    )
+    valid = (directions @ directions.T >= np.cos(np.radians(max_angle_deg))) & (distances <= max_distance_m)
     np.fill_diagonal(valid, False)
     pairs = set()
     for i in range(len(names)):
@@ -157,11 +151,16 @@ def main() -> None:
     turns = upright_turns(capture.frames)
 
     keyframes = select_keyframes(capture.frames, args.min_step_m, args.min_turn_deg)
-    between = [(a + b) // 2 for a, b in zip(keyframes, keyframes[1:]) if b - a >= 2]
+    between = [(a + b) // 2 for a, b in itertools.pairwise(keyframes) if b - a >= 2]
     step = max(1, len(between) // args.num_queries)
     queries = between[::step][: args.num_queries]
-    logger.info("%d frames, %d keyframes, %d queries, %d quarter turns", len(capture.frames),
-                len(keyframes), len(queries), turns)
+    logger.info(
+        "%d frames, %d keyframes, %d queries, %d quarter turns",
+        len(capture.frames),
+        len(keyframes),
+        len(queries),
+        turns,
+    )
 
     image_dir = args.out / "images"
     targets = {f"map/{i:06d}.jpg": (i, SHARPNESS_WINDOW) for i in keyframes}

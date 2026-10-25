@@ -88,9 +88,7 @@ class CaptureTests(unittest.TestCase):
         still = sideways_frame()
         turned_pose = still.world_from_cam.copy()
         angle = np.radians(15)
-        about_up = np.array(
-            [[np.cos(angle), 0, np.sin(angle)], [0, 1, 0], [-np.sin(angle), 0, np.cos(angle)]]
-        )
+        about_up = np.array([[np.cos(angle), 0, np.sin(angle)], [0, 1, 0], [-np.sin(angle), 0, np.cos(angle)]])
         turned_pose[:3, :3] = about_up @ turned_pose[:3, :3]
         turned = Frame(1, 0.1, turned_pose, still.K, still.width, still.height)
         self.assertEqual(select_keyframes([still, turned], min_step_m=0.3, min_turn_deg=10), [0, 1])

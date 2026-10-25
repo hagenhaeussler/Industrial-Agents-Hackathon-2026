@@ -112,10 +112,7 @@ def select_keyframes(frames: list[Frame], min_step_m: float, min_turn_deg: float
     for i in range(1, len(frames)):
         last = frames[picked[-1]]
         moved = np.linalg.norm(frames[i].center - last.center) >= min_step_m
-        turned = (
-            rotation_angle_deg(frames[i].world_from_cam[:3, :3], last.world_from_cam[:3, :3])
-            >= min_turn_deg
-        )
+        turned = rotation_angle_deg(frames[i].world_from_cam[:3, :3], last.world_from_cam[:3, :3]) >= min_turn_deg
         if moved or turned:
             picked.append(i)
     return picked
