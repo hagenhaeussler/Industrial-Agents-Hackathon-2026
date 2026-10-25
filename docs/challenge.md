@@ -1,7 +1,7 @@
 # Organizer information
 
 Messages from the Synera track lead (Bhushan Kotnis) and the event organizer (Sid) in the hackathon channel,
-24 Oct 2026. They add to the kit README. Where they differ from the README, these messages are newer.
+24–25 Oct 2026. They add to the kit README. Where they differ from the README, these messages are newer.
 
 ## Deadline
 
@@ -15,13 +15,16 @@ The benchmark part is worth 55 points. The repository needs a folder `SUBMISSION
 | File | Content |
 |---|---|
 | `SUBMISSION/BENCHMARK.md` | How to run the system and reproduce the answers |
-| `SUBMISSION/answers.json` | The agent's answers. Content and format are open, see below. |
+| `SUBMISSION/answers.json` | A JSON list of dictionaries with `question_id` and `answer`. |
 
 Spelling and capitalization must match exactly, or the benchmark cannot be graded. The reference image shows
 the folder `SUBMISSION` at the repository root with `BENCHMARK.md` (capitals) and `answers.json` (lowercase).
 
-No schema for `answers.json` is published. The README describes only the CSV for the 145 test questions. The
-challenge brief PDF (page 3, "Sunday benchmark") describes the Sunday run:
+On 25 Oct at 11:16, Bhushan Kotnis confirmed: "The submitted JSON file should be a list of dictionaries with
+keys {question_id, answer}." Each submission entry therefore has exactly these two fields.
+
+The README describes the CSV for the 145 test questions. The challenge brief PDF (page 3, "Sunday benchmark")
+describes the Sunday run:
 
 - Input: a new building in the usual format and `questions.json`, one entry per question with id, text and
   optional constraints such as step-free.
@@ -29,15 +32,19 @@ challenge brief PDF (page 3, "Sunday benchmark") describes the Sunday run:
   `run_benchmark <building_dir> <questions.json> <answers.json>`, with no manual steps.
 - Output: `answers.json`, one entry per question id with the located item or room id, the route as an ordered
   list of node ids and the route length in metres.
-- The brief promised a schema and an example answer file in the data folder. They were never added.
+- The brief promised a schema and an example answer file in the data folder. They were not added before the
+  format confirmation above.
 
-Still open: the exact `answers.json` fields, whether it holds the 145 test answers or the Sunday answers, and
-whether routes list node ids (brief) or space ids (later route message).
+Our decision: `SUBMISSION/answers.json` holds the 145 test answers. Both benchmark commands write the same
+two-field format for jury test sets. `question_id` identifies the question. `answer` is text, or `null` when the
+agent cannot answer reliably. For routes, that text includes ordered space and element IDs, reachability, and
+length. For locations it includes the space ID and, when relevant, the item ID. It keeps the final `Answer:`
+line for these detailed answers. Plain numbers and counts keep the existing final answer text.
 
-Our decision: `SUBMISSION/answers.json` holds the 145 test answers. `run_benchmark` writes the same format for
-the Sunday building. Each entry has the full reply, the `Answer:` text and the answer as data. A route lists both
-the space IDs in order and the door, opening, stair and lift IDs, so either reading of the brief is covered. The
-same test replies are also in `results/test_answers.csv`, in the CSV format of README section 6.
+Full replies and structured results also remain in the run records. The kit CSV remains in
+`results/test_answers.csv`. Jury setup and commands are in
+[SUBMISSION/BENCHMARK.md](../SUBMISSION/BENCHMARK.md). The outer JSON fields are confirmed by the
+organizer. Our answer text encoding has not been checked against a private jury parser.
 
 The judges add their own Anthropic key and run the system. A `run_benchmark` script for the hidden building
 evaluation is allowed. The test-set answers must also be committed to the repository.

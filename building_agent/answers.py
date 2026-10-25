@@ -119,7 +119,7 @@ def format_reply(answer: Answer, building: Building) -> str:
 
 
 def answer_result(answer: Answer, building: Building) -> dict:
-    """The answer as data for answers.json: the space, number or route the reply states."""
+    """The calculation result saved in run records: the space, number or route the reply states."""
     match answer:
         case NumberAnswer(value=value, unit=unit):
             return {"type": "number", "value": round(value, 2), "unit": unit}

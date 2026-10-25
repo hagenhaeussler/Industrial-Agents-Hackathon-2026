@@ -21,7 +21,7 @@ from building_agent.answers import (
     answer_result,
     format_reply,
 )
-from building_agent.submission import answer_entry, read_questions
+from building_agent.submission import answer_entry, read_questions, write_answers
 from building_tools.network import RouteConditions
 from tests.test_building_db import fixture_building
 
@@ -245,6 +245,14 @@ class SubmissionTests(unittest.TestCase):
         self.assertEqual(self.read('{"Q1": {"text": "Where is the kitchen?"}}'), expected)
         self.assertEqual(self.read('{"Q1": "Where is the kitchen?"}'), expected)
         self.assertEqual(self.read('{"id": "Q1", "question": "Where is the kitchen?"}\n'), expected)
+        self.assertEqual(self.read('[{"question_id": "Q1", "text": "Where is the kitchen?"}]'), expected)
+        self.assertEqual(self.read('{"question_id": "Q1", "text": "Where is the kitchen?"}\n'), expected)
+
+    def test_json_lines_preserve_question_order(self) -> None:
+        self.assertEqual(
+            self.read('{"question_id": "B", "text": "B?"}\n{"id": "A", "question": "A?"}\n'),
+            [("B", "B?"), ("A", "A?")],
+        )
 
     def test_numeric_ids_are_read_as_text_also_zero(self) -> None:
         self.assertEqual(self.read('[{"id": 0, "text": "A?"}, {"id": 1, "text": "B?"}]'), [("0", "A?"), ("1", "B?")])
@@ -258,12 +266,60 @@ class SubmissionTests(unittest.TestCase):
             self.read('[{"question": "Where?"}]')
         with self.assertRaisesRegex(ValueError, "unique"):
             self.read('[{"id": "Q1", "text": "A?"}, {"id": "Q1", "text": "B?"}]')
+        for content in ('[]', '{"questions": {}}', '[null]', '[{"id": "Q1", "text": 12}]'):
+            with self.subTest(content=content), self.assertRaises((ValueError, TypeError)):
+                self.read(content)
 
-    def test_stopped_runs_become_failure_entries(self) -> None:
+    def test_conflicting_question_ids_are_refused(self) -> None:
+        with self.assertRaisesRegex(ValueError, "must match"):
+            self.read('[{"id": "A", "question_id": "B", "text": "Where?"}]')
+
+    def test_evaluation_labels_do_not_reach_the_question_text(self) -> None:
+        self.assertEqual(
+            self.read('[{"id": "Q1", "text": "Where?", "answer": "PRIVATE", "inputs": {"room": "PRIVATE"}}]'),
+            [("Q1", "Where?")],
+        )
+
+    def test_saved_answers_use_the_organizer_schema(self) -> None:
+        record = {
+            "question": "Which room is largest?",
+            "reply": "Measured from the building data.\nAnswer: Büro 1, 12.50 m²",
+            "result": {"type": "space", "space_id": "S-office"},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "submission" / "answers.json"
+            write_answers(path, [answer_entry("Q1", record)])
+            saved = json.loads(path.read_text(encoding="utf-8"))
+
+        self.assertEqual(
+            saved,
+            [{
+                "question_id": "Q1",
+                "answer": "Space ID: S-office\nMeasured from the building data.\nAnswer: Büro 1, 12.50 m²",
+            }],
+        )
+
+    def test_invalid_submission_cannot_overwrite_an_existing_file(self) -> None:
+        invalid_entries = (
+            [{"id": "Q1", "answer": "2"}],
+            [{"question_id": "Q1", "answer": "2", "result": {}}],
+            [{"question_id": "Q1", "answer": {"value": 2}}],
+            [{"question_id": "", "answer": "2"}],
+            [{"question_id": "Q1", "answer": "2"}, {"question_id": "Q1", "answer": "3"}],
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "answers.json"
+            path.write_text("original", encoding="utf-8")
+            for entries in invalid_entries:
+                with self.subTest(entries=entries):
+                    with self.assertRaises(ValueError):
+                        write_answers(path, entries)
+                    self.assertEqual(path.read_text(encoding="utf-8"), "original")
+
+    def test_stopped_runs_keep_the_question_id_with_a_null_answer(self) -> None:
         record = {"question": "Q?", "reply": "I could not answer this reliably: stopped", "error": "Timeout: x"}
         entry = answer_entry("Q1", record)
-        self.assertIsNone(entry["answer"])
-        self.assertEqual(entry["result"], {"type": "failure", "reason": "Timeout: x"})
+        self.assertEqual(entry, {"question_id": "Q1", "answer": None})
 
 
 if __name__ == "__main__":
