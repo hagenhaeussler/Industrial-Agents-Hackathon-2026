@@ -2,7 +2,7 @@
 
 Status: the evaluator, the building database, nine building tools with the route model, their MCP server and
 the benchmark agent exist. The agent answers all 138 dev questions. The benchmark submission is in `SUBMISSION/`.
-The read-only building API and the 2D and 3D building views exist. The web application is planned. Organizer rules and the submission format are in
+The building API, JSON uploads, web application and 2D and 3D building views exist. Organizer rules and the submission format are in
 [docs/challenge.md](docs/challenge.md).
 
 ## Confirmed direction
@@ -16,7 +16,8 @@ The read-only building API and the 2D and 3D building views exist. The web appli
 - Store derived room areas as `STORED` generated columns. See [docs/db.md](docs/db.md).
 - Use PydanticAI as the agent harness. Serve the building tools from one MCP server.
 - The agent returns structured output. A deterministic formatter writes the benchmark `Answer:` line.
-- FastAPI serves stored buildings read-only. TypeScript building types are generated from its OpenAPI schema.
+- FastAPI serves stored buildings and routes read-only. A separate JSON upload route uses the shared validated
+  importer. TypeScript building types are generated from its OpenAPI schema.
 - The building views are a framework-free TypeScript package: SVG for 2D, three.js for 3D.
   See [docs/visualization.md](docs/visualization.md).
 

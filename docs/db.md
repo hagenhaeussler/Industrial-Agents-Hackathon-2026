@@ -77,12 +77,25 @@ polygons. There is no automatic polygon repair. All 280 kit buildings pass.
 Content identity is a SHA-256 hash of the JSON content, independent of whitespace and key order. Replacing a
 stored building with changed content is not implemented. Until then, delete the database file and import again.
 
+The home page also accepts a `building.json` upload. It sends the file to `POST /api/buildings/import`
+as `application/json`, with a 20 MiB limit. The endpoint uses the same validator and importer as the command
+line. It returns 201 for a new building, 200 for identical stored content, 409 for changed content with an
+existing ID, 413 for an oversized body, 415 for a non-JSON request, 422 for invalid building data, and 503
+when storage is unavailable. It never overwrites an existing building or creates a missing database.
+The identity check and insert run in one write transaction, including simultaneous uploads.
+
+Uploads must have at least one floor and one space. Validation also rejects duplicate JSON keys, building
+IDs that cannot be used in page URLs, repeated connector floors, and non-finite polygon areas. A UTF-8
+byte order mark is accepted. Temporary upload files are removed after import. The database keeps the
+content hash and all validated building data; the temporary source path is not a retained file.
+
 ## Read access
 
 `building_db.store.load_building(connection, building_id)` returns the stored building as a validated
 `BuildingDocument` in the source format. Each list is ordered by entity ID. Agent tools will build on this and on
 targeted queries. `building_db.store.connect_readonly` opens an existing file read-only and never creates
-or migrates it. The building API uses it. Agent access is read-only. Import is a separate operator action. Later write operations must
+or migrates it. Building and route requests use it. Agent access is read-only. The upload route uses a separate
+write connection through `connect_existing`. Later write operations must
 use the same validation and must not expose raw SQL to the agent.
 
 ## Verification
