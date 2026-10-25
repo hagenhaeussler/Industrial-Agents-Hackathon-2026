@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import "../coworkers.css";
 import { CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 
 import { BOT_OUTLINE, BOT_EYE_COLOR } from "../avatar";
@@ -74,6 +75,12 @@ export class CoworkerMarkers3D {
     return marker ? { kind: "coworker", ...marker.coworker } : null;
   }
 
+  hover(id: string | null): void {
+    for (const marker of this.markers.values()) {
+      marker.button.dataset.hovered = String(marker.group.visible && marker.coworker.id === id);
+    }
+  }
+
   clear(): void {
     for (const marker of this.markers.values()) marker.dispose();
     this.markers.clear();
@@ -105,8 +112,9 @@ function createMarker(coworker: CoworkerMarker, onPick: (pick: CoworkerPick) => 
 
   const button = document.createElement("button");
   button.type = "button";
+  button.className = "building-coworker-label";
   Object.assign(button.style, {
-    pointerEvents: "auto", cursor: "pointer", font: "600 10px system-ui, sans-serif",
+    cursor: "pointer", font: "600 10px system-ui, sans-serif",
     color: "#302e2b", background: "#fff", border: "1px solid #d9d3c7",
     borderRadius: "4px", padding: "2px 5px", whiteSpace: "nowrap",
   });

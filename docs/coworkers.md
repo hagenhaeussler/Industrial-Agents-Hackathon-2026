@@ -8,6 +8,9 @@ These people and their work are a simulation. Channel posts remain sample conten
 browser. Hiding people leaves chats available. Their workday follows elapsed server time, so showing them again
 shows their current positions. There are no background model calls.
 
+Bot avatars face the camera and keep their physical size when zooming. Name tags appear on hover or
+keyboard focus in both building views. Select a bot to open its chat.
+
 ## State and movement
 
 `building_api/coworkers.py` owns the HTTP interface. A random session token isolates one browser tab's chats for

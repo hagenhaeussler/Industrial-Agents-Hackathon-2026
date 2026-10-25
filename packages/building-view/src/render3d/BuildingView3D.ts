@@ -65,6 +65,7 @@ export class BuildingView3D {
   private focusFloorId: string | null = null;
   private overlay: Overlay = {};
   private frame: number | undefined;
+  private hoverPointer: THREE.Vector2 | null = null;
   private destroyed = false;
   private readonly connectorMaterials = {
     stairs: new THREE.MeshLambertMaterial({ color: "#d9a441" }),
@@ -386,6 +387,9 @@ export class BuildingView3D {
     this.frame = requestAnimationFrame(() => {
       this.frame = undefined;
       this.coworkers.faceCamera(this.camera);
+      const raycaster = new THREE.Raycaster();
+      if (this.hoverPointer) raycaster.setFromCamera(this.hoverPointer, this.camera);
+      this.coworkers.hover(this.hoverPointer ? this.coworkers.pick(raycaster)?.id ?? null : null);
       this.renderer.render(this.world, this.camera);
       this.declutterLabels();
       this.labelRenderer.render(this.world, this.camera);
@@ -470,6 +474,18 @@ export class BuildingView3D {
 
   private listen(): void {
     const canvas = this.renderer.domElement;
+    const onMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      this.hoverPointer = event.pointerType === "touch" || event.buttons !== 0 ? null : new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1,
+      );
+      this.requestRender();
+    };
+    const onLeave = () => {
+      this.hoverPointer = null;
+      this.requestRender();
+    };
     let down: { x: number; y: number } | undefined;
     const onDown = (event: PointerEvent) => (down = { x: event.clientX, y: event.clientY });
     const onUp = (event: PointerEvent) => {
@@ -483,12 +499,16 @@ export class BuildingView3D {
     canvas.addEventListener("pointerdown", onDown);
     canvas.addEventListener("pointerup", onUp);
     canvas.addEventListener("dblclick", onDoubleClick);
+    this.container.addEventListener("pointermove", onMove);
+    this.container.addEventListener("pointerleave", onLeave);
     const observer = new ResizeObserver(() => this.resize());
     observer.observe(this.container);
     this.cleanup.push(() => {
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("dblclick", onDoubleClick);
+      this.container.removeEventListener("pointermove", onMove);
+      this.container.removeEventListener("pointerleave", onLeave);
       observer.disconnect();
     });
   }
