@@ -1,22 +1,26 @@
 import { Camera, Flag, LocateFixed } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Fix } from "../camera/localize";
 import { useCamera } from "../camera/useCamera";
 import { useLocalization } from "../camera/useLocalization";
 import type { Turn } from "../route/directions";
+import { type LiveArrow, signedDeg } from "../route/liveArrow";
 
 const STATUS_TEXT = { searching: "Finding your position…", located: "Position found", unavailable: undefined };
 
 /**
- * Full-screen camera with the next turn drawn over it. The arrow comes from the route plan. While the camera
- * runs, about one frame per second goes to the localization service; reliable positions arrive through `onFix`.
+ * Full-screen camera with the way to go drawn over it. While the camera runs, about one frame per second goes to
+ * the localization service; reliable positions arrive through `onFix`. With a position, `arrow` points along the
+ * route from where the walker looks. Without one, the arrow shows the current step's turn from the route plan.
  */
 export function CameraLayer({
   turn,
+  arrow,
   buildingId,
   onFix,
 }: {
   turn: Turn | undefined;
+  arrow: LiveArrow | undefined;
   buildingId: string;
   onFix: (fix: Fix) => void;
 }) {
@@ -41,7 +45,13 @@ export function CameraLayer({
         aria-label="Live camera view"
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(#131a0d1f,transparent_35%,transparent_60%,#131a0d2e)]" />
-      {turn && <TurnOverlay turn={turn} />}
+      {arrow?.kind === "turn" ? (
+        <LiveArrowOverlay turnDeg={arrow.turnDeg} />
+      ) : arrow?.kind === "arrive" ? (
+        <TurnOverlay turn="arrive" />
+      ) : (
+        turn && <TurnOverlay turn={turn} />
+      )}
       {statusText && (
         <p
           role="status"
@@ -109,4 +119,46 @@ function TurnOverlay({ turn }: { turn: Turn }) {
       <ellipse cx="210" cy="697" rx="18" ry="6" fill="#f1ffbd" />
     </svg>
   );
+}
+
+/**
+ * The live arrow: it turns around the screen centre towards the route. The angle unwraps from the last one shown,
+ * so a change from 170 to -170 degrees turns 20 degrees instead of a full circle.
+ */
+function LiveArrowOverlay({ turnDeg }: { turnDeg: number }) {
+  const shown = useRef(turnDeg);
+  const angle = shown.current + signedDeg(turnDeg - shown.current);
+  useEffect(() => {
+    shown.current = angle;
+  });
+  return (
+    <svg
+      className="pointer-events-none absolute inset-x-0 top-[22%] mx-auto h-[56%] w-full max-w-[560px]"
+      viewBox="0 0 420 420"
+      aria-label={`Route ${describeTurn(turnDeg)}`}
+      role="img"
+    >
+      {/* SVG angles turn clockwise on screen, the arrow's counterclockwise. */}
+      <g
+        style={{ transform: `rotate(${-angle}deg)`, transformOrigin: "210px 210px", transition: "transform 0.4s ease-out" }}
+      >
+        <path d="M210 330 210 110" stroke="#26301d" strokeWidth="40" opacity=".12" strokeLinecap="round" />
+        <path d="M210 330 210 110" stroke="#dcff58" strokeWidth="30" strokeOpacity=".9" strokeLinecap="round" />
+        <path
+          d="m160 150 50-56 50 56"
+          fill="none"
+          stroke="#e2ff77"
+          strokeWidth="22"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+    </svg>
+  );
+}
+
+function describeTurn(turnDeg: number): string {
+  if (Math.abs(turnDeg) <= 30) return "straight ahead";
+  if (Math.abs(turnDeg) >= 150) return "behind you";
+  return turnDeg > 0 ? "to the left" : "to the right";
 }

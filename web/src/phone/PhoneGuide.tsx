@@ -6,6 +6,7 @@ import { useBuilding, useRoute, type RouteRequest } from "../api/buildings";
 import type { Fix } from "../camera/localize";
 import { navigate } from "../router";
 import { directions, type Step } from "../route/directions";
+import { liveArrow } from "../route/liveArrow";
 import { guidePath, readGuideLink } from "../route/link";
 import { spaceName } from "../route/places";
 import { stopsAhead } from "../route/progress";
@@ -103,6 +104,10 @@ function Guide({
   const marker: Overlay["position"] = located
     ? { floorId: located.floorId, x: located.x, y: located.y, headingDeg: located.headingDeg }
     : step && toFloorPoint(step.at);
+  const arrow =
+    located?.headingDeg !== undefined && route.data
+      ? liveArrow(route.data.path, { ...located, headingDeg: located.headingDeg })
+      : undefined;
   const onFix = (next: Fix) => {
     setFix(next);
     const count = roomStreak.current?.spaceId === next.spaceId ? roomStreak.current.count + 1 : 1;
@@ -135,7 +140,7 @@ function Guide({
           className="absolute inset-0 -z-10 bg-paper"
         />
       )}
-      {mode === "camera" && <CameraLayer turn={step?.turn} buildingId={buildingId} onFix={onFix} />}
+      {mode === "camera" && <CameraLayer turn={step?.turn} arrow={arrow} buildingId={buildingId} onFix={onFix} />}
       {mode === "steps" && (
         <StepList steps={steps} current={stepIndex} onSelect={setStepIndex} empty={!request} />
       )}
