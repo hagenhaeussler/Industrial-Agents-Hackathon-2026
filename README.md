@@ -1,4 +1,28 @@
-# Track 01 — Google Maps for Every Building: student kit
+# Track 01: rewrite baseline
+
+This branch starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
+at commit `dc03c44`. It contains building data and evaluation tools. No application or agent is implemented yet.
+
+The starter agent, PNG and SVG plan exports, duplicate equipment tables, duplicate test-question table,
+and student-kit marker have been removed. `building.json` is the source for each building's geometry and
+equipment. The backend will use Python and SQLite. The frontend will use TypeScript, React and Tailwind.
+
+## Project guide
+
+Only the evaluator is implemented. The database importer, building tools, agent harness and web application
+are planned. These documents separate confirmed requirements from proposals:
+
+- [AGENTS.md](AGENTS.md): working rules and evaluation-data isolation.
+- [ARCHITECTURE.md](ARCHITECTURE.md): responsibilities, shared tools and implementation order.
+- [docs/db.md](docs/db.md): SQLite storage, derived facts and the import workflow.
+- [docs/agent.md](docs/agent.md): harness requirements, model configuration and output options.
+
+Start with the database. Its first implementation must document database setup, migrations, import and
+verification commands here. Those commands do not exist yet. The agent follows once the data interface
+and its checks are ready.
+
+`.env.example` records the planned model setting, `BUILDING_AGENT_MODEL=anthropic:claude-sonnet-5-5`.
+The agent will read this setting when it is implemented. The current evaluator does not consume it.
 
 Build a conversational agent that knows a building as well as its facility manager does. You give it a building, and people just ask it things:
 
@@ -7,11 +31,10 @@ Build a conversational agent that knows a building as well as its facility manag
 - *"The east lift is closed for maintenance. What changes?"*
 - *"Add a door between rooms 2.03 and 2.04."*
 
-This kit has everything you need to start:
+This baseline contains:
 
-- **Data:** 280 buildings with floor plans, equipment lists and plan images.
+- **Data:** 280 buildings with geometry and equipment in `building.json`.
 - **Questions:** train and dev questions with answers, and the test questions you are scored on (without answers).
-- **A working starter agent** built on the Claude API.
 - **A scorer**, so you can measure yourself on dev before you submit.
 
 ---
@@ -41,22 +64,21 @@ Shortly before code freeze on Sunday, a new, unseen building is released, and yo
 
 ---
 
-## 2. What's in the kit
+## 2. What's in the baseline
 
 ```
 README.md                  this file
 CHANGELOG.md               what changed between kit versions (1.1.0: stair and lift costs)
 ATTRIBUTION.md             data sources and licences (read before you share anything)
-pyproject.toml             Python project for the starter agent and the scorer (uv or pip)
-.env.example               copy to .env and add your ANTHROPIC_API_KEY
-starter_agent/             a working example agent (Claude + tools); its own README explains it
+pyproject.toml             Python package and dependencies for evaluation
+.env.example               example Anthropic credentials, if your agent uses them
 benchmark/                 score.py (the official scorer) and evaluate.py (runs an agent, writes the submission)
+tests/                     offline evaluator checks
 data/
   manifest.csv             one row per building: split, source, licence, size, lifts, stairs, ...
-  train/<building_id>/     200 buildings: plan, equipment, images, questions with answers
+  train/<building_id>/     200 buildings: geometry, equipment and questions with answers
   dev/<building_id>/       40 buildings: same as train; use for self-evaluation
-  test/<building_id>/      40 buildings: plan, equipment, images, questions WITHOUT answers
-  test/questions.csv       all 145 test questions in one table
+  test/<building_id>/      40 buildings: geometry, equipment and questions WITHOUT answers
   test/submission_template.csv   question_id,answer with every test id, ready to fill in
 ```
 
@@ -65,9 +87,6 @@ Each building directory contains:
 | File | What it is |
 |---|---|
 | `building.json` | The plan in the common format (section 3) |
-| `equipment.csv` | One row per piece of furniture, fixture, machine or piece of equipment |
-| `floor_<level>.png` / `.svg` | Plan with furniture |
-| `floor_<level>_plain.png` | Plan without furniture |
 | `questions.jsonl` | Benchmark questions. Answers are included in train and dev, not in test. |
 | `questions_basic.jsonl` | Warm-up questions with answers (train and dev only) |
 
@@ -138,10 +157,6 @@ Notes:
 - **Stairs and lifts:** stairs join their stop spaces floor to floor in the order of their levels. A lift joins every pair of its stops, because you ride it without getting out on the floors in between.
 - **Asset names** are unique within a building, e.g. `Desk 2.03-B` is the second desk in room 2.03.
 
-### `equipment.csv`
-
-`asset_id, name, type, category, source, building_id, floor_level, floor_name, space_id, space_name, room_ref, room_type, x_m, y_m, width_m, depth_m, rotation_deg`. This is the same information as `assets` in `building.json`, flattened.
-
 ### `manifest.csv`
 
 `building_id, split, source, group_id, name, license, floors, levels, spaces, rooms, openings, connectors, assets, has_stairs, has_lift, has_step_free_entrance, questions, path`. `path` is relative to `data/`. `group_id` prevents leakage between splits: buildings from one site are all in the same split.
@@ -161,7 +176,7 @@ Route lengths in the answers follow the same rules the judges grade with, so you
 
 These rules changed in 1.1.0; see `CHANGELOG.md`.
 
-`starter_agent/building_map.py` implements exactly this model.
+The new implementation must follow this route model.
 
 ---
 
@@ -217,28 +232,24 @@ The answers are well defined. The right room always beats the runner-up by a cle
 
 ## 5. Quick start
 
-You need Python 3.12+ and [uv](https://docs.astral.sh/uv/) (or pip), plus an Anthropic API key.
+You need Python 3.12+ and [uv](https://docs.astral.sh/uv/) (or pip) for the evaluator.
 
 ```bash
 uv sync
-cp .env.example .env        # then put your key in .env
-uv run --env-file .env python -m starter_agent data/dev/proc-factory-dev-003
+uv run python -m benchmark.evaluate --help
+uv run python -m unittest discover -s tests -v
 ```
 
-Measure yourself on **dev** before you touch the test set:
+No agent is included. Once you have implemented an agent module, measure it on **dev** before the test set:
 
 ```bash
-# warm-up questions, tools only, free:
-uv run python -m starter_agent.evaluate data/dev --oracle
-# benchmark questions with the starter agent (uses credits; about $0.10–0.25 per question):
-uv run --env-file .env python -m benchmark.evaluate data/dev --per-kind 3
-# your own agent:
-uv run --env-file .env python -m benchmark.evaluate data/dev --agent my_agent:answer
+uv run python -m benchmark.evaluate data/dev --agent my_agent:answer --per-kind 3
 ```
 
 `--agent module:function` takes a function `answer(building_directory: Path, question_text: str) -> str` that returns your agent's full reply.
 
-The starter agent scores **under 5% on the benchmark questions**. That is deliberate: its tools don't expose room areas, door widths or reachability, and it shows you where to start. See `starter_agent/README.md` for how it works and ideas to extend it.
+`my_agent:answer` is a placeholder for your implementation. Configure provider credentials only if your agent
+needs them. Never commit secrets. Provider-backed evaluation can incur costs and needs an approved budget.
 
 ---
 
@@ -262,7 +273,7 @@ Answer: 214.7"
 Writing the file is easiest with the evaluator. It runs your agent on every test question and saves the CSV:
 
 ```bash
-uv run --env-file .env python -m benchmark.evaluate data/test --agent my_agent:answer --submission-csv team_<name>.csv
+uv run python -m benchmark.evaluate data/test --agent my_agent:answer --submission-csv team_answers.csv
 ```
 
 `data/test/submission_template.csv` lists every test id, if you would rather fill it in another way. The file must be UTF-8 with a header row and at most 5 MB.
