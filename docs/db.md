@@ -81,7 +81,8 @@ stored building with changed content is not implemented. Until then, delete the 
 
 `building_db.store.load_building(connection, building_id)` returns the stored building as a validated
 `BuildingDocument` in the source format. Each list is ordered by entity ID. Agent tools will build on this and on
-targeted queries. Agent access is read-only. Import is a separate operator action. Later write operations must
+targeted queries. `building_db.store.connect_readonly` opens an existing file read-only and never creates
+or migrates it. The building API uses it. Agent access is read-only. Import is a separate operator action. Later write operations must
 use the same validation and must not expose raw SQL to the agent.
 
 ## Verification
