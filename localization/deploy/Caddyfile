@@ -1,0 +1,9 @@
+# HTTPS in front of the localization service on the GPU VM. sslip.io resolves the name to the VM's fixed IP,
+# so Caddy gets a Let's Encrypt certificate without a domain of our own. Install:
+#   sudo cp localization/deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+34-57-207-160.sslip.io {
+	request_body {
+		max_size 5MB
+	}
+	reverse_proxy 127.0.0.1:8020
+}

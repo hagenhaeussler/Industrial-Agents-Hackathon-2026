@@ -31,7 +31,7 @@ Route guidance uses that result as its start point.
 | Capture device | iPhone 12 Pro | LiDAR has not improved measurably since. A newer Pro helps only in dim buildings because of its larger image sensor. |
 | Map frame | Now: the ARKit poses of one capture, kept fixed. Later: one hloc reconstruction that joins all captures. | Fixed ARKit poses give metres and gravity with no alignment step. Several captures need SfM, because each has its own frame and ARKit drifts on long walks. |
 | Floor plan | Derived from the same scan, so it shares the map frame | No separate alignment step. `building.json` stays traceable to the scan. |
-| GPU | Google Cloud Spot VM `g2-standard-4` (1× NVIDIA L4) in `europe-west4-a` | On-demand L4s were out of stock in all EU zones. Spot costs about 0.43 USD/h, but Google can stop it at any time. Close to Germany for low network latency. |
+| GPU | Google Cloud standard VM `g2-standard-4` (1× NVIDIA L4) in `us-central1-a`, kept running | On 2026-10-25, L4 and T4 were out of stock in all 12 EU zones, and Google stopped the earlier Spot VM. A standard VM is not taken back for other customers. Stopping it risks not getting a GPU again. About 0.85 USD/h. Over a kept-open connection, a request from Germany takes 0.30 s. |
 | Server API | FastAPI with a WebSocket | Matches the planned Python backend. |
 | Compass | Not used | Visual localization gives a better heading. Reconsider only if the spike shows confusion between similar corridors. |
 
@@ -222,15 +222,25 @@ python -m localization.compare --map ~/data/maps/<map> --map-capture ~/data/raw/
     --capture ~/data/raw/<other capture> --building ~/data/buildings/<capture>/building.json --out ~/data/compare
 ```
 
-The service runs under systemd, so it starts again after a reboot or a Spot preemption. Install it with
-`localization/deploy/localization.service`. `~/localization.env` on the VM holds `LOCALIZATION_TOKEN`.
+### Deployment
+
+| Item | Value |
+|---|---|
+| VM | `probe-y` in `us-central1-a`, standard, automatic restart. The name comes from a capacity test; a VM can only be renamed while stopped |
+| Public URL | `https://34-57-207-160.sslip.io`, fixed IP `loc-gpu-us-ip`. sslip.io resolves the name to the IP |
+| HTTPS | Caddy with a Let's Encrypt certificate, `localization/deploy/Caddyfile`. Firewall rule `allow-localization-https` opens ports 80 and 443 for the tag `localization-https` |
+| Service | systemd unit `localization/deploy/localization.service`, starts after a reboot |
+| Token | `LOCALIZATION_TOKEN` in `~/localization.env` on the VM, readable only by its owner |
+| Data | A second disk made from the snapshot `loc-gpu-snap-1` of the first VM. It is mounted at `/mnt/old`; `/home/lenard` and the Python packages in `/usr/local/lib/python3.12/dist-packages` are bind mounts from it |
 
 ```sh
-sudo systemctl status localization
+sudo systemctl status localization caddy
 journalctl -u localization -f
+gcloud compute instances describe probe-y --zone=us-central1-a --format='value(resourceStatus.upcomingMaintenance)'
 ```
 
-Stop the VM when it is idle: `gcloud compute instances stop loc-gpu --zone=europe-west4-a`.
+Do not stop the VM before the demo. GPUs were out of stock in Europe, and a stopped VM may not get one back.
+Clients should keep one HTTPS connection open: a new connection to the US adds about 0.5 s.
 
 ## Capture guide
 
@@ -246,11 +256,11 @@ Scans show real buildings and may show people. Keep them out of Git. Store them 
 
 | # | Step | Owner | Done when |
 |---|---|---|---|
-| 1 | Request a Google Cloud GPU quota of 1 (`GPUS_ALL_REGIONS`), create an L4 VM in `europe-west4` | Lenard | Done |
+| 1 | Request a Google Cloud GPU quota of 1 (`GPUS_ALL_REGIONS`), create an L4 VM | Lenard | Done. Moved from `europe-west4` (Spot) to `us-central1` (standard) |
 | 2 | Record one corridor slowly in both directions with Stray Scanner on the iPhone 12 Pro | Lenard | Done: 9.5 minutes on the VM |
 | 3 | Localization spike: import Stray Scanner data, build the hloc map, localize held-out frames and the fast video | Claude | Done: median error below 0.5 m and server time below 500 ms, see [Spike results](#spike-results) |
 | 4 | Floor plan spike: point cloud, density image, semi-automatic spaces and doors, first `building.json` | Claude | Done: one clean outline, see [Floor plan results](#floor-plan-results). Rooms and doors are planned |
-| 5 | Localization API: HTTPS endpoint returning floor, space, position and heading | Claude | Done on the VM: a phone frame returns a floor, space and position in about 180 ms. Public HTTPS and the Railway connection are open |
+| 5 | Localization API: HTTPS endpoint returning floor, space, position and heading | Claude | Done: public over HTTPS, a phone frame returns a floor, space and position in about 180 ms on the GPU. The Railway connection is open |
 | 6 | Web client: camera, frame upload, arrow to the next route point | Team | A person can follow a route on one floor |
 | 7 | Scale up: full floors, several floors, stairs and lifts | Team | Multi-floor route works in the test building |
 | 8 | Optional: SpatialLM floor plan draft, LoMa matcher, compass needle in the UI | Team | Only after steps 1 to 7 work |
@@ -262,7 +272,7 @@ Then try LoMa, more retrieved frames, or a newer phone for the capture.
 
 - Similar corridors can confuse retrieval. Pose smoothing and walkable-area checks reduce this.
 - Light changes and moved furniture between capture and demo reduce matches. Capture close to the demo date.
-- Google can stop a Spot VM at any time. For the demo, start it early and check it. Switch to on-demand if a zone has stock.
+- GPU stock: on-demand GPUs can be sold out everywhere. Keep the standard VM running until the demo. Google stops it only for host maintenance or a hardware fault and then restarts it. Check `upcomingMaintenance` before the demo.
 - Browsers do not give camera intrinsics. The server estimates the focal length; this has been tested with recorded video frames, not yet with a browser camera.
 - SpatialLM was trained on homes. Office corridors may need manual correction.
 

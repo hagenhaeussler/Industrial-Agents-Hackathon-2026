@@ -4,6 +4,7 @@
 [Unit]
 Description=Camera localization service
 After=network-online.target
+RequiresMountsFor=/home/lenard /usr/local/lib/python3.12/dist-packages
 Wants=network-online.target
 
 [Service]
