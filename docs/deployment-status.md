@@ -23,6 +23,9 @@ The rewrite has a separate Git history from the old main at `dc289ba`. The merge
 uses the rewrite's file tree, including `898f35f` with phone camera localization and voice transcript feedback.
 Old application files are removed by this replacement. Work not merged into that rewrite revision is separate.
 
+The equipment selection follow-up from PR #28 (`0dd4dd7`) is now merged into the release branch for `main`.
+Its release check passed: 112 Python tests, 22 building-view tests, 33 web tests, Ruff and both TypeScript builds.
+
 ## Checks
 
 - `scripts/check.sh`: passed on 25 October 2026. Python: 112 tests. Ruff: clean. Building view: 22 tests and
@@ -35,7 +38,7 @@ Old application files are removed by this replacement. Work not merged into that
   service; a reachable factory route of 130.25 m; voice token and allowed web origin; unauthenticated MCP returns 401.
 - Voice pre-deploy sync completed. No paid conversation was started.
 
-Local Docker verification is unavailable because the Docker daemon is not running. Railway will build both
+Local Docker verification is unavailable because the Docker daemon is not running. Railway built both
 images successfully. No paid model or voice conversations are part of verification.
 
 The T3 browser snapshot timed out twice. The alternate browser had no available browser. A fresh visual,
