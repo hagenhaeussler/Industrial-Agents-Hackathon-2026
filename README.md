@@ -26,6 +26,7 @@ application includes a desktop workspace and a phone guide. These documents desc
 - [SUBMISSION/BENCHMARK.md](SUBMISSION/BENCHMARK.md): setup and commands for jury questions and reproducing
   the submitted `answers.json`.
 - [docs/visualization.md](docs/visualization.md): building API, scene compiler, 2D plan and 3D view.
+- [docs/campus-explorer.md](docs/campus-explorer.md): campus-map prototype, Google 3D/CIT floor replacement, demo setup and integration handoff.
 - [docs/voice.md](docs/voice.md): ElevenLabs voice agent, token server and test page.
 - [docs/localization.md](docs/localization.md): camera localization and floor plans from a phone scan.
 - [docs/deployment-status.md](docs/deployment-status.md): Railway services, automatic deployment from `main` and verification.
