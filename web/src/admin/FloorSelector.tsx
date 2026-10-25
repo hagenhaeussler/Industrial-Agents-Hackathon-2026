@@ -129,7 +129,7 @@ function FloorChip({ label, title, active, onClick }: { label: string; title: st
       title={title}
       aria-label={title}
       onClick={onClick}
-      className={`grid h-7 min-w-7 shrink-0 place-items-center rounded-full px-2 text-xs font-[750] focus-visible:outline-none focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-4 ${active ? "bg-ink text-white" : ""}`}
+      className={`grid h-7 min-w-7 shrink-0 place-items-center rounded-full px-2 text-xs font-[750] focus-visible:outline-none ${active ? "bg-ink text-white" : ""}`}
     >
       {label}
     </button>
