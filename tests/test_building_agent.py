@@ -102,6 +102,17 @@ class AgentTests(unittest.TestCase):
         self.assertTrue(format_reply(closed, self.building).endswith("Answer: No route exists under these rules."))
         self.assertEqual(answer_result(closed, self.building)["space_path"], [])
 
+    def test_unreachable_tour_lists_no_elements(self) -> None:
+        # The first leg is reachable, the second is not: the route as a whole has no path.
+        answer = RouteAnswer(
+            stops=["S-lift-1", "S-office", "S-lift-0"],
+            leg_conditions=[RouteConditions(), RouteConditions(closed=["O-door"])],
+            explanation="x",
+        )
+        result = answer_result(answer, self.building)
+        self.assertFalse(result["reachable"])
+        self.assertEqual((result["space_path"], result["element_path"]), ([], []))
+
     def test_route_with_unknown_ids_is_sent_back_for_repair(self) -> None:
         def model(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
             retried = any(
