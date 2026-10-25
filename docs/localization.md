@@ -1,6 +1,7 @@
 # Camera localization
 
-Status: steps 1 to 3 are done. The code is in `localization/`. Results are in [Spike results](#spike-results).
+Status: steps 1 to 4 are done. The code is in `localization/`. Results are in [Spike results](#spike-results)
+and [Floor plan results](#floor-plan-results).
 
 ## Goal
 
@@ -63,15 +64,24 @@ Implemented in `localization/build_map.py` for one capture:
 4. Extract SuperPoint and MegaLoc features. Pair each keyframe with its nearest keyframes and with its 10 most similar keyframes.
 5. Match the pairs with LightGlue in 3 parallel processes. Triangulate the 3D points with COLMAP.
 
+Implemented in `localization/floor_plan.py` for one capture and one floor:
+
+6. Back-project the LiDAR depth of the keyframes into 5 cm voxels. Only high-confidence depth up to 5 m counts.
+7. Find the floor as the most common point height below the camera. Turn the plan so that most walls run
+   along the x and y axes.
+8. Mark walls (points 1.0 to 2.2 m above the floor) and free space (camera rays and seen floor).
+9. Draw the outline along the outer walls only (`localization/outline.py`). Interior walls do not count.
+   Parallel outer walls closer than 2 m become one straight wall at the outer one. Space seen through
+   glass beyond a wall drops out.
+10. Write `building.json` with one floor and one space. `source_ref` holds the capture, the map and the
+    4 x 4 transform `building_from_map`. Names, room types and furniture come from a small annotations file,
+    because the scan cannot tell them.
+
 Planned:
 
-6. Join several captures in one SfM reconstruction. Fit a similarity transform (Umeyama) to the ARKit centres for metres and gravity.
-7. Back-project LiDAR depth with the poses into one point cloud.
-8. Find floors from the camera heights. Make a top-down wall density image per floor.
-9. Draw the floor plan: first semi-automatically in a small editor over the density image.
-   Doors are where the camera path crosses a wall. Later, try
-   [SpatialLM](https://github.com/manycore-research/SpatialLM) for an automatic draft.
-10. Write `building.json`. Record the scan and transform in `source_ref`.
+11. Split the floor into rooms and add doors. Doors are where the camera path crosses a wall.
+    Try [SpatialLM](https://github.com/manycore-research/SpatialLM) for an automatic draft.
+12. Join several captures in one SfM reconstruction. Fit a similarity transform (Umeyama) to the ARKit centres for metres and gravity.
 
 ### Online: one localization request
 
@@ -139,6 +149,20 @@ The first version decoded the video with OpenCV on the CPU and matched with hloc
 That version also had the one-frame shift described below. Fixing it raised the map from 76,615 to 167,539 points
 and lowered the median error on the hectic capture from 0.43 m to 0.33 m.
 
+## Floor plan results
+
+For the capture above: 1,375,380 voxels from 1,666 keyframes in about 25 s on the VM.
+
+- The walls are turned by 5.0° against the map frame. The floor lies 1.6 m below the phone.
+  The ceiling is 2.53 m above the floor.
+- The outline has 16 corners and 581 m². All sides are straight.
+- The building has many glass walls and one open-plan office. So it is one space with two standing tables
+  (table tops 1.0 to 1.2 m above the floor).
+- All 200 held-out query cameras lie inside the outline after the transform, at a median height of 1.60 m.
+
+`building_from_map` maps a map point `(x, y, z)` with y up to the plan `(x, y, height above floor)`.
+Seen from above, the map's x and -z axes become the plan's x and y, then the plan turns by the wall angle.
+
 ## Running the pipeline
 
 The VM uses Ubuntu 24.04 with the NVIDIA 580 server driver. Setup notes:
@@ -152,6 +176,19 @@ The VM uses Ubuntu 24.04 with the NVIDIA 580 server driver. Setup notes:
 python -m localization.build_map --capture ~/data/raw/<capture> --out ~/data/maps/<capture>
 python -m localization.evaluate --map ~/data/maps/<capture>
 python -m localization.evaluate_capture --map ~/data/maps/<capture> --capture ~/data/raw/<other capture>
+python -m localization.floor_plan --capture ~/data/raw/<capture> --map <map name> \
+    --annotations <annotations.json> --out ~/data/buildings/<capture>
+```
+
+`floor_plan` writes `building.json` and a preview image `plan.png`. The docstring shows the annotations format.
+
+For a visual check, `compare` localizes random frames of another recording. It draws each photo next to the
+coloured point cloud seen from the estimated pose, and the position on the floor plan. Run it after
+`evaluate_capture`, which stores the alignment between both recordings:
+
+```sh
+python -m localization.compare --map ~/data/maps/<map> --map-capture ~/data/raw/<map capture> \
+    --capture ~/data/raw/<other capture> --building ~/data/buildings/<capture>/building.json --out ~/data/compare
 ```
 
 Stop the VM when it is idle: `gcloud compute instances stop loc-gpu --zone=europe-west4-a`.
@@ -173,7 +210,7 @@ Scans show real buildings and may show people. Keep them out of Git. Store them 
 | 1 | Request a Google Cloud GPU quota of 1 (`GPUS_ALL_REGIONS`), create an L4 VM in `europe-west4` | Lenard | Done |
 | 2 | Record one corridor slowly in both directions with Stray Scanner on the iPhone 12 Pro | Lenard | Done: 9.5 minutes on the VM |
 | 3 | Localization spike: import Stray Scanner data, build the hloc map, localize held-out frames and the fast video | Claude | Done: median error below 0.5 m and server time below 500 ms, see [Spike results](#spike-results) |
-| 4 | Floor plan spike: point cloud, density image, semi-automatic spaces and doors, first `building.json` | Claude | Route tools accept the file. Spaces match the real corridor |
+| 4 | Floor plan spike: point cloud, density image, semi-automatic spaces and doors, first `building.json` | Claude | Done: one clean outline, see [Floor plan results](#floor-plan-results). Rooms and doors are planned |
 | 5 | Localization API: FastAPI WebSocket returning the result shape above | Claude | A phone frame returns a floor, space and position |
 | 6 | Web client: camera, frame upload, arrow to the next route point | Team | A person can follow a route on one floor |
 | 7 | Scale up: full floors, several floors, stairs and lifts | Team | Multi-floor route works in the test building |

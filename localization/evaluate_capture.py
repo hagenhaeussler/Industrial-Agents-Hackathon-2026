@@ -68,6 +68,7 @@ def main() -> None:
         "capture": args.capture.name,
         "quarter_turns": turns,
         "alignment_inliers": int(inliers.sum()),
+        "map_from_capture": map_from_capture.tolist(),
         "settings": {k: v for k, v in vars(args).items() if k not in ("map", "capture")},
     }
     report = args.map / f"eval-capture-{args.capture.name}-long{args.long_side}.json"
