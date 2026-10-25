@@ -1,1640 +1,582 @@
 [
   {
-    "id": "osm-way363805324-H01",
-    "question": "Which is the largest generic room on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Generic room 1.02, 162.33 m²",
-    "reply": "Largest of the 7 generic rooms on Floor 1, at 162.33 m²\nAnswer: Generic room 1.02, 162.33 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way363805324-F1-S002",
-      "space_name": "Generic room 1.02",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 162.33
-    }
-  },
-  {
-    "id": "osm-way363805324-H02",
-    "question": "Facilities want the total floor area of every generic room on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "54.77",
-    "reply": "The ground floor has 5 generic rooms. Their total area is 54.77 m².\nAnswer: 54.77",
-    "result": {
-      "type": "number",
-      "value": 54.77,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "osm-way363805324-H03",
-    "question": "I'm in Generic room 1.10 (Floor 1). I need to grab a office chair from the room that has one closest to me, then carry it to the largest generic room on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "44.90",
-    "reply": "Only room 114 (Gemeinschaftsbüro) on Floor 1 has office chairs. The route from Generic room 1.10 to room 114 (14.84 m) and on to the largest generic room, 1.02 (30.06 m), totals 44.9 m.\nAnswer: 44.90",
-    "result": {
-      "type": "number",
-      "value": 44.9,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way363805324-H04",
-    "question": "A washing machine is leaking onto the floor of Büchercorner (Floor 1). Which room directly below it will the water reach? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "E01, Großer Saal, 142.66 m²",
-    "reply": "Großer Saal (E01) has the largest overlap with Büchercorner's outline, 57.74 m², which is 98.9% of it.\nAnswer: E01, Großer Saal, 142.66 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way363805324-F0-S001",
-      "space_name": "Großer Saal",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 142.66
-    }
-  },
-  {
-    "id": "osm-way363805324-H07",
-    "question": "There's water dripping from the ceiling in Kitchen 0.16 (Ground floor). Which room is directly above it? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room 1.10, 39.16 m²",
-    "reply": "Generic room 1.10 on Floor 1 has the largest overlap with Kitchen 0.16 (39.16 m²\nAnswer: Generic room 1.10, 39.16 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way363805324-F1-S010",
-      "space_name": "Generic room 1.10",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 39.16
-    }
-  },
-  {
-    "id": "osm-way363805324-H10",
-    "question": "We're soundproofing Generic room U20 (Basement 1). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "5",
-    "reply": "shared_walls for Generic room U20 lists 5 rooms sharing at least 1 m of wall, and no other spaces were excluded.\nAnswer: 5",
-    "result": {
-      "type": "count",
-      "value": 5
-    }
-  },
-  {
-    "id": "osm-way363805324-H11",
-    "question": "We're planning a wireless sensor link between Generic room -1.11 (Basement 1) and Büchercorner (Floor 1). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "21.16",
-    "reply": "distance_3d between the centroids of the two rooms (20.287 m horizontal, 6 m vertical).\nAnswer: 21.16",
-    "result": {
-      "type": "number",
-      "value": 21.16,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way43035346-H01",
-    "question": "Which is the largest generic room on the floor 3, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Generic room N3806, 115.03 m²",
-    "reply": "Largest of 16 generic rooms on Floor 3: Generic room N3806, 115.03 m².\nAnswer: Generic room N3806, 115.03 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way43035346-F3-S012",
-      "space_name": "Generic room N3806",
-      "floor_level": 3,
-      "floor_name": "Floor 3",
-      "area_m2": 115.03
-    }
-  },
-  {
-    "id": "osm-way43035346-H02",
-    "question": "Facilities want the total floor area of every generic room on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "592.80",
-    "reply": "The tool found 26 generic rooms on Floor 1. Their areas add up to 592.8 m²\nAnswer: 592.80",
-    "result": {
-      "type": "number",
-      "value": 592.8,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "osm-way43035346-H03",
-    "question": "I'm in Generic room N3820 (Floor 3). I need to grab a fire extinguisher from the room that has one closest to me, then carry it to the largest generic room on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "53.99",
-    "reply": "The nearest fire extinguisher is in Stairwell N3834 (21.26 m away). Carrying it from there to Generic room N1838, the largest generic room on Floor 1, is another 32.73 m, so the route is 53.99 m in total.\nAnswer: 53.99",
-    "result": {
-      "type": "number",
-      "value": 53.99,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way43035346-H04",
-    "question": "There's water dripping from the ceiling in Generic room -1.14 (Basement 1). Which room is directly above it? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room N0806, 93.96 m²",
-    "reply": "Generic room N0806 on the Ground floor has the largest overlap with Generic room -1.14. It covers 85% of that room's outline.\nAnswer: Generic room N0806, 93.96 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way43035346-F0-S014",
-      "space_name": "Generic room N0806",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 93.96
-    }
-  },
-  {
-    "id": "osm-way43035346-H05",
-    "question": "We're soundproofing Generic room N-1840 (Basement 1). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "6",
-    "reply": "shared_walls returned 6 rooms sharing at least 1 m of wall with Generic room N-1840. Corridors and the stairwell were excluded.\nAnswer: 6",
-    "result": {
-      "type": "count",
-      "value": 6
-    }
-  },
-  {
-    "id": "osm-way43035346-H06",
-    "question": "We're planning a wireless sensor link between Generic room N-1828 (Basement 1) and Generic room N2821 (Floor 2). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "11.85",
-    "reply": "distance_3d between the two room centroids: 7.70 m horizontal and 9.0 m vertical.\nAnswer: 11.85",
-    "result": {
-      "type": "number",
-      "value": 11.85,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way43035346-H07",
-    "question": "What if we add a door between Generic room N0808 (Ground floor) and Generic room N0809 (Ground floor), in the middle of the wall they share? How many rooms on the floor 3 would then have a shorter walk out of the building, to their nearest entrance, by more than 1 m? Finish with a line 'Answer: <number>'.",
-    "answer": "0",
-    "reply": "The exit-distance comparison for Floor 3 shows no rooms with a shorter walk after adding the door between N0808 and N0809.\nAnswer: 0",
-    "result": {
-      "type": "count",
-      "value": 0
-    }
-  },
-  {
-    "id": "osm-way50299584-H01",
-    "question": "Which is the largest generic room on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Generic room 0566, 559.80 m²",
-    "reply": "Largest generic room on the ground floor, 559.8 m²\nAnswer: Generic room 0566, 559.80 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50299584-F0-S043",
-      "space_name": "Generic room 0566",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 559.8
-    }
-  },
-  {
-    "id": "osm-way50299584-H02",
-    "question": "Facilities want the total floor area of every generic room on the floor 3 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "959.75",
-    "reply": "There are 41 generic rooms on Floor 3. Their total area, from find_spaces, is 959.75 m².\nAnswer: 959.75",
-    "result": {
-      "type": "number",
-      "value": 959.75,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "osm-way50299584-H03",
-    "question": "I'm in Generic room 1508 (Floor 1). I need to grab a coat rack from the room that has one closest to me, then carry it to the largest generic room on the floor 2. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "103.36",
-    "reply": "The closest coat rack by walking distance is in Corridor 2591 on Floor 2, 56.15 m away. Carrying it from there to Generic room 2538, the largest generic room on Floor 2, adds 47.21 m, so the route is 103.36 m in total\nAnswer: 103.36",
-    "result": {
-      "type": "number",
-      "value": 103.36,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way50299584-H04",
-    "question": "There's water dripping from the ceiling in Generic room -1517 (Basement 1). Which room is directly above it? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room 0583, 189.21 m²",
-    "reply": "Generic room 0583 on the Ground floor overlaps 98% of Generic room -1517, the largest overlap of any space above it.\nAnswer: Generic room 0583, 189.21 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50299584-F0-S013",
-      "space_name": "Generic room 0583",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 189.21
-    }
-  },
-  {
-    "id": "osm-way50299584-H06",
-    "question": "A washing machine is leaking onto the floor of Generic room 0520 (Ground floor). Which room directly below it will the water reach? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room -1530, 121.24 m²",
-    "reply": "Generic room -1530 on Basement 1 covers all of Generic room 0520's outline, so it is the room directly below.\nAnswer: Generic room -1530, 121.24 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50299584-F-1-S037",
-      "space_name": "Generic room -1530",
-      "floor_level": -1,
-      "floor_name": "Basement 1",
-      "area_m2": 121.24
-    }
-  },
-  {
-    "id": "osm-way50299584-H11",
-    "question": "There's water dripping from the ceiling in Generic room 0523 (Ground floor). Which room is directly above it? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room 1530, 18.46 m²",
-    "reply": "Generic room 1530 on Floor 1 has the largest overlap (12.65 m², 88% of the room) with Generic room 0523\nAnswer: Generic room 1530, 18.46 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50299584-F1-S033",
-      "space_name": "Generic room 1530",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 18.46
-    }
-  },
-  {
-    "id": "osm-way50299584-H12",
-    "question": "We're soundproofing Generic room 2522 (Floor 2). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "Four rooms on Floor 2 share at least 1 m of wall with Generic room 2522: 2522A, 2523, 2530 and 2523A. Corridor 2581 also touches it but doesn't count.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "osm-way50299584-H13",
-    "question": "We're planning a wireless sensor link between Generic room 3580.2 (Floor 3) and Generic room 1561 (Floor 1). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "62.01",
-    "reply": "distance_3d between the centroids of the two rooms (61.72 m horizontal, 6 m vertical).\nAnswer: 62.01",
-    "result": {
-      "type": "number",
-      "value": 62.01,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way50300147-H01",
-    "question": "Which is the largest generic room on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Generic room 0219, 530.16 m²",
-    "reply": "Largest generic room on the ground floor by stored area: 530.16 m².\nAnswer: Generic room 0219, 530.16 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50300147-F0-S047",
-      "space_name": "Generic room 0219",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 530.16
-    }
-  },
-  {
-    "id": "osm-way50300147-H02",
-    "question": "Facilities want the total floor area of every generic room on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "1699.55",
-    "reply": "find_spaces on Floor 1 with room type generic room matched 43 spaces. Their total_area_m2 is 1699.55.\nAnswer: 1699.55",
-    "result": {
-      "type": "number",
-      "value": 1699.55,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "osm-way50300147-H03",
-    "question": "I'm in Generic room 1211D (Floor 1). I need to grab a desk from the room that has one closest to me, then carry it to the largest generic room on the floor 2. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "78.24",
-    "reply": "Route from Generic room 1211D to the nearest desk room (1211B, 2.71 m), then to the largest Floor 2 generic room (2221) via stairs, 75.53 m.\nAnswer: 78.24",
-    "result": {
-      "type": "number",
-      "value": 78.24,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way50300147-H04",
-    "question": "There's water dripping from the ceiling in Generic room -1284 (Basement 1). Which room is directly above it? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room 0260, 134.50 m²",
-    "reply": "Generic room 0260 on the Ground floor covers about 99% of the basement room's outline (69.54 m² overlap), more than any other room.\nAnswer: Generic room 0260, 134.50 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50300147-F0-S019",
-      "space_name": "Generic room 0260",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 134.5
-    }
-  },
-  {
-    "id": "osm-way50300147-H05",
-    "question": "A washing machine is leaking onto the floor of Generic room 1271C (Floor 1). Which room directly below it will the water reach? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room 0219, 530.16 m²",
-    "reply": "Generic room 0219 on the Ground floor covers all of Generic room 1271C's outline. It is the space directly below.\nAnswer: Generic room 0219, 530.16 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50300147-F0-S047",
-      "space_name": "Generic room 0219",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 530.16
-    }
-  },
-  {
-    "id": "osm-way50300147-H06",
-    "question": "There's water dripping from the ceiling in Generic room -1216 (Basement 1). Which room is directly above it? Finish with a line 'Answer: <room name or number>'.",
-    "answer": "Generic room 0209, 65.96 m²",
-    "reply": "Generic room 0209 on the Ground floor covers the most of the basement room's outline (33.87 m², 93%).\nAnswer: Generic room 0209, 65.96 m²",
-    "result": {
-      "type": "space",
-      "space_id": "osm-way50300147-F0-S054",
-      "space_name": "Generic room 0209",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 65.96
-    }
-  },
-  {
-    "id": "osm-way50300147-H07",
-    "question": "We're soundproofing Generic room -1208 (Basement 1). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "6",
-    "reply": "shared_walls reports 6 rooms sharing at least 1 m of wall with Generic room -1208. The corridor is excluded.\nAnswer: 6",
-    "result": {
-      "type": "count",
-      "value": 6
-    }
-  },
-  {
-    "id": "osm-way50300147-H08",
-    "question": "We're planning a wireless sensor link between Generic room 2231 (Floor 2) and Generic room -1248 (Basement 1). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "45.49",
-    "reply": "distance_3d between the two room centroids: 44.59 m horizontal and 9 m vertical.\nAnswer: 45.49",
-    "result": {
-      "type": "number",
-      "value": 45.49,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "osm-way50300147-H09",
-    "question": "What if we add a door between Corridor 0263 (Ground floor) and Corridor 0244 (Ground floor), in the middle of the wall they share? How many rooms on the basement 1 would then have a shorter walk out of the building, to their nearest entrance, by more than 1 m? Finish with a line 'Answer: <number>'.",
-    "answer": "47",
-    "reply": "exit_distance_change on Basement 1 with the added door reports 47 rooms with a shorter walk by more than 1 m.\nAnswer: 47",
-    "result": {
-      "type": "count",
-      "value": 47
-    }
-  },
-  {
-    "id": "osm-way50300147-H10",
-    "question": "What if we add a door between Lobby 0.01 (Ground floor) and Generic room 0293 (Ground floor), in the middle of the wall they share? How many rooms on the basement 1 would then have a shorter walk out of the building, to their nearest entrance, by more than 1 m? Finish with a line 'Answer: <number>'.",
-    "answer": "47",
-    "reply": "exit_distance_change on Basement 1 with the added door shows 47 rooms with a walk shorter by more than 1 m.\nAnswer: 47",
-    "result": {
-      "type": "count",
-      "value": 47
-    }
-  },
-  {
-    "id": "proc-campus-test-000-H01",
-    "question": "Which is the largest toilet on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Toilet 1.25, 34.02 m²",
-    "reply": "Toilet 1.25 has the largest area of the three toilets on Floor 1 (34.02 m²).\nAnswer: Toilet 1.25, 34.02 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-campus-test-000-F1-S025",
-      "space_name": "Toilet 1.25",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 34.02
-    }
-  },
-  {
-    "id": "proc-campus-test-000-H02",
-    "question": "Facilities want the total floor area of every server room on the basement 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "105.42",
-    "reply": "Basement 1 has 4 server rooms (-1.30, -1.33, -1.07, -1.38). Their areas add up to 105.42 m².\nAnswer: 105.42",
-    "result": {
-      "type": "number",
-      "value": 105.42,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-campus-test-000-H03",
-    "question": "I'm moving a 1.0 m wide trolley. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Main lobby (Ground floor). Into how many rooms on the floor 1 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "21",
-    "reply": "Rooms on Floor 1 reachable from Main lobby with step-free routes and doors at least 1.0 m wide.\nAnswer: 21",
-    "result": {
-      "type": "count",
-      "value": 21
-    }
-  },
-  {
-    "id": "proc-campus-test-000-H04",
-    "question": "I'm in Office 4.27 (Floor 4). I need to grab a coffee machine from the room that has one closest to me, then carry it to the largest meeting room on the floor 2. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "128.24",
-    "reply": "Walk from Office 4.27 to the nearest coffee machine (Kitchen 4.41, 45.3 m), then by Staircase 2 to Meeting room 2.09, the largest meeting room on Floor 2 (82.94 m). Total 128.24 m.\nAnswer: 128.24",
-    "result": {
-      "type": "number",
-      "value": 128.24,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-000-H05",
-    "question": "We're planning a wireless sensor link between Lab 2.23 (Floor 2) and Storage 0.36 (Ground floor). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "41.31",
-    "reply": "distance_3d between the centroids of Lab 2.23 and Storage 0.36 (40.6 m horizontal, 7.6 m vertical).\nAnswer: 41.31",
-    "result": {
-      "type": "number",
-      "value": 41.31,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-004-H01",
-    "question": "Which is the largest meeting room on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Meeting room 0.15, 35.46 m²",
-    "reply": "Meeting room 0.15 has the largest area of the four ground-floor meeting rooms, at 35.46 m².\nAnswer: Meeting room 0.15, 35.46 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-campus-test-004-F0-S015",
-      "space_name": "Meeting room 0.15",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 35.46
-    }
-  },
-  {
-    "id": "proc-campus-test-004-H02",
-    "question": "Facilities want the total floor area of every office on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "184.14",
-    "reply": "Total area of the 6 offices on Floor 1, from find_spaces total_area_m2.\nAnswer: 184.14",
-    "result": {
-      "type": "number",
-      "value": 184.14,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-campus-test-004-H03",
-    "question": "I'm moving a 1.0 m wide trolley. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Main lobby (Ground floor). Into how many rooms on the floor 2 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "13",
-    "reply": "Rooms on Floor 2 reachable from Main lobby with step-free routes and doors at least 1.0 m wide (lifts allowed)\nAnswer: 13",
-    "result": {
-      "type": "count",
-      "value": 13
-    }
-  },
-  {
-    "id": "proc-campus-test-004-H04",
-    "question": "I'm in Storage 0.12 (Ground floor). I need to grab a stove from the room that has one closest to me, then carry it to the largest lab on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "74.29",
-    "reply": "The nearest stove is in Kitchen 0.05 (33.56 m away). Carrying it from there to Lab 1.17, the largest lab on Floor 1, via Staircase 1 adds 40.73 m. The total is 74.29 m.\nAnswer: 74.29",
-    "result": {
-      "type": "number",
-      "value": 74.29,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-004-H05",
-    "question": "We're planning a wireless sensor link between Lab 1.17 (Floor 1) and Lab 3.19 (Floor 3). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "15.06",
-    "reply": "distance_3d between the centroids of Lab 1.17 and Lab 3.19: 13.0 m horizontal, 7.6 m vertical.\nAnswer: 15.06",
-    "result": {
-      "type": "number",
-      "value": 15.06,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-005-H01",
-    "question": "Which is the largest meeting room on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Meeting room 1.13, 41.52 m²",
-    "reply": "Meeting room 1.13 has the largest area of the six meeting rooms on Floor 1, at 41.52 m².\nAnswer: Meeting room 1.13, 41.52 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-campus-test-005-F1-S013",
-      "space_name": "Meeting room 1.13",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 41.52
-    }
-  },
-  {
-    "id": "proc-campus-test-005-H02",
-    "question": "Facilities want the total floor area of every office on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "456.72",
-    "reply": "The tool found 16 offices on the Ground floor. Their combined area is 456.72 m².\nAnswer: 456.72",
-    "result": {
-      "type": "number",
-      "value": 456.72,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-campus-test-005-H03",
-    "question": "I'm moving a 1.0 m wide hospital bed. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Main lobby (Ground floor). Into how many rooms on the floor 4 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "18",
-    "reply": "Rooms on Floor 4 reachable from Main lobby with step-free routes and doors at least 1.0 m wide (lifts allowed).\nAnswer: 18",
-    "result": {
-      "type": "count",
-      "value": 18
-    }
-  },
-  {
-    "id": "proc-campus-test-005-H04",
-    "question": "I'm in Seminar room 2.37 (Floor 2). I need to grab a kitchen counter from the room that has one closest to me, then carry it to the largest storage on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "89.52",
-    "reply": "The walk goes from Seminar room 2.37 to Kitchen 2.33, the nearest kitchen with a counter (29.09 m). It then goes by Staircase 2 to Storage 1.27, the largest storage on Floor 1 (60.43 m). The total is 89.52 m.\nAnswer: 89.52",
-    "result": {
-      "type": "number",
-      "value": 89.52,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-005-H05",
-    "question": "We're soundproofing Toilet -1.31 (Basement 1). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "shared_walls lists 3 rooms sharing at least 1 m of wall with Toilet -1.31: Storage -1.30, Locker room -1.40 and Locker room -1.41. The corridor is not counted.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "proc-campus-test-005-H06",
-    "question": "We're planning a wireless sensor link between Lab 4.10 (Floor 4) and Office 2.41 (Floor 2). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "39.09",
-    "reply": "distance_3d between the centroids of Lab 4.10 and Office 2.41: 38.34 m horizontal, 7.6 m vertical.\nAnswer: 39.09",
-    "result": {
-      "type": "number",
-      "value": 39.09,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-008-H01",
-    "question": "Which is the largest office on the floor 2, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Office 2.19, 39.66 m²",
-    "reply": "Office 2.19 has the largest area (39.66 m²) among the 8 offices on Floor 2.\nAnswer: Office 2.19, 39.66 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-campus-test-008-F2-S019",
-      "space_name": "Office 2.19",
-      "floor_level": 2,
-      "floor_name": "Floor 2",
-      "area_m2": 39.66
-    }
-  },
-  {
-    "id": "proc-campus-test-008-H02",
-    "question": "Facilities want the total floor area of every meeting room on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "86.40",
-    "reply": "Three meeting rooms on Floor 1 (1.07, 1.21, 1.03) have a combined area of 86.4 m²\nAnswer: 86.40",
-    "result": {
-      "type": "number",
-      "value": 86.4,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-campus-test-008-H03",
-    "question": "I'm moving a 1.0 m wide hospital bed. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Main lobby (Ground floor). Into how many rooms on the floor 5 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "11",
-    "reply": "Reachable rooms on Floor 5 from Main lobby, step-free with doors at least 1.0 m wide.\nAnswer: 11",
-    "result": {
-      "type": "count",
-      "value": 11
-    }
-  },
-  {
-    "id": "proc-campus-test-008-H04",
-    "question": "I'm in Seminar room 3.21 (Floor 3). I need to grab a plant from the room that has one closest to me, then carry it to the largest meeting room on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "78.91",
-    "reply": "The nearest room with a plant is Office 3.24, 22.46 m away. Carrying the plant from there to Meeting room 1.07 (the largest meeting room on Floor 1) by the stairs is 56.45 m. The total is 78.91 m.\nAnswer: 78.91",
-    "result": {
-      "type": "number",
-      "value": 78.91,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-008-H05",
-    "question": "We're planning a wireless sensor link between Office 1.25 (Floor 1) and Technical room -1.19 (Basement 1). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "33.73",
-    "reply": "distance_3d between the centroids of Office 1.25 and Technical room -1.19 gives 33.732 m (32.865 m horizontal, 7.6 m vertical).\nAnswer: 33.73",
-    "result": {
-      "type": "number",
-      "value": 33.73,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-012-H01",
-    "question": "Which is the largest office on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Office 1.12, 40.02 m²",
-    "reply": "Office 1.12 is the largest of the 7 offices on Floor 1, at 40.02 m²\nAnswer: Office 1.12, 40.02 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-campus-test-012-F1-S012",
-      "space_name": "Office 1.12",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 40.02
-    }
-  },
-  {
-    "id": "proc-campus-test-012-H02",
-    "question": "Facilities want the total floor area of every toilet on the floor 4 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "99.18",
-    "reply": "Floor 4 has three toilets (4.20, 4.30, 4.25), and their areas add up to 99.18 m²\nAnswer: 99.18",
-    "result": {
-      "type": "number",
-      "value": 99.18,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-campus-test-012-H03",
-    "question": "I'm moving a 1.0 m wide pallet of equipment. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Main lobby (Ground floor). Into how many rooms on the floor 1 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "16",
-    "reply": "Reachable rooms on Floor 1 from Main lobby with step-free routing and doors at least 1.0 m wide.\nAnswer: 16",
-    "result": {
-      "type": "count",
-      "value": 16
-    }
-  },
-  {
-    "id": "proc-campus-test-012-H04",
-    "question": "I'm in Seminar room 3.22 (Floor 3). I need to grab a plant from the room that has one closest to me, then carry it to the largest lab on the floor 3. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "43.83",
-    "reply": "The nearest plant is in Office 3.23 (9.77 m walk). Carrying it on to Lab 3.13, the largest lab on Floor 3, adds 34.06 m, so the total is 43.83 m.\nAnswer: 43.83",
-    "result": {
-      "type": "number",
-      "value": 43.83,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-012-H05",
-    "question": "We're planning a wireless sensor link between Print room 4.28 (Floor 4) and Seminar room 0.06 (Ground floor). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "38.46",
-    "reply": "distance_3d between the centroids of Print room 4.28 and Seminar room 0.06 (35.328 m horizontal, 15.2 m vertical).\nAnswer: 38.46",
-    "result": {
-      "type": "number",
-      "value": 38.46,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-013-H01",
-    "question": "Which is the largest storage on the floor 5, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Storage 5.26, 40.86 m²",
-    "reply": "Storage 5.26 is the largest of the three storage rooms on Floor 5, at 40.86 m².\nAnswer: Storage 5.26, 40.86 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-campus-test-013-F5-S026",
-      "space_name": "Storage 5.26",
-      "floor_level": 5,
-      "floor_name": "Floor 5",
-      "area_m2": 40.86
-    }
-  },
-  {
-    "id": "proc-campus-test-013-H02",
-    "question": "Facilities want the total floor area of every lab on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "200.28",
-    "reply": "Eight labs on Floor 1 have a combined area of 200.28 m². This is the total_area_m2 from the room-type filter.\nAnswer: 200.28",
-    "result": {
-      "type": "number",
-      "value": 200.28,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-campus-test-013-H03",
-    "question": "I'm moving a 1.0 m wide pallet of equipment. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Main lobby (Ground floor). Into how many rooms on the floor 3 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "15",
-    "reply": "Reachable rooms on Floor 3 from the Main lobby with step-free routes and doors at least 1.0 m wide (lifts allowed) number 15.\nAnswer: 15",
-    "result": {
-      "type": "count",
-      "value": 15
-    }
-  },
-  {
-    "id": "proc-campus-test-013-H04",
-    "question": "I'm in Office 4.29 (Floor 4). I need to grab a chemical cabinet from the room that has one closest to me, then carry it to the largest lab on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "116.61",
-    "reply": "The nearest chemical cabinet by walking distance is in Lab 5.38 (35.49 m). Carrying it from there to Lab 1.34, the largest lab on Floor 1, adds 81.12 m by Staircase 3. The total is 116.61 m.\nAnswer: 116.61",
-    "result": {
-      "type": "number",
-      "value": 116.61,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-campus-test-013-H05",
-    "question": "We're planning a wireless sensor link between Office 5.35 (Floor 5) and Lab 1.07 (Floor 1). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "36.37",
-    "reply": "distance_3d between the centroids of Office 5.35 and Lab 1.07: 33.04 m horizontal, 15.2 m vertical.\nAnswer: 36.37",
-    "result": {
-      "type": "number",
-      "value": 36.37,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-001-H01",
-    "question": "Facilities want the total floor area of every meeting room on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "92.10",
-    "reply": "The ground floor has 4 meeting rooms (0.44, 0.34, 0.39, 0.25). The tool's total area for them is 92.1 m².\nAnswer: 92.10",
-    "result": {
-      "type": "number",
-      "value": 92.1,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-001-H02",
-    "question": "I'm moving a 1.0 m wide hospital bed. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Logistics zone H-C1 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "9",
-    "reply": "Starting in Logistics zone H-C1, a step-free route with every door at least 1.0 m wide reaches 9 spaces of type room on the ground floor. The hall itself isn't counted.\nAnswer: 9",
-    "result": {
-      "type": "count",
-      "value": 9
-    }
-  },
-  {
-    "id": "proc-factory-test-001-H03",
-    "question": "We're soundproofing Production zone H-A2 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "6",
-    "reply": "shared_walls counted 6 rooms/halls sharing at least 1 m of wall with H-A2, excluding the corridor.\nAnswer: 6",
-    "result": {
-      "type": "count",
-      "value": 6
-    }
-  },
-  {
-    "id": "proc-factory-test-002-H01",
-    "question": "Facilities want the total floor area of every meeting room on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "126.50",
-    "reply": "The tool found 5 meeting rooms on the Ground floor. Their combined area is 126.5 m².\nAnswer: 126.50",
-    "result": {
-      "type": "number",
-      "value": 126.5,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-002-H02",
-    "question": "I'm moving a 1.0 m wide hospital bed. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Office corridor 0.31 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "9",
-    "reply": "Rooms on the ground floor reachable from Office corridor 0.31 with step-free routes and doors at least 1.0 m wide.\nAnswer: 9",
-    "result": {
-      "type": "count",
-      "value": 9
-    }
-  },
-  {
-    "id": "proc-factory-test-002-H03",
-    "question": "We're soundproofing Office 0.38 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "Offices 0.37 and 0.39 plus two halls (Production zone H-A2 and Warehouse zone H-A1) share at least 1 m of wall with Office 0.38. The corridor is excluded\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "proc-factory-test-002-H04",
-    "question": "We're planning a wireless sensor link between Meeting room 2.20 (Floor 2) and Warehouse zone H-D6 (Ground floor). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "111.98",
-    "reply": "distance_3d between the centroids of Meeting room 2.20 and Warehouse zone H-D6 (111.76 m horizontal, 7 m vertical).\nAnswer: 111.98",
-    "result": {
-      "type": "number",
-      "value": 111.98,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-003-H01",
-    "question": "Which is the largest meeting room on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Meeting room 1.17, 29.35 m²",
-    "reply": "Meeting room 1.17 is the largest of the 8 meeting rooms on Floor 1, at 29.35 m².\nAnswer: Meeting room 1.17, 29.35 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-factory-test-003-F1-S017",
-      "space_name": "Meeting room 1.17",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 29.35
-    }
-  },
-  {
-    "id": "proc-factory-test-003-H02",
-    "question": "Facilities want the total floor area of every meeting room on the floor 2 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "154.20",
-    "reply": "The tool found 7 meeting rooms on Floor 2. Their areas add up to 154.2 m²\nAnswer: 154.20",
-    "result": {
-      "type": "number",
-      "value": 154.2,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-003-H03",
-    "question": "I'm moving a 1.1 m wide hospital bed. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.1 m wide. It arrives through the entrance into Office corridor 0.25 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "7",
-    "reply": "Reachable spaces of type room on the ground floor from Office corridor 0.25, with step-free routes and doors at least 1.1 m wide.\nAnswer: 7",
-    "result": {
-      "type": "count",
-      "value": 7
-    }
-  },
-  {
-    "id": "proc-factory-test-003-H04",
-    "question": "I'm in Meeting room 1.10 (Floor 1). I need to grab a server rack from the room that has one closest to me, then carry it to the largest kitchen on the ground floor. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "89.87",
-    "reply": "The nearest server rack is in Server room 1.14, 24.23 m away. From there the walk down the stairs to Kitchen 0.29, the largest ground-floor kitchen at 20.7 m², is 65.64 m. The total is 89.87 m.\nAnswer: 89.87",
-    "result": {
-      "type": "number",
-      "value": 89.87,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-003-H05",
-    "question": "We're soundproofing Office 0.33 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Office 0.33 shares a wall of at least 1 m with Warehouse zone H-A2 (a hall), Office 0.32 and Kitchen 0.34. The corridor is excluded.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "proc-factory-test-003-H06",
-    "question": "We're planning a wireless sensor link between Office 2.27 (Floor 2) and Office 0.58 (Ground floor). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "32.02",
-    "reply": "distance_3d between the centroids of Office 2.27 and Office 0.58: 31.25 m horizontal, 7.0 m vertical.\nAnswer: 32.02",
-    "result": {
-      "type": "number",
-      "value": 32.02,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-006-H01",
-    "question": "Facilities want the total floor area of every office on the floor 2 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "203.30",
-    "reply": "find_spaces for office rooms on Floor 2 matched 9 spaces with a total area of 203.3 m².\nAnswer: 203.30",
-    "result": {
-      "type": "number",
-      "value": 203.3,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-006-H02",
-    "question": "I'm moving a 1.1 m wide cleaning machine. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.1 m wide. It arrives through the entrance into Main aisle H-B4 (Ground floor). Into how many rooms on the floor 2 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "Reachable rooms and halls on Floor 2 from Main aisle H-B4 with step-free routing and doors at least 1.1 m wide, using the lift.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "proc-factory-test-006-H03",
-    "question": "We're soundproofing Office 0.20 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Server room 0.19, Meeting room 0.21 and the hall Additive zone H-A2 each share at least 1 m of wall with Office 0.20. The office corridor is excluded.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "proc-factory-test-006-H04",
-    "question": "We're planning a wireless sensor link between Warehouse zone H-C4 (Ground floor) and Office 2.10 (Floor 2). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "53.09",
-    "reply": "distance_3d between the centroids of Warehouse zone H-C4 (Ground floor) and Office 2.10 (Floor 2): 52.629 m horizontal, 7.0 m vertical.\nAnswer: 53.09",
-    "result": {
-      "type": "number",
-      "value": 53.09,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-007-H01",
-    "question": "Which is the largest kitchen on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Kitchen 1.10, 28.75 m²",
-    "reply": "Kitchen 1.10 has the largest area of the five kitchens on Floor 1, at 28.75 m².\nAnswer: Kitchen 1.10, 28.75 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-factory-test-007-F1-S010",
-      "space_name": "Kitchen 1.10",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 28.75
-    }
-  },
-  {
-    "id": "proc-factory-test-007-H02",
-    "question": "Facilities want the total floor area of every office on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "413.40",
-    "reply": "There are 18 offices on Floor 1. The tool's total_area_m2 for them is 413.4 m².\nAnswer: 413.40",
-    "result": {
-      "type": "number",
-      "value": 413.4,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-007-H03",
-    "question": "I'm moving a 1.1 m wide trolley. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.1 m wide. It arrives through the entrance into Logistics zone H-D1 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "9",
-    "reply": "Starting in Logistics zone H-D1, with step-free routes and doors at least 1.1 m wide, 9 ground-floor spaces of type room are reachable.\nAnswer: 9",
-    "result": {
-      "type": "count",
-      "value": 9
-    }
-  },
-  {
-    "id": "proc-factory-test-007-H04",
-    "question": "I'm in Office 1.05 (Floor 1). I need to grab a drill press from the room that has one closest to me, then carry it to the largest kitchen on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "220.61",
-    "reply": "The nearest drill press is in Production zone H-B2 (97.02 m away). Carrying it from there to Kitchen 1.10, the largest kitchen on Floor 1, is 123.59 m. The two legs total 220.61 m.\nAnswer: 220.61",
-    "result": {
-      "type": "number",
-      "value": 220.61,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-007-H05",
-    "question": "We're soundproofing Kitchen 0.43 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "shared_walls for Kitchen 0.43 returns 4 non-corridor spaces (room or hall) sharing at least 1 m of wall: Office 0.42, Hall access 0.44, Warehouse zone H-A5 and Production zone H-A4. The office corridor 0.25 is excluded.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "proc-factory-test-007-H06",
-    "question": "We're planning a wireless sensor link between Production zone H-A4 (Ground floor) and Office 2.10 (Floor 2). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "34.80",
-    "reply": "distance_3d between the centroids of Production zone H-A4 and Office 2.10: 34.085 m horizontal, 7.0 m vertical.\nAnswer: 34.80",
-    "result": {
-      "type": "number",
-      "value": 34.8,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-009-H01",
-    "question": "Facilities want the total floor area of every production zone on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "1220.16",
-    "reply": "The four ground-floor production zones, each 305.04 m², total 1220.16 m² (from find_spaces total_area_m2).\nAnswer: 1220.16",
-    "result": {
-      "type": "number",
-      "value": 1220.16,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-009-H02",
-    "question": "I'm moving a 1.0 m wide hospital bed. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Office corridor 0.21 (Ground floor). Into how many rooms on the floor 1 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "12",
-    "reply": "Reachable_spaces from the corridor with step-free and 1.0 m minimum door width found 12 rooms on Floor 1.\nAnswer: 12",
-    "result": {
-      "type": "count",
-      "value": 12
-    }
-  },
-  {
-    "id": "proc-factory-test-009-H03",
-    "question": "We're soundproofing Office 0.27 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "Four spaces share at least 1 m of wall with Office 0.27. They are Meeting room 0.26, Kitchen 0.28, and the halls H-A1 and H-A2. I left out the corridor.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "proc-factory-test-010-H01",
-    "question": "Which is the largest meeting room on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Meeting room 0.40, 29.95 m²",
-    "reply": "Meeting room 0.40 has the largest area of the 5 meeting rooms on the ground floor, at 29.95 m².\nAnswer: Meeting room 0.40, 29.95 m²",
-    "result": {
-      "type": "space",
-      "space_id": "proc-factory-test-010-F0-S040",
-      "space_name": "Meeting room 0.40",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 29.95
-    }
-  },
-  {
-    "id": "proc-factory-test-010-H02",
-    "question": "Facilities want the total floor area of every meeting room on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "111.60",
-    "reply": "The tool found 5 meeting rooms on the Ground floor. Their areas add up to a total of 111.6 m².\nAnswer: 111.60",
-    "result": {
-      "type": "number",
-      "value": 111.6,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-010-H03",
-    "question": "I'm moving a 1.0 m wide pallet of equipment. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Logistics zone H-E1 (Ground floor). Into how many rooms on the floor 1 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "10",
-    "reply": "Rooms on Floor 1 reachable from Logistics zone H-E1 using step-free routes and doors at least 1.0 m wide (via the lift): 10.\nAnswer: 10",
-    "result": {
-      "type": "count",
-      "value": 10
-    }
-  },
-  {
-    "id": "proc-factory-test-010-H04",
-    "question": "I'm in Office 1.12 (Floor 1). I need to grab a ups unit from the room that has one closest to me, then carry it to the largest meeting room on the ground floor. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "113.03",
-    "reply": "The nearest UPS room is Server room 1.16, 21.48 m away. Carrying it by the stairs to Meeting room 0.40, the largest ground-floor meeting room, adds 91.55 m, so the total is 113.03 m.\nAnswer: 113.03",
-    "result": {
-      "type": "number",
-      "value": 113.03,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "proc-factory-test-010-H05",
-    "question": "We're soundproofing Quality lab 0.27 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "Server room 0.26, Office 0.28 and the two assembly halls H-A1 and H-A2 each share at least 1 m of wall with Quality lab 0.27. The corridor is excluded.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "proc-factory-test-011-H01",
-    "question": "Facilities want the total floor area of every production zone on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "2079.98",
-    "reply": "The 7 production zones on the ground floor total 2079.98 m² (each 297.14 m²).\nAnswer: 2079.98",
-    "result": {
-      "type": "number",
-      "value": 2079.98,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "proc-factory-test-011-H02",
-    "question": "I'm moving a 1.1 m wide trolley. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.1 m wide. It arrives through the entrance into Logistics zone H-E3 (Ground floor). Into how many rooms on the floor 2 can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "7",
-    "reply": "Reachable room-type spaces on Floor 2 from Logistics zone H-E3 with step-free routing and doors at least 1.1 m wide.\nAnswer: 7",
-    "result": {
-      "type": "count",
-      "value": 7
-    }
-  },
-  {
-    "id": "proc-factory-test-011-H03",
-    "question": "We're soundproofing Locker room 0.41 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "shared_walls for Locker room 0.41 lists 4 counted spaces: Office 0.40, Office 0.42, and the halls H-A4 and H-A3. The corridor is excluded.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "proc-factory-test-011-H04",
-    "question": "We're planning a wireless sensor link between Production zone H-B3 (Ground floor) and Kitchen 2.04 (Floor 2). What is the straight-line distance in metres between the centres of the two rooms (each room's floor-plan centroid, at its floor's elevation)? Finish with a line 'Answer: <number>'.",
-    "answer": "51.42",
-    "reply": "Straight-line distance between the two space centroids, from distance_3d.\nAnswer: 51.42",
-    "result": {
-      "type": "number",
-      "value": 51.42,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "resplan-1153-H01",
-    "question": "Facilities want the total floor area of every bedroom on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "71.29",
-    "reply": "The four ground-floor bedrooms (0.02, 0.03, 0.04, 0.05) have a combined area of 71.29 m². The total comes from find_spaces\nAnswer: 71.29",
-    "result": {
-      "type": "number",
-      "value": 71.29,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "resplan-1153-H02",
-    "question": "We're soundproofing Bedroom 0.03 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Bedroom 0.04, Bathroom 0.06 and Living room 0.01 each share at least 1 m of wall with Bedroom 0.03. The balcony is outdoor, so it isn't counted.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "resplan-12469-H01",
-    "question": "Facilities want the total floor area of every bedroom on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "109.70",
-    "reply": "The tool found 5 bedrooms on the ground floor. Their total area is 109.7 m².\nAnswer: 109.70",
-    "result": {
-      "type": "number",
-      "value": 109.7,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "resplan-12469-H02",
-    "question": "I'm moving a 1.0 m wide cleaning machine. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Living room 0.01 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "8",
-    "reply": "Step-free walk with doors at least 1.0 m wide from Living room 0.01 reaches 8 rooms on the ground floor, including the living room itself.\nAnswer: 8",
-    "result": {
-      "type": "count",
-      "value": 8
-    }
-  },
-  {
-    "id": "resplan-12469-H03",
-    "question": "We're soundproofing Bedroom 0.05 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "5",
-    "reply": "shared_walls for Bedroom 0.05 lists 5 rooms (living room and four bathrooms) with at least 1 m of shared wall. The balcony is outdoor and not counted.\nAnswer: 5",
-    "result": {
-      "type": "count",
-      "value": 5
-    }
-  },
-  {
-    "id": "resplan-12962-H01",
-    "question": "We're soundproofing Living room 0.01 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "5",
-    "reply": "shared_walls for Living room 0.01 lists 5 rooms with at least 1 m of shared wall: Kitchen 0.06, Bathrooms 0.05 and 0.04, Bedrooms 0.03 and 0.02.\nAnswer: 5",
-    "result": {
-      "type": "count",
-      "value": 5
-    }
-  },
-  {
-    "id": "resplan-14307-H01",
-    "question": "We're soundproofing Bedroom 0.02 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Living room 0.01, Kitchen 0.05 and Bathroom 0.04 each share at least 1 m of wall with Bedroom 0.02. The balcony is outdoor, so it doesn't count.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "resplan-3573-H01",
-    "question": "Which is the largest bathroom on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Bathroom 0.06, 6.98 m²",
-    "reply": "Bathroom 0.06 is the largest of the three ground-floor bathrooms, at 6.98 m².\nAnswer: Bathroom 0.06, 6.98 m²",
-    "result": {
-      "type": "space",
-      "space_id": "resplan-3573-F0-S006",
-      "space_name": "Bathroom 0.06",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 6.98
-    }
-  },
-  {
-    "id": "resplan-3573-H02",
-    "question": "Facilities want the total floor area of every bathroom on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "17.65",
-    "reply": "The three ground-floor bathrooms (0.05, 0.06, 0.07) have a combined area of 17.65 m², taken from the total in the room search.\nAnswer: 17.65",
-    "result": {
-      "type": "number",
-      "value": 17.65,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "resplan-3573-H03",
-    "question": "I'm moving a 1.0 m wide cleaning machine. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Living room 0.01 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "6",
-    "reply": "Step-free reachability with doors at least 1.0 m wide from Living room 0.01 reaches 6 rooms on the ground floor, including the living room itself.\nAnswer: 6",
-    "result": {
-      "type": "count",
-      "value": 6
-    }
-  },
-  {
-    "id": "resplan-3573-H04",
-    "question": "I'm in Living room 0.01 (Ground floor). I need to grab a sink from the room that has one closest to me, then carry it to the largest bathroom on the ground floor. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "18.58",
-    "reply": "The nearest sink is in Bathroom 0.07 (6.2 m away). Carrying it from there to Bathroom 0.06, the largest ground-floor bathroom, is 12.38 m, so the total is 18.58 m.\nAnswer: 18.58",
-    "result": {
-      "type": "number",
-      "value": 18.58,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "resplan-3573-H05",
-    "question": "We're soundproofing Living room 0.01 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "6",
-    "reply": "Six rooms share at least 1 m of wall with Living room 0.01: a kitchen, two bathrooms and three bedrooms.\nAnswer: 6",
-    "result": {
-      "type": "count",
-      "value": 6
-    }
-  },
-  {
-    "id": "resplan-6532-H01",
-    "question": "I'm moving a 1.0 m wide pallet of equipment. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.0 m wide. It arrives through the entrance into Living room 0.01 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Walking from Living room 0.01 with step-free and 1.0 m minimum door width, 3 ground-floor rooms are reachable. They are the living room itself, Bedroom 0.03 and Kitchen 0.06\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "resplan-6532-H02",
-    "question": "We're soundproofing Bedroom 0.03 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Kitchen 0.06, Living room 0.01 and Bathroom 0.04 each share at least 1 m of wall with Bedroom 0.03.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "resplan-8357-H01",
-    "question": "I'm moving a 1.1 m wide pallet of equipment. It can't go on stairs or steps (lifts are fine), and every door it passes through must be at least 1.1 m wide. It arrives through the entrance into Living room 0.01 (Ground floor). Into how many rooms on the ground floor can it be delivered? Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "Step-free walk with doors at least 1.1 m wide from Living room 0.01 reaches 4 rooms on the ground floor, including the living room itself.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "resplan-8357-H02",
-    "question": "We're soundproofing Living room 0.01 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "5",
-    "reply": "Five rooms share at least 1 m of wall with Living room 0.01: Kitchen 0.06, Bedroom 0.02, Bathroom 0.05, Bedroom 0.03 and Bathroom 0.04.\nAnswer: 5",
-    "result": {
-      "type": "count",
-      "value": 5
-    }
-  },
-  {
-    "id": "resplan-9751-H01",
-    "question": "We're soundproofing Living room 0.01 (Ground floor). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "5",
-    "reply": "Five rooms share at least 1 m of wall with Living room 0.01: Bedroom 0.03, Kitchen 0.06, Bedroom 0.02, Bathroom 0.04 and Bathroom 0.05. The balcony is outdoor, so it isn't counted.\nAnswer: 5",
-    "result": {
-      "type": "count",
-      "value": 5
-    }
-  },
-  {
-    "id": "swiss-100-H01",
-    "question": "Which is the largest living room on the floor 1, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Living room 1.05 (apartment 4), 30.16 m²",
-    "reply": "Largest of 4 living rooms on Floor 1, at 30.16 m²\nAnswer: Living room 1.05 (apartment 4), 30.16 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-100-F1-S005",
-      "space_name": "Living room 1.05 (apartment 4)",
-      "floor_level": 1,
-      "floor_name": "Floor 1",
-      "area_m2": 30.16
-    }
-  },
-  {
-    "id": "swiss-100-H02",
-    "question": "Facilities want the total floor area of every bathroom on the floor 5 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "32.47",
-    "reply": "Eight bathrooms on Floor 5 have a combined area of 32.47 m², taken from the total_area_m2 field.\nAnswer: 32.47",
-    "result": {
-      "type": "number",
-      "value": 32.47,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-100-H03",
-    "question": "I'm in Living room 4.07 (apartment 16) (Floor 4). I need to grab a microwave from the room that has one closest to me, then carry it to the largest living room on the floor 1. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "39.20",
-    "reply": "The nearest microwave is in Kitchen 4.03 (7.07 m away). The route then goes down the main staircase to Living room 1.05, the largest on Floor 1. It is one route of 39.2 m in total.\nAnswer: 39.20",
-    "result": {
-      "type": "number",
-      "value": 39.2,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "swiss-1195-H01",
-    "question": "Facilities want the total floor area of every bedroom on the floor 3 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "207.01",
-    "reply": "The 14 bedrooms on Floor 3 have a combined area of 207.01 m², taken from the total_area_m2 field of the room search.\nAnswer: 207.01",
-    "result": {
-      "type": "number",
-      "value": 207.01,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-1195-H02",
-    "question": "We're soundproofing Bedroom 1.34 (apartment 10) (Floor 1). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Kitchen 1.31, Bedroom 1.11 and Bathroom 1.30 each share at least 1 m of wall with Bedroom 1.34. The corridor is excluded.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "swiss-1671-H01",
-    "question": "Which is the largest bedroom on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Bedroom 0.05 (apartment 1), 19.34 m²",
-    "reply": "Bedroom 0.05 (apartment 1) has the largest area among the 7 ground-floor bedrooms, at 19.34 m².\nAnswer: Bedroom 0.05 (apartment 1), 19.34 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-1671-F0-S005",
-      "space_name": "Bedroom 0.05 (apartment 1)",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 19.34
-    }
-  },
-  {
-    "id": "swiss-1671-H02",
-    "question": "Facilities want the total floor area of every bedroom on the floor 2 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "133.95",
-    "reply": "find_spaces returned 8 bedrooms on Floor 2, with a total area of 133.95 m².\nAnswer: 133.95",
-    "result": {
-      "type": "number",
-      "value": 133.95,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-1671-H03",
-    "question": "I'm in Bedroom 1.13 (apartment 4) (Floor 1). I need to grab a kitchen counter from the room that has one closest to me, then carry it to the largest bedroom on the ground floor. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "27.49",
-    "reply": "The route goes from Bedroom 1.13 to Kitchen 1.09, the nearest kitchen with a counter (9.38 m). It then goes down Staircase 2 to Bedroom 0.05, the largest ground-floor bedroom (18.11 m).\nAnswer: 27.49",
-    "result": {
-      "type": "number",
-      "value": 27.49,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "swiss-1671-H04",
-    "question": "We're soundproofing Kitchen 2.09 (apartment 6) (Floor 2). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Bedroom 2.12, Bathroom 2.14 and Storage 2.08 each share at least 1 m of wall with the kitchen. The corridor is excluded.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "swiss-17033-H01",
-    "question": "Facilities want the total floor area of every bedroom on the floor 1 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "50.66",
-    "reply": "There are 4 bedrooms on Floor 1, and their areas add up to 50.66 m². This is the total_area_m2 field from the search.\nAnswer: 50.66",
-    "result": {
-      "type": "number",
-      "value": 50.66,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-1760-H01",
-    "question": "Which is the largest kitchen on the ground floor, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Kitchen 0.06 (apartment 1), 6.73 m²",
-    "reply": "Kitchen 0.06 (apartment 1) is the largest of the 6 ground-floor kitchens, at 6.73 m².\nAnswer: Kitchen 0.06 (apartment 1), 6.73 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-1760-F0-S006",
-      "space_name": "Kitchen 0.06 (apartment 1)",
-      "floor_level": 0,
-      "floor_name": "Ground floor",
-      "area_m2": 6.73
-    }
-  },
-  {
-    "id": "swiss-1760-H02",
-    "question": "Facilities want the total floor area of every living room on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "61.12",
-    "reply": "The ground floor has 4 living rooms. Their areas add up to 61.12 m²\nAnswer: 61.12",
-    "result": {
-      "type": "number",
-      "value": 61.12,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-17736-H01",
-    "question": "Which is the largest bedroom on the floor 3, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Bedroom 3.03 (apartment 8), 19.44 m²",
-    "reply": "Bedroom 3.03 is the largest of the four bedrooms on Floor 3, at 19.44 m²\nAnswer: Bedroom 3.03 (apartment 8), 19.44 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-17736-F3-S003",
-      "space_name": "Bedroom 3.03 (apartment 8)",
-      "floor_level": 3,
-      "floor_name": "Floor 3",
-      "area_m2": 19.44
-    }
-  },
-  {
-    "id": "swiss-17736-H02",
-    "question": "Facilities want the total floor area of every bathroom on the floor 2 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "34.00",
-    "reply": "Seven bathrooms on Floor 2; the tool's total_area_m2 is 34.0.\nAnswer: 34.00",
-    "result": {
-      "type": "number",
-      "value": 34.0,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-17736-H03",
-    "question": "I'm in Bedroom 2.08 (apartment 5) (Floor 2). I need to grab a sofa from the room that has one closest to me, then carry it to the largest bedroom on the floor 3. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "34.15",
-    "reply": "The nearest sofa is in Living room 2.01, 6.57 m away. From there, the stairs to Bedroom 3.03 (the largest bedroom on Floor 3) add 27.58 m, so the total is 34.15 m.\nAnswer: 34.15",
-    "result": {
-      "type": "number",
-      "value": 34.15,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "swiss-1825-H01",
-    "question": "Facilities want the total floor area of every bathroom on the floor 3 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "20.54",
-    "reply": "Floor 3 has 4 bathrooms; the tool's total area for them is 20.54 m²\nAnswer: 20.54",
-    "result": {
-      "type": "number",
-      "value": 20.54,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-2-H01",
-    "question": "Facilities want the total floor area of every bedroom on the floor 3 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "42.31",
-    "reply": "There are 3 bedrooms on Floor 3. Their areas add up to the total_area_m2 value of 42.31.\nAnswer: 42.31",
-    "result": {
-      "type": "number",
-      "value": 42.31,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-2080-H01",
-    "question": "Which is the largest bathroom on the floor 2, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Bathroom 2.15 (apartment 8), 4.13 m²",
-    "reply": "Bathroom 2.15 (apartment 8) is the largest of the four bathrooms on Floor 2, at 4.13 m².\nAnswer: Bathroom 2.15 (apartment 8), 4.13 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-2080-F2-S015",
-      "space_name": "Bathroom 2.15 (apartment 8)",
-      "floor_level": 2,
-      "floor_name": "Floor 2",
-      "area_m2": 4.13
-    }
-  },
-  {
-    "id": "swiss-2080-H02",
-    "question": "Facilities want the total floor area of every bathroom on the floor 3 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "12.30",
-    "reply": "Floor 3 has 4 bathrooms, and the tool's total_area_m2 for them is 12.3 m².\nAnswer: 12.30",
-    "result": {
-      "type": "number",
-      "value": 12.3,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-2080-H03",
-    "question": "I'm in Bedroom 1.22 (apartment 6) (Floor 1). I need to grab a dining table from the room that has one closest to me, then carry it to the largest bedroom on the floor 2. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "38.28",
-    "reply": "Walk from Bedroom 1.22 to the nearest dining table in Living room 2.08 (23.27 m), then carry it to Bedroom 2.18, the largest bedroom on floor 2 (15.01 m). The two tables on floor 3 are farther away, at 29.27 m and 29.53 m.\nAnswer: 38.28",
-    "result": {
-      "type": "number",
-      "value": 38.28,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "swiss-2080-H04",
-    "question": "We're soundproofing Bedroom 2.20 (apartment 9) (Floor 2). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "4",
-    "reply": "shared_walls reports 4 rooms sharing at least 1 m of wall with Bedroom 2.20: Bedroom 2.18, Bedroom 2.06, Bathroom 2.01 and Bathroom 2.19. The corridor is not counted.\nAnswer: 4",
-    "result": {
-      "type": "count",
-      "value": 4
-    }
-  },
-  {
-    "id": "swiss-2873-H01",
-    "question": "Which is the largest storage on the floor 2, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Storage 2.14 (apartment 10), 3.22 m²",
-    "reply": "Storage 2.14 (apartment 10) is the largest of the 5 storage rooms on Floor 2, at 3.22 m²\nAnswer: Storage 2.14 (apartment 10), 3.22 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-2873-F2-S014",
-      "space_name": "Storage 2.14 (apartment 10)",
-      "floor_level": 2,
-      "floor_name": "Floor 2",
-      "area_m2": 3.22
-    }
-  },
-  {
-    "id": "swiss-2873-H02",
-    "question": "Facilities want the total floor area of every storage on the ground floor added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "12.53",
-    "reply": "The four storage rooms on the ground floor have a combined area of 12.53 m², taken from the total_area_m2 field.\nAnswer: 12.53",
-    "result": {
-      "type": "number",
-      "value": 12.53,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-2873-H03",
-    "question": "I'm in Kitchen 1.30 (apartment 8) (Floor 1). I need to grab a outdoor chair from the room that has one closest to me, then carry it to the largest storage on the floor 2. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "34.26",
-    "reply": "The nearest outdoor chair is on Balcony 1.29, 6.76 m away. Carrying it by the main staircase to Storage 2.14, the largest storage on Floor 2, adds 27.5 m. The route tool gives 34.26 m in total.\nAnswer: 34.26",
-    "result": {
-      "type": "number",
-      "value": 34.26,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "swiss-2873-H04",
-    "question": "We're soundproofing Bedroom 2.07 (apartment 9) (Floor 2). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Three rooms share a wall of at least 1 m with Bedroom 2.07: Living room 2.09, Bedroom 2.02 and Bedroom 2.08.\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "swiss-482-H01",
-    "question": "Which is the largest storage on the floor 4, and how big is it in m²? Finish with a line 'Answer: <room name or number>, <area> m²'.",
-    "answer": "Storage 4.12 (apartment 18), 2.32 m²",
-    "reply": "Storage 4.12 is the largest of the three storage rooms on Floor 4, at 2.32 m².\nAnswer: Storage 4.12 (apartment 18), 2.32 m²",
-    "result": {
-      "type": "space",
-      "space_id": "swiss-482-F4-S012",
-      "space_name": "Storage 4.12 (apartment 18)",
-      "floor_level": 4,
-      "floor_name": "Floor 4",
-      "area_m2": 2.32
-    }
-  },
-  {
-    "id": "swiss-482-H02",
-    "question": "Facilities want the total floor area of every bathroom on the floor 4 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "16.07",
-    "reply": "Floor 4 has 6 bathrooms, and the tool's total_area_m2 for them is 16.07 m².\nAnswer: 16.07",
-    "result": {
-      "type": "number",
-      "value": 16.07,
-      "unit": "m2"
-    }
-  },
-  {
-    "id": "swiss-482-H03",
-    "question": "I'm in Storage 4.27 (apartment 19) (Floor 4). I need to grab a fridge from the room that has one closest to me, then carry it to the largest bedroom on the floor 9. I can carry it on the stairs. How far will I walk in total, in metres? Finish with a line 'Answer: <number>'.",
-    "answer": "67.02",
-    "reply": "The nearest fridge is in Kitchen 4.26 (8.46 m away). Carrying it from there to Bedroom 9.04, the largest bedroom on Floor 9, is another 58.56 m by the stairs. The route totals 67.02 m.\nAnswer: 67.02",
-    "result": {
-      "type": "number",
-      "value": 67.02,
-      "unit": "m"
-    }
-  },
-  {
-    "id": "swiss-482-H04",
-    "question": "We're soundproofing Bedroom 7.22 (apartment 31) (Floor 7). How many other rooms on that floor share a wall with it? Count every room whose wall runs along it for at least 1 m, with or without a door between them; corridors, stairwells and lifts don't count. Finish with a line 'Answer: <number>'.",
-    "answer": "3",
-    "reply": "Three rooms share at least 1 m of wall with Bedroom 7.22: Bedroom 7.20, Bedroom 7.10 and Storage 7.24. The corridor was excluded\nAnswer: 3",
-    "result": {
-      "type": "count",
-      "value": 3
-    }
-  },
-  {
-    "id": "swiss-6128-H01",
-    "question": "Facilities want the total floor area of every bedroom on the floor 2 added together. How many square metres is that? Finish with a line 'Answer: <number>'.",
-    "answer": "74.92",
-    "reply": "Four bedrooms on Floor 2 total 74.92 m² (find_spaces total_area_m2).\nAnswer: 74.92",
-    "result": {
-      "type": "number",
-      "value": 74.92,
-      "unit": "m2"
-    }
+    "question_id": "osm-way363805324-H01",
+    "answer": "Space ID: osm-way363805324-F1-S002\nLargest of the 7 generic rooms on Floor 1, at 162.33 m²\nAnswer: Generic room 1.02, 162.33 m²"
+  },
+  {
+    "question_id": "osm-way363805324-H02",
+    "answer": "54.77"
+  },
+  {
+    "question_id": "osm-way363805324-H03",
+    "answer": "44.90"
+  },
+  {
+    "question_id": "osm-way363805324-H04",
+    "answer": "Space ID: osm-way363805324-F0-S001\nGroßer Saal (E01) has the largest overlap with Büchercorner's outline, 57.74 m², which is 98.9% of it.\nAnswer: E01, Großer Saal, 142.66 m²"
+  },
+  {
+    "question_id": "osm-way363805324-H07",
+    "answer": "Space ID: osm-way363805324-F1-S010\nGeneric room 1.10 on Floor 1 has the largest overlap with Kitchen 0.16 (39.16 m²\nAnswer: Generic room 1.10, 39.16 m²"
+  },
+  {
+    "question_id": "osm-way363805324-H10",
+    "answer": "5"
+  },
+  {
+    "question_id": "osm-way363805324-H11",
+    "answer": "21.16"
+  },
+  {
+    "question_id": "osm-way43035346-H01",
+    "answer": "Space ID: osm-way43035346-F3-S012\nLargest of 16 generic rooms on Floor 3: Generic room N3806, 115.03 m².\nAnswer: Generic room N3806, 115.03 m²"
+  },
+  {
+    "question_id": "osm-way43035346-H02",
+    "answer": "592.80"
+  },
+  {
+    "question_id": "osm-way43035346-H03",
+    "answer": "53.99"
+  },
+  {
+    "question_id": "osm-way43035346-H04",
+    "answer": "Space ID: osm-way43035346-F0-S014\nGeneric room N0806 on the Ground floor has the largest overlap with Generic room -1.14. It covers 85% of that room's outline.\nAnswer: Generic room N0806, 93.96 m²"
+  },
+  {
+    "question_id": "osm-way43035346-H05",
+    "answer": "6"
+  },
+  {
+    "question_id": "osm-way43035346-H06",
+    "answer": "11.85"
+  },
+  {
+    "question_id": "osm-way43035346-H07",
+    "answer": "0"
+  },
+  {
+    "question_id": "osm-way50299584-H01",
+    "answer": "Space ID: osm-way50299584-F0-S043\nLargest generic room on the ground floor, 559.8 m²\nAnswer: Generic room 0566, 559.80 m²"
+  },
+  {
+    "question_id": "osm-way50299584-H02",
+    "answer": "959.75"
+  },
+  {
+    "question_id": "osm-way50299584-H03",
+    "answer": "103.36"
+  },
+  {
+    "question_id": "osm-way50299584-H04",
+    "answer": "Space ID: osm-way50299584-F0-S013\nGeneric room 0583 on the Ground floor overlaps 98% of Generic room -1517, the largest overlap of any space above it.\nAnswer: Generic room 0583, 189.21 m²"
+  },
+  {
+    "question_id": "osm-way50299584-H06",
+    "answer": "Space ID: osm-way50299584-F-1-S037\nGeneric room -1530 on Basement 1 covers all of Generic room 0520's outline, so it is the room directly below.\nAnswer: Generic room -1530, 121.24 m²"
+  },
+  {
+    "question_id": "osm-way50299584-H11",
+    "answer": "Space ID: osm-way50299584-F1-S033\nGeneric room 1530 on Floor 1 has the largest overlap (12.65 m², 88% of the room) with Generic room 0523\nAnswer: Generic room 1530, 18.46 m²"
+  },
+  {
+    "question_id": "osm-way50299584-H12",
+    "answer": "4"
+  },
+  {
+    "question_id": "osm-way50299584-H13",
+    "answer": "62.01"
+  },
+  {
+    "question_id": "osm-way50300147-H01",
+    "answer": "Space ID: osm-way50300147-F0-S047\nLargest generic room on the ground floor by stored area: 530.16 m².\nAnswer: Generic room 0219, 530.16 m²"
+  },
+  {
+    "question_id": "osm-way50300147-H02",
+    "answer": "1699.55"
+  },
+  {
+    "question_id": "osm-way50300147-H03",
+    "answer": "78.24"
+  },
+  {
+    "question_id": "osm-way50300147-H04",
+    "answer": "Space ID: osm-way50300147-F0-S019\nGeneric room 0260 on the Ground floor covers about 99% of the basement room's outline (69.54 m² overlap), more than any other room.\nAnswer: Generic room 0260, 134.50 m²"
+  },
+  {
+    "question_id": "osm-way50300147-H05",
+    "answer": "Space ID: osm-way50300147-F0-S047\nGeneric room 0219 on the Ground floor covers all of Generic room 1271C's outline. It is the space directly below.\nAnswer: Generic room 0219, 530.16 m²"
+  },
+  {
+    "question_id": "osm-way50300147-H06",
+    "answer": "Space ID: osm-way50300147-F0-S054\nGeneric room 0209 on the Ground floor covers the most of the basement room's outline (33.87 m², 93%).\nAnswer: Generic room 0209, 65.96 m²"
+  },
+  {
+    "question_id": "osm-way50300147-H07",
+    "answer": "6"
+  },
+  {
+    "question_id": "osm-way50300147-H08",
+    "answer": "45.49"
+  },
+  {
+    "question_id": "osm-way50300147-H09",
+    "answer": "47"
+  },
+  {
+    "question_id": "osm-way50300147-H10",
+    "answer": "47"
+  },
+  {
+    "question_id": "proc-campus-test-000-H01",
+    "answer": "Space ID: proc-campus-test-000-F1-S025\nToilet 1.25 has the largest area of the three toilets on Floor 1 (34.02 m²).\nAnswer: Toilet 1.25, 34.02 m²"
+  },
+  {
+    "question_id": "proc-campus-test-000-H02",
+    "answer": "105.42"
+  },
+  {
+    "question_id": "proc-campus-test-000-H03",
+    "answer": "21"
+  },
+  {
+    "question_id": "proc-campus-test-000-H04",
+    "answer": "128.24"
+  },
+  {
+    "question_id": "proc-campus-test-000-H05",
+    "answer": "41.31"
+  },
+  {
+    "question_id": "proc-campus-test-004-H01",
+    "answer": "Space ID: proc-campus-test-004-F0-S015\nMeeting room 0.15 has the largest area of the four ground-floor meeting rooms, at 35.46 m².\nAnswer: Meeting room 0.15, 35.46 m²"
+  },
+  {
+    "question_id": "proc-campus-test-004-H02",
+    "answer": "184.14"
+  },
+  {
+    "question_id": "proc-campus-test-004-H03",
+    "answer": "13"
+  },
+  {
+    "question_id": "proc-campus-test-004-H04",
+    "answer": "74.29"
+  },
+  {
+    "question_id": "proc-campus-test-004-H05",
+    "answer": "15.06"
+  },
+  {
+    "question_id": "proc-campus-test-005-H01",
+    "answer": "Space ID: proc-campus-test-005-F1-S013\nMeeting room 1.13 has the largest area of the six meeting rooms on Floor 1, at 41.52 m².\nAnswer: Meeting room 1.13, 41.52 m²"
+  },
+  {
+    "question_id": "proc-campus-test-005-H02",
+    "answer": "456.72"
+  },
+  {
+    "question_id": "proc-campus-test-005-H03",
+    "answer": "18"
+  },
+  {
+    "question_id": "proc-campus-test-005-H04",
+    "answer": "89.52"
+  },
+  {
+    "question_id": "proc-campus-test-005-H05",
+    "answer": "3"
+  },
+  {
+    "question_id": "proc-campus-test-005-H06",
+    "answer": "39.09"
+  },
+  {
+    "question_id": "proc-campus-test-008-H01",
+    "answer": "Space ID: proc-campus-test-008-F2-S019\nOffice 2.19 has the largest area (39.66 m²) among the 8 offices on Floor 2.\nAnswer: Office 2.19, 39.66 m²"
+  },
+  {
+    "question_id": "proc-campus-test-008-H02",
+    "answer": "86.40"
+  },
+  {
+    "question_id": "proc-campus-test-008-H03",
+    "answer": "11"
+  },
+  {
+    "question_id": "proc-campus-test-008-H04",
+    "answer": "78.91"
+  },
+  {
+    "question_id": "proc-campus-test-008-H05",
+    "answer": "33.73"
+  },
+  {
+    "question_id": "proc-campus-test-012-H01",
+    "answer": "Space ID: proc-campus-test-012-F1-S012\nOffice 1.12 is the largest of the 7 offices on Floor 1, at 40.02 m²\nAnswer: Office 1.12, 40.02 m²"
+  },
+  {
+    "question_id": "proc-campus-test-012-H02",
+    "answer": "99.18"
+  },
+  {
+    "question_id": "proc-campus-test-012-H03",
+    "answer": "16"
+  },
+  {
+    "question_id": "proc-campus-test-012-H04",
+    "answer": "43.83"
+  },
+  {
+    "question_id": "proc-campus-test-012-H05",
+    "answer": "38.46"
+  },
+  {
+    "question_id": "proc-campus-test-013-H01",
+    "answer": "Space ID: proc-campus-test-013-F5-S026\nStorage 5.26 is the largest of the three storage rooms on Floor 5, at 40.86 m².\nAnswer: Storage 5.26, 40.86 m²"
+  },
+  {
+    "question_id": "proc-campus-test-013-H02",
+    "answer": "200.28"
+  },
+  {
+    "question_id": "proc-campus-test-013-H03",
+    "answer": "15"
+  },
+  {
+    "question_id": "proc-campus-test-013-H04",
+    "answer": "116.61"
+  },
+  {
+    "question_id": "proc-campus-test-013-H05",
+    "answer": "36.37"
+  },
+  {
+    "question_id": "proc-factory-test-001-H01",
+    "answer": "92.10"
+  },
+  {
+    "question_id": "proc-factory-test-001-H02",
+    "answer": "9"
+  },
+  {
+    "question_id": "proc-factory-test-001-H03",
+    "answer": "6"
+  },
+  {
+    "question_id": "proc-factory-test-002-H01",
+    "answer": "126.50"
+  },
+  {
+    "question_id": "proc-factory-test-002-H02",
+    "answer": "9"
+  },
+  {
+    "question_id": "proc-factory-test-002-H03",
+    "answer": "4"
+  },
+  {
+    "question_id": "proc-factory-test-002-H04",
+    "answer": "111.98"
+  },
+  {
+    "question_id": "proc-factory-test-003-H01",
+    "answer": "Space ID: proc-factory-test-003-F1-S017\nMeeting room 1.17 is the largest of the 8 meeting rooms on Floor 1, at 29.35 m².\nAnswer: Meeting room 1.17, 29.35 m²"
+  },
+  {
+    "question_id": "proc-factory-test-003-H02",
+    "answer": "154.20"
+  },
+  {
+    "question_id": "proc-factory-test-003-H03",
+    "answer": "7"
+  },
+  {
+    "question_id": "proc-factory-test-003-H04",
+    "answer": "89.87"
+  },
+  {
+    "question_id": "proc-factory-test-003-H05",
+    "answer": "3"
+  },
+  {
+    "question_id": "proc-factory-test-003-H06",
+    "answer": "32.02"
+  },
+  {
+    "question_id": "proc-factory-test-006-H01",
+    "answer": "203.30"
+  },
+  {
+    "question_id": "proc-factory-test-006-H02",
+    "answer": "4"
+  },
+  {
+    "question_id": "proc-factory-test-006-H03",
+    "answer": "3"
+  },
+  {
+    "question_id": "proc-factory-test-006-H04",
+    "answer": "53.09"
+  },
+  {
+    "question_id": "proc-factory-test-007-H01",
+    "answer": "Space ID: proc-factory-test-007-F1-S010\nKitchen 1.10 has the largest area of the five kitchens on Floor 1, at 28.75 m².\nAnswer: Kitchen 1.10, 28.75 m²"
+  },
+  {
+    "question_id": "proc-factory-test-007-H02",
+    "answer": "413.40"
+  },
+  {
+    "question_id": "proc-factory-test-007-H03",
+    "answer": "9"
+  },
+  {
+    "question_id": "proc-factory-test-007-H04",
+    "answer": "220.61"
+  },
+  {
+    "question_id": "proc-factory-test-007-H05",
+    "answer": "4"
+  },
+  {
+    "question_id": "proc-factory-test-007-H06",
+    "answer": "34.80"
+  },
+  {
+    "question_id": "proc-factory-test-009-H01",
+    "answer": "1220.16"
+  },
+  {
+    "question_id": "proc-factory-test-009-H02",
+    "answer": "12"
+  },
+  {
+    "question_id": "proc-factory-test-009-H03",
+    "answer": "4"
+  },
+  {
+    "question_id": "proc-factory-test-010-H01",
+    "answer": "Space ID: proc-factory-test-010-F0-S040\nMeeting room 0.40 has the largest area of the 5 meeting rooms on the ground floor, at 29.95 m².\nAnswer: Meeting room 0.40, 29.95 m²"
+  },
+  {
+    "question_id": "proc-factory-test-010-H02",
+    "answer": "111.60"
+  },
+  {
+    "question_id": "proc-factory-test-010-H03",
+    "answer": "10"
+  },
+  {
+    "question_id": "proc-factory-test-010-H04",
+    "answer": "113.03"
+  },
+  {
+    "question_id": "proc-factory-test-010-H05",
+    "answer": "4"
+  },
+  {
+    "question_id": "proc-factory-test-011-H01",
+    "answer": "2079.98"
+  },
+  {
+    "question_id": "proc-factory-test-011-H02",
+    "answer": "7"
+  },
+  {
+    "question_id": "proc-factory-test-011-H03",
+    "answer": "4"
+  },
+  {
+    "question_id": "proc-factory-test-011-H04",
+    "answer": "51.42"
+  },
+  {
+    "question_id": "resplan-1153-H01",
+    "answer": "71.29"
+  },
+  {
+    "question_id": "resplan-1153-H02",
+    "answer": "3"
+  },
+  {
+    "question_id": "resplan-12469-H01",
+    "answer": "109.70"
+  },
+  {
+    "question_id": "resplan-12469-H02",
+    "answer": "8"
+  },
+  {
+    "question_id": "resplan-12469-H03",
+    "answer": "5"
+  },
+  {
+    "question_id": "resplan-12962-H01",
+    "answer": "5"
+  },
+  {
+    "question_id": "resplan-14307-H01",
+    "answer": "3"
+  },
+  {
+    "question_id": "resplan-3573-H01",
+    "answer": "Space ID: resplan-3573-F0-S006\nBathroom 0.06 is the largest of the three ground-floor bathrooms, at 6.98 m².\nAnswer: Bathroom 0.06, 6.98 m²"
+  },
+  {
+    "question_id": "resplan-3573-H02",
+    "answer": "17.65"
+  },
+  {
+    "question_id": "resplan-3573-H03",
+    "answer": "6"
+  },
+  {
+    "question_id": "resplan-3573-H04",
+    "answer": "18.58"
+  },
+  {
+    "question_id": "resplan-3573-H05",
+    "answer": "6"
+  },
+  {
+    "question_id": "resplan-6532-H01",
+    "answer": "3"
+  },
+  {
+    "question_id": "resplan-6532-H02",
+    "answer": "3"
+  },
+  {
+    "question_id": "resplan-8357-H01",
+    "answer": "4"
+  },
+  {
+    "question_id": "resplan-8357-H02",
+    "answer": "5"
+  },
+  {
+    "question_id": "resplan-9751-H01",
+    "answer": "5"
+  },
+  {
+    "question_id": "swiss-100-H01",
+    "answer": "Space ID: swiss-100-F1-S005\nLargest of 4 living rooms on Floor 1, at 30.16 m²\nAnswer: Living room 1.05 (apartment 4), 30.16 m²"
+  },
+  {
+    "question_id": "swiss-100-H02",
+    "answer": "32.47"
+  },
+  {
+    "question_id": "swiss-100-H03",
+    "answer": "39.20"
+  },
+  {
+    "question_id": "swiss-1195-H01",
+    "answer": "207.01"
+  },
+  {
+    "question_id": "swiss-1195-H02",
+    "answer": "3"
+  },
+  {
+    "question_id": "swiss-1671-H01",
+    "answer": "Space ID: swiss-1671-F0-S005\nBedroom 0.05 (apartment 1) has the largest area among the 7 ground-floor bedrooms, at 19.34 m².\nAnswer: Bedroom 0.05 (apartment 1), 19.34 m²"
+  },
+  {
+    "question_id": "swiss-1671-H02",
+    "answer": "133.95"
+  },
+  {
+    "question_id": "swiss-1671-H03",
+    "answer": "27.49"
+  },
+  {
+    "question_id": "swiss-1671-H04",
+    "answer": "3"
+  },
+  {
+    "question_id": "swiss-17033-H01",
+    "answer": "50.66"
+  },
+  {
+    "question_id": "swiss-1760-H01",
+    "answer": "Space ID: swiss-1760-F0-S006\nKitchen 0.06 (apartment 1) is the largest of the 6 ground-floor kitchens, at 6.73 m².\nAnswer: Kitchen 0.06 (apartment 1), 6.73 m²"
+  },
+  {
+    "question_id": "swiss-1760-H02",
+    "answer": "61.12"
+  },
+  {
+    "question_id": "swiss-17736-H01",
+    "answer": "Space ID: swiss-17736-F3-S003\nBedroom 3.03 is the largest of the four bedrooms on Floor 3, at 19.44 m²\nAnswer: Bedroom 3.03 (apartment 8), 19.44 m²"
+  },
+  {
+    "question_id": "swiss-17736-H02",
+    "answer": "34.00"
+  },
+  {
+    "question_id": "swiss-17736-H03",
+    "answer": "34.15"
+  },
+  {
+    "question_id": "swiss-1825-H01",
+    "answer": "20.54"
+  },
+  {
+    "question_id": "swiss-2-H01",
+    "answer": "42.31"
+  },
+  {
+    "question_id": "swiss-2080-H01",
+    "answer": "Space ID: swiss-2080-F2-S015\nBathroom 2.15 (apartment 8) is the largest of the four bathrooms on Floor 2, at 4.13 m².\nAnswer: Bathroom 2.15 (apartment 8), 4.13 m²"
+  },
+  {
+    "question_id": "swiss-2080-H02",
+    "answer": "12.30"
+  },
+  {
+    "question_id": "swiss-2080-H03",
+    "answer": "38.28"
+  },
+  {
+    "question_id": "swiss-2080-H04",
+    "answer": "4"
+  },
+  {
+    "question_id": "swiss-2873-H01",
+    "answer": "Space ID: swiss-2873-F2-S014\nStorage 2.14 (apartment 10) is the largest of the 5 storage rooms on Floor 2, at 3.22 m²\nAnswer: Storage 2.14 (apartment 10), 3.22 m²"
+  },
+  {
+    "question_id": "swiss-2873-H02",
+    "answer": "12.53"
+  },
+  {
+    "question_id": "swiss-2873-H03",
+    "answer": "34.26"
+  },
+  {
+    "question_id": "swiss-2873-H04",
+    "answer": "3"
+  },
+  {
+    "question_id": "swiss-482-H01",
+    "answer": "Space ID: swiss-482-F4-S012\nStorage 4.12 is the largest of the three storage rooms on Floor 4, at 2.32 m².\nAnswer: Storage 4.12 (apartment 18), 2.32 m²"
+  },
+  {
+    "question_id": "swiss-482-H02",
+    "answer": "16.07"
+  },
+  {
+    "question_id": "swiss-482-H03",
+    "answer": "67.02"
+  },
+  {
+    "question_id": "swiss-482-H04",
+    "answer": "3"
+  },
+  {
+    "question_id": "swiss-6128-H01",
+    "answer": "74.92"
   }
 ]

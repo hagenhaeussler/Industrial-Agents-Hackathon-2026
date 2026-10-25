@@ -3,8 +3,8 @@
   uv run python -m building_agent.batch data/dev --workers 10 --per-kind 2
 
 The agent gets only the question text. Expected answers are read for scoring after every reply is in.
-Output matches `benchmark.evaluate`: replies in agent_output/benchmark/<name>.jsonl, optional submission CSV.
-`--answers-json` also writes the answers in the answers.json format of `run_benchmark`.
+Diagnostic replies go to agent_output/benchmark/<name>.jsonl, with an optional kit CSV.
+Jury answers always go to <name>_answers.json, or the path given by --answers-json, as in `run_benchmark`.
 """
 
 import argparse
@@ -62,8 +62,8 @@ def run_batch(
         report(results)
     if submission_csv is not None:
         write_submission_csv(submission_csv, [(q["id"], records[q["id"]]["reply"]) for _, q in selected])
-    if answers_json is not None:
-        write_answers(answers_json, (answer_entry(q["id"], records[q["id"]]) for _, q in selected))
+    answers_path = answers_json or RESULTS_DIRECTORY / f"{name}_answers.json"
+    write_answers(answers_path, (answer_entry(q["id"], records[q["id"]]) for _, q in selected))
     print_usage(list(records.values()), time.monotonic() - started)
     print(f"replies saved to {results_path}")
 
@@ -76,7 +76,10 @@ def main() -> None:
     parser.add_argument("--kinds", nargs="+", default=None, help="only these question kinds")
     parser.add_argument("--name", default="batch", help="file name for the saved replies")
     parser.add_argument("--submission-csv", type=Path, default=None, help="also write question_id,answer")
-    parser.add_argument("--answers-json", type=Path, default=None, help="also write answers.json")
+    parser.add_argument(
+        "--answers-json", type=Path, default=None,
+        help="jury JSON path (default: agent_output/benchmark/<name>_answers.json)",
+    )
     arguments = parser.parse_args()
     run_batch(
         arguments.directory,
