@@ -9,7 +9,7 @@ interface Marker {
   coworker: CoworkerMarker;
 }
 
-/** Keeps each person's SVG nodes while their position changes. Events belong to the floor plan. */
+/** Keeps each bot's SVG nodes while its position changes. Events belong to the floor plan. */
 export class CoworkerMarkers2D {
   readonly layer = element("g", { "data-layer": "coworkers" });
   private readonly markers = new Map<string, Marker>();
@@ -58,7 +58,7 @@ function createMarker(coworker: CoworkerMarker): Marker {
   face.append(element("path", { d: BOT_BODY_PATH, fill: "currentColor", stroke: "white", "stroke-width": 2 }));
   for (const x of [21, 37]) face.append(element("rect", { x, y: 23, width: 6, height: 15, rx: 3, fill: BOT_EYE_COLOR }));
   const label = element("text", {
-    y: 0.42, "text-anchor": "middle", "font-family": "system-ui, sans-serif", "font-size": 0.32,
+    y: 0.8, "text-anchor": "middle", "font-family": "system-ui, sans-serif", "font-size": 1,
     "font-weight": 600, fill: "#302e2b", stroke: "white", "stroke-width": 0.08, "paint-order": "stroke",
   });
   node.append(target, face, label);
