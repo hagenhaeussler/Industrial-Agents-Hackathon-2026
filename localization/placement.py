@@ -1,9 +1,10 @@
 """Place a localized camera in a building: floor, space, plan position and heading.
 
 `building.json` files made by `floor_plan` store `source_ref.building_from_map`, the 4 x 4 transform from the
-localization map to the plan (x right, y up, z height above the ground floor).
+localization map to the plan (x right, y up, z height above the ground floor), as JSON text.
 """
 
+import json
 from dataclasses import dataclass
 
 import numpy as np
@@ -27,7 +28,7 @@ class BuildingFrame:
 
     def __init__(self, building: dict):
         self.building_id: str = building["building"]["id"]
-        self.building_from_map = np.array(building["building"]["source_ref"]["building_from_map"], float)
+        self.building_from_map = np.array(json.loads(building["building"]["source_ref"]["building_from_map"]), float)
         self.floors = sorted(building["floors"], key=lambda floor: floor["elevation_m"])
         self.spaces = [(space["id"], space["floor_id"], Polygon(space["polygon"])) for space in building["spaces"]]
 

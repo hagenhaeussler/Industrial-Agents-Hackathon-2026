@@ -299,14 +299,15 @@ def main() -> None:
             "id": building_id,
             "name": annotations.get("name", building_id),
             "source": "scan",
+            # building.json allows only text in source_ref, so numbers and nested values are JSON text.
             "source_ref": {
                 "capture": args.capture.name,
                 "map": args.map,
                 "generator": "localization.floor_plan",
-                "building_from_map": np.round(transform, 6).tolist(),
-                "wall_angle_deg": round(float(np.degrees(angle)), 2),
-                "cell_m": cell,
-                "annotations": annotations,
+                "building_from_map": json.dumps(np.round(transform, 6).tolist()),
+                "wall_angle_deg": f"{np.degrees(angle):.2f}",
+                "cell_m": str(cell),
+                "annotations": json.dumps(annotations, ensure_ascii=False),
             },
             "license": "private",
             "attribution": "Phone scan",
@@ -329,7 +330,7 @@ def main() -> None:
                 "type": space.get("type", "room"),
                 "room_type": space.get("room_type"),
                 "name": space.get("name", "Room"),
-                "ref": None,
+                "ref": "",
                 "polygon": [[round(float(x), 3), round(float(y), 3)] for x, y in outline.exterior.coords[:-1]],
                 "synthetic": False,
             }
