@@ -1,0 +1,9 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { display: grid; grid-template-rows: auto 1fr auto; font: 13px system-ui, sans-serif; color: #2b2925; background: #f6f5f2; }
+header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 10px 14px; border-bottom: 1px solid #ddd8cf; }
+select { max-width: 320px; }
+main { display: grid; grid-template-columns: 1fr 1fr; min-height: 0; }
+section { position: relative; min-height: 0; overflow: hidden; }
+#plan { border-right: 1px solid #ddd8cf; background: #fff; }
+footer { padding: 6px 14px; border-top: 1px solid #ddd8cf; color: #5c574f; }

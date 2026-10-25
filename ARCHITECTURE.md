@@ -16,6 +16,9 @@ The web application is planned. Organizer rules and the submission format are in
 - Store derived room areas as `STORED` generated columns. See [docs/db.md](docs/db.md).
 - Use PydanticAI as the agent harness. Serve the building tools from one MCP server.
 - The agent returns structured output. A deterministic formatter writes the benchmark `Answer:` line.
+- FastAPI serves stored buildings read-only. TypeScript building types are generated from its OpenAPI schema.
+- The building views are a framework-free TypeScript package: SVG for 2D, three.js for 3D.
+  See [docs/visualization.md](docs/visualization.md).
 
 ## Responsibilities
 
@@ -25,6 +28,7 @@ The web application is planned. Organizer rules and the submission format are in
 | Building tools | Building search, geometric facts, route calculations and explicit domain failures | Conversation policy or provider-specific behavior |
 | Agent harness | Model interaction, context, tool execution, validation, retries and run records | Independent copies of calculation logic |
 | Evaluation | Question loading, agent invocation, scoring and submission output | Supplying gold answers or generator inputs to the agent |
+| Building views | Read-only building API, scene derived from `building.json`, 2D and 3D drawing of routes and positions they receive | Route or position calculation |
 | Web integration, later | HTTP transport and conversation delivery | A separate calculation implementation |
 
 These are responsibilities, not separate deployments or a requirement for one package per row.
