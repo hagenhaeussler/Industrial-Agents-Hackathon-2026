@@ -86,6 +86,25 @@ class AgentTests(unittest.TestCase):
         self.assertNotIn("Answer:", failure)
         self.assertFalse(score_reply(count, failure))
 
+    def test_located_items_name_room_and_floor_and_keep_the_item_id(self) -> None:
+        answer = RoomAnswer(space_id="S-office", asset_id="A-desk", explanation="find_assets found one desk.")
+        reply = format_reply(answer, self.building)
+        self.assertEqual(reply.splitlines()[-1], "Answer: Office 0.01 (Ground floor)")
+        self.assertTrue(score_reply({"type": "space", "accept": ["Office 0.01"], "reject": ["Lift 1"]}, reply))
+        result = answer_result(answer, self.building)
+        self.assertEqual((result["asset_id"], result["floor_level"]), ("A-desk", 0))
+
+    def test_item_in_another_space_is_sent_back_for_repair(self) -> None:
+        def model(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+            retried = any(
+                isinstance(message, ModelRequest) and "is in space" in str(message.parts) for message in messages
+            )
+            args = {"space_id": "S-office" if retried else "S-lift-0", "asset_id": "A-desk", "explanation": "x"}
+            return ModelResponse(parts=[ToolCallPart(output_tool(info, "answer_room"), args)])
+
+        reply = answer(self.building_directory, "Where is the desk?", model=FunctionModel(model))
+        self.assertTrue(reply.endswith("Answer: Office 0.01 (Ground floor)"), reply)
+
     def test_route_answers_are_recalculated_from_stops_and_conditions(self) -> None:
         answer = RouteAnswer(stops=["S-office", "S-lift-1"], explanation="Take the lift. Answer: 99 m")
         reply = format_reply(answer, self.building)

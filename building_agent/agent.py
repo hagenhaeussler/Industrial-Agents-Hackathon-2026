@@ -105,6 +105,12 @@ def build_agent(building: Building, model: Model | str, effort: AnthropicEffort)
     def known_ids(answer: Answer) -> Answer:
         if isinstance(answer, RoomAnswer) and answer.space_id not in building.space_by_id:
             raise ModelRetry(f"space_id {answer.space_id!r} is not in this building; use an id from find_spaces")
+        if isinstance(answer, RoomAnswer) and answer.asset_id is not None:
+            asset = building.asset_by_id.get(answer.asset_id)
+            if asset is None:
+                raise ModelRetry(f"asset_id {answer.asset_id!r} is not in this building; use an id from find_assets")
+            if asset.space_id != answer.space_id:
+                raise ModelRetry(f"asset {answer.asset_id!r} is in space {asset.space_id!r}, not {answer.space_id!r}")
         if isinstance(answer, RouteAnswer):
             try:
                 answer_route(answer, building)

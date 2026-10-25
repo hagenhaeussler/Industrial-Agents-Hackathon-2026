@@ -56,6 +56,7 @@ class Building:
         self.area_by_id = areas
         self.polygon_by_id = {space.id: Polygon(space.polygon) for space in document.spaces}
         self.connector_by_id = {connector.id: connector for connector in document.vertical_connectors}
+        self.asset_by_id = {asset.id: asset for asset in document.assets}
         self.walk_cache: dict[str, list[Walk]] = {}
         """Walks inside each space, computed on first use by the route network."""
 
@@ -77,6 +78,22 @@ class Building:
                 return floor
         known = ", ".join(f"{floor.name} (level {floor.level})" for floor in self.floors)
         raise ToolInputError(f"unknown floor {reference!r}; this building has: {known}")
+
+    def room_type(self, room_type: str) -> str:
+        """The normalized room type. Raises with the known types if no space has it, so a typo is not a zero."""
+        wanted = normalize(room_type)
+        if not any(normalize(space.room_type) == wanted for space in self.document.spaces):
+            known = ", ".join(sorted({space.room_type for space in self.document.spaces}))
+            raise ToolInputError(f"no space in this building has room type {room_type!r}; known room types: {known}")
+        return wanted
+
+    def asset_type(self, asset_type: str) -> str:
+        """The normalized asset type. Raises with the known types if no asset has it."""
+        wanted = normalize(asset_type)
+        if not any(normalize(asset.type) == wanted for asset in self.document.assets):
+            known = ", ".join(sorted({asset.type for asset in self.document.assets}))
+            raise ToolInputError(f"no asset of type {asset_type!r} in this building; known types: {known}")
+        return wanted
 
     def spaces_on(self, floor_id: str) -> list[Space]:
         return [space for space in self.document.spaces if space.floor_id == floor_id]

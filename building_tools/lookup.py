@@ -10,7 +10,6 @@ from building_tools.building import (
     FloorSummary,
     SpaceSummary,
     SpaceType,
-    ToolInputError,
     ToolResult,
     normalize,
 )
@@ -108,7 +107,8 @@ def find_spaces(
     if space_type is not None:
         candidates = [space for space in candidates if space.type == space_type]
     if room_type is not None:
-        candidates = [space for space in candidates if normalize(space.room_type) == normalize(room_type)]
+        wanted_type = building.room_type(room_type)
+        candidates = [space for space in candidates if normalize(space.room_type) == wanted_type]
 
     match: Literal["exact", "partial", "filter"] = "filter"
     if text is not None:
@@ -159,16 +159,12 @@ def find_assets(
     if space_id is not None:
         building.space(space_id)
     floor_id = building.floor(floor).id if floor is not None else None
-    if asset_type is not None and not any(
-        normalize(asset.type) == normalize(asset_type) for asset in building.document.assets
-    ):
-        known = ", ".join(sorted({asset.type for asset in building.document.assets}))
-        raise ToolInputError(f"no asset of type {asset_type!r} in this building; known types: {known}")
+    wanted_type = building.asset_type(asset_type) if asset_type is not None else None
 
     assets = [
         asset
         for asset in building.document.assets
-        if (asset_type is None or normalize(asset.type) == normalize(asset_type))
+        if (wanted_type is None or normalize(asset.type) == wanted_type)
         and (text is None or normalize(text) in normalize(asset.name))
         and (space_id is None or asset.space_id == space_id)
         and (floor_id is None or asset.floor_id == floor_id)

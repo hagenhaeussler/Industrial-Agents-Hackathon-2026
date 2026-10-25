@@ -47,6 +47,9 @@ rules in [challenge.md](challenge.md):
 - `RouteConditions` holds every rule: `step_free`, `min_door_width_m`, `closed` element IDs, `added_doors` and
   `no_pass_through_room_types`. A space that may not be passed through can still be entered as a destination
   and left as a start; this applies to walks, stairs and lifts.
+- Room types compare in plain words, so "production zone" matches `production_zone`. An unknown room type is an
+  error that lists the known types, in route conditions and in every room type filter. A typo must not turn
+  into a count of 0 or a route through a space it was meant to avoid.
 - The graph is directed only for that rule. All other edges go both ways. Parallel edges are kept.
 - Walks inside each space are cached on the loaded building. A space with an added door is computed fresh.
 

@@ -43,6 +43,9 @@ uv run python -m building_agent.batch data/test --workers 10 --name test \
 
 `results/test_answers.csv` holds the same replies in the CSV format of the kit README, section 6.
 
+Room answers later got their room name and floor in `result`, read from the building data. No reply or `Answer:`
+line changed.
+
 ## Format of answers.json
 
 A JSON list. Each entry has these fields:
@@ -59,7 +62,7 @@ A JSON list. Each entry has these fields:
 |---|---|
 | `number` | `value`, `unit` |
 | `count` | `value` |
-| `space` | `space_id` of the room or other space, `area_m2` |
+| `space` | `space_id`, `space_name`, `floor_level`, `floor_name`, `area_m2`. For an item the question asks for, also `asset_id`, `asset_name` and `position`. |
 | `route` | `reachable`, `space_path` (space ids in walking order), `element_path` (door, opening, stair and lift ids in order), `length_m` (`null` if no route exists) |
 | `failure` | `reason` |
 
@@ -90,8 +93,9 @@ Measured on 25 Oct 2026 with Claude Sonnet 5.5, effort `medium`:
 
 | Run | Result | Time | Cost |
 |---|---|---|---|
-| Dev set, 138 questions with known answers | 138 / 138 correct | 66 s | $1.27 |
+| Dev set, 138 questions with known answers | 138 / 138 correct | 70 s | $1.47 |
 | Route questions from the dev warm-up set, run with `run_benchmark` on 5 buildings | 30 / 30 with the exact space path and length | about 1 min | $0.74 |
+| Warm-up locate and count questions from 10 dev buildings, run with `run_benchmark` | 26 / 26, with the exact item ID in all 20 locate answers | about 1 min | $0.15 |
 | Test set, 145 questions | 145 / 145 answered, 0 stopped runs; no known answers | 68 s | $1.38 |
 
 The tools give the same result every time. The model can choose differently between runs, so a repeated run can

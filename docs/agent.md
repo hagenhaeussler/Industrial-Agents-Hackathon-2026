@@ -32,6 +32,8 @@ Other runs on the same day:
 | Test set, 145 questions, written to `SUBMISSION/answers.json` | 145 answered, 0 stopped runs | 68 s | $1.38 |
 | An earlier test run | Same answer on 144 of 145 questions | 68 s | $1.50 |
 | Dev warm-up route questions on 5 buildings, through `run_benchmark` | 30 / 30 with the exact space path and length | about 1 min | $0.74 |
+| Dev warm-up locate and count questions on 10 buildings, through `run_benchmark` | 26 / 26, with the exact item ID in all 20 locate answers | about 1 min | $0.15 |
+| `dev-7`, after the item ID and the production bay rule | 138 / 138 | 70 s | $1.47 |
 
 In the one test difference, the earlier run looked for the nearest coat rack on the start floor only. The
 submitted run searched the whole building, as the question and the errand definition require.
@@ -161,6 +163,7 @@ the rest:
 | Number | value, unit | `Answer: 214.7` | `floor_area_total`, `errand`, `straight_line_3d` |
 | Count | integer | `Answer: 7` | `wide_delivery_count`, `step_free_reachable_count`, `shared_walls_count`, `what_if_door` |
 | Room | room ref, optional area | `Answer: N5325, 79.48 m²` | `largest_room` (with area), `room_stacked` |
+| Room with item | room, item ID | `Answer: Makerspace 0.08 (Ground floor)` | Warm-up `locate`: "Where is the laser cutter?" |
 | Route | stops, conditions, leg conditions | `Answer: 12.99 m`, after a `Route:` line | Route questions on new buildings |
 | Failure | reason | No `Answer:` line | Any stopped or unanswerable run |
 
@@ -168,6 +171,10 @@ The route shape holds only the stops and conditions the agent passed to `route`.
 route again from them, so the space sequence and the length always come from the route tool. If no route exists,
 the line is `Answer: No route exists under these rules.` An output validator sends unknown space or element IDs
 back to the model for repair.
+
+A room answer can carry the `asset_id` of an item the question asks for. The validator checks that the item
+exists and is in the answered space. The `Answer:` line then names the room and its floor instead of its area,
+and the answers.json entry also holds the item ID, name and position.
 
 Every shape also has an `explanation` field for a short natural-language answer. The agent picks the shape from
 the answer instruction in the question text, such as "Finish with a line 'Answer: <number>'". The dataset `kind`
