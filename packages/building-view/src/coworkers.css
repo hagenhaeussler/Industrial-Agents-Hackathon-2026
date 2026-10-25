@@ -1,0 +1,19 @@
+.building-coworker-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.building-coworker-label:is([data-hovered="true"], :hover, :focus-visible) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.building-coworker-marker .building-coworker-name {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.building-coworker-marker:is(:hover, :focus-visible) .building-coworker-name {
+  opacity: 1;
+  pointer-events: auto;
+}

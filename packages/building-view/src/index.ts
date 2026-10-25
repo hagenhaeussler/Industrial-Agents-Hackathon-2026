@@ -8,3 +8,4 @@ export { compileScene, SceneError } from "./scene/compile";
 export { fitLabel } from "./scene/labels";
 export { assetColor, colors, spaceColors } from "./scene/style";
 export type * from "./scene/types";
+export { BOT_BODY_PATH, BOT_OUTLINE, BOT_EYE_COLOR } from "./avatar";

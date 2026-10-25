@@ -1,4 +1,4 @@
-"""FastAPI app for validated building imports, stored buildings and routes."""
+"""FastAPI app for validated building imports, routes and session-scoped coworkers."""
 
 import hashlib
 import sqlite3
@@ -10,6 +10,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from pydantic import BaseModel
 
+from building_api.coworkers import CoworkerService, coworker_router
 from building_api.imports import import_router
 from building_api.localize import Localization, lifespan, localization_router
 from building_api.preview import isometric_svg
@@ -35,8 +36,10 @@ class RouteView(BaseModel):
     path: list[PathPoint]
 
 
-def create_app(database: Path, localization: Localization | None = None) -> FastAPI:
-    """An app that reads buildings from `database`, with a separate validated upload route.
+def create_app(
+    database: Path, localization: Localization | None = None, *, coworkers: CoworkerService | None = None
+) -> FastAPI:
+    """Read buildings and provide separate validated uploads and coworker sessions.
     With `localization`, it also forwards camera photos to the localization service."""
 
     def connection() -> Iterator[sqlite3.Connection]:
@@ -70,6 +73,7 @@ def create_app(database: Path, localization: Localization | None = None) -> Fast
     app = FastAPI(title="Locora API", lifespan=lifespan(localization))
     app.include_router(import_router(database))
     app.include_router(localization_router(localization))
+    app.include_router(coworker_router(coworkers or CoworkerService(database)))
 
     @app.get("/api/buildings")
     def list_buildings(db: Connection) -> list[BuildingSummary]:

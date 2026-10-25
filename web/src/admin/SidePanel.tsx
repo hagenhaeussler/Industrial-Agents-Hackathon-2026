@@ -1,4 +1,5 @@
 import type { Building, RouteView } from "@locora/view";
+import { CoworkerAvatar } from "./CoworkerAvatar";
 import { Blobatar } from "@blobatar/react";
 import { Accessibility, Hash, LocateFixed, QrCode, Send, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
@@ -11,8 +12,10 @@ import { MicButton } from "../voice/MicButton";
 import type { BuildingVoice } from "../voice/useBuildingVoice";
 import { memberName, type Channel, type Post } from "./team";
 import type { Position } from "./Workspace";
+import { DirectMessages } from "./DirectMessages";
+import type { CoworkerChat } from "./useCoworkers";
 
-export type PanelTab = "assistant" | "route" | "activity";
+export type PanelTab = "assistant" | "route" | "activity" | "messages";
 
 const PHASE_TEXT = {
   off: "Ask about rooms, equipment or routes.",
@@ -41,14 +44,16 @@ export function SidePanel(props: {
   channel: Channel;
   posts: Post[];
   onPost: (text: string) => void;
+  coworkers: CoworkerChat;
 }) {
   const tabs: { tab: PanelTab; label: string }[] = [
     { tab: "assistant", label: "Locora" },
     { tab: "route", label: "Route" },
     { tab: "activity", label: "Activity" },
+    { tab: "messages", label: "Messages" },
   ];
   return (
-    <aside className="my-2 mr-2 flex min-h-0 flex-col overflow-hidden rounded-[14px] bg-white">
+    <aside className={`col-start-2 my-2 mr-2 flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[14px] bg-white md:col-start-3 md:row-start-1 lg:col-start-4 ${props.tab === "messages" ? "row-start-1" : "row-start-2"}`}>
       <div role="tablist" aria-label="Panel" className="flex gap-1 border-b border-line p-2">
         {tabs.map(({ tab, label }) => (
           <button
@@ -66,6 +71,7 @@ export function SidePanel(props: {
       {props.tab === "assistant" && <AssistantTab voice={props.voice} />}
       {props.tab === "route" && <RouteTab {...props} />}
       {props.tab === "activity" && <ActivityTab channel={props.channel} posts={props.posts} onPost={props.onPost} />}
+      {props.tab === "messages" && <DirectMessages chat={props.coworkers} />}
     </aside>
   );
 }
@@ -181,7 +187,7 @@ function ActivityTab({ channel, posts, onPost }: { channel: Channel; posts: Post
         {shown.map((post) => (
           <li key={post.id} className="flex gap-2.5">
             <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[10px] bg-field">
-              <Blobatar name={post.author === "you" ? "alain00" : post.author} size={26} />
+              {post.author === "you" ? <Blobatar name="alain00" size={26} /> : <CoworkerAvatar id={post.author} size={28} />}
             </span>
             <div className="min-w-0">
               <p className="text-[13px]">

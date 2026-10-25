@@ -15,6 +15,7 @@ import { Sidebar, type View } from "./Sidebar";
 import { SidePanel, type PanelTab } from "./SidePanel";
 import { SEED_POSTS, type Channel, type Post } from "./team";
 import { TopBar } from "./TopBar";
+import { useCoworkers } from "./useCoworkers";
 
 /** Something selected in the building: a space or a piece of equipment. */
 export interface Selection {
@@ -38,7 +39,7 @@ export function Workspace({ buildingId }: { buildingId: string; query: URLSearch
   if (building.isError) return <p className="grid h-svh place-items-center text-sm text-danger">{building.error.message}</p>;
   return (
     <ConversationProvider>
-      <WorkspaceView buildingId={buildingId} document={building.data.document} />
+      <WorkspaceView key={buildingId} buildingId={buildingId} document={building.data.document} />
     </ConversationProvider>
   );
 }
@@ -50,6 +51,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
 
   const [view, setView] = useState<View>("model");
   const [tab, setTab] = useState<PanelTab>("assistant");
+  const coworkers = useCoworkers(buildingId, tab === "messages");
   const [channel, setChannel] = useState<Channel>("facility-ops");
   const [posts, setPosts] = useState<Post[]>(SEED_POSTS);
   const [tool, setTool] = useState<Tool>("select");
@@ -103,6 +105,11 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
   const onPick = useCallback(
     (pick: PickResult | null) => {
       if (!pick) return setSelection(undefined);
+      if (pick.kind === "coworker") {
+        coworkers.select(pick.id);
+        setTab("messages");
+        return;
+      }
       if (tool === "position") {
         const spaceId = spaceAt(pick);
         if (spaceId) setPosition({ spaceId, floorId: pick.floorId, x: pick.x, y: pick.y });
@@ -121,7 +128,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
       }
       if (pick.kind === "space" || pick.kind === "asset") setSelection({ kind: pick.kind, id: pick.id, floorId: pick.floorId });
     },
-    [tool, selection, document],
+    [tool, selection, document, coworkers.select],
   );
 
   const positionPoint = (): Overlay["position"] => {
@@ -136,8 +143,9 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
       route: route.data?.path.map((point) => ({ floorId: point.floor_id, x: point.x, y: point.y })),
       position: positionPoint(),
       highlightIds: [selection?.id, destination].filter((id): id is string => id !== undefined),
+      coworkers: coworkers.markers,
     }),
-    [route.data, position, selection, destination, scene],
+    [route.data, position, selection, destination, scene, coworkers.markers],
   );
 
   const selectionPoint = (found: Selection) =>
@@ -158,7 +166,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
   const planFloor = focusFloor ?? selection?.floorId ?? position?.floorId ?? ground.id;
 
   return (
-    <div className="grid h-svh grid-cols-[64px_240px_minmax(0,1fr)_372px] bg-rail text-ink">
+    <div className={`grid h-svh grid-cols-[56px_minmax(0,1fr)] bg-rail text-ink ${tab === "messages" ? "grid-rows-1" : "grid-rows-[minmax(0,1fr)_minmax(0,2fr)]"} md:grid-cols-[64px_minmax(0,1fr)_340px] md:grid-rows-1 lg:grid-cols-[64px_200px_minmax(0,1fr)_340px] xl:grid-cols-[64px_240px_minmax(0,1fr)_372px]`}>
       <Sidebar
         building={document}
         view={view}
@@ -167,6 +175,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
         onView={(next) => {
           setView(next);
           if (next === "routes") setTab("route");
+          else if (tab === "messages" && window.matchMedia("(max-width: 767px)").matches) setTab("assistant");
         }}
         channel={tab === "activity" ? channel : undefined}
         onChannel={(next) => {
@@ -175,8 +184,13 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
         }}
         positionName={position ? spaceName(document, position.spaceId) : undefined}
         onSettings={() => setDialog("settings")}
+        coworkers={coworkers.members}
+        selectedMemberId={tab === "messages" ? coworkers.selected?.id : undefined}
+        onMember={(id) => { coworkers.select(id); setTab("messages"); }}
+        showCoworkers={coworkers.show}
+        onShowCoworkers={coworkers.setShow}
       />
-      <main className="m-2 ml-0 flex min-w-0 flex-col overflow-hidden rounded-[14px] bg-paper">
+      <main className={`col-start-2 row-start-1 m-2 ml-0 min-h-0 min-w-0 flex-col overflow-hidden rounded-[14px] bg-paper lg:col-start-3 ${tab === "messages" ? "hidden md:flex" : "flex"}`}>
         <TopBar
           document={document}
           view={view}
@@ -253,6 +267,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
         onPost={(text) =>
           setPosts((current) => [...current, { id: crypto.randomUUID(), channel, author: "you", text, time: clock() }])
         }
+        coworkers={coworkers}
       />
       <ShareDialog
         open={dialog === "share"}

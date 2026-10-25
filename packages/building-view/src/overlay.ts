@@ -8,6 +8,8 @@ export interface FloorPoint {
   y: number;
 }
 
+export type CoworkerMarker = FloorPoint & { id: string; name: string; color: string };
+
 export interface Overlay {
   /** A walking path in order. Consecutive points on different floors are a change of floor. */
   route?: FloorPoint[];
@@ -17,7 +19,11 @@ export interface Overlay {
   highlightIds?: string[];
   /** Spaces, openings or connectors that cannot be used. */
   closedIds?: string[];
+  /** AI coworkers at their current display positions. An empty list hides them. */
+  coworkers?: CoworkerMarker[];
 }
 
 /** The entity under the pointer when the user clicks a view. */
-export type PickResult = { kind: "space" | "asset" | "opening"; id: string; floorId: string; x: number; y: number };
+export type PickResult =
+  | { kind: "space" | "asset" | "opening"; id: string; floorId: string; x: number; y: number }
+  | ({ kind: "coworker" } & CoworkerMarker);

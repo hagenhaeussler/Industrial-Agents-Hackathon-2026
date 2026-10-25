@@ -1,10 +1,12 @@
 import type { Building } from "@locora/view";
-import { Blobatar } from "@blobatar/react";
-import { Box, ChevronDown, Hash, Layers, MapPin, Package, Plus, Route, Settings } from "lucide-react";
-import type { ReactNode } from "react";
+import { CoworkerAvatar } from "./CoworkerAvatar";
+import { Box, ChevronDown, Hash, Layers, MapPin, Menu, Package, Plus, Route, Settings } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { useBuildings } from "../api/buildings";
 import { navigate } from "../router";
-import { CHANNELS, MEMBERS, type Channel } from "./team";
+import { CHANNELS, type Channel } from "./team";
+import type { CoworkerIdentity } from "./useCoworkers";
+import { Sheet } from "../ui/Sheet";
 import { EquipmentBrowser } from "./EquipmentBrowser";
 
 export type View = "model" | "plans" | "routes" | "equipment";
@@ -27,6 +29,11 @@ export function Sidebar({
   onChannel,
   positionName,
   onSettings,
+  coworkers,
+  selectedMemberId,
+  onMember,
+  showCoworkers,
+  onShowCoworkers,
 }: {
   building: Building;
   view: View;
@@ -37,11 +44,14 @@ export function Sidebar({
   onChannel: (channel: Channel) => void;
   positionName: string | undefined;
   onSettings: () => void;
+  coworkers: CoworkerIdentity[];
+  selectedMemberId: string | undefined;
+  onMember: (id: string) => void;
+  showCoworkers: boolean;
+  onShowCoworkers: (show: boolean) => void;
 }) {
-  return (
-    <>
-      <BuildingRail current={building.building.id} />
-      <nav aria-label="Workspace" className="my-2 mr-2 flex min-h-0 flex-col rounded-[14px] bg-side py-2 text-[#e6e9df]">
+  const [navigationOpen, setNavigationOpen] = useState(false);
+  const navigation = <>
         <button
           type="button"
           onClick={() => navigate("/")}
@@ -58,7 +68,7 @@ export function Sidebar({
 
         <div className="mt-3 min-h-0 flex-1 overflow-y-auto px-2">
           {VIEWS.map(({ view: value, label, Icon }) => (
-            <SideItem key={value} active={view === value} onClick={() => onView(value)} icon={<Icon size={16} />}>
+            <SideItem key={value} active={view === value} onClick={() => { onView(value); setNavigationOpen(false); }} icon={<Icon size={16} />}>
               {label}
             </SideItem>
           ))}
@@ -69,25 +79,31 @@ export function Sidebar({
 
           <SectionTitle>Channels</SectionTitle>
           {CHANNELS.map((name) => (
-            <SideItem key={name} active={channel === name} onClick={() => onChannel(name)} icon={<Hash size={15} />}>
+            <SideItem key={name} active={channel === name} onClick={() => { onChannel(name); setNavigationOpen(false); }} icon={<Hash size={15} />}>
               {name}
             </SideItem>
           ))}
 
           <SectionTitle>Direct messages</SectionTitle>
-          {MEMBERS.map((member) => (
-            <div key={member.id} className="flex items-center gap-2 rounded-[8px] px-2 py-1.5 text-[13px]">
-              <span className="relative">
-                <Blobatar name={member.id} size={20} />
-                <span
-                  className={`absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full border-2 border-side ${
-                    member.status === "online" ? "bg-[#8bd450]" : "bg-[#8a8f84]"
-                  }`}
-                />
+          {coworkers.map((member) => (
+            <button
+              key={member.id}
+              type="button"
+              onClick={() => { onMember(member.id); setNavigationOpen(false); }}
+              aria-current={selectedMemberId === member.id ? "page" : undefined}
+              aria-label={`${member.name}, ${member.role}, AI coworker`}
+              className={`flex w-full items-center gap-2 rounded-[8px] px-2 py-1.5 text-left text-[13px] ${selectedMemberId === member.id ? "bg-accent font-[700] text-ink" : "hover:bg-side-hover"}`}
+            >
+              <span className="grid size-7 shrink-0 place-items-center">
+                <CoworkerAvatar id={member.id} color={member.color} size={28} />
               </span>
-              <span className="truncate">{member.name}</span>
-            </div>
+              <span className="min-w-0 flex-1 truncate">{member.name}</span>
+            </button>
           ))}
+          <label className="mt-2 flex cursor-pointer items-center gap-2 px-2 py-2 text-xs">
+            <input type="checkbox" checked={showCoworkers} onChange={(event) => onShowCoworkers(event.target.checked)} className="size-4 accent-accent" />
+            Show coworkers
+          </label>
         </div>
 
         <div className="mx-2 mt-2 flex items-center gap-2 rounded-[12px] bg-side-hover px-2.5 py-2">
@@ -96,17 +112,24 @@ export function Sidebar({
             <span className="block text-[11px] text-[#9aa192]">You are at</span>
             <span className="block truncate text-[13px] font-[650] text-white">{positionName ?? "Not set"}</span>
           </span>
-          <button type="button" onClick={onSettings} aria-label="Settings" className="grid size-8 place-items-center rounded-[8px] hover:bg-side">
+          <button type="button" onClick={() => { setNavigationOpen(false); onSettings(); }} aria-label="Settings" className="grid size-8 place-items-center rounded-[8px] hover:bg-side">
             <Settings size={17} />
           </button>
         </div>
-      </nav>
+    </>;
+  return (
+    <>
+      <BuildingRail current={building.building.id} onMenu={() => setNavigationOpen(true)} />
+      <nav aria-label="Workspace" className="col-start-2 row-start-1 my-2 mr-2 hidden min-h-0 flex-col rounded-[14px] bg-side py-2 text-[#e6e9df] lg:flex">{navigation}</nav>
+      <Sheet open={navigationOpen} onClose={() => setNavigationOpen(false)} title="Workspace">
+        <nav aria-label="Workspace menu" className="flex h-[60svh] min-h-0 flex-col rounded-[14px] bg-side py-2 text-[#e6e9df]">{navigation}</nav>
+      </Sheet>
     </>
   );
 }
 
 /** Other buildings as tiles, like workspaces in a chat app. */
-function BuildingRail({ current }: { current: string }) {
+function BuildingRail({ current, onMenu }: { current: string; onMenu: () => void }) {
   const buildings = useBuildings();
   const others = (buildings.data ?? []).filter((building) => building.id !== current).slice(0, 4);
   const tile = (id: string, name: string, active: boolean) => (
@@ -124,7 +147,10 @@ function BuildingRail({ current }: { current: string }) {
     </button>
   );
   return (
-    <div className="flex flex-col items-center gap-2.5 py-3">
+    <div className="col-start-1 row-span-full flex min-h-0 flex-col items-center gap-2.5 overflow-y-auto py-3">
+      <button type="button" onClick={onMenu} aria-label="Open workspace menu" className="grid size-10 shrink-0 place-items-center rounded-[12px] bg-side-hover text-white lg:hidden">
+        <Menu size={18} />
+      </button>
       {tile(current, buildings.data?.find((building) => building.id === current)?.name ?? current, true)}
       {others.map((building) => tile(building.id, building.name, false))}
       <button
@@ -167,7 +193,7 @@ function SideItem({
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
-  return <h3 className="mt-5 mb-1 px-2 text-[11px] font-[750] tracking-wide text-[#9aa192] uppercase">{children}</h3>;
+  return <h3 className="mt-5 mb-1 px-2 text-[11px] font-[750] text-[#9aa192]">{children}</h3>;
 }
 
 function initials(name: string) {

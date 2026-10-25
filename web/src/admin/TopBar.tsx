@@ -1,5 +1,5 @@
 import type { Building, FloorScene } from "@locora/view";
-import { Blobatar } from "@blobatar/react";
+import { CoworkerAvatar } from "./CoworkerAvatar";
 import { DoorOpen, Package, QrCode, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { searchPlaces } from "../route/places";
@@ -8,7 +8,7 @@ import { MEMBERS } from "./team";
 import type { Selection } from "./Workspace";
 import type { View } from "./Sidebar";
 
-/** Floor focus, search, who else is here, and sharing. */
+/** Floor focus, search, AI coworkers and sharing. */
 export function TopBar({
   document,
   view,
@@ -32,10 +32,10 @@ export function TopBar({
         <FloorSelector floors={floors} view={view} focusFloor={focusFloor} onFocusFloor={onFocusFloor} />
         <FindBox document={document} onFind={onFind} />
         <div className="ml-auto flex shrink-0 items-center gap-3">
-          <div className="flex -space-x-2" aria-label={`${MEMBERS.length} people in this building`}>
+          <div className="hidden -space-x-2 xl:flex" aria-label={`${MEMBERS.length} AI coworkers in this building`}>
             {MEMBERS.slice(0, 3).map((member) => (
-              <span key={member.id} title={member.name} className="grid size-8 place-items-center rounded-full bg-white ring-2 ring-white">
-                <Blobatar name={member.id} size={28} />
+              <span key={member.id} title={`${member.name}, AI coworker`} className="grid size-8 place-items-center rounded-full bg-white ring-2 ring-white">
+                <CoworkerAvatar id={member.id} size={28} />
               </span>
             ))}
             <span className="grid size-8 place-items-center rounded-full bg-field text-[11px] font-[750] ring-2 ring-white">

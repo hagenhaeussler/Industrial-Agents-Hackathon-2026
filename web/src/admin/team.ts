@@ -4,14 +4,15 @@ export interface Member {
   id: string;
   name: string;
   role: string;
+  color: string;
   status: "online" | "away";
 }
 
 export const MEMBERS: Member[] = [
-  { id: "maya", name: "Maya Chen", role: "Facility manager", status: "online" },
-  { id: "jonas", name: "Jonas Weber", role: "Maintenance", status: "online" },
-  { id: "priya", name: "Priya Nair", role: "Safety officer", status: "away" },
-  { id: "leo", name: "Leo Martin", role: "Visitor desk", status: "online" },
+  { id: "maya", color: "#b56843", name: "Maya Chen", role: "Facility manager", status: "online" },
+  { id: "jonas", color: "#397a91", name: "Jonas Weber", role: "Maintenance", status: "online" },
+  { id: "priya", color: "#8568a6", name: "Priya Nair", role: "Safety officer", status: "away" },
+  { id: "leo", color: "#b58c26", name: "Leo Martin", role: "Visitor desk", status: "online" },
 ];
 
 export const CHANNELS = ["facility-ops", "maintenance", "visitors", "safety"] as const;
