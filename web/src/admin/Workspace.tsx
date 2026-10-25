@@ -134,6 +134,15 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
       ? document.assets.find((asset) => asset.id === found.id)?.position
       : scene.floors.flatMap((floor) => floor.spaces).find((space) => space.id === found.id)?.labelPoint;
 
+  const selectInView = (found: Selection) => {
+    setSelection(found);
+    setTool("select");
+    setFocusFloor(found.floorId);
+    if (found.kind === "asset") setAssets(true);
+    const point = selectionPoint(found);
+    if (point) camera.current?.centerOn(found.floorId, point[0], point[1]);
+  };
+
   const ground = scene.floors.find((floor) => floor.level === 0) ?? scene.floors[0]!;
   const planFloor = focusFloor ?? selection?.floorId ?? position?.floorId ?? ground.id;
 
@@ -142,6 +151,8 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
       <Sidebar
         building={document}
         view={view}
+        selectedAssetId={selection?.kind === "asset" ? selection.id : undefined}
+        onSelectEquipment={(asset) => selectInView({ kind: "asset", id: asset.id, floorId: asset.floor_id })}
         onView={(next) => {
           setView(next);
           if (next === "routes") setTab("route");
@@ -161,12 +172,7 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
           floors={scene.floors}
           focusFloor={focusFloor}
           onFocusFloor={setFocusFloor}
-          onFind={(found) => {
-            setSelection(found);
-            setFocusFloor(found.floorId);
-            const point = selectionPoint(found);
-            if (point) camera.current?.centerOn(found.floorId, point[0], point[1]);
-          }}
+          onFind={selectInView}
           onShare={() => setDialog("share")}
         />
         <div className="relative min-h-0 flex-1">

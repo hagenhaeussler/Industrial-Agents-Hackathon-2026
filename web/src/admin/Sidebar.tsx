@@ -1,10 +1,11 @@
 import type { Building } from "@building/view";
 import { Blobatar } from "@blobatar/react";
 import { Box, ChevronDown, Hash, Layers, MapPin, Package, Plus, Route, Settings } from "lucide-react";
-import { useMemo, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useBuildings } from "../api/buildings";
 import { navigate } from "../router";
 import { CHANNELS, MEMBERS, type Channel } from "./team";
+import { EquipmentBrowser } from "./EquipmentBrowser";
 
 export type View = "model" | "plans" | "routes" | "equipment";
 
@@ -20,6 +21,8 @@ export function Sidebar({
   building,
   view,
   onView,
+  selectedAssetId,
+  onSelectEquipment,
   channel,
   onChannel,
   positionName,
@@ -28,12 +31,13 @@ export function Sidebar({
   building: Building;
   view: View;
   onView: (view: View) => void;
+  selectedAssetId: string | undefined;
+  onSelectEquipment: (asset: Building["assets"][number]) => void;
   channel: Channel | undefined;
   onChannel: (channel: Channel) => void;
   positionName: string | undefined;
   onSettings: () => void;
 }) {
-  const types = useMemo(() => equipmentTypes(building), [building]);
   return (
     <>
       <BuildingRail current={building.building.id} />
@@ -60,14 +64,7 @@ export function Sidebar({
           ))}
 
           {view === "equipment" && (
-            <ul className="mt-1 mb-2 ml-7 grid gap-0.5 text-[12px] text-[#b9bfb0]">
-              {types.slice(0, 8).map(([type, count]) => (
-                <li key={type} className="flex justify-between gap-2 pr-2">
-                  <span className="truncate capitalize">{type.replaceAll("_", " ").toLowerCase()}</span>
-                  <span className="text-[#848b7b]">{count}</span>
-                </li>
-              ))}
-            </ul>
+            <EquipmentBrowser building={building} selectedId={selectedAssetId} onSelect={onSelectEquipment} />
           )}
 
           <SectionTitle>Channels</SectionTitle>
@@ -176,10 +173,4 @@ function SectionTitle({ children }: { children: ReactNode }) {
 function initials(name: string) {
   const words = name.split(/\s+/).filter(Boolean);
   return ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? "")).toUpperCase() || "?";
-}
-
-function equipmentTypes(building: Building): [string, number][] {
-  const counts = new Map<string, number>();
-  for (const asset of building.assets) counts.set(asset.type, (counts.get(asset.type) ?? 0) + 1);
-  return [...counts].sort((a, b) => b[1] - a[1]);
 }
