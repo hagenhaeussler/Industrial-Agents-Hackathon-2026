@@ -2,7 +2,7 @@
 
 **Stand:** 24. Oktober 2026. Grundlage ist das ca. 50-minütige Fireflies-Meeting „Oct 24, 02:08 PM“. Gesprächsaussagen sind unten vom nachträglichen Repo-Abgleich und von Empfehlungen getrennt.
 
-**Dateien:** [Bereinigtes Transkript](2026-10-24-brainstorming-transkript.md) · [Fragen für Juroren und Organisatoren](../archive/2026-10-24-fragen-an-juroren.md) · [Fireflies-Quelle](https://app.fireflies.ai/view/01M5PX0WV7MKXJ3VN6CXRAQH74).
+**Dateien:** [Fragen für Juroren und Organisatoren](../archive/2026-10-24-fragen-an-juroren.md) · [Fireflies-Quelle](https://app.fireflies.ai/view/01M5PX0WV7MKXJ3VN6CXRAQH74).
 
 Fireflies liefert keine verifizierten Sprechernamen und meldet teilweise fehlende Felder. Deshalb werden hier keine Aufgaben oder Zusagen einzelnen Personen zugeschrieben. Die Zeitmarken beziehen sich auf die Aufzeichnung.
 

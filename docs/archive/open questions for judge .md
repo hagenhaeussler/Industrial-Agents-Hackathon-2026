@@ -43,7 +43,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Useful confirmation:** One example each for a numerical answer, located item, route/tour and unreachable case, including required fields and whether `kind` and structured constraints are supplied. Also confirm whether the original 145-question CSV remains a separate required artifact.
 
-**Evidence:** [Challenge brief](<Hackathon Challenge - Talk to Your Building-1.pdf>), page 3; [README](README.md), sections 4-6; [evaluator](benchmark/evaluate.py); lead Q&A 20:25-24:26 in [the follow-up recording notes](2026-10-24-challenge-lead-qa.md).
+**Evidence:** [Challenge brief](<Hackathon Challenge - Talk to Your Building-1.pdf>), page 3; [README](README.md), sections 4-6; [evaluator](benchmark/evaluate.py); lead Q&A 20:25-24:26 in the follow-up recording notes (recording transcript removed).
 
 ### 3. How and when will the unseen-building run happen?
 
@@ -53,7 +53,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Why still open:** The README/PDF describe a team-run command plus a possible rerun. The lead also described judge-run code and used 200 questions/five minutes as an illustration. That was not an agreed limit. The overall Sunday 13:00 freeze is already documented; the missing information is the evaluation window around it.
 
-**Evidence:** Challenge brief page 3; kickoff slide 32; [lead Q&A](2026-10-24-challenge-lead-qa.md), 20:25-24:26.
+**Evidence:** Challenge brief page 3; kickoff slide 32; lead Q&A (recording transcript removed), 20:25-24:26.
 
 ### 4. Do local edits satisfy Build, or is image-to-building import separately graded?
 
@@ -63,7 +63,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Why:** The written Level 4 and functionality rubric mention new buildings from plans. The lead emphasized local changes and said full reconstruction was not necessarily needed. His claim that JSON lacks room layouts also conflicts with the supplied polygons and JSON-only viewer. `PLAN.md` makes PNG import optional; that is not yet a definitive written exemption from the rubric.
 
-**Evidence:** Challenge brief pages 1-3; [starter README](starter_agent/README.md), Level 4; [lead Q&A](2026-10-24-challenge-lead-qa.md), 01:09-03:05 and 05:55-08:47.
+**Evidence:** Challenge brief pages 1-3; [starter README](starter_agent/README.md), Level 4; lead Q&A (recording transcript removed), 01:09-03:05 and 05:55-08:47.
 
 ### 5. How are the 55 functionality points divided?
 
@@ -71,7 +71,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Why:** We already know the overall 55/25/10/10 rubric. What remains missing is the allocation inside functionality, which determines whether another hour should go into spatial accuracy, plan import or scaling. We are asking for the grading structure, not a guaranteed finalist score.
 
-**Evidence:** Challenge brief page 3; [README](README.md), Judging; [lead Q&A](2026-10-24-challenge-lead-qa.md), 18:22-20:24.
+**Evidence:** Challenge brief page 3; [README](README.md), Judging; lead Q&A (recording transcript removed), 18:22-20:24.
 
 ### 6. Which data fields identify forklift aisles and destination-only production bays?
 
@@ -89,7 +89,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Why:** The updated plan uses a public Cloudflare app, ElevenLabs-managed conversation and client tools in the browser, with a local benchmark independent of both services. Provider freedom does not establish ElevenLabs access or shared agent configuration. This question concerns reproducibility and interaction credit; selecting client tools versus webhooks remains our own engineering decision.
 
-**Evidence:** [lead Q&A](2026-10-24-challenge-lead-qa.md), 10:07-12:23 and 24:24-25:33; [PLAN.md](PLAN.md), sections 2-4.
+**Evidence:** lead Q&A (recording transcript removed), 10:07-12:23 and 24:24-25:33; [PLAN.md](PLAN.md), sections 2-4.
 
 ### 8. Can we match the reference route measurer on ambiguous cases?
 
@@ -115,7 +115,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Why:** A web app and creative use case were accepted, and the videos should emphasize interaction. The actual test conditions and rubric remain unspecified. Automatic indoor localization and Wi-Fi were not established as requirements.
 
-**Evidence:** Challenge brief page 3; [lead Q&A](2026-10-24-challenge-lead-qa.md), 08:53-12:23 and 29:07-30:23; [earlier Q&A brief](2026-10-24-weitere-aufnahmen-relevante-infos.md).
+**Evidence:** Challenge brief page 3; lead Q&A (recording transcript removed), 08:53-12:23 and 29:07-30:23; [earlier Q&A brief](2026-10-24-weitere-aufnahmen-relevante-infos.md).
 
 ### 11. What carries over into the joint final?
 
@@ -125,7 +125,7 @@ The ranking reflects the risk of implementing the wrong scoring contract, submit
 
 **Ask:** Overall organizers/final jury, rather than relying solely on a track lead's guess.
 
-**Evidence:** Kickoff slide 32; [lead Q&A](2026-10-24-challenge-lead-qa.md), 30:23-32:12; [brainstorming summary](2026-10-24-brainstorming-zusammenfassung.md).
+**Evidence:** Kickoff slide 32; lead Q&A (recording transcript removed), 30:23-32:12; [brainstorming summary](2026-10-24-brainstorming-zusammenfassung.md).
 
 ### 12. Are unseen questions independent or stateful?
 

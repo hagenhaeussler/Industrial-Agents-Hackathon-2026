@@ -1,5 +1,3 @@
 # Sources
 
-Records of what the organizers and the team said: Q&A with the challenge lead, recordings, transcripts, the route announcement and the official PDFs. They are evidence, not plans. Decisions are in `PLAN.md`.
-
-Transcripts are automatic and cleaned. Speaker names and exact wording can be wrong.
+Curated organizer clarifications, team summaries, the route announcement and official PDFs. These are evidence, not plans; decisions are in `PLAN.md`. Conversation transcripts are excluded from the repository. Summary provenance and speaker-attribution limits remain documented in the retained notes.

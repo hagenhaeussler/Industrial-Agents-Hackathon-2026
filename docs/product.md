@@ -1,6 +1,6 @@
 # Produkt und UX
 
-Primäre Datei für **was der Nutzer erlebt**: die zwei Ansichten, AR, Add-ons aus Hagens User Journey und die Demo. Technik steht in [`architecture.md`](architecture.md), Schnittstellen in [`contracts.md`](contracts.md). Quelle für die Journey: [`sources/Hagen UX explanation transcript.md`](<sources/Hagen UX explanation transcript.md>).
+Primäre Datei für **was der Nutzer erlebt**: die zwei Ansichten, AR, Add-ons aus Hagens User Journey und die Demo. Technik steht in [`architecture.md`](architecture.md), Schnittstellen in [`contracts.md`](contracts.md).
 
 ## 1. Eine Web-App, zwei Ansichten, keine native App
 
