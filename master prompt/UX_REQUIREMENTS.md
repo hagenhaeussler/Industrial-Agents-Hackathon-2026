@@ -1,6 +1,6 @@
 # UX requirements and traceability
 
-Primary source: `Hagen UX explanation transcript.md` (recording 24 Oct 2026, 18:44, cleaned and non-verbatim; speaker attribution inferred by content). Timestamps below refer to that recording. Where the transcript is open, this file states a design decision and marks it as ours, not Hagen's.
+These retained requirements summarize Hagen's customer journey. Conversation transcripts are excluded from the repository. Timestamps below refer to the original discussion on 24 Oct 2026 at 18:44; design decisions are explicitly marked as ours rather than attributed to Hagen.
 
 **Persona:** Manfred, an assembler who is new to a building (or the building is new). He knows what he needs, not where it is, and does not know room numbers.
 
