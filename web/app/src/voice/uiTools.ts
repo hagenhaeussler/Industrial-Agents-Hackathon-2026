@@ -1,7 +1,6 @@
 import type { Floor } from '../api/types'
 import type { Model } from '../map/model'
 import { serializeToolResponse } from './clientTools'
-import type { ToolResponse } from './clientTools'
 
 export type DeskVoiceToolOptions = {
   getModel: () => Model | null
@@ -11,7 +10,6 @@ export type DeskVoiceToolOptions = {
 }
 
 const MAX_ITEMS = 100
-const MAX_RESPONSE = 1500
 const unavailable = 'Choose a building and wait for it to load first.'
 
 function failure(message: string, code = 'invalid_args', candidates?: unknown[]): string {
@@ -23,34 +21,20 @@ function argumentsOf(input: unknown): Record<string, unknown> | null {
     ? input as Record<string, unknown> : null
 }
 
-/** Keep whole IDs and the total count even when a large selection exceeds voice's limit. */
+/** Return the complete selection or the shared explicit size error. */
 function selectionResponse(ids: string[]): string {
-  const response: ToolResponse = {
+  return serializeToolResponse({
     ok: true,
     speech: ids.length ? `${ids.length} ${ids.length === 1 ? 'item is' : 'items are'} selected.` : 'The selection is clear.',
     result: { asset_ids: ids, selection_count: ids.length },
-  }
-  if (JSON.stringify(response).length <= MAX_RESPONSE) return serializeToolResponse(response)
-  const included: string[] = []
-  const result = { asset_ids: included, selection_count: ids.length, details_in_app: true, omitted_asset_count: ids.length }
-  response.result = result
-  for (const id of ids) {
-    included.push(id)
-    result.omitted_asset_count = ids.length - included.length
-    if (JSON.stringify(response).length > MAX_RESPONSE) {
-      included.pop()
-      result.omitted_asset_count++
-      break
-    }
-  }
-  return serializeToolResponse(response)
+  })
 }
 
 function floorCandidates(floors: readonly Floor[]) {
-  return floors.slice(0, 8).map(({ id, name, level }) => ({ id, name, level }))
+  return floors.map(({ id, name, level }) => ({ id, name, level }))
 }
 
-/** Browser-only desk actions. These do not extend the server's eleven-tool contract. */
+/** Browser-only desk actions. These do not extend the server tool catalog. */
 export function createDeskVoiceTools({ getModel, getSelected, onSelection, onFloor }: DeskVoiceToolOptions) {
   return {
     update_selection: async (input?: unknown): Promise<string> => {

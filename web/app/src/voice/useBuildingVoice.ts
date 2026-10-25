@@ -142,6 +142,11 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
   }, [sessionId, scope, showError])
   const toolsForAttempt = useCallback((attempt: number) => {
     const current = () => scope.state.active && scope.state.acceptingMessages && scope.state.attempt === attempt
+    const invalidateTurn = () => {
+      scope.state.turn = null
+      scope.turns.invalidate()
+      scope.navigation.invalidate()
+    }
     const getTurnId = async () => {
       const turn = scope.state.turn
       if (!current() || !turn) throw new Error(TRANSCRIPT_UNAVAILABLE)
@@ -151,7 +156,11 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
     }
     const base = createClientTools({ sessionId, getTurnId, isActive: current,
       navigationGuard: scope.navigation, turnGuard: scope.turns,
-      onResponse: response => { if (current()) responseHandler.current?.(response) },
+      onResponse: response => {
+        if (!current()) return
+        if (response.error?.code === 'version_conflict') invalidateTurn()
+        responseHandler.current?.(response)
+      },
       onDisplay: (payload, response) => { if (current()) display.current?.(payload, response) } })
     const extra = Object.fromEntries(Object.keys(additionalTools.current ?? {}).filter(name => !Object.hasOwn(base, name)).map(name => [name,
       async (args: Record<string, unknown>) => {
@@ -159,7 +168,28 @@ export function useBuildingVoice({ agent, sessionId, onDisplay, onToolResponse, 
         const active = () => current() && scope.turns.isCurrent(turn)
         const stale = () => serializeToolResponse({ ok: false, speech: 'Use the latest user request in the current voice conversation.', error: { code: 'version_conflict' } })
         if (!active()) return stale()
-        try { await getTurnId() } catch { return serializeToolResponse({ ok: false, speech: TRANSCRIPT_UNAVAILABLE, error: { code: 'not_available' } }) }
+        let turnId: string
+        try { turnId = await getTurnId() } catch {
+          if (!active()) return stale()
+          return serializeToolResponse({ ok: false, speech: TRANSCRIPT_UNAVAILABLE, error: { code: 'not_available' } })
+        }
+        if (!active()) return stale()
+        try {
+          const response = await fetch(`/api/agent/turns/${encodeURIComponent(turnId)}?session_id=${encodeURIComponent(sessionId)}`, { cache: 'no-store' })
+          const body: unknown = await response.json()
+          if (!active()) return stale()
+          if (body && typeof body === 'object' && 'error' in body && body.error && typeof body.error === 'object'
+            && 'code' in body.error && body.error.code === 'version_conflict') {
+            invalidateTurn()
+            return stale()
+          }
+          if (!response.ok || !body || typeof body !== 'object' || !('turn_id' in body) || body.turn_id !== turnId) {
+            return serializeToolResponse({ ok: false, speech: TRANSCRIPT_UNAVAILABLE, error: { code: 'not_available' } })
+          }
+        } catch {
+          if (!active()) return stale()
+          return serializeToolResponse({ ok: false, speech: TRANSCRIPT_UNAVAILABLE, error: { code: 'not_available' } })
+        }
         if (!active()) return stale()
         const handler = additionalTools.current?.[name]
         if (!handler) return serializeToolResponse({ ok: false, speech: 'This action is unavailable.', error: { code: 'not_available' } })

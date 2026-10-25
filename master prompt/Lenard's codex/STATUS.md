@@ -148,3 +148,13 @@ The user approved integrating latest main, fixing the existing AR assertion, run
 - Independent Standards review found stale canonical contract text for the tool endpoint, truncation and parser-first benchmark. Updated `CONTRACTS.md` and its changelog to C10, synchronized FastAPI/OpenAPI metadata, and regenerated clients. `tests/server/test_health.py tests/server/test_live.py`: 22 passed. Spec review and the contract follow-up review remain in progress.
 
 No paid calls, live account edits, merge or deployment. Production Docker checks remain for CI because the local daemon is unavailable.
+
+
+## Integration review repairs, 25 Oct 2026
+
+- Standards follow-up closed the canonical contract finding at `ffa4557`, with no new documented-standard breach or material code smell.
+- Spec review found three defects: browser actions trusted a cached server turn, voice user messages without tools disappeared from later history, and selection results still truncated at 1,500 characters. These are repaired locally.
+- Browser actions now validate the server turn without caching before mutation and check local lifecycle guards again after validation. Server `version_conflict` clears local authority. A fresh real user turn can restore it. This validation is a point-in-time check, not an atomic transaction across server and browser.
+- Voice user messages without tools now survive restart and reach the next text request. Selection IDs and floor candidates are complete within 49,152 UTF-8 bytes or return an explicit size error.
+- Focused backend state/chat checks: 28 passed. Focused frontend checks: 139 passed. Full frontend suite: 333 passed, 0 failed. Production build passed with the existing bundle warning. These checks used no live provider.
+- The combined repository gate is running on the repaired tree. Independent Spec follow-up remains pending. No push, PR, merge or deployment yet.

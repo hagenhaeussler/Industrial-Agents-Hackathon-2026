@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import APIRouter, Body, Header, Query, Request
+from fastapi import APIRouter, Body, Header, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from shapely.geometry import Point
 from starter_agent.building_map import outline
@@ -128,6 +128,16 @@ def begin_voice_turn(body: schemas.AgentTurnInput, request: Request):
     """Register a user transcript outside the model-callable tool catalogue."""
     turn = request.app.state.agent_execution.begin(body.session_id, body.message, 'voice')
     return {'turn_id': turn.turn_id}
+
+
+@router.get('/agent/turns/{turn_id}', response_model=schemas.AgentTurnResponse, tags=['agent'])
+def validate_agent_turn(turn_id: str, session_id: str, request: Request, response: Response):
+    """Check server authority before a browser-only action uses a cached turn."""
+    request.app.state.store.get_session(session_id)
+    if not request.app.state.agent_execution.is_current(session_id, turn_id):
+        raise ServiceError('version_conflict', 'This agent turn was superseded. Use the latest user message.', status=409)
+    response.headers['Cache-Control'] = 'no-store'
+    return {'turn_id': turn_id}
 
 
 @router.get('/agent/tools', tags=['agent'])

@@ -110,6 +110,15 @@ def test_current_session_is_read_for_every_turn(registry, execution_factory, mod
     assert '"position": "store"' in requests[-1]['messages'][-1]['content']
 
 
+def test_text_model_receives_voice_instruction_without_tool_calls(registry, execution_factory, model):
+    execution = execution_factory(registry)
+    execution.begin('session', 'Avoid the noisy workshop.', 'voice')
+    sdk, requests = model([{'text': 'I will check routes that avoid the workshop.'}])
+    ChatAgent(execution, client=sdk).reply('session', 'Find a printer.')
+    assert requests[0]['messages'][0] == {'role': 'user', 'content': 'Avoid the noisy workshop.'}
+    assert 'Find a printer.' in requests[0]['messages'][-1]['content']
+
+
 def test_missing_credentials_and_budget_never_call_provider(registry, execution_factory, monkeypatch):
     monkeypatch.delenv('ANTHROPIC_API_KEY', raising=False)
     reply = ChatAgent(execution_factory(registry)).reply('session', 'Find a printer')
@@ -158,6 +167,28 @@ def test_navigator_tool_catalogue_excludes_admin_tools(live_app):
     names = {tool['name'] for tool in tools}
     assert {'building_info', 'search_entities', 'get_entities', 'compare_routes', 'route', 'plan_tour'} <= names
     assert 'commit_edit' not in names
+
+
+def test_browser_turn_check_rejects_server_supersession_without_caching(live_app):
+    client, session_id = live_app
+    turn_id = client.post('/api/agent/turns', json={'session_id': session_id, 'message': 'Select the printer.'}).json()['turn_id']
+    path = '/api/agent/turns/' + turn_id
+    current = client.get(path, params={'session_id': session_id})
+    assert current.status_code == 200 and current.json() == {'turn_id': turn_id}
+    assert current.headers['cache-control'] == 'no-store'
+    client.app.state.agent_execution.begin(session_id, 'Leave the selection unchanged.', 'text')
+    stale = client.get(path, params={'session_id': session_id})
+    assert stale.status_code == 409
+    assert stale.json()['error']['code'] == 'version_conflict'
+
+
+def test_browser_turn_check_does_not_accept_another_session(live_app):
+    client, session_id = live_app
+    turn_id = client.post('/api/agent/turns', json={'session_id': session_id, 'message': 'Select the printer.'}).json()['turn_id']
+    other = client.post('/api/sessions', json={'building_id': 'proc-factory-dev-003'}).json()['session_id']
+    response = client.get('/api/agent/turns/' + turn_id, params={'session_id': other})
+    assert response.status_code == 409
+    assert response.json()['error']['code'] == 'version_conflict'
 
 
 def test_replaced_turn_stops_before_tools_or_another_model_request(registry, execution_factory, model):

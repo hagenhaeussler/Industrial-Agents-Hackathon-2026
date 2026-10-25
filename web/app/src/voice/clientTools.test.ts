@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { createClientTools, serializeToolResponse, TOOL_NAMES, VOICE_RESULT_BYTE_BUDGET } from './clientTools'
+import { createClientTools, createNavigationRequestGuard, serializeToolResponse, TOOL_NAMES, VOICE_RESULT_BYTE_BUDGET } from './clientTools'
 import type { Fetcher, ToolResponse } from './clientTools'
 
 const registeredTurn = { getTurnId: async () => 'turn-test' }
@@ -204,6 +204,16 @@ describe('voice result size', () => {
 })
 
 describe('voice tool outcome observers', () => {
+  it('returns the actual backend conflict when its observer invalidates the current turn guard', async () => {
+    const turnGuard = createNavigationRequestGuard()
+    const response = { ok: false, speech: 'Use a new user turn.', error: { code: 'version_conflict' } }
+    const tools = createClientTools({ ...registeredTurn, sessionId: 's', turnGuard,
+      fetcher: async () => json(response, 409),
+      onResponse: () => { turnGuard.invalidate() },
+    })
+    expect(JSON.parse(await tools.find())).toEqual(response)
+  })
+
   it.each([200, 409])('reports failed ambiguity from HTTP %d without repainting the map', async status => {
     const response = { ok: false, speech: 'Which press?', error: { code: 'ambiguous', candidates: [{ id: 'p4', name: 'Press 4' }] } }
     const seen: ToolResponse[] = []

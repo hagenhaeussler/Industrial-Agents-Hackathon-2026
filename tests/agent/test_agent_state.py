@@ -79,6 +79,18 @@ def test_history_keeps_whole_tool_pairs(agent_state):
     assert agent_state.history(next_turn) == messages
 
 
+def test_voice_messages_without_tools_survive_restart_in_order(agent_state):
+    agent_state.begin('session', 'Avoid the noisy workshop.', 'voice')
+    agent_state.begin('other', 'Unrelated private message.', 'voice')
+    agent_state.begin('session', 'I am carrying a large box.', 'voice')
+    restored = reopen(agent_state)
+    next_turn = restored.begin('session', 'Find a printer.', 'text')
+    assert restored.history(next_turn) == [
+        {'role': 'user', 'content': 'Avoid the noisy workshop.'},
+        {'role': 'user', 'content': 'I am carrying a large box.'},
+    ]
+
+
 def test_oversized_history_uses_whole_observations(agent_state):
     first = agent_state.begin('session', 'Find printers', 'voice')
     agent_state.record_observation(first, {'ok': True, 'total': 107})

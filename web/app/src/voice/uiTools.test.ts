@@ -3,7 +3,7 @@ import type { Snapshot } from '../api/types'
 import { buildModel } from '../map/model'
 import type { Model } from '../map/model'
 import factoryJson from '../mocks/data/building_proc-factory-dev-003.json'
-import { TOOL_NAMES } from './clientTools'
+import { TOOL_NAMES, VOICE_RESULT_BYTE_BUDGET } from './clientTools'
 import { createDeskVoiceTools } from './uiTools'
 
 const snapshot = () => structuredClone(factoryJson) as unknown as Snapshot
@@ -92,22 +92,35 @@ describe('desk voice selection', () => {
     expect(h.selections).toEqual([])
   })
 
-  it('bounds requests to 100 entries and preserves count and whole IDs in a compact result', async () => {
+  it('returns every fixture ID for 100 requested assets and rejects requests over 100 entries', async () => {
     const h = harness()
     const requested = h.ids.slice(0, 100)
     const serialized = await h.tools.update_selection({ action: 'replace', items: requested.join(',') })
     const result = JSON.parse(serialized)
     expect(result.ok).toBe(true)
-    expect(serialized.length).toBeLessThanOrEqual(1500)
-    expect(result.result.selection_count).toBe(100)
-    expect(result.result.details_in_app).toBe(true)
-    expect(result.result.asset_ids.length).toBeGreaterThan(0)
-    expect(result.result.asset_ids.every((id: string) => requested.includes(id))).toBe(true)
-    expect(result.result.omitted_asset_count + result.result.asset_ids.length).toBe(100)
+    expect(serialized.length).toBeGreaterThan(1500)
+    expect(new TextEncoder().encode(serialized).byteLength).toBeLessThanOrEqual(VOICE_RESULT_BYTE_BUDGET)
+    expect(result.result).toEqual({ asset_ids: requested, selection_count: 100 })
     expect(h.state.selected).toEqual(new Set(requested))
     expect(JSON.parse(await h.tools.update_selection({ action: 'replace', items: h.ids.slice(0, 101).join(',') })).error.code).toBe('invalid_args')
     expect(h.selections).toHaveLength(1)
     expect(h.state.selected).toEqual(new Set(requested))
+  })
+
+  it('returns an explicit size error when the complete selection exceeds the shared byte budget', async () => {
+    const data = snapshot()
+    data.building.assets = data.building.assets.slice(0, 100).map((asset, index) => ({
+      ...asset, id: `long-asset-${index}-${'x'.repeat(500)}`,
+    }))
+    const h = harness(data)
+    expect(new TextEncoder().encode(JSON.stringify({ asset_ids: h.ids, selection_count: 100 })).byteLength).toBeGreaterThan(VOICE_RESULT_BYTE_BUDGET)
+    const serialized = await h.tools.update_selection({ action: 'replace', items: h.ids.join(',') })
+    const response = JSON.parse(serialized)
+    expect(response.ok).toBe(false)
+    expect(response.error.code).toBe('result_too_large')
+    expect(response.result).toBeUndefined()
+    expect(h.state.selected).toEqual(new Set(h.ids))
+    expect(h.selections).toHaveLength(1)
   })
 
   it('resolves the live model and selection instead of capturing initial values', async () => {
@@ -181,6 +194,34 @@ describe('desk voice floor focus', () => {
       expect(result.error.candidates).toEqual(h.state.model!.floors.map(({ id, name, level }) => ({ id, name, level })))
       expect(serialized.length).toBeLessThanOrEqual(1500)
     }
+    expect(h.floors).toEqual([])
+  })
+
+  it.each(['unknown floor', 'Workshop'])('returns all candidates from more than eight floors for %s', async floor => {
+    const data = snapshot()
+    const template = data.building.floors[0]!
+    data.building.floors = Array.from({ length: 12 }, (_, level) => ({
+      ...template, id: `fixture-floor-${level}`, name: 'Workshop', level,
+    }))
+    const h = harness(data)
+    const response = JSON.parse(await h.tools.focus_floor({ floor }))
+    expect(response.ok).toBe(false)
+    expect(response.error.code).toBe(floor === 'Workshop' ? 'ambiguous' : 'not_found')
+    expect(response.error.candidates).toEqual(data.building.floors.map(({ id, name, level }) => ({ id, name, level })))
+    expect(h.floors).toEqual([])
+  })
+
+  it('returns an explicit size error when all floor candidates exceed the shared byte budget', async () => {
+    const data = snapshot()
+    const template = data.building.floors[0]!
+    data.building.floors = Array.from({ length: 12 }, (_, level) => ({
+      ...template, id: `fixture-floor-${level}`, name: 'Workshop'.repeat(600), level,
+    }))
+    const h = harness(data)
+    const response = JSON.parse(await h.tools.focus_floor({ floor: 'unknown floor' }))
+    expect(response.ok).toBe(false)
+    expect(response.error.code).toBe('result_too_large')
+    expect(response.error.candidates).toBeUndefined()
     expect(h.floors).toEqual([])
   })
 

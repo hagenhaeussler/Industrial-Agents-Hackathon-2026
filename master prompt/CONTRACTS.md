@@ -239,6 +239,7 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `GET /api/buildings/{id}/events` | `?since=` | `[event]` |
 | `POST /api/tools/{name}` | `{"session_id", "args": {...}}` | manual application controls; ToolResponse §8; not model transport |
 | `POST /api/agent/turns` | `{"session_id", "message"}` | `{"turn_id"}`; register a real user voice/typed turn |
+| `GET /api/agent/turns/{turn_id}` | `?session_id=` | `{"turn_id"}` if current, with `Cache-Control: no-store`; otherwise 409 `version_conflict` |
 | `GET /api/agent/tools` | `?session_id=` | role-filtered tool definitions |
 | `POST /api/agent/tools/{name}` | `{"session_id", "turn_id", "args": {...}}` | ToolResponse §8 after current-turn and confirmation checks |
 | `POST /api/sessions` | `{"building_id", "device": "desk|phone", "role": "navigator|admin", "profile": "walk"}` | session §10 |
@@ -314,7 +315,7 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 
 - Model tools use `AgentExecution`; manual controls retain `/api/tools/{name}` and their existing permission/idempotency checks. The manual endpoint does not enforce conversation confirmation and must not be exposed as model transport. Agent calls require the session's current `turn_id`. A new text or registered voice turn supersedes old turns. `commit_edit` requires the pending preview to be confirmed in a later real user message. Tool arguments, agent transcripts and context updates cannot confirm it.
 - ElevenLabs tools are Client tools with "Wait for response" enabled. Only `source=user` transcripts or accepted typed user input register voice turns. Tools wait for registration; a failure cannot reuse an old turn. The browser updates the view from `display` and returns complete compact `model_result`, speech and errors within 49,152 UTF-8 bytes. Larger results return `result_too_large`, never truncated rows or candidates. Full geometry stays with the application. `trace` stays empty because calculation explanations are disabled.
-- Desk-only `update_selection` and `focus_floor` validate IDs in the loaded building and require the same current local turn/connection guards as backend callbacks. They do not add server permissions. Retired or superseded callbacks cannot update a replacement view.
+- Desk-only `update_selection` and `focus_floor` validate IDs in the loaded building and check the turn with the server before acting. They also require current local turn/connection guards after that check. A server `version_conflict` clears cached turn authority. They do not add server permissions. Retired or superseded callbacks cannot update a replacement view.
 - Chat status is `completed`, `incomplete`, `unavailable` or `superseded`. Failure retains the question for retry; no local answer fallback runs. SQLite stores bounded conversation history and persistent budget reservations. The text budget does not cover ElevenLabs billing. Hosted tool definitions, prompts and live microphone behavior need separate deployment/acceptance checks.
 - Pure queries combine building, session and temporary closures. They cannot weaken saved step-free, door-width or transit restrictions. Missing starts and unknown IDs fail explicitly. Query calculation metadata records validated inputs for submission result selection; it is not a UI explanation trace.
 - **Mobility persistence (C4, CR-L-1):** a valid, resolved `route`/`plan_tour` request with affirmative `step_free: true` persists step-free mobility in its session (a `walk` session becomes `wheelchair`; existing `wheelchair|pram|trolley` remains). A route's `min_door_width_m` persists as well. Required position and entity validation precede session mutation; a valid `no_route` still preserves the user's stated mobility need. `step_free: false` cannot silently downgrade a persisted non-walk profile; an explicit profile change belongs to the session UI/PATCH API.
@@ -404,7 +405,9 @@ One short explanatory sentence may precede the line. Never two `Answer:` lines w
 | `not_found` | nothing matches | say it does not exist; offer closest real matches |
 | `no_route` | unreachable under constraints | say so, give the reason; offer an explicit alternative profile |
 | `invalid_args` | schema or semantic validation failed | agent repairs once, else asks |
-| `version_conflict` | building changed since preview | re-preview and ask again |
+| `version_conflict` | stale building preview or superseded agent turn | re-preview or use the latest user turn; clear old voice authority |
+| `confirmation_required` | pending agent preview lacks later user confirmation | ask the user to confirm the preview |
+| `result_too_large` | complete compact voice result exceeds 49,152 bytes | request a smaller page or batch; never use truncated candidates |
 | `forbidden` | edit from a non-admin session | explain that changes need the admin view |
 | `voice_unavailable` | voice token/provider configuration unavailable (HTTP 503) | show text chat fallback |
 | `not_available` | feature not built or provider missing (voice, import) | fall back (text chat, JSON upload) |

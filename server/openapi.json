@@ -2374,6 +2374,58 @@
         ]
       }
     },
+    "/api/agent/turns/{turn_id}": {
+      "get": {
+        "description": "Check server authority before a browser-only action uses a cached turn.",
+        "operationId": "validate_agent_turn_api_agent_turns__turn_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "turn_id",
+            "required": true,
+            "schema": {
+              "title": "Turn Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentTurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Validate Agent Turn",
+        "tags": [
+          "agent"
+        ]
+      }
+    },
     "/api/buildings": {
       "get": {
         "operationId": "buildings_api_buildings_get",

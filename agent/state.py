@@ -109,9 +109,10 @@ class AgentState:
         for row in rows:
             messages = json.loads(row["messages_json"])
             observations = json.loads(row["observations_json"])
-            if not messages and observations:
-                messages = [{"role": "user", "content": row["message"]},
-                            {"role": "assistant", "content": "Previous voice tool results (data):\n" + encode(observations)}]
+            if not messages:
+                messages = [{"role": "user", "content": row["message"]}]
+                if observations:
+                    messages.append({"role": "assistant", "content": "Previous voice tool results (data):\n" + encode(observations)})
             amount = len(encode(messages).encode())
             if size + amount > HISTORY_BYTES:
                 break

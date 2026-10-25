@@ -86,6 +86,10 @@ A model cannot add a confirmation flag to a tool argument. Same-turn preview and
 
 A new registered user turn supersedes the previous turn across text and voice. It blocks later tools and further model requests from that previous turn. An already running provider request or tool transaction cannot be recalled. Full hard cancellation of geometry computation is not provided. The frontend also suppresses retired results.
 
+Before a browser-only voice action changes selection or floor, it checks the registered turn with `GET /api/agent/turns/{turn_id}?session_id=...`. This check is not cached. A server conflict clears the browser's cached authority; a new real user message must register a new turn. The local connection and turn guards are checked again after the server reply. The check establishes current authority at that point; it cannot make a later browser action atomic with a simultaneous request on another device.
+
+History includes registered voice user messages even when no tool ran. It also includes compact voice tool observations. Hosted assistant speech is not saved as server-generated chat prose. Text turns retain complete model/tool message groups within the history limits.
+
 ## Configuration and paid calls
 
 `TYB` means "Talk to Your Building". Credentials stay on the server. A key alone does not enable text requests. Set a positive allocation only after a written team budget is approved:

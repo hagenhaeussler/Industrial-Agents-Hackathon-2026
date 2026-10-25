@@ -205,6 +205,7 @@ async function startVoice(view: { result: { current: { start: () => Promise<void
   fetchMock.fetch = async (url, init) => {
     if (String(url).startsWith('/api/voice/token')) return token()
     if (url === '/api/agent/turns') return new Response(JSON.stringify({ turn_id: 'offline-user-turn' }))
+    if (String(url).startsWith('/api/agent/turns/')) return new Response(JSON.stringify({ turn_id: 'offline-user-turn' }))
     return toolsFetch(url, init)
   }
   await act(async () => { await view.result.current.start() })
@@ -885,6 +886,162 @@ describe('voice transcript registration', () => {
 
 
 describe('desk UI tool turn policy', () => {
+  const registered = (turnId: string) => new Response(JSON.stringify({ turn_id: turnId }))
+  const conflict = { ok: false, speech: 'Use a new user turn.', error: { code: 'version_conflict', message: 'The turn is no longer current.' } }
+
+  test('validates the current turn before each UI action with encoded IDs and no cache', async () => {
+    const requests: { url: string; cache: RequestCache | undefined }[] = []
+    let changes = 0
+    const turnId = 'turn/with?reserved&characters'
+    const sessionId = 'session/with?reserved&characters'
+    fetchMock.fetch = async (url, init) => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (url === '/api/agent/turns') return registered(turnId)
+      requests.push({ url: String(url), cache: init?.cache })
+      expect(changes).toBe(requests.length - 1)
+      return registered(turnId)
+    }
+    const view = renderHook(() => useBuildingVoice({ ...options, sessionId, clientTools: {
+      update_selection: () => { changes++; return 'changed' },
+    } }))
+    await act(async () => { await view.result.current.start(); currentOnMessage?.(userMessage()) })
+    expect(await currentTools.update_selection!({ action: 'clear' })).toBe('changed')
+    expect(await currentTools.update_selection!({ action: 'clear' })).toBe('changed')
+    expect(requests).toEqual(Array(2).fill({
+      url: `/api/agent/turns/${encodeURIComponent(turnId)}?session_id=${encodeURIComponent(sessionId)}`, cache: 'no-store',
+    }))
+    expect(changes).toBe(2)
+  })
+
+  test('remote supersession blocks UI actions and clears cached authority until a new user turn', async () => {
+    let changes = 0, registrations = 0, validations = 0, toolRequests = 0
+    fetchMock.fetch = async url => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (url === '/api/agent/turns') return registered(`turn-${++registrations}`)
+      if (String(url).startsWith('/api/agent/turns/')) {
+        validations++
+        return registrations === 1 ? new Response(JSON.stringify(conflict), { status: 409 }) : registered('turn-2')
+      }
+      toolRequests++
+      return instruction()
+    }
+    const view = renderHook(() => useBuildingVoice({ ...options, clientTools: {
+      update_selection: () => { changes++; return 'changed' },
+    } }))
+    await act(async () => { await view.result.current.start(); currentOnMessage?.(userMessage()) })
+    expect(JSON.parse(await currentTools.update_selection!({ action: 'clear' })).error.code).toBe('version_conflict')
+    expect(JSON.parse(await currentTools.update_selection!({ action: 'clear' })).ok).toBe(false)
+    expect(JSON.parse(await currentTools.find!()).ok).toBe(false)
+    expect({ changes, validations, toolRequests }).toEqual({ changes: 0, validations: 1, toolRequests: 0 })
+    await act(async () => { currentOnMessage?.(userMessage('A fresh request')) })
+    expect(await currentTools.update_selection!({ action: 'clear' })).toBe('changed')
+    expect(changes).toBe(1)
+  })
+
+  test.each([200, 409])('a backend conflict from HTTP %d retires cached authority and preserves its actual failure', async status => {
+    let changes = 0, validations = 0, toolRequests = 0
+    const outcomes: unknown[] = []
+    fetchMock.fetch = async url => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (url === '/api/agent/turns') return registered('old-turn')
+      if (String(url).startsWith('/api/agent/turns/')) { validations++; return registered('old-turn') }
+      toolRequests++
+      return new Response(JSON.stringify(conflict), { status })
+    }
+    const view = renderHook(() => useBuildingVoice({ ...options, onToolResponse: response => { outcomes.push(response) }, clientTools: {
+      update_selection: () => { changes++; return 'changed' },
+    } }))
+    await act(async () => { await view.result.current.start(); currentOnMessage?.(userMessage()) })
+    expect(JSON.parse(await currentTools.find!())).toEqual(conflict)
+    expect(outcomes).toMatchObject([conflict])
+    expect(JSON.parse(await currentTools.update_selection!({ action: 'clear' })).ok).toBe(false)
+    expect(JSON.parse(await currentTools.find!()).ok).toBe(false)
+    expect({ changes, validations, toolRequests }).toEqual({ changes: 0, validations: 0, toolRequests: 1 })
+  })
+
+  test.each(['network', 'http', 'malformed', 'wrong_turn', 'invalid_json'])('a %s validation failure blocks the UI handler', async failure => {
+    let changes = 0
+    fetchMock.fetch = async url => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (url === '/api/agent/turns') return registered('current-turn')
+      if (failure === 'network') throw new Error('private network details')
+      if (failure === 'http') return new Response('{}', { status: 503 })
+      if (failure === 'malformed') return new Response('{}')
+      if (failure === 'invalid_json') return new Response('not json')
+      return registered('another-turn')
+    }
+    const view = renderHook(() => useBuildingVoice({ ...options, clientTools: {
+      update_selection: () => { changes++; return 'changed' },
+    } }))
+    await act(async () => { await view.result.current.start(); currentOnMessage?.(userMessage()) })
+    expect(JSON.parse(await currentTools.update_selection!({ action: 'clear' })).error.code).toBe('not_available')
+    expect(changes).toBe(0)
+  })
+
+  test.each(['turn', 'stop', 'session', 'agent', 'unmount'] as const)('a UI validation pending during %s cannot run the handler', async cancellation => {
+    let release!: (response: Response) => void
+    let changes = 0
+    const initialProps: BuildingVoiceOptions = {
+      ...options, clientTools: { update_selection: () => { changes++; return 'changed' } },
+    }
+    const view = renderHook((props: BuildingVoiceOptions) => useBuildingVoice(props), { initialProps })
+    await prepareVoice(view)
+    const configuredFetch = fetchMock.fetch
+    fetchMock.fetch = async (url, init) => String(url).startsWith('/api/agent/turns/')
+      ? new Promise<Response>(resolve => { release = resolve }) : configuredFetch(url, init)
+    const pending = currentTools.update_selection!({ action: 'clear' })
+    await act(async () => { await Promise.resolve() })
+    if (cancellation === 'turn') await act(async () => { currentOnMessage?.(userMessage('Keep the selection')) })
+    if (cancellation === 'stop') await act(async () => { await view.result.current.stop() })
+    if (cancellation === 'session') view.rerender({ ...options, sessionId: 'replacement-session', clientTools: {} })
+    if (cancellation === 'agent') view.rerender({ ...options, agent: 'admin', clientTools: {} })
+    if (cancellation === 'unmount') view.unmount()
+    release(registered('offline-user-turn'))
+    expect(JSON.parse(await pending).error.code).toBe('version_conflict')
+    expect(changes).toBe(0)
+  })
+
+  test('an old validation conflict cannot revoke a newer registered user turn', async () => {
+    let release!: (response: Response) => void
+    let changes = 0, registrations = 0, validations = 0
+    fetchMock.fetch = async url => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (url === '/api/agent/turns') return registered(`turn-${++registrations}`)
+      return ++validations === 1 ? new Promise<Response>(resolve => { release = resolve }) : registered('turn-2')
+    }
+    const view = renderHook(() => useBuildingVoice({ ...options, clientTools: {
+      update_selection: () => { changes++; return 'changed' },
+    } }))
+    await act(async () => { await view.result.current.start(); currentOnMessage?.(userMessage()) })
+    const pending = currentTools.update_selection!({ action: 'clear' })
+    await act(async () => { await Promise.resolve() })
+    await act(async () => { currentOnMessage?.(userMessage('Select the pump instead')) })
+    release(new Response(JSON.stringify(conflict), { status: 409 }))
+    expect(JSON.parse(await pending).error.code).toBe('version_conflict')
+    expect(await currentTools.update_selection!({ action: 'replace', items: 'pump' })).toBe('changed')
+    expect(changes).toBe(1)
+  })
+
+  test('a newer user turn during validation JSON parsing blocks the UI handler', async () => {
+    let release!: (body: unknown) => void
+    let changes = 0
+    const view = renderHook(() => useBuildingVoice({ ...options, clientTools: {
+      update_selection: () => { changes++; return 'changed' },
+    } }))
+    await prepareVoice(view)
+    const configuredFetch = fetchMock.fetch
+    const validation = new Response()
+    validation.json = () => new Promise(resolve => { release = resolve })
+    fetchMock.fetch = async (url, init) => String(url).startsWith('/api/agent/turns/')
+      ? validation : configuredFetch(url, init)
+    const pending = currentTools.update_selection!({ action: 'clear' })
+    await act(async () => { await Promise.resolve() })
+    await act(async () => { currentOnMessage?.(userMessage('Keep the selection')) })
+    release({ turn_id: 'offline-user-turn' })
+    expect(JSON.parse(await pending).error.code).toBe('version_conflict')
+    expect(changes).toBe(0)
+  })
+
   test('context and role-only messages cannot authorize a UI action', async () => {
     let changes = 0
     fetchMock.fetch = async () => token()
@@ -899,9 +1056,14 @@ describe('desk UI tool turn policy', () => {
   })
 
   test('failed registration cannot reuse an old user turn for a UI action', async () => {
-    let changes = 0, registrations = 0
-    fetchMock.fetch = async url => String(url).startsWith('/api/voice/token') ? token()
-      : ++registrations === 1 ? new Response(JSON.stringify({ turn_id: 'old-turn' })) : new Response('{}', { status: 503 })
+    let changes = 0, registrations = 0, validations = 0
+    fetchMock.fetch = async url => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (url === '/api/agent/turns') return ++registrations === 1
+        ? new Response(JSON.stringify({ turn_id: 'old-turn' })) : new Response('{}', { status: 503 })
+      validations++
+      return new Response(JSON.stringify({ turn_id: 'old-turn' }))
+    }
     const view = renderHook(() => useBuildingVoice({ ...options, clientTools: {
       focus_floor: () => { changes++; return 'shown' },
     } }))
@@ -910,13 +1072,17 @@ describe('desk UI tool turn policy', () => {
     await act(async () => { currentOnMessage?.(userMessage('Show upper floor')) })
     expect(JSON.parse(await currentTools.focus_floor!({ floor: 'upper' })).ok).toBe(false)
     expect(changes).toBe(1)
+    expect(validations).toBe(1)
   })
 
   test('a newer turn blocks a UI action waiting for older registration', async () => {
     const registrations: ((response: Response) => void)[] = []
     let changes = 0
-    fetchMock.fetch = async url => String(url).startsWith('/api/voice/token') ? token()
-      : new Promise(resolve => { registrations.push(resolve) })
+    fetchMock.fetch = async url => {
+      if (String(url).startsWith('/api/voice/token')) return token()
+      if (String(url).startsWith('/api/agent/turns/')) return new Response(JSON.stringify({ turn_id: 'new-turn' }))
+      return new Promise(resolve => { registrations.push(resolve) })
+    }
     const view = renderHook(() => useBuildingVoice({ ...options, clientTools: {
       update_selection: () => { changes++; return 'changed' },
     } }))
