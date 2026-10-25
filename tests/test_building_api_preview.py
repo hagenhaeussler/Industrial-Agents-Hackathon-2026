@@ -58,8 +58,13 @@ class PreviewTest(unittest.TestCase):
         svg = isometric_svg(building(spaces))
         self.assertEqual(svg.count(f'fill="{ROOF}"'), 2)
 
-    def test_building_without_spaces_gives_an_empty_drawing(self) -> None:
-        self.assertEqual(isometric_svg(building([])).count("<path"), 0)
+    def test_building_without_indoor_spaces_gives_an_empty_drawing(self) -> None:
+        # Imports now require a nonempty space list. An outdoor-only building is still valid
+        # and should have no exterior slab, because previews deliberately omit outdoor spaces.
+        outdoor = space("outside-room", "f0", 0, 5)
+        outdoor["type"] = "outdoor"
+        outdoor["room_type"] = "outdoor"
+        self.assertEqual(isometric_svg(building([outdoor])).count("<path"), 0)
 
 
 if __name__ == "__main__":

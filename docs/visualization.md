@@ -1,6 +1,6 @@
 # Locora building views
 
-Status: the read-only building API with routes, the scene compiler, the 2D floor plan and the 3D exploded view are
+Status: the building API with uploads and routes, the scene compiler, the 2D floor plan and the 3D exploded view are
 implemented. The web application in `web/` uses both views. See [web/README.md](../web/README.md).
 
 ## Data flow
@@ -14,8 +14,10 @@ flowchart LR
   S --> M["BuildingView3D<br/>three.js, all floors"]
 ```
 
-- `building_api/` serves stored buildings with FastAPI. It only reads. The response is the
+- `building_api/` serves stored buildings with FastAPI. Building and route requests are read-only. The response is the
   `BuildingDocument` from `building_db.store.load_building`, so it has the `building.json` format.
+- The home page imports `building.json` through `POST /api/buildings/import`, then opens the stored building
+  at `/admin/:buildingId`. Validation and saving finish before navigation. Errors remain on the home page.
 - `packages/building-view/` is a TypeScript package without a UI framework. A React application can wrap
   its two view classes.
 - The browser parses the API response and passes the object to `compileScene`. Nothing is written to a file.

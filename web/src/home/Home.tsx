@@ -5,6 +5,7 @@ import { useBuildings } from "../api/buildings";
 import { Avatar } from "../avatar/Avatar";
 import { navigate } from "../router";
 import { floorLabel, groupBuildings, matches, type Collection } from "./collections";
+import { ImportBuilding } from "./ImportBuilding";
 
 const PAGE = 20;
 
@@ -59,8 +60,12 @@ export function Home() {
         </p>
       </div>
 
+      <ImportBuilding />
       {buildings.isError && <p className="text-sm text-danger">{buildings.error.message}</p>}
       {buildings.isPending && <p className="text-sm text-muted">Loading buildings…</p>}
+      {buildings.isSuccess && buildings.data.length === 0 && (
+        <p className="text-sm text-muted">No buildings yet. Import a building.json to open it here.</p>
+      )}
 
       <nav aria-label="Collections" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {collections.map((item) => (

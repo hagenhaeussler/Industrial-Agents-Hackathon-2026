@@ -5,6 +5,7 @@ type Schemas = components["schemas"];
 
 export type Building = Schemas["BuildingDocument"];
 export type BuildingSummary = Schemas["BuildingSummary"];
+export type BuildingImport = Schemas["BuildingImport"];
 export type Floor = Schemas["Floor"];
 export type Space = Schemas["Space"];
 export type Opening = Schemas["Opening"];

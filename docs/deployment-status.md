@@ -44,6 +44,33 @@ Its release check passed: 112 Python tests, 22 building-view tests, 33 web tests
 Local Docker verification is unavailable because the Docker daemon is not running. Railway built both
 images successfully. No paid model or voice conversations are part of verification.
 
+## JSON building upload release — 25 October 2026
+
+- Integrates `t3/embed-equipment-rename-building-local` at `7dfb520`, including the local-data consolidation at
+  `81633ff`, onto main at `ef73058`. The merge was conflict-free.
+- The concurrent home-collections release (PR #40, main at `00f4d09`) is retained. Import sits on the new home
+  page without duplicating its search or discarding its collections. API types were regenerated from the combined
+  backend schema, retaining both import and isometric-preview endpoints.
+- Remote recovery branch: `backup/main-before-building-json-upload-20261025-00f4d09` points to
+  `00f4d09b82098e653097a94cae5a86cb21c0916f`, main immediately before this integration. The earlier
+  `backup/main-before-building-json-upload-20261025-ef73058` recovery point is also retained.
+- Home now offers **Import building**. A valid dataset-format file named `building.json` (maximum 20 MiB)
+  is saved before opening its desktop workspace. It is available through the building API and route tools;
+  identical uploads are idempotent and changed content with an existing ID is rejected without overwriting it.
+- Release checks: 146 Python tests, 66 web tests and 22 building-view tests passed. Ruff and both production
+  frontend builds passed. All provider API keys were disabled during the Python checks.
+- Added coverage for importing from the collections home and for an uploaded building's SVG thumbnail. The
+  empty-preview fixture uses an outdoor-only building, respecting the upload schema's nonempty-space requirement.
+- Push main to use the existing GitHub-triggered Railway deployment. This release does not reconnect or deploy
+  the retired `hagen-core-test` service.
+
+Deployment limits to retain: the default web Dockerfile stores its SQLite database in the container filesystem,
+so uploads require a persistent mount and the corresponding database path to survive a container replacement.
+The separate voice service loads its own building catalog at startup; a web upload does not automatically add
+that building to the voice catalog. The import feature therefore establishes preview and HTTP routing support,
+not cross-service voice synchronization. Local `building_local/` examples with additional metadata also need
+normalization to the strict dataset schema before upload. These limits are not changed by this merge.
+
 The T3 browser snapshot timed out twice. The alternate browser had no available browser. A fresh visual,
 microphone or phone-device check was not completed. A container filesystem check through Railway SSH was also
 unavailable because no SSH key is registered; no key or account access was added. Build logs confirm the intended
