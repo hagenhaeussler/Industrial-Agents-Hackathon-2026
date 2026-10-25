@@ -118,6 +118,13 @@ class FixtureRouteTests(unittest.TestCase):
         result = reachable_spaces(building, "S-office", conditions)
         self.assertEqual([match.space.id for match in result.spaces], ["S-office", "S-lift-0"])
 
+    def test_unknown_room_types_are_refused(self) -> None:
+        with self.assertRaisesRegex(ToolInputError, "known room types"):
+            reachable_spaces(self.building, "S-office", room_type="toilets")
+        # A typo must not quietly allow a route through the spaces it was meant to protect.
+        with self.assertRaisesRegex(ToolInputError, "known room types"):
+            route(self.building, ["S-office", "S-lift-1"], RouteConditions(no_pass_through_room_types=["lifts"]))
+
     def test_exit_changes_report_lost_ways_out_and_refuse_doors_without_a_wall(self) -> None:
         # The fixture's lift and store do not touch, so a door between them is refused.
         with self.assertRaisesRegex(ToolInputError, "do not share a wall"):

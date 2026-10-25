@@ -157,14 +157,11 @@ def reachable_spaces(
     """
     building.space(start)
     floor_id = building.floor(floor).id if floor is not None else None
+    wanted_room_type = building.room_type(room_type) if room_type is not None else None
     holding = None
     if asset_type is not None:
-        holding = {
-            asset.space_id for asset in building.document.assets if normalize(asset.type) == normalize(asset_type)
-        }
-        if not holding:
-            known = ", ".join(sorted({asset.type for asset in building.document.assets}))
-            raise ToolInputError(f"no asset of type {asset_type!r} in this building; known types: {known}")
+        wanted_asset_type = building.asset_type(asset_type)
+        holding = {asset.space_id for asset in building.document.assets if normalize(asset.type) == wanted_asset_type}
     network = RouteNetwork(building, conditions or RouteConditions(), leavable=frozenset({start}))
     distances = network.distances_from(space_node(start))
     matches = [
@@ -178,7 +175,7 @@ def reachable_spaces(
         if space_node(space.id) in distances
         and (floor_id is None or space.floor_id == floor_id)
         and (space_types is None or space.type in space_types)
-        and (room_type is None or normalize(space.room_type) == normalize(room_type))
+        and (wanted_room_type is None or normalize(space.room_type) == wanted_room_type)
         and (holding is None or space.id in holding)
     ]
     matches.sort(key=lambda match: match.distance_m)

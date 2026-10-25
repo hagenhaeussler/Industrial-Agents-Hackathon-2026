@@ -36,11 +36,14 @@ area, distance, overlap and count from the building data.
 - **Walking distance:** the length of the shortest route under the building's route model. A walk to an item ends
   in the space that holds it. A walk with several stops is one `route` with all stops in order, so its total is
   `length_m`.
+- **Where an item is:** the space that holds it, from `find_assets`.
 - **Nearest** space with an item: the first entry of `reachable_spaces` with `asset_type`, by walking distance.
-- **Route conditions** express the question's rules. No stairs or steps, or a wheelchair: `step_free`. Every door
-  at least some width: `min_door_width_m`; a forklift needs 3 m. Out of service, closed or blocked: add the ID
-  to `closed`. Spaces that may be a destination but not a shortcut, such as factory production bays: add their
-  room types to `no_pass_through_room_types`. If only some legs have a rule, use `leg_conditions`.
+- **Route conditions** express the rules the question states, and only those. No stairs or steps, or a
+  wheelchair: `step_free`. Every door at least some width: `min_door_width_m`. A forklift needs openings at least
+  3 m wide; that is its only rule. Out of service, closed or blocked: add the ID to `closed`. Spaces that may be
+  a destination but not passed through: add their room types to `no_pass_through_room_types`, only when the
+  question says so. Production bays are room type `production_zone`. If only some legs have a rule, use
+  `leg_conditions`.
 - **Entering through an entrance into a space:** the walk starts in that space.
 - **Walk out of the building:** the walk to the nearest entrance. For the effect of a new door or a closure on
   those walks, use `exit_distance_change`; a new door sits in the middle of the wall the two spaces share.
@@ -53,6 +56,7 @@ Finish by calling exactly one of these tools. The answer line is written from it
 
 - `answer_room` when the question asks which space: the room, hall or other space, by its `space_id` from a tool
   result. Use it also when the question asks for the space's size too; its stored area is added for you.
+  When the question asks where an item is, also give the item's `asset_id`; its room and floor are written for you.
 - `answer_number` for a measured quantity, such as a total area or a distance.
 - `answer_count` for a number of things.
 - `answer_route` when the question asks how to get somewhere or for the route: the stops and conditions you

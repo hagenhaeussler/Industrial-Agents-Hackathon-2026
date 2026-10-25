@@ -34,6 +34,9 @@ class RoomAnswer(Shape):
 
     explanation: str = Field(description="One or two sentences on why this is the space")
     space_id: str
+    asset_id: str | None = Field(
+        default=None, description="When the question asks where an item is: the item's ID; it must be in the space"
+    )
 
 
 class RouteAnswer(Shape):
@@ -83,6 +86,10 @@ def route_spaces(found: Route) -> list[str]:
     return spaces
 
 
+def floor_name(building: Building, space_id: str) -> str:
+    return building.floor_by_id[building.space(space_id).floor_id].name
+
+
 def format_reply(answer: Answer, building: Building) -> str:
     """The full reply. Exactly one final `Answer:` line, except for failures, which have none."""
     match answer:
@@ -90,6 +97,9 @@ def format_reply(answer: Answer, building: Building) -> str:
             return f"{plain(explanation)}\nAnswer: {value:.2f}"
         case CountAnswer(count=count, explanation=explanation):
             return f"{plain(explanation)}\nAnswer: {count}"
+        case RoomAnswer(space_id=space_id, asset_id=str(), explanation=explanation):
+            # An item is located by its room and floor; its room's area would mean nothing here.
+            return f"{plain(explanation)}\nAnswer: {room_label(building, space_id)} ({floor_name(building, space_id)})"
         case RoomAnswer(space_id=space_id, explanation=explanation):
             # The stored area is always written, so questions about a room's size need no extra field.
             area = building.area_by_id[building.space(space_id).id]
@@ -100,7 +110,7 @@ def format_reply(answer: Answer, building: Building) -> str:
                 return f"{plain(explanation)}\nAnswer: No route exists under these rules."
             # Names repeat across floors, such as a lift shaft, so each step names its floor.
             path = " -> ".join(
-                f"{room_label(building, space_id)} ({building.floor_by_id[building.space(space_id).floor_id].name})"
+                f"{room_label(building, space_id)} ({floor_name(building, space_id)})"
                 for space_id in route_spaces(found)
             )
             return f"{plain(explanation)}\nRoute: {path}\nAnswer: {found.length_m:.2f} m"
@@ -115,9 +125,21 @@ def answer_result(answer: Answer, building: Building) -> dict:
             return {"type": "number", "value": round(value, 2), "unit": unit}
         case CountAnswer(count=count):
             return {"type": "count", "value": count}
-        case RoomAnswer(space_id=space_id):
-            area = building.area_by_id[building.space(space_id).id]
-            return {"type": "space", "space_id": space_id, "area_m2": round(area, 2)}
+        case RoomAnswer(space_id=space_id, asset_id=asset_id):
+            space = building.space(space_id)
+            floor = building.floor_by_id[space.floor_id]
+            result = {
+                "type": "space",
+                "space_id": space_id,
+                "space_name": space.name,
+                "floor_level": floor.level,
+                "floor_name": floor.name,
+                "area_m2": round(building.area_by_id[space_id], 2),
+            }
+            if asset_id is not None:
+                asset = building.asset_by_id[asset_id]
+                result |= {"asset_id": asset_id, "asset_name": asset.name, "position": list(asset.position)}
+            return result
         case RouteAnswer():
             found = answer_route(answer, building)
             elements = [element.id for leg in found.legs for element in leg.elements]

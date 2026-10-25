@@ -7,6 +7,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way363805324-F1-S002",
+      "space_name": "Generic room 1.02",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 162.33
     }
   },
@@ -40,6 +43,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way363805324-F0-S001",
+      "space_name": "Großer Saal",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 142.66
     }
   },
@@ -51,6 +57,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way363805324-F1-S010",
+      "space_name": "Generic room 1.10",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 39.16
     }
   },
@@ -83,6 +92,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way43035346-F3-S012",
+      "space_name": "Generic room N3806",
+      "floor_level": 3,
+      "floor_name": "Floor 3",
       "area_m2": 115.03
     }
   },
@@ -116,6 +128,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way43035346-F0-S014",
+      "space_name": "Generic room N0806",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 93.96
     }
   },
@@ -158,6 +173,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50299584-F0-S043",
+      "space_name": "Generic room 0566",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 559.8
     }
   },
@@ -191,6 +209,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50299584-F0-S013",
+      "space_name": "Generic room 0583",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 189.21
     }
   },
@@ -202,6 +223,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50299584-F-1-S037",
+      "space_name": "Generic room -1530",
+      "floor_level": -1,
+      "floor_name": "Basement 1",
       "area_m2": 121.24
     }
   },
@@ -213,6 +237,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50299584-F1-S033",
+      "space_name": "Generic room 1530",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 18.46
     }
   },
@@ -245,6 +272,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50300147-F0-S047",
+      "space_name": "Generic room 0219",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 530.16
     }
   },
@@ -278,6 +308,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50300147-F0-S019",
+      "space_name": "Generic room 0260",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 134.5
     }
   },
@@ -289,6 +322,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50300147-F0-S047",
+      "space_name": "Generic room 0219",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 530.16
     }
   },
@@ -300,6 +336,9 @@
     "result": {
       "type": "space",
       "space_id": "osm-way50300147-F0-S054",
+      "space_name": "Generic room 0209",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 65.96
     }
   },
@@ -352,6 +391,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-campus-test-000-F1-S025",
+      "space_name": "Toilet 1.25",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 34.02
     }
   },
@@ -406,6 +448,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-campus-test-004-F0-S015",
+      "space_name": "Meeting room 0.15",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 35.46
     }
   },
@@ -460,6 +505,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-campus-test-005-F1-S013",
+      "space_name": "Meeting room 1.13",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 41.52
     }
   },
@@ -524,6 +572,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-campus-test-008-F2-S019",
+      "space_name": "Office 2.19",
+      "floor_level": 2,
+      "floor_name": "Floor 2",
       "area_m2": 39.66
     }
   },
@@ -578,6 +629,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-campus-test-012-F1-S012",
+      "space_name": "Office 1.12",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 40.02
     }
   },
@@ -632,6 +686,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-campus-test-013-F5-S026",
+      "space_name": "Storage 5.26",
+      "floor_level": 5,
+      "floor_name": "Floor 5",
       "area_m2": 40.86
     }
   },
@@ -759,6 +816,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-factory-test-003-F1-S017",
+      "space_name": "Meeting room 1.17",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 29.35
     }
   },
@@ -865,6 +925,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-factory-test-007-F1-S010",
+      "space_name": "Kitchen 1.10",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 28.75
     }
   },
@@ -960,6 +1023,9 @@
     "result": {
       "type": "space",
       "space_id": "proc-factory-test-010-F0-S040",
+      "space_name": "Meeting room 0.40",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 29.95
     }
   },
@@ -1127,6 +1193,9 @@
     "result": {
       "type": "space",
       "space_id": "resplan-3573-F0-S006",
+      "space_name": "Bathroom 0.06",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 6.98
     }
   },
@@ -1230,6 +1299,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-100-F1-S005",
+      "space_name": "Living room 1.05 (apartment 4)",
+      "floor_level": 1,
+      "floor_name": "Floor 1",
       "area_m2": 30.16
     }
   },
@@ -1284,6 +1356,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-1671-F0-S005",
+      "space_name": "Bedroom 0.05 (apartment 1)",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 19.34
     }
   },
@@ -1338,6 +1413,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-1760-F0-S006",
+      "space_name": "Kitchen 0.06 (apartment 1)",
+      "floor_level": 0,
+      "floor_name": "Ground floor",
       "area_m2": 6.73
     }
   },
@@ -1360,6 +1438,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-17736-F3-S003",
+      "space_name": "Bedroom 3.03 (apartment 8)",
+      "floor_level": 3,
+      "floor_name": "Floor 3",
       "area_m2": 19.44
     }
   },
@@ -1415,6 +1496,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-2080-F2-S015",
+      "space_name": "Bathroom 2.15 (apartment 8)",
+      "floor_level": 2,
+      "floor_name": "Floor 2",
       "area_m2": 4.13
     }
   },
@@ -1458,6 +1542,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-2873-F2-S014",
+      "space_name": "Storage 2.14 (apartment 10)",
+      "floor_level": 2,
+      "floor_name": "Floor 2",
       "area_m2": 3.22
     }
   },
@@ -1501,6 +1588,9 @@
     "result": {
       "type": "space",
       "space_id": "swiss-482-F4-S012",
+      "space_name": "Storage 4.12 (apartment 18)",
+      "floor_level": 4,
+      "floor_name": "Floor 4",
       "area_m2": 2.32
     }
   },

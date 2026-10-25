@@ -77,6 +77,9 @@ class FixtureToolTests(unittest.TestCase):
             find_spaces(self.building, floor="Floor 9")
         with self.assertRaisesRegex(ToolInputError, "desk"):
             find_assets(self.building, asset_type="stove")
+        # A plural or misspelled room type is refused with the known types, instead of matching nothing.
+        with self.assertRaisesRegex(ToolInputError, "known room types: .*office"):
+            find_spaces(self.building, room_type="offices")
         with self.assertRaisesRegex(ToolInputError, "find_spaces"):
             stacked_spaces(self.building, "S-missing", "above")
 

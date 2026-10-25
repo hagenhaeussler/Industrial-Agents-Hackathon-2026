@@ -89,8 +89,9 @@ class RouteNetwork:
         ]
         self.openings |= {opening.id: opening for opening in self.added_openings}
         self.check_closed()
-        # Room types compare like everywhere else, so "production zone" matches "production_zone".
-        no_pass_through = {normalize(room_type) for room_type in conditions.no_pass_through_room_types}
+        # Room types compare like everywhere else, so "production zone" matches "production_zone". Unknown types
+        # are refused, so a typo cannot silently allow a route through a bay.
+        no_pass_through = {building.room_type(room_type) for room_type in conditions.no_pass_through_room_types}
         self.pass_through = {
             space.id for space in building.document.spaces if normalize(space.room_type) not in no_pass_through
         }

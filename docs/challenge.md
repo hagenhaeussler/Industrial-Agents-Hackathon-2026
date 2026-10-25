@@ -85,3 +85,9 @@ The forklift and production bay rules are not in the README, and no train or dev
 factory buildings, forklift aisles are corridors named "Main aisle". Production bays are spaces of type `hall`
 with room types such as `production_zone`. Hall openings are 12 m or wider, factory entrances 1.8 m to 5 m and
 doors at most 1.6 m. The route tools must still confirm this mapping.
+
+Our decision: a forklift needs openings at least 3 m wide, and that is its only rule. Every opening of 3 m or
+more joins halls, main aisles or the outside, so the width rule also keeps it off pedestrian walkways. The
+production bay rule applies only when a question states it, and "production bay" means room type
+`production_zone`. Before this rule, the model blocked production zones on its own in some forklift questions and
+not in others, so the same question got different routes.
