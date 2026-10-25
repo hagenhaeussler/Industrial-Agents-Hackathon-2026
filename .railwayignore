@@ -1,0 +1,8 @@
+# Files `railway up` does not upload. Evaluation questions and answers must never leave this machine.
+data/
+benchmark/
+tests/
+web/
+.env*
+!.env.example
+*.sqlite3

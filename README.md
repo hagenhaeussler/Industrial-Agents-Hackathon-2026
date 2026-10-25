@@ -22,6 +22,7 @@ application is planned. These documents describe the decisions and the current s
 - [docs/challenge.md](docs/challenge.md): organizer messages on route scoring, submission and deadline.
 - [SUBMISSION/BENCHMARK.md](SUBMISSION/BENCHMARK.md): how to run `run_benchmark` and reproduce `answers.json`.
 - [docs/visualization.md](docs/visualization.md): building API, scene compiler, 2D plan and 3D view.
+- [docs/voice.md](docs/voice.md): ElevenLabs voice agent, token server and test page.
 
 Import buildings into a SQLite file with `uv run python -m building_db import DATABASE BUILDING_JSON...`.
 See section 5 and [docs/db.md](docs/db.md). The tools in `building_tools/` read this database.
