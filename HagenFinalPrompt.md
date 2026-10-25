@@ -21,7 +21,7 @@ Your immediate assignment is **planning and prompt authoring**. Inspect, reason,
 The non-negotiable outcomes are:
 
 - Meet the actual challenge and submission requirements, including generalization to a previously unseen building and new question wording.
-- Preserve the customer needs and journey expressed by Hagen and the team. **`Hagen UX explanation transcript.md` is a central product source. Read it in full, not just its summary.**
+- Preserve the customer needs and journey expressed by Hagen and the team. **Read `master prompt/UX_REQUIREMENTS.md` in full for the retained product requirements.** Conversation transcripts have been removed from the repository.
 - Produce a coherent system in which answers, routes, edits, and displayed state are grounded in building data and observable tool results.
 - Coordinate exactly four builder roles: three Codex agents and one Claude agent, with the exact folder names below.
 - Give Claude primary ownership of UI, design, and the customer journey; use Claude Design where actually available. Respect the team's preference to give Claude selected difficult design and integration problems without making it the bottleneck.
@@ -51,11 +51,11 @@ This is a starting map, **not an exhaustive allowlist**. Discover and incorporat
 
 | Source | What you must extract |
 |---|---|
-| `Hagen UX explanation transcript.md` | The full customer journey, intended outcomes, optional embellishments, and explicitly uncertain details. Highest emphasis for product interpretation. |
+| `master prompt/UX_REQUIREMENTS.md` | Retained customer-journey requirements, intended outcomes, optional embellishments, and explicitly uncertain details. Highest emphasis for product interpretation. |
 | `README.md`; `Hackathon Challenge - Talk to Your Building-1.pdf`; `Industrial Agents Hackathon Kick-Off.pdf`; `ATTRIBUTION.md` | Official task, levels, scoring, inputs/outputs, deliverables, deadline, data rights. Read the actual PDF submission/rubric pages. |
-| `2026-10-24-challenge-lead-qa.md`; `2026-10-24-route-scoring-specifications.md`; `2026-10-24-weitere-aufnahmen-relevante-infos.md` | Organizer statements, route measurement, provenance limits, and unresolved evaluation semantics. |
+| `2026-10-24-route-scoring-specifications.md`; `2026-10-24-weitere-aufnahmen-relevante-infos.md` | Organizer statements, route measurement, provenance limits, and unresolved evaluation semantics. |
 | `2026-10-24-fragen-an-juroren.md`; `open questions for judge .md` | What is unanswered, what is already answered, what needs an adapter or explicit assumption, and what humans should clarify. |
-| `docs/brainstorming/2026-10-24-transkript.md`; `2026-10-24-brainstorming-zusammenfassung.md` | Team intent, priorities, proposed differentiators, and uncertainty in automatic transcripts. |
+| `2026-10-24-brainstorming-zusammenfassung.md` | Team intent, priorities, proposed differentiators, and uncertainty in automatic transcripts. |
 | `PLAN.md`; `codex reviewed plan suggestions .md`; `2026-10-24-plan-review-zwei-ux.md`; `AGENT_BUILD_SPEC.md` | Competing architectures, proposed requirements and work packages, omissions, prior reasoning, and changes over time. No automatic winner by filename or self-declared authority. |
 | `research/2026-10-24-repositories-und-agent-skills.md` | Reusable repositories, geometry/routing components, UI/QR/localization resources, tool and skill design, adoption costs and licenses. |
 | `research/2026-10-24-tools-libraries-data-structures-algorithms.md` | Algorithms, data structures, typed tool contracts, state, caching, geometry, graph correctness and measured tradeoffs. |
@@ -73,7 +73,7 @@ At this prompt's snapshot, `web/mobile/` is a real camera/UI prototype with demo
 
 ## 4. Put Hagen's customer journey at the center
 
-Use the transcript to make an explicit **UX traceability matrix**: source passage → user need → interaction → required data/tool/backend behavior → owner → acceptance evidence → priority/fallback.
+Use the retained product requirements to make an explicit **UX traceability matrix**: source passage → user need → interaction → required data/tool/backend behavior → owner → acceptance evidence → priority/fallback.
 
 Cover at least this continuous story:
 
@@ -86,7 +86,7 @@ Cover at least this continuous story:
 7. **Completion.** The user reaches the required parts and knows the task is complete. Handle unavailable or moved parts, changed destinations, ambiguity, and interrupted sessions.
 8. **A new building.** A user uploads a floorplan and gets a usable building representation. Distinguish structured JSON import from image/PDF interpretation, calibration, validation, correction, and adding an equipment inventory. A plan image does not magically supply asset identities or trustworthy scale. Give this desired experience a concrete implementation path or an explicit, justified staged fallback; do not silently erase it because an older plan said “JSON only.”
 
-Preserve the transcript's precision. It is a cleaned, nonverbatim record with uncertain speaker attribution. It establishes a **building model**, not an unambiguous 3D mandate. Part movement is an optional, inexpensive visual enhancement; it is not evidence of real tracking. “Optimal” and “perfect import” express desired outcomes, not proven implementations. The current instruction elevates the journey; it does not make every interpretation in a later review an exact quote from Hagen.
+Preserve the limits of the retained requirements. They establish a **building model**, not an unambiguous 3D mandate. Part movement is an optional, inexpensive visual enhancement; it is not evidence of real tracking. “Optimal” and “perfect import” express desired outcomes, not proven implementations. The current instruction elevates the journey; it does not make every interpretation in a later review an exact quote from Hagen.
 
 Separate the worker's desktop navigation/planning experience from facility administration. Both may live in one app, but a desktop user is not automatically an admin. If using both handoff QR codes and physical position markers, define them as different concepts. If choosing visual localization, explain registration into the floorplan frame and confidence handling. A matched photograph or a decoded QR is not, by itself, a calibrated camera pose.
 
