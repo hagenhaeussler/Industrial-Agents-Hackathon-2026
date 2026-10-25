@@ -1,0 +1,5448 @@
+{
+  "building": {
+    "id": "ifc-digitalhub",
+    "name": "DigitalHub",
+    "source": "ifc_experimental",
+    "units": "m",
+    "license": "MIT",
+    "attribution": "RWTH Aachen University - E3D Institute of Energy Efficiency and Sustainable Building",
+    "source_ref": {
+      "id": "digitalhub",
+      "repository": "RWTH-E3D/DigitalHub",
+      "commit": "36565d529b4dadeca625de2b793d7e16700171e9",
+      "path": "Version_2/DigitalHub_FM-ARC_v2.ifc",
+      "license": "MIT",
+      "attribution": "RWTH Aachen University - E3D Institute of Energy Efficiency and Sustainable Building",
+      "notes": [
+        "LICENSE",
+        "README.md"
+      ],
+      "url": "https://raw.githubusercontent.com/RWTH-E3D/DigitalHub/36565d529b4dadeca625de2b793d7e16700171e9/Version_2/DigitalHub_FM-ARC_v2.ifc",
+      "bytes": 9022255,
+      "sha256": "19d7d02d53c2b88e86890ee236297b12bbb0f7748030cd32ff6a22762e9966bb",
+      "modified": false,
+      "derived_outputs": "Conversion results are separate, explicitly modified derivatives."
+    },
+    "import_requires_confirmation": true,
+    "coordinate_transform": {
+      "input": "IFC engineering world SI metres",
+      "output": "common model XY origin in metres",
+      "origin_world_xy_m": [
+        7.12499999999999,
+        7.12499999999968
+      ],
+      "translation_applied_xy_m": [
+        -7.12499999999999,
+        -7.12499999999968
+      ],
+      "same_transform_for_all_floors": true,
+      "elevations_preserved_in_source_world_frame": true,
+      "geographic_reprojection": false
+    },
+    "derived_changes": "World-SI XY projection; common translation; topology candidates; heuristic room types; unknown accessibility"
+  },
+  "floors": [
+    {
+      "id": "ifc-digitalhub-storey-157",
+      "name": "B01_OKRD",
+      "level": -1,
+      "elevation_m": -3.37,
+      "height_m": 3,
+      "level_source": "integer parsed from explicit BNN_OKRD/ENN_OKRD source label",
+      "level_requires_confirmation": false,
+      "height_source": "median positive vertical extent of accepted source-space triangulations",
+      "height_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 157,
+        "guid": "1OVsTAdVr0zxMeLRn9FNo$",
+        "ifc_type": "IfcBuildingStorey",
+        "name": "B01_OKRD",
+        "long_name": "B01_OKRD"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-storey-163",
+      "name": "E00_OKRD",
+      "level": 0,
+      "elevation_m": -0.15,
+      "height_m": 3.5,
+      "level_source": "integer parsed from explicit BNN_OKRD/ENN_OKRD source label",
+      "level_requires_confirmation": false,
+      "height_source": "median positive vertical extent of accepted source-space triangulations",
+      "height_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 163,
+        "guid": "1OVsTAdVr0zxMeLRn9FNzI",
+        "ifc_type": "IfcBuildingStorey",
+        "name": "E00_OKRD",
+        "long_name": "E00_OKRD"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-storey-169",
+      "name": "E01_OKRD",
+      "level": 1,
+      "elevation_m": 3.75,
+      "height_m": 3.5000000000000004,
+      "level_source": "integer parsed from explicit BNN_OKRD/ENN_OKRD source label",
+      "level_requires_confirmation": false,
+      "height_source": "median positive vertical extent of accepted source-space triangulations",
+      "height_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 169,
+        "guid": "1OVsTAdVr0zxMeLRn9FNmI",
+        "ifc_type": "IfcBuildingStorey",
+        "name": "E01_OKRD",
+        "long_name": "E01_OKRD"
+      }
+    }
+  ],
+  "spaces": [
+    {
+      "id": "ifc-digitalhub-space-680",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Treppenhaus West - EG",
+      "ref": "1-19",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          7.00000056531876,
+          6.999999863348709
+        ],
+        [
+          7.00000056531876,
+          12.350000049506008
+        ],
+        [
+          13.749999018077563,
+          12.350000049506008
+        ],
+        [
+          13.749999018077563,
+          11.174999677191508
+        ],
+        [
+          9.799999423961363,
+          11.174999677191508
+        ],
+        [
+          9.799999423961363,
+          6.999999863348709
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 680,
+        "guid": "3DCde23Rb8uBrhrJgjcLQr",
+        "ifc_type": "IfcSpace",
+        "name": "1-19",
+        "long_name": "Treppenhaus West - EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-829",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Schacht West 1",
+      "ref": "301",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          12.200000000000063,
+          8.4000000000002
+        ],
+        [
+          12.200000000000067,
+          10.975000000000211
+        ],
+        [
+          13.750000000000057,
+          10.975000000000218
+        ],
+        [
+          13.750000000000053,
+          8.4000000000002
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 829,
+        "guid": "3DCde23Rb8uBrhrJgjcLQo",
+        "ifc_type": "IfcSpace",
+        "name": "301",
+        "long_name": "Schacht West 1",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-951",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Schacht West 2",
+      "ref": "302",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          10.000000000000071,
+          8.200000000000195
+        ],
+        [
+          13.75000000000006,
+          8.20000000000021
+        ],
+        [
+          13.75000000000006,
+          7.00000000000022
+        ],
+        [
+          10.000000000000071,
+          7.000000000000213
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 951,
+        "guid": "3DCde23Rb8uBrhrJgjcLQm",
+        "ifc_type": "IfcSpace",
+        "name": "302",
+        "long_name": "Schacht West 2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1068",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Fluchtflur West",
+      "ref": "1-20",
+      "type": "hall",
+      "room_type": "corridor",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          5.950795411990839e-14,
+          12.350000000000197
+        ],
+        [
+          6.7500000000000595,
+          12.3500000000002
+        ],
+        [
+          6.7500000000000595,
+          11.175000000000228
+        ],
+        [
+          5.950795411990839e-14,
+          11.17500000000021
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1068,
+        "guid": "3DCde23Rb8uBrhrJgjcLQn",
+        "ifc_type": "IfcSpace",
+        "name": "1-20",
+        "long_name": "Fluchtflur West",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1297",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Treppenhaus Ost - EG",
+      "ref": "1-17",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          52.950001642589356,
+          11.174999677191508
+        ],
+        [
+          49.00000088575336,
+          11.174999677191508
+        ],
+        [
+          49.00000088575336,
+          12.350000049506008
+        ],
+        [
+          55.749998175792456,
+          12.350000049506008
+        ],
+        [
+          55.749998175792456,
+          6.999999863348709
+        ],
+        [
+          52.950001642589356,
+          6.999999863348709
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1297,
+        "guid": "3DCde23Rb8uBrhrJgjcLQE",
+        "ifc_type": "IfcSpace",
+        "name": "1-17",
+        "long_name": "Treppenhaus Ost - EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1412",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Schacht Ost 2",
+      "ref": "402",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          52.750000000000064,
+          8.200000000000195
+        ],
+        [
+          52.750000000000064,
+          7.000000000000213
+        ],
+        [
+          49.000000000000064,
+          7.00000000000022
+        ],
+        [
+          49.000000000000064,
+          8.20000000000021
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1412,
+        "guid": "3DCde23Rb8uBrhrJgjcLQF",
+        "ifc_type": "IfcSpace",
+        "name": "402",
+        "long_name": "Schacht Ost 2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1531",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Aufzug Ost",
+      "ref": "400",
+      "type": "lift",
+      "room_type": "lift",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          52.75000000000006,
+          10.975000000000144
+        ],
+        [
+          52.750000000000064,
+          8.40000000000013
+        ],
+        [
+          50.750000000000064,
+          8.40000000000013
+        ],
+        [
+          50.750000000000064,
+          10.97500000000015
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1531,
+        "guid": "3DCde23Rb8uBrhrJgjcLQC",
+        "ifc_type": "IfcSpace",
+        "name": "400",
+        "long_name": "Aufzug Ost",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1649",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Schacht Ost 1",
+      "ref": "401",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          50.55000000000006,
+          8.4000000000002
+        ],
+        [
+          49.000000000000064,
+          8.4000000000002
+        ],
+        [
+          49.000000000000064,
+          10.975000000000218
+        ],
+        [
+          50.550000000000054,
+          10.975000000000218
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1649,
+        "guid": "3DCde23Rb8uBrhrJgjcLQD",
+        "ifc_type": "IfcSpace",
+        "name": "401",
+        "long_name": "Schacht Ost 1",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1766",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Fluchtflur Ost",
+      "ref": "1-18",
+      "type": "hall",
+      "room_type": "corridor",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          62.75000000000005,
+          11.175000000000207
+        ],
+        [
+          56.00000000000005,
+          11.175000000000235
+        ],
+        [
+          56.00000000000005,
+          12.350000000000207
+        ],
+        [
+          62.75000000000005,
+          12.350000000000193
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1766,
+        "guid": "3DCde23Rb8uBrhrJgjcLQA",
+        "ifc_type": "IfcSpace",
+        "name": "1-18",
+        "long_name": "Fluchtflur Ost",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-1883",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Gruppenbüro 1",
+      "ref": "1-4",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          6.80000000000005,
+          13.922500000000262
+        ],
+        [
+          5.950795411990839e-14,
+          13.92250000000027
+        ],
+        [
+          5.950795411990839e-14,
+          19.34999999999997
+        ],
+        [
+          6.80000000000005,
+          19.34999999999996
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 1883,
+        "guid": "3DCde23Rb8uBrhrJgjcLQB",
+        "ifc_type": "IfcSpace",
+        "name": "1-4",
+        "long_name": "Gruppenbüro 1",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2000",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Gruppenbüro 2",
+      "ref": "1-5",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          6.950000000000062,
+          19.34999999999996
+        ],
+        [
+          13.800000000000054,
+          19.34999999999996
+        ],
+        [
+          13.800000000000065,
+          13.922500000000262
+        ],
+        [
+          6.950000000000073,
+          13.922500000000262
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2000,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ8",
+        "ifc_type": "IfcSpace",
+        "name": "1-5",
+        "long_name": "Gruppenbüro 2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2117",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Gruppenbüro 3",
+      "ref": "1-6",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          13.949999999999974,
+          19.34999999999996
+        ],
+        [
+          20.799999999999944,
+          19.34999999999996
+        ],
+        [
+          20.799999999999955,
+          13.922500000000262
+        ],
+        [
+          13.949999999999985,
+          13.922500000000262
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2117,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ9",
+        "ifc_type": "IfcSpace",
+        "name": "1-6",
+        "long_name": "Gruppenbüro 3",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2234",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Open Workspace EG",
+      "ref": "1-7",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          41.79999999999996,
+          13.922500000000156
+        ],
+        [
+          20.94999999999996,
+          13.922500000000156
+        ],
+        [
+          20.94999999999996,
+          19.34999999999986
+        ],
+        [
+          41.79999999999996,
+          19.34999999999986
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2234,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ6",
+        "ifc_type": "IfcSpace",
+        "name": "1-7",
+        "long_name": "Open Workspace EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2351",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Gruppenbüro 4",
+      "ref": "1-8",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          41.94999999999997,
+          19.34999999999986
+        ],
+        [
+          48.79999999999994,
+          19.34999999999986
+        ],
+        [
+          48.79999999999995,
+          13.922500000000156
+        ],
+        [
+          41.94999999999999,
+          13.922500000000156
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2351,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ7",
+        "ifc_type": "IfcSpace",
+        "name": "1-8",
+        "long_name": "Gruppenbüro 4",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2468",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Gruppenbüro 6",
+      "ref": "1-10",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          62.75000000000008,
+          13.922500000000056
+        ],
+        [
+          55.95000000000004,
+          13.922500000000056
+        ],
+        [
+          55.95000000000004,
+          19.34999999999976
+        ],
+        [
+          62.75000000000008,
+          19.34999999999976
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2468,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ4",
+        "ifc_type": "IfcSpace",
+        "name": "1-10",
+        "long_name": "Gruppenbüro 6",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2585",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Gruppenbüro 5",
+      "ref": "1-9",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          48.949999999999946,
+          19.34999999999976
+        ],
+        [
+          55.799999999999955,
+          19.34999999999976
+        ],
+        [
+          55.79999999999997,
+          13.922500000000056
+        ],
+        [
+          48.94999999999996,
+          13.922500000000056
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2585,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ5",
+        "ifc_type": "IfcSpace",
+        "name": "1-9",
+        "long_name": "Gruppenbüro 5",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2705",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "VR/AR LAB",
+      "ref": "1-11",
+      "type": "room",
+      "room_type": "lab",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          55.99999999999998,
+          1.4921397450962104e-13
+        ],
+        [
+          56.00000000000004,
+          10.9750000000002
+        ],
+        [
+          62.75000000000008,
+          10.975000000000158
+        ],
+        [
+          62.74999999999998,
+          8.970602038971265e-14
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2705,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ2",
+        "ifc_type": "IfcSpace",
+        "name": "1-11",
+        "long_name": "VR/AR LAB",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2822",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Veranstaltungsraum",
+      "ref": "1-12",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          41.950000000000024,
+          1.794120407794253e-13
+        ],
+        [
+          41.95000000000003,
+          5.5025000000001185
+        ],
+        [
+          55.850000000000094,
+          5.502500000000079
+        ],
+        [
+          55.85000000000008,
+          1.794120407794253e-13
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2822,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ3",
+        "ifc_type": "IfcSpace",
+        "name": "1-12",
+        "long_name": "Veranstaltungsraum",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-2940",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Cafeteria",
+      "ref": "1-2",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          8.260059303211165e-14,
+          1.580957587066223e-13
+        ],
+        [
+          8.260059303211165e-14,
+          5.502500000000239
+        ],
+        [
+          20.800000000000065,
+          5.502500000000209
+        ],
+        [
+          20.800000000000065,
+          1.9895196601282805e-13
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 2940,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ0",
+        "ifc_type": "IfcSpace",
+        "name": "1-2",
+        "long_name": "Cafeteria",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-3059",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Küche",
+      "ref": "1-3",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          6.750000000000049,
+          10.975000000000279
+        ],
+        [
+          6.7500000000000595,
+          5.652500000000288
+        ],
+        [
+          7.993605777301127e-14,
+          5.652500000000268
+        ],
+        [
+          5.950795411990839e-14,
+          10.97500000000025
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 3059,
+        "guid": "3DCde23Rb8uBrhrJgjcLQ1",
+        "ifc_type": "IfcSpace",
+        "name": "1-3",
+        "long_name": "Küche",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-3782",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "WC Damen West - EG",
+      "ref": "1-15",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          14.000000000000014,
+          9.75000000000015
+        ],
+        [
+          14.000000000000014,
+          10.60000000000015
+        ],
+        [
+          15.802499999999988,
+          10.600000000000165
+        ],
+        [
+          15.802499999999988,
+          10.675000000000164
+        ],
+        [
+          14.000000000000014,
+          10.67500000000015
+        ],
+        [
+          14.000000000000004,
+          11.525000000000148
+        ],
+        [
+          15.802499999999984,
+          11.525000000000162
+        ],
+        [
+          15.802499999999984,
+          11.600000000000161
+        ],
+        [
+          14.000000000000004,
+          11.600000000000147
+        ],
+        [
+          14.000000000000004,
+          12.450000000000149
+        ],
+        [
+          19.425000000000004,
+          12.450000000000188
+        ],
+        [
+          19.425000000000022,
+          9.750000000000188
+        ],
+        [
+          17.625000000000032,
+          9.750000000000178
+        ],
+        [
+          17.625000000000014,
+          11.450000000000173
+        ],
+        [
+          17.525000000000013,
+          11.450000000000173
+        ],
+        [
+          17.525000000000023,
+          9.750000000000174
+        ],
+        [
+          15.839999999999996,
+          9.750000000000163
+        ],
+        [
+          15.839999999999996,
+          9.825000000000163
+        ],
+        [
+          15.764999999999997,
+          9.825000000000163
+        ],
+        [
+          15.764999999999997,
+          9.75000000000016
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 3782,
+        "guid": "3DCde23Rb8uBrhrJgjcLQV",
+        "ifc_type": "IfcSpace",
+        "name": "1-15",
+        "long_name": "WC Damen West - EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-3910",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "WC Herren West - EG",
+      "ref": "1-16",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          14.000000000000036,
+          6.90000000000013
+        ],
+        [
+          14.000000000000036,
+          9.350000000000136
+        ],
+        [
+          15.000000000000014,
+          9.35000000000014
+        ],
+        [
+          15.000000000000025,
+          7.6750000000001375
+        ],
+        [
+          15.075000000000024,
+          7.6750000000001375
+        ],
+        [
+          15.075000000000014,
+          9.35000000000014
+        ],
+        [
+          17.525000000000045,
+          9.350000000000147
+        ],
+        [
+          17.525000000000045,
+          7.900000000000144
+        ],
+        [
+          17.625000000000053,
+          7.900000000000144
+        ],
+        [
+          17.625000000000046,
+          9.35000000000015
+        ],
+        [
+          19.425000000000043,
+          9.350000000000154
+        ],
+        [
+          19.425000000000054,
+          6.90000000000015
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 3910,
+        "guid": "3DCde23Rb8uBrhrJgjcLQS",
+        "ifc_type": "IfcSpace",
+        "name": "1-16",
+        "long_name": "WC Herren West - EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4038",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "WC Herren Ost - EG",
+      "ref": "14",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          43.34999999999996,
+          6.90000000000018
+        ],
+        [
+          43.34999999999997,
+          9.350000000000176
+        ],
+        [
+          45.149999999999984,
+          9.350000000000158
+        ],
+        [
+          45.14999999999997,
+          7.90000000000016
+        ],
+        [
+          45.249999999999964,
+          7.9000000000001585
+        ],
+        [
+          45.24999999999997,
+          9.350000000000158
+        ],
+        [
+          47.67500000000004,
+          9.350000000000136
+        ],
+        [
+          47.67500000000003,
+          7.675000000000136
+        ],
+        [
+          47.750000000000036,
+          7.675000000000136
+        ],
+        [
+          47.75000000000004,
+          9.350000000000136
+        ],
+        [
+          48.75000000000002,
+          9.350000000000126
+        ],
+        [
+          48.75000000000002,
+          6.90000000000013
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4038,
+        "guid": "3DCde23Rb8uBrhrJgjcLQT",
+        "ifc_type": "IfcSpace",
+        "name": "14",
+        "long_name": "WC Herren Ost - EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4173",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "WC Damen Ost - EG",
+      "ref": "13",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          45.150000000000006,
+          11.450000000000184
+        ],
+        [
+          45.14999999999999,
+          9.750000000000178
+        ],
+        [
+          43.349999999999966,
+          9.750000000000203
+        ],
+        [
+          43.35000000000001,
+          12.450000000000209
+        ],
+        [
+          48.75000000000003,
+          12.450000000000138
+        ],
+        [
+          48.75000000000003,
+          11.60000000000014
+        ],
+        [
+          46.94750000000007,
+          11.600000000000158
+        ],
+        [
+          46.94750000000006,
+          11.525000000000158
+        ],
+        [
+          48.75000000000003,
+          11.52500000000014
+        ],
+        [
+          48.75000000000002,
+          10.675000000000136
+        ],
+        [
+          46.94750000000005,
+          10.675000000000157
+        ],
+        [
+          46.94750000000005,
+          10.600000000000158
+        ],
+        [
+          48.75000000000002,
+          10.600000000000133
+        ],
+        [
+          48.75000000000002,
+          9.750000000000131
+        ],
+        [
+          46.98500000000004,
+          9.750000000000156
+        ],
+        [
+          46.98500000000004,
+          9.825000000000156
+        ],
+        [
+          46.91000000000004,
+          9.825000000000156
+        ],
+        [
+          46.91000000000004,
+          9.750000000000156
+        ],
+        [
+          45.24999999999998,
+          9.750000000000178
+        ],
+        [
+          45.25,
+          11.450000000000184
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4173,
+        "guid": "3DCde23Rb8uBrhrJgjcLQQ",
+        "ifc_type": "IfcSpace",
+        "name": "13",
+        "long_name": "WC Damen Ost - EG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4366",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Treppenhaus West - UG",
+      "ref": "0-12",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          7.0000000000000595,
+          7.000000000000309
+        ],
+        [
+          7.0000000000000595,
+          12.37500000000021
+        ],
+        [
+          13.750000000000064,
+          12.37500000000021
+        ],
+        [
+          13.750000000000064,
+          11.17500000000021
+        ],
+        [
+          9.800000000000065,
+          11.17500000000021
+        ],
+        [
+          9.800000000000065,
+          7.00000000000021
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4366,
+        "guid": "1aFRCtje92oh3_jKdNxTMP",
+        "ifc_type": "IfcSpace",
+        "name": "0-12",
+        "long_name": "Treppenhaus West - UG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4490",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "RLT-Raum",
+      "ref": "0-10",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          12.20000000000006,
+          8.200000000000298
+        ],
+        [
+          12.20000000000006,
+          10.975000000000318
+        ],
+        [
+          14.00000000000006,
+          10.975000000000296
+        ],
+        [
+          14.00000000000016,
+          12.375000000000316
+        ],
+        [
+          48.75000000000006,
+          12.375000000000068
+        ],
+        [
+          48.75000000000006,
+          10.975000000000048
+        ],
+        [
+          50.55000000000006,
+          10.975000000000037
+        ],
+        [
+          50.55000000000006,
+          8.200000000000017
+        ],
+        [
+          52.75000000000006,
+          8.200000000000008
+        ],
+        [
+          52.75000000000006,
+          6.999999999999968
+        ],
+        [
+          10.00000000000006,
+          7.000000000000409
+        ],
+        [
+          10.00000000000006,
+          8.200000000000317
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4490,
+        "guid": "1aFRCtje92oh3_jKdNxTMQ",
+        "ifc_type": "IfcSpace",
+        "name": "0-10",
+        "long_name": "RLT-Raum",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4679",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Treppenhaus Ost - UG",
+      "ref": "0-11",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          52.95000000000006,
+          11.17500000000021
+        ],
+        [
+          49.00000000000006,
+          11.17500000000021
+        ],
+        [
+          49.00000000000006,
+          12.37500000000021
+        ],
+        [
+          55.75000000000006,
+          12.37500000000021
+        ],
+        [
+          55.75000000000006,
+          7.000000000000108
+        ],
+        [
+          52.95000000000006,
+          7.000000000000108
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4679,
+        "guid": "1aFRCtje92oh3_jKdNxTMR",
+        "ifc_type": "IfcSpace",
+        "name": "0-11",
+        "long_name": "Treppenhaus Ost - UG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4794",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Hausanschluss",
+      "ref": "0-3",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          13.750000000000075,
+          19.30000000000025
+        ],
+        [
+          13.749999999999943,
+          15.375000000000181
+        ],
+        [
+          7.000000000000084,
+          15.375000000000181
+        ],
+        [
+          7.000000000000074,
+          19.30000000000025
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4794,
+        "guid": "1aFRCtje92oh3_jKdNxTMS",
+        "ifc_type": "IfcSpace",
+        "name": "0-3",
+        "long_name": "Hausanschluss",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-4909",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Wasser-/Gasverteilung",
+      "ref": "0-4",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          13.999999999999964,
+          15.375000000000068
+        ],
+        [
+          13.999999999999964,
+          19.30000000000013
+        ],
+        [
+          20.749999999999964,
+          19.30000000000035
+        ],
+        [
+          20.749999999999964,
+          15.375000000000288
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 4909,
+        "guid": "1aFRCtje92oh3_jKdNxTMT",
+        "ifc_type": "IfcSpace",
+        "name": "0-4",
+        "long_name": "Wasser-/Gasverteilung",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5024",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Heizzentrale",
+      "ref": "0-5",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          20.99999999999996,
+          15.374999999999947
+        ],
+        [
+          20.99999999999996,
+          19.300000000000008
+        ],
+        [
+          34.74999999999996,
+          19.30000000000047
+        ],
+        [
+          34.74999999999996,
+          15.375000000000398
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5024,
+        "guid": "1aFRCtje92oh3_jKdNxTMU",
+        "ifc_type": "IfcSpace",
+        "name": "0-5",
+        "long_name": "Heizzentrale",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5139",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "NSHV",
+      "ref": "0-6",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          34.99999999999996,
+          15.374999999999968
+        ],
+        [
+          34.99999999999996,
+          19.30000000000003
+        ],
+        [
+          41.74999999999996,
+          19.30000000000025
+        ],
+        [
+          41.74999999999996,
+          15.375000000000188
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5139,
+        "guid": "1aFRCtje92oh3_jKdNxTMV",
+        "ifc_type": "IfcSpace",
+        "name": "0-6",
+        "long_name": "NSHV",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5255",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Lager2",
+      "ref": "0-8",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          55.750000000000014,
+          19.30000000000025
+        ],
+        [
+          55.75000000000015,
+          15.375000000000199
+        ],
+        [
+          49.00000000000001,
+          15.374999999999979
+        ],
+        [
+          49.00000000000001,
+          19.30000000000004
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5255,
+        "guid": "1aFRCtje92oh3_jKdNxTM0",
+        "ifc_type": "IfcSpace",
+        "name": "0-8",
+        "long_name": "Lager2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5370",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Lager 1",
+      "ref": "0-7",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          41.99999999999995,
+          15.374999999999968
+        ],
+        [
+          41.99999999999995,
+          19.30000000000003
+        ],
+        [
+          48.74999999999996,
+          19.30000000000025
+        ],
+        [
+          48.74999999999996,
+          15.375000000000188
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5370,
+        "guid": "1aFRCtje92oh3_jKdNxTM1",
+        "ifc_type": "IfcSpace",
+        "name": "0-7",
+        "long_name": "Lager 1",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5485",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Putzmittel",
+      "ref": "0-2",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          7.000000000000024,
+          12.575000000000191
+        ],
+        [
+          7.000000000000035,
+          15.175000000000228
+        ],
+        [
+          10.975000000000104,
+          15.175000000000221
+        ],
+        [
+          10.975000000000083,
+          12.575000000000191
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5485,
+        "guid": "1aFRCtje92oh3_jKdNxTM2",
+        "ifc_type": "IfcSpace",
+        "name": "0-2",
+        "long_name": "Putzmittel",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5607",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "Flur - UG",
+      "ref": "0-1",
+      "type": "hall",
+      "room_type": "corridor",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          51.57499999999995,
+          12.575000000000038
+        ],
+        [
+          11.175000000000061,
+          12.575000000000308
+        ],
+        [
+          11.175000000000061,
+          15.175000000000335
+        ],
+        [
+          51.57499999999995,
+          15.174999999999947
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5607,
+        "guid": "1aFRCtje92oh3_jKdNxTM3",
+        "ifc_type": "IfcSpace",
+        "name": "0-1",
+        "long_name": "Flur - UG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5722",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "name": "BMZ",
+      "ref": "0-9",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          51.77500000000003,
+          15.175000000000061
+        ],
+        [
+          55.75000000000008,
+          15.175000000000061
+        ],
+        [
+          55.75000000000009,
+          12.57500000000016
+        ],
+        [
+          51.77500000000006,
+          12.575000000000149
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5722,
+        "guid": "1aFRCtje92oh3_jKdNxTM4",
+        "ifc_type": "IfcSpace",
+        "name": "0-9",
+        "long_name": "BMZ",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-5888",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Treppenhaus Ost - OG",
+      "ref": "2-26",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          49.00000000000006,
+          12.350000000000207
+        ],
+        [
+          55.75000000000006,
+          12.350000000000207
+        ],
+        [
+          55.75000000000006,
+          7.00000000000021
+        ],
+        [
+          52.95000000000006,
+          7.00000000000021
+        ],
+        [
+          52.95000000000006,
+          11.17500000000021
+        ],
+        [
+          49.00000000000006,
+          11.175000000000107
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 5888,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjo",
+        "ifc_type": "IfcSpace",
+        "name": "2-26",
+        "long_name": "Treppenhaus Ost - OG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6026",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "WC Herren Ost - OG",
+      "ref": "2-24",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          46.91000000000009,
+          8.350000000000087
+        ],
+        [
+          43.350000000000044,
+          8.350000000000087
+        ],
+        [
+          43.35000000000005,
+          10.200000000000092
+        ],
+        [
+          45.15000000000004,
+          10.200000000000088
+        ],
+        [
+          45.15000000000005,
+          9.35000000000009
+        ],
+        [
+          45.25000000000004,
+          9.35000000000009
+        ],
+        [
+          45.25000000000004,
+          10.200000000000088
+        ],
+        [
+          46.91000000000009,
+          10.200000000000088
+        ],
+        [
+          46.91000000000009,
+          10.106250000000092
+        ],
+        [
+          46.985000000000085,
+          10.106250000000092
+        ],
+        [
+          46.985000000000085,
+          10.200000000000088
+        ],
+        [
+          48.46750000000006,
+          10.200000000000088
+        ],
+        [
+          48.46750000000006,
+          10.400000000000087
+        ],
+        [
+          48.75000000000007,
+          10.400000000000087
+        ],
+        [
+          48.75000000000008,
+          9.312500000000089
+        ],
+        [
+          46.94750000000009,
+          9.312500000000089
+        ],
+        [
+          46.94750000000009,
+          9.23750000000009
+        ],
+        [
+          48.75000000000008,
+          9.23750000000009
+        ],
+        [
+          48.75000000000009,
+          8.350000000000087
+        ],
+        [
+          46.98500000000009,
+          8.350000000000087
+        ],
+        [
+          46.98500000000009,
+          8.443750000000087
+        ],
+        [
+          46.91000000000009,
+          8.443750000000087
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6026,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjk",
+        "ifc_type": "IfcSpace",
+        "name": "2-24",
+        "long_name": "WC Herren Ost - OG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6160",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "WC Damen Ost - OG",
+      "ref": "2-23",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          45.249999999999964,
+          10.600000000000144
+        ],
+        [
+          45.249999999999964,
+          11.450000000000216
+        ],
+        [
+          45.14999999999997,
+          11.450000000000216
+        ],
+        [
+          45.14999999999997,
+          10.600000000000144
+        ],
+        [
+          43.34999999999998,
+          10.60000000000015
+        ],
+        [
+          43.34999999999998,
+          12.45000000000022
+        ],
+        [
+          46.91000000000002,
+          12.450000000000209
+        ],
+        [
+          46.91000000000002,
+          12.356250000000209
+        ],
+        [
+          46.98500000000002,
+          12.356250000000209
+        ],
+        [
+          46.98500000000002,
+          12.450000000000209
+        ],
+        [
+          48.749999999999986,
+          12.450000000000202
+        ],
+        [
+          48.75,
+          11.562500000000135
+        ],
+        [
+          46.94750000000002,
+          11.562500000000139
+        ],
+        [
+          46.94750000000002,
+          11.48750000000014
+        ],
+        [
+          48.75,
+          11.487500000000136
+        ],
+        [
+          48.75,
+          10.400000000000134
+        ],
+        [
+          48.467499999999994,
+          10.400000000000134
+        ],
+        [
+          48.467499999999994,
+          10.600000000000133
+        ],
+        [
+          46.98500000000002,
+          10.60000000000014
+        ],
+        [
+          46.98500000000002,
+          10.69375000000014
+        ],
+        [
+          46.91000000000002,
+          10.69375000000014
+        ],
+        [
+          46.91000000000002,
+          10.60000000000014
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6160,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjj",
+        "ifc_type": "IfcSpace",
+        "name": "2-23",
+        "long_name": "WC Damen Ost - OG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6275",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Konferenzraum 2",
+      "ref": "2-2",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          5.400000000000101,
+          9.600000000000218
+        ],
+        [
+          5.40000000000011,
+          5.652500000000199
+        ],
+        [
+          0,
+          5.652500000000199
+        ],
+        [
+          0,
+          9.600000000000218
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6275,
+        "guid": "3DbdJyICv8GP1HEYzu7Wji",
+        "ifc_type": "IfcSpace",
+        "name": "2-2",
+        "long_name": "Konferenzraum 2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6391",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 16",
+      "ref": "2-20",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          6.800000000000051,
+          5.502500000000209
+        ],
+        [
+          6.800000000000051,
+          1.9895196601282805e-13
+        ],
+        [
+          3.108624468950438e-14,
+          2.0872192862952943e-13
+        ],
+        [
+          3.108624468950438e-14,
+          5.502500000000218
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6391,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjh",
+        "ifc_type": "IfcSpace",
+        "name": "2-20",
+        "long_name": "Gruppenbüro 16",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6506",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 15",
+      "ref": "2-19",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          6.949999999999963,
+          1.7763568394002505e-13
+        ],
+        [
+          6.949999999999963,
+          5.502500000000188
+        ],
+        [
+          13.799999999999976,
+          5.502500000000179
+        ],
+        [
+          13.799999999999976,
+          1.687538997430238e-13
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6506,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjg",
+        "ifc_type": "IfcSpace",
+        "name": "2-19",
+        "long_name": "Gruppenbüro 15",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6621",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 14",
+      "ref": "2-18",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          13.949999999999996,
+          1.580957587066223e-13
+        ],
+        [
+          13.949999999999996,
+          5.502500000000168
+        ],
+        [
+          20.799999999999933,
+          5.502500000000159
+        ],
+        [
+          20.799999999999933,
+          1.4921397450962104e-13
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6621,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjf",
+        "ifc_type": "IfcSpace",
+        "name": "2-18",
+        "long_name": "Gruppenbüro 14",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6736",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Seminarraum Groß - teilbar",
+      "ref": "2-17",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          20.949999999999942,
+          1.2967404927621828e-13
+        ],
+        [
+          20.949999999999942,
+          5.50250000000014
+        ],
+        [
+          34.79999999999999,
+          5.50250000000012
+        ],
+        [
+          34.79999999999999,
+          9.947598300641403e-14
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6736,
+        "guid": "3DbdJyICv8GP1HEYzu7Wje",
+        "ifc_type": "IfcSpace",
+        "name": "2-17",
+        "long_name": "Seminarraum Groß - teilbar",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6851",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Seminarraum",
+      "ref": "2-16",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          34.950000000000045,
+          8.881784197001252e-14
+        ],
+        [
+          34.950000000000045,
+          5.502500000000099
+        ],
+        [
+          41.800000000000054,
+          5.50250000000009
+        ],
+        [
+          41.800000000000054,
+          7.993605777301127e-14
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6851,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjd",
+        "ifc_type": "IfcSpace",
+        "name": "2-16",
+        "long_name": "Seminarraum",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-6967",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 12",
+      "ref": "2-13",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          62.75000000000009,
+          5.50250000000001
+        ],
+        [
+          62.75000000000009,
+          0
+        ],
+        [
+          55.93875000000008,
+          9.769962616701378e-15
+        ],
+        [
+          55.93875000000008,
+          5.502500000000019
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 6967,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjc",
+        "ifc_type": "IfcSpace",
+        "name": "2-13",
+        "long_name": "Gruppenbüro 12",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7082",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 13",
+      "ref": "2-14",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          48.95000000000004,
+          4.796163466380676e-14
+        ],
+        [
+          48.95000000000004,
+          5.502500000000058
+        ],
+        [
+          55.788750000000064,
+          5.502500000000049
+        ],
+        [
+          55.788750000000064,
+          3.907985046680551e-14
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7082,
+        "guid": "3DbdJyICv8GP1HEYzu7Wjb",
+        "ifc_type": "IfcSpace",
+        "name": "2-14",
+        "long_name": "Gruppenbüro 13",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7198",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 11",
+      "ref": "2-10",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          55.950000000000074,
+          19.350000000000428
+        ],
+        [
+          62.75000000000011,
+          19.350000000000428
+        ],
+        [
+          62.75000000000011,
+          13.95000000000006
+        ],
+        [
+          55.95000000000008,
+          13.95000000000006
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7198,
+        "guid": "3DbdJyICv8GP1HEYzu7Wja",
+        "ifc_type": "IfcSpace",
+        "name": "2-10",
+        "long_name": "Gruppenbüro 11",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7313",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 10",
+      "ref": "2-9",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          55.80000000000007,
+          13.950000000000017
+        ],
+        [
+          48.950000000000045,
+          13.950000000000028
+        ],
+        [
+          48.950000000000045,
+          19.3500000000004
+        ],
+        [
+          55.80000000000007,
+          19.35000000000039
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7313,
+        "guid": "3DbdJyICv8GP1HEYzu7WjZ",
+        "ifc_type": "IfcSpace",
+        "name": "2-9",
+        "long_name": "Gruppenbüro 10",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7428",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 9",
+      "ref": "2-8",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          48.80000000000007,
+          13.950000000000117
+        ],
+        [
+          41.95000000000006,
+          13.950000000000138
+        ],
+        [
+          41.95000000000006,
+          19.3500000000005
+        ],
+        [
+          48.80000000000007,
+          19.350000000000488
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7428,
+        "guid": "3DbdJyICv8GP1HEYzu7WjY",
+        "ifc_type": "IfcSpace",
+        "name": "2-8",
+        "long_name": "Gruppenbüro 9",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7543",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Open Workspace 2",
+      "ref": "2-7",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          41.80000000000006,
+          13.95000000000011
+        ],
+        [
+          20.95000000000006,
+          13.950000000000138
+        ],
+        [
+          20.95000000000006,
+          19.350000000000506
+        ],
+        [
+          41.80000000000006,
+          19.350000000000477
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7543,
+        "guid": "3DbdJyICv8GP1HEYzu7WjX",
+        "ifc_type": "IfcSpace",
+        "name": "2-7",
+        "long_name": "Open Workspace 2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7658",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Konferenzraum 1",
+      "ref": "2-3",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          5.400000000000111,
+          13.800000000000217
+        ],
+        [
+          5.400000000000111,
+          9.750000000000199
+        ],
+        [
+          1.0658141036401503e-14,
+          9.750000000000199
+        ],
+        [
+          8.881784197001252e-16,
+          13.800000000000217
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7658,
+        "guid": "3DbdJyICv8GP1HEYzu7WjW",
+        "ifc_type": "IfcSpace",
+        "name": "2-3",
+        "long_name": "Konferenzraum 1",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7773",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 8",
+      "ref": "2-5",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          13.800000000000065,
+          13.95000000000022
+        ],
+        [
+          6.950000000000062,
+          13.95000000000023
+        ],
+        [
+          6.950000000000062,
+          19.350000000000602
+        ],
+        [
+          13.800000000000065,
+          19.35000000000059
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7773,
+        "guid": "3DbdJyICv8GP1HEYzu7WjV",
+        "ifc_type": "IfcSpace",
+        "name": "2-5",
+        "long_name": "Gruppenbüro 8",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-7889",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Gruppenbüro 7",
+      "ref": "2-4",
+      "type": "room",
+      "room_type": "office",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          6.800000000000051,
+          13.950000000000259
+        ],
+        [
+          4.085620730620576e-14,
+          13.95000000000027
+        ],
+        [
+          4.085620730620576e-14,
+          19.350000000000627
+        ],
+        [
+          6.800000000000051,
+          19.35000000000062
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 7889,
+        "guid": "3DbdJyICv8GP1HEYzu7WjU",
+        "ifc_type": "IfcSpace",
+        "name": "2-4",
+        "long_name": "Gruppenbüro 7",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-8004",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Konferenzraum 4",
+      "ref": "2-12",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          57.34999999999986,
+          9.60000000000003
+        ],
+        [
+          62.75000000000002,
+          9.60000000000003
+        ],
+        [
+          62.750000000000036,
+          5.6525
+        ],
+        [
+          57.34999999999987,
+          5.6525
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 8004,
+        "guid": "3DbdJyICv8GP1HEYzu7WjT",
+        "ifc_type": "IfcSpace",
+        "name": "2-12",
+        "long_name": "Konferenzraum 4",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-8119",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Konferenzraum 3",
+      "ref": "2-11",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          57.34999999999986,
+          13.800000000000107
+        ],
+        [
+          62.75000000000002,
+          13.800000000000107
+        ],
+        [
+          62.750000000000036,
+          9.75000000000011
+        ],
+        [
+          57.34999999999987,
+          9.75000000000011
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 8119,
+        "guid": "3DbdJyICv8GP1HEYzu7WjS",
+        "ifc_type": "IfcSpace",
+        "name": "2-11",
+        "long_name": "Konferenzraum 3",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-8234",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Offene Lounge 1",
+      "ref": "2-6",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          20.800000000000065,
+          13.800000000000217
+        ],
+        [
+          13.950000000000063,
+          13.800000000000228
+        ],
+        [
+          13.950000000000063,
+          19.3500000000006
+        ],
+        [
+          20.800000000000065,
+          19.350000000000577
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 8234,
+        "guid": "3DbdJyICv8GP1HEYzu7WjR",
+        "ifc_type": "IfcSpace",
+        "name": "2-6",
+        "long_name": "Offene Lounge 1",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-9029",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Offene Lounge 2",
+      "ref": "2-15",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          41.95000000000006,
+          6.927791673660977e-14
+        ],
+        [
+          41.95000000000006,
+          5.65250000000008
+        ],
+        [
+          48.800000000000054,
+          5.652500000000069
+        ],
+        [
+          48.800000000000054,
+          4.973799150320701e-14
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 9029,
+        "guid": "3DbdJyICv8GP1HEYzu7WjP",
+        "ifc_type": "IfcSpace",
+        "name": "2-15",
+        "long_name": "Offene Lounge 2",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-9194",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "Treppenhaus West - OG",
+      "ref": "2-25",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          7.0000000000000595,
+          7.00000000000021
+        ],
+        [
+          7.0000000000000595,
+          12.350000000000207
+        ],
+        [
+          13.750000000000064,
+          12.350000000000207
+        ],
+        [
+          13.750000000000064,
+          11.175000000000107
+        ],
+        [
+          9.800000000000065,
+          11.17500000000021
+        ],
+        [
+          9.800000000000065,
+          7.00000000000021
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 9194,
+        "guid": "3DbdJyICv8GP1HEYzu7WjO",
+        "ifc_type": "IfcSpace",
+        "name": "2-25",
+        "long_name": "Treppenhaus West - OG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-9332",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "WC Damen West - OG",
+      "ref": "2-21",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          15.802500000000006,
+          10.037500000000236
+        ],
+        [
+          15.802500000000006,
+          10.112500000000239
+        ],
+        [
+          14.000000000000036,
+          10.112500000000242
+        ],
+        [
+          14.000000000000036,
+          11.000000000000242
+        ],
+        [
+          15.765000000000008,
+          11.000000000000231
+        ],
+        [
+          15.765000000000008,
+          10.906250000000242
+        ],
+        [
+          15.840000000000007,
+          10.906250000000242
+        ],
+        [
+          15.840000000000007,
+          11.000000000000231
+        ],
+        [
+          19.400000000000084,
+          11.00000000000022
+        ],
+        [
+          19.400000000000073,
+          9.15000000000019
+        ],
+        [
+          17.600000000000083,
+          9.150000000000198
+        ],
+        [
+          17.600000000000083,
+          10.000000000000231
+        ],
+        [
+          17.500000000000085,
+          10.000000000000231
+        ],
+        [
+          17.500000000000085,
+          9.150000000000198
+        ],
+        [
+          15.840000000000007,
+          9.150000000000205
+        ],
+        [
+          15.840000000000007,
+          9.243750000000237
+        ],
+        [
+          15.765000000000008,
+          9.243750000000237
+        ],
+        [
+          15.765000000000008,
+          9.150000000000205
+        ],
+        [
+          14.282500000000013,
+          9.150000000000208
+        ],
+        [
+          14.282500000000013,
+          8.950000000000209
+        ],
+        [
+          14.000000000000025,
+          8.950000000000209
+        ],
+        [
+          14.000000000000036,
+          10.03750000000024
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 9332,
+        "guid": "3DbdJyICv8GP1HEYzu7WjK",
+        "ifc_type": "IfcSpace",
+        "name": "2-21",
+        "long_name": "WC Damen West - OG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-9466",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "name": "WC Herren West OG",
+      "ref": "2-22",
+      "type": "room",
+      "room_type": "generic_room",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          15.802499999999998,
+          7.787500000000195
+        ],
+        [
+          15.802499999999998,
+          7.862500000000194
+        ],
+        [
+          14.000000000000014,
+          7.862500000000193
+        ],
+        [
+          14.000000000000014,
+          8.950000000000191
+        ],
+        [
+          14.282500000000002,
+          8.950000000000191
+        ],
+        [
+          14.282500000000002,
+          8.750000000000192
+        ],
+        [
+          15.764999999999997,
+          8.750000000000192
+        ],
+        [
+          15.764999999999997,
+          8.656250000000192
+        ],
+        [
+          15.84,
+          8.656250000000192
+        ],
+        [
+          15.84,
+          8.750000000000192
+        ],
+        [
+          17.500000000000075,
+          8.750000000000194
+        ],
+        [
+          17.500000000000075,
+          7.99000000000019
+        ],
+        [
+          17.600000000000072,
+          7.990000000000192
+        ],
+        [
+          17.600000000000072,
+          8.750000000000194
+        ],
+        [
+          19.400000000000073,
+          8.750000000000194
+        ],
+        [
+          19.400000000000073,
+          6.900000000000199
+        ],
+        [
+          15.84,
+          6.900000000000189
+        ],
+        [
+          15.84,
+          6.993750000000199
+        ],
+        [
+          15.765,
+          6.993750000000199
+        ],
+        [
+          15.765,
+          6.900000000000189
+        ],
+        [
+          14.000000000000004,
+          6.900000000000189
+        ],
+        [
+          14.000000000000014,
+          7.7875000000001915
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 9466,
+        "guid": "3DbdJyICv8GP1HEYzu7WjJ",
+        "ifc_type": "IfcSpace",
+        "name": "2-22",
+        "long_name": "WC Herren West OG",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-space-9583",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "name": "Aufzug West",
+      "ref": "300",
+      "type": "lift",
+      "room_type": "lift",
+      "room_type_source": "heuristic from source labels; requires confirmation",
+      "polygon": [
+        [
+          10.000000000000064,
+          8.40000000000013
+        ],
+        [
+          10.000000000000071,
+          10.97500000000015
+        ],
+        [
+          12.000000000000075,
+          10.97500000000015
+        ],
+        [
+          12.00000000000006,
+          8.40000000000013
+        ]
+      ],
+      "ifc_source": {
+        "ifc_id": 9583,
+        "guid": "3DbdJyICv8GP1HEYzu7WlY",
+        "ifc_type": "IfcSpace",
+        "name": "300",
+        "long_name": "Aufzug West",
+        "interior_or_exterior_space": null,
+        "predefined_type": "SPACE",
+        "composition_type": "ELEMENT"
+      }
+    }
+  ],
+  "openings": [
+    {
+      "id": "ifc-digitalhub-door-29733",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-680",
+        "outside"
+      ],
+      "position": [
+        13.098784282743203,
+        12.556271041227731
+      ],
+      "width_m": 0.86,
+      "kind": "entrance",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": true,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 29733,
+        "guid": "0YVU7tDBX86u6UVVsSmdwk",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421088",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-32655",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-680",
+        "ifc-digitalhub-space-1068"
+      ],
+      "position": [
+        6.956271041227594,
+        11.723784282743335
+      ],
+      "width_m": 0.86,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 32655,
+        "guid": "0YVU7tDBX86u6UVVsSmdwl",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421089",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-36243",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-1068",
+        "outside"
+      ],
+      "position": [
+        -0.04372895877243632,
+        11.723784282743306
+      ],
+      "width_m": 0.86,
+      "kind": "entrance",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 36243,
+        "guid": "0YVU7tDBX86u6UVVsSmdsz",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2421363",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-45630",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-1297",
+        "outside"
+      ],
+      "position": [
+        49.65121571725689,
+        12.55627104122772
+      ],
+      "width_m": 0.86,
+      "kind": "entrance",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": true,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 45630,
+        "guid": "3LF03GdXv2GhSTK1xTZzXE",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423930",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-45749",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-1297",
+        "ifc-digitalhub-space-1766"
+      ],
+      "position": [
+        55.79372895877254,
+        11.723784282743363
+      ],
+      "width_m": 0.86,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 45749,
+        "guid": "3LF03GdXv2GhSTK1xTZzXF",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423931",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-49195",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-1766",
+        "outside"
+      ],
+      "position": [
+        62.79372895877254,
+        11.723784282743313
+      ],
+      "width_m": 0.86,
+      "kind": "entrance",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 49195,
+        "guid": "3LF03GdXv2GhSTK1xTZzYt",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2423939",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-50845",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "space_ids": [
+        "ifc-digitalhub-space-9194",
+        "outside"
+      ],
+      "position": [
+        13.09878428274321,
+        12.556271041227728
+      ],
+      "width_m": 0.86,
+      "kind": "entrance",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": true,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 50845,
+        "guid": "3LJODRGPbDdfXHXShFLAS$",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2426178",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-50966",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "space_ids": [
+        "ifc-digitalhub-space-5888",
+        "outside"
+      ],
+      "position": [
+        49.65121571725689,
+        12.55627104122772
+      ],
+      "width_m": 0.86,
+      "kind": "entrance",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 0.86,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 0.86
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 0.9,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.9
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 0.86,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 0.86
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": true,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 50966,
+        "guid": "3LJODRGPbDdfXHXShFLASv",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Fluchttüre Endausgang:EN 179 - ML - 1010 x 2250:2426180",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-60947",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4366",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        13.126583935018129,
+        12.477287906138347
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 60947,
+        "guid": "3LJODRGPbDdfXHXShFLBtR",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2432934",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-63429",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4679",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        49.62341606498193,
+        12.477287906138368
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 63429,
+        "guid": "3LJODRGPbDdfXHXShFLBtN",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2432938",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-63542",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4490",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        17.38158393501811,
+        12.472712093862057
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 63542,
+        "guid": "3LJODRGPbDdfXHXShFLBss",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2432971",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64167",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4490",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        45.36841606498196,
+        12.472712093862057
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64167,
+        "guid": "3LJODRGPbDdfXHXShFL8Do",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2433295",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64485",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4909",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        18.768416064982105,
+        15.277287906138323
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64485,
+        "guid": "3LJODRGPbDdfXHXShFL8OS",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2434145",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64587",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-5024",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        22.96841606498191,
+        15.277287906138305
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64587,
+        "guid": "3LJODRGPbDdfXHXShFL8Tj",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2434320",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64689",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-5139",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        39.768416064982006,
+        15.277287906138273
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64689,
+        "guid": "3LJODRGPbDdfXHXShFL8TR",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2434342",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64791",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-5255",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        50.981583935018094,
+        15.27728790613823
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64791,
+        "guid": "3LJODRGPbDdfXHXShFL8Ua",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2434521",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64893",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4794",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        11.768416064982056,
+        15.27728790613834
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64893,
+        "guid": "3LJODRGPbDdfXHXShFL8U8",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2434549",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-64995",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-4490",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        31.368416064981982,
+        12.47271209386209
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 64995,
+        "guid": "3LJODRGPbDdfXHXShFL8H6",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2434619",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-65313",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-5485",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        11.072712093861924,
+        13.224083935018271
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 65313,
+        "guid": "3LJODRGPbDdfXHXShFL8Z2",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2435775",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-65574",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-5607",
+        "ifc-digitalhub-space-5722"
+      ],
+      "position": [
+        51.67728790613818,
+        13.224083935018246
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 65574,
+        "guid": "3LJODRGPbDdfXHXShFL8bJ",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2435886",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-66721",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "space_ids": [
+        "ifc-digitalhub-space-5370",
+        "ifc-digitalhub-space-5607"
+      ],
+      "position": [
+        46.7684160649821,
+        15.277287906138241
+      ],
+      "width_m": 1,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Angabe Lichter Durchgang Breite",
+          "raw": 1,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1
+          }
+        ],
+        "differing_clear_width_values": false,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 66721,
+        "guid": "3A8hY1UoD7JhnLeZeDyU3l",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 1 - Rahmenstock flächenbündig:DL - 1000 x 2000:2439813",
+        "long_name": null
+      }
+    },
+    {
+      "id": "ifc-digitalhub-door-193298",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "space_ids": [
+        "ifc-digitalhub-space-2940",
+        "ifc-digitalhub-space-3059"
+      ],
+      "position": [
+        2.093472473377994,
+        5.57582429174095
+      ],
+      "width_m": 1.545,
+      "kind": "door",
+      "step_free": false,
+      "step_free_status": "unknown_not_verified",
+      "connection_source": "geometric_unique_boundary_candidates",
+      "connection_requires_confirmation": true,
+      "width_source": {
+        "method": "explicit_clear_width_property",
+        "chosen": {
+          "pset": "Abmessungen",
+          "property": "Durchgangsbreite",
+          "raw": 1.545,
+          "unit_source": "IFC project LENGTHUNIT",
+          "scale_to_m": 1,
+          "width_m": 1.545
+        },
+        "candidates": [
+          {
+            "pset": "Abmessungen",
+            "property": "Angabe Lichter Durchgang Breite",
+            "raw": 1.6,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1.6
+          },
+          {
+            "pset": "Abmessungen",
+            "property": "Durchgangsbreite",
+            "raw": 1.545,
+            "unit_source": "IFC project LENGTHUNIT",
+            "scale_to_m": 1,
+            "width_m": 1.545
+          }
+        ],
+        "differing_clear_width_values": true,
+        "suspect_overall_dimensions": false,
+        "measured_on_site": false
+      },
+      "ifc_source": {
+        "ifc_id": 193298,
+        "guid": "03fYK2KZb9bQXMSPptFYV5",
+        "ifc_type": "IfcDoor",
+        "name": "TU DF 2 - Rahmenstock flächenbündig:ML - 1635 x 2135:2550600",
+        "long_name": null
+      }
+    }
+  ],
+  "vertical_connectors": [
+    {
+      "id": "ifc-digitalhub-stairs-20378",
+      "name": "Fertigbetontreppe:Treppe:2421041",
+      "kind": "stairs",
+      "step_free": false,
+      "floor_ids": [
+        "ifc-digitalhub-storey-157",
+        "ifc-digitalhub-storey-163"
+      ],
+      "space_ids": [
+        "ifc-digitalhub-space-4366",
+        "ifc-digitalhub-space-680"
+      ],
+      "connection_source": "actual_stair_flight_or_part_extent_and_unique_stairwell_overlap",
+      "connection_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 20378,
+        "guid": "0YVU7tDBX86u6UVVsSmdx$",
+        "name": "Fertigbetontreppe:Treppe:2421041",
+        "flight_or_part_ifc_ids": [
+          21270,
+          22168
+        ],
+        "source_geometry_types": [
+          "IfcStairFlight",
+          "IfcStairFlight"
+        ],
+        "actual_flight_z_range_m": [
+          -3.370000000000001,
+          0
+        ],
+        "associations": [
+          {
+            "floor_id": "ifc-digitalhub-storey-157",
+            "candidates": [
+              "ifc-digitalhub-space-4366"
+            ]
+          },
+          {
+            "floor_id": "ifc-digitalhub-storey-163",
+            "candidates": [
+              "ifc-digitalhub-space-680"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ifc-digitalhub-stairs-23140",
+      "name": "Fertigbetontreppe:Treppe:2421059",
+      "kind": "stairs",
+      "step_free": false,
+      "floor_ids": [
+        "ifc-digitalhub-storey-163",
+        "ifc-digitalhub-storey-169"
+      ],
+      "space_ids": [
+        "ifc-digitalhub-space-680",
+        "ifc-digitalhub-space-9194"
+      ],
+      "connection_source": "actual_stair_flight_or_part_extent_and_unique_stairwell_overlap",
+      "connection_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 23140,
+        "guid": "0YVU7tDBX86u6UVVsSmdwD",
+        "name": "Fertigbetontreppe:Treppe:2421059",
+        "flight_or_part_ifc_ids": [
+          24208,
+          25284
+        ],
+        "source_geometry_types": [
+          "IfcStairFlight",
+          "IfcStairFlight"
+        ],
+        "actual_flight_z_range_m": [
+          -0.14999999999999986,
+          3.9
+        ],
+        "associations": [
+          {
+            "floor_id": "ifc-digitalhub-storey-163",
+            "candidates": [
+              "ifc-digitalhub-space-680"
+            ]
+          },
+          {
+            "floor_id": "ifc-digitalhub-storey-169",
+            "candidates": [
+              "ifc-digitalhub-space-9194"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ifc-digitalhub-stairs-39128",
+      "name": "Fertigbetontreppe:Treppe:2423887",
+      "kind": "stairs",
+      "step_free": false,
+      "floor_ids": [
+        "ifc-digitalhub-storey-157",
+        "ifc-digitalhub-storey-163"
+      ],
+      "space_ids": [
+        "ifc-digitalhub-space-4679",
+        "ifc-digitalhub-space-1297"
+      ],
+      "connection_source": "actual_stair_flight_or_part_extent_and_unique_stairwell_overlap",
+      "connection_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 39128,
+        "guid": "3LF03GdXv2GhSTK1xTZzXx",
+        "name": "Fertigbetontreppe:Treppe:2423887",
+        "flight_or_part_ifc_ids": [
+          40018,
+          40914
+        ],
+        "source_geometry_types": [
+          "IfcStairFlight",
+          "IfcStairFlight"
+        ],
+        "actual_flight_z_range_m": [
+          -3.37,
+          0
+        ],
+        "associations": [
+          {
+            "floor_id": "ifc-digitalhub-storey-157",
+            "candidates": [
+              "ifc-digitalhub-space-4679"
+            ]
+          },
+          {
+            "floor_id": "ifc-digitalhub-storey-163",
+            "candidates": [
+              "ifc-digitalhub-space-1297"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ifc-digitalhub-stairs-41690",
+      "name": "Fertigbetontreppe:Treppe:2423903",
+      "kind": "stairs",
+      "step_free": false,
+      "floor_ids": [
+        "ifc-digitalhub-storey-163",
+        "ifc-digitalhub-storey-169"
+      ],
+      "space_ids": [
+        "ifc-digitalhub-space-1297",
+        "ifc-digitalhub-space-5888"
+      ],
+      "connection_source": "actual_stair_flight_or_part_extent_and_unique_stairwell_overlap",
+      "connection_requires_confirmation": true,
+      "ifc_source": {
+        "ifc_id": 41690,
+        "guid": "3LF03GdXv2GhSTK1xTZzXh",
+        "name": "Fertigbetontreppe:Treppe:2423903",
+        "flight_or_part_ifc_ids": [
+          42760,
+          43836
+        ],
+        "source_geometry_types": [
+          "IfcStairFlight",
+          "IfcStairFlight"
+        ],
+        "actual_flight_z_range_m": [
+          -0.14999999999999986,
+          3.9
+        ],
+        "associations": [
+          {
+            "floor_id": "ifc-digitalhub-storey-163",
+            "candidates": [
+              "ifc-digitalhub-space-1297"
+            ]
+          },
+          {
+            "floor_id": "ifc-digitalhub-storey-169",
+            "candidates": [
+              "ifc-digitalhub-space-5888"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "ifc-digitalhub-DEMO-A0001",
+      "name": "Demo storage cabinet — RLT-Raum [A0001]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-4490",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        31.375,
+        9.5875
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0002",
+      "name": "Demo coffee machine — Küche [A0002]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-3059",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        3.375,
+        8.31375
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0003",
+      "name": "Demo coffee machine — Offene Lounge 1 [A0003]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-8234",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        17.375,
+        16.575
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0004",
+      "name": "Demo storage cabinet — Lager 1 [A0004]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5370",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        45.375,
+        17.3375
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0005",
+      "name": "Demo laboratory bench — VR/AR LAB [A0005]",
+      "type": "laboratory_bench",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2705",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        59.375,
+        5.4875
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0006",
+      "name": "Demo meeting table — Konferenzraum 2 [A0006]",
+      "type": "meeting_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-6275",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        2.7,
+        7.62625
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.7,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "meeting_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0007",
+      "name": "Demo storage cabinet — Heizzentrale [A0007]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5024",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        27.875,
+        17.3375
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0008",
+      "name": "Demo meeting table — Veranstaltungsraum [A0008]",
+      "type": "meeting_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2822",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        48.9,
+        2.75125
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.7,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "meeting_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0009",
+      "name": "Demo desk — Gruppenbüro 15 [A0009]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-6506",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        10.375,
+        2.75125
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0010",
+      "name": "Demo storage cabinet — Wasser-/Gasverteilung [A0010]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-4909",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        17.375,
+        17.3375
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0011",
+      "name": "Demo desk — Gruppenbüro 5 [A0011]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2585",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        52.375,
+        16.63625
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0012",
+      "name": "Demo coffee machine — Offene Lounge 2 [A0012]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-9029",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        45.375,
+        2.82625
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0013",
+      "name": "Demo storage cabinet — Lager2 [A0013]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5255",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        52.375,
+        17.3375
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0014",
+      "name": "Demo coffee machine — Cafeteria [A0014]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2940",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        10.4,
+        2.75125
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0015",
+      "name": "Demo meeting table — Seminarraum Groß - teilbar [A0015]",
+      "type": "meeting_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-6736",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        27.875,
+        2.75125
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.7,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "meeting_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0016",
+      "name": "Demo storage cabinet — BMZ [A0016]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5722",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        53.7625,
+        13.875
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0017",
+      "name": "Demo desk — Gruppenbüro 6 [A0017]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2468",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        59.35,
+        16.63625
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0018",
+      "name": "Demo desk — Gruppenbüro 14 [A0018]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-6621",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        17.375,
+        2.75125
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0019",
+      "name": "Demo storage cabinet — Hausanschluss [A0019]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-4794",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        10.375,
+        17.3375
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0020",
+      "name": "Demo desk — Gruppenbüro 1 [A0020]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-1883",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        3.4,
+        16.63625
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0021",
+      "name": "Demo meeting table — Konferenzraum 4 [A0021]",
+      "type": "meeting_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-8004",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        60.05,
+        7.62625
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.7,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "meeting_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0022",
+      "name": "Demo storage cabinet — NSHV [A0022]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5139",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        38.375,
+        17.3375
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0023",
+      "name": "Demo desk — Gruppenbüro 4 [A0023]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2351",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        45.375,
+        16.63625
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0024",
+      "name": "Demo desk — Gruppenbüro 7 [A0024]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-7889",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        3.4,
+        16.65
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 1,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0025",
+      "name": "Demo storage cabinet — RLT-Raum [A0025]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-4490",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        14.898438,
+        11.367188
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0026",
+      "name": "Demo coffee machine — Küche [A0026]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-3059",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        1.0125,
+        6.650469
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0027",
+      "name": "Demo coffee machine — Offene Lounge 1 [A0027]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-8234",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        19.7725,
+        18.309375
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0028",
+      "name": "Demo storage cabinet — Lager 1 [A0028]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5370",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        43.0125,
+        16.35625
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0029",
+      "name": "Demo laboratory bench — VR/AR LAB [A0029]",
+      "type": "laboratory_bench",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2705",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        61.7375,
+        1.028906
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0030",
+      "name": "Demo meeting table — Konferenzraum 2 [A0030]",
+      "type": "meeting_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-6275",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        1.0125,
+        6.639375
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.7,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "meeting_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0031",
+      "name": "Demo storage cabinet — Heizzentrale [A0031]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-5024",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        22.03125,
+        16.35625
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0032",
+      "name": "Demo meeting table — Veranstaltungsraum [A0032]",
+      "type": "meeting_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2822",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        54.8075,
+        4.470781
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.7,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "meeting_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0033",
+      "name": "Demo desk — Gruppenbüro 15 [A0033]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-6506",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        12.7725,
+        4.470781
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0034",
+      "name": "Demo storage cabinet — Wasser-/Gasverteilung [A0034]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-4909",
+      "floor_id": "ifc-digitalhub-storey-157",
+      "position": [
+        15.0125,
+        16.35625
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "neutral_storage_for_unconfirmed_room_use",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0035",
+      "name": "Demo desk — Gruppenbüro 5 [A0035]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-2585",
+      "floor_id": "ifc-digitalhub-storey-163",
+      "position": [
+        49.9775,
+        14.940156
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "ifc-digitalhub-DEMO-A0036",
+      "name": "Demo coffee machine — Offene Lounge 2 [A0036]",
+      "type": "coffee_machine",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "ifc-digitalhub-space-9029",
+      "floor_id": "ifc-digitalhub-storey-169",
+      "position": [
+        47.7725,
+        4.710417
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.4,
+        "rotation_deg": 180
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "kitchen_or_lounge_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    }
+  ]
+}

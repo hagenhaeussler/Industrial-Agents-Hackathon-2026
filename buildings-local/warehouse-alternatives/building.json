@@ -1,0 +1,438 @@
+{
+  "building": {
+    "id": "warehouse-alternatives",
+    "name": "Warehouse with narrow and wide routes",
+    "source": "synthetic_generated",
+    "units": "m",
+    "synthetic": true,
+    "dimensions_are_assumed": true,
+    "source_ref": {
+      "generator": "generate.py",
+      "generator_version": 1,
+      "description": "Invented warehouse: short 0.9 m doorway route and a longer 1.8 m doorway alternative."
+    }
+  },
+  "floors": [
+    {
+      "id": "warehouse-alternatives-F0",
+      "level": 0,
+      "name": "Ground floor",
+      "elevation_m": 0,
+      "height_m": 6
+    }
+  ],
+  "spaces": [
+    {
+      "id": "warehouse-alternatives-F0-receiving",
+      "floor_id": "warehouse-alternatives-F0",
+      "name": "Receiving bay",
+      "ref": "receiving",
+      "type": "room",
+      "room_type": "logistics_zone",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          12
+        ],
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "warehouse-alternatives-F0-short-route",
+      "floor_id": "warehouse-alternatives-F0",
+      "name": "Short route",
+      "ref": "short-route",
+      "type": "hall",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          8,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "warehouse-alternatives-F0-wide-route",
+      "floor_id": "warehouse-alternatives-F0",
+      "name": "Wide route",
+      "ref": "wide-route",
+      "type": "hall",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          8,
+          8
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "warehouse-alternatives-F0-packing",
+      "floor_id": "warehouse-alternatives-F0",
+      "name": "Packing bay",
+      "ref": "packing",
+      "type": "room",
+      "room_type": "warehouse_zone",
+      "polygon": [
+        [
+          20,
+          0
+        ],
+        [
+          28,
+          0
+        ],
+        [
+          28,
+          12
+        ],
+        [
+          20,
+          12
+        ]
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "warehouse-alternatives-F0-door-entrance",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_ids": [
+        "outside",
+        "warehouse-alternatives-F0-receiving"
+      ],
+      "position": [
+        0,
+        2
+      ],
+      "width_m": 1.8,
+      "step_free": true,
+      "kind": "entrance"
+    },
+    {
+      "id": "warehouse-alternatives-F0-door-short-west",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_ids": [
+        "warehouse-alternatives-F0-receiving",
+        "warehouse-alternatives-F0-short-route"
+      ],
+      "position": [
+        8,
+        2
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "warehouse-alternatives-F0-door-short-east",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_ids": [
+        "warehouse-alternatives-F0-short-route",
+        "warehouse-alternatives-F0-packing"
+      ],
+      "position": [
+        20,
+        2
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "warehouse-alternatives-F0-door-wide-west",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_ids": [
+        "warehouse-alternatives-F0-receiving",
+        "warehouse-alternatives-F0-wide-route"
+      ],
+      "position": [
+        8,
+        10
+      ],
+      "width_m": 1.8,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "warehouse-alternatives-F0-door-wide-east",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_ids": [
+        "warehouse-alternatives-F0-wide-route",
+        "warehouse-alternatives-F0-packing"
+      ],
+      "position": [
+        20,
+        10
+      ],
+      "width_m": 1.8,
+      "step_free": true,
+      "kind": "door"
+    }
+  ],
+  "vertical_connectors": [],
+  "assets": [
+    {
+      "id": "warehouse-alternatives-asset-scanner",
+      "name": "Receiving scanner",
+      "type": "barcode_scanner",
+      "category": "equipment",
+      "source": "synthetic",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_id": "warehouse-alternatives-F0-receiving",
+      "position": [
+        4,
+        2
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "warehouse-alternatives-asset-pallet",
+      "name": "Packing pallet",
+      "type": "pallet",
+      "category": "inventory",
+      "source": "synthetic",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_id": "warehouse-alternatives-F0-packing",
+      "position": [
+        24,
+        2
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "warehouse-alternatives-asset-extinguisher",
+      "name": "Wide-route extinguisher",
+      "type": "fire_extinguisher",
+      "category": "safety",
+      "source": "synthetic",
+      "floor_id": "warehouse-alternatives-F0",
+      "space_id": "warehouse-alternatives-F0-wide-route",
+      "position": [
+        14,
+        10
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "warehouse-alternatives-DEMO-A0001",
+      "name": "Demo packing worktable — Packing bay [A0001]",
+      "type": "packing_table",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "warehouse-alternatives-F0-packing",
+      "floor_id": "warehouse-alternatives-F0",
+      "position": [
+        24,
+        6
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "packing_or_warehouse_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "warehouse-alternatives-DEMO-A0002",
+      "name": "Demo barcode scanner — Receiving bay [A0002]",
+      "type": "barcode_scanner",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "warehouse-alternatives-F0-receiving",
+      "floor_id": "warehouse-alternatives-F0",
+      "position": [
+        4,
+        6
+      ],
+      "footprint": {
+        "width_m": 0.25,
+        "depth_m": 0.2,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "receiving_or_logistics_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "warehouse-alternatives-DEMO-A0003",
+      "name": "Demo pallet rack — Packing bay [A0003]",
+      "type": "pallet_rack",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "warehouse-alternatives-F0-packing",
+      "floor_id": "warehouse-alternatives-F0",
+      "position": [
+        27,
+        1.666667
+      ],
+      "footprint": {
+        "width_m": 1.8,
+        "depth_m": 0.8,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "packing_or_warehouse_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "warehouse-alternatives-DEMO-A0004",
+      "name": "Demo storage cabinet — Receiving bay [A0004]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "warehouse-alternatives-F0-receiving",
+      "floor_id": "warehouse-alternatives-F0",
+      "position": [
+        7,
+        1
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "receiving_or_logistics_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "warehouse-alternatives-DEMO-A0005",
+      "name": "Demo barcode scanner — Packing bay [A0005]",
+      "type": "barcode_scanner",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "warehouse-alternatives-F0-packing",
+      "floor_id": "warehouse-alternatives-F0",
+      "position": [
+        27.666667,
+        0.333333
+      ],
+      "footprint": {
+        "width_m": 0.25,
+        "depth_m": 0.2,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "packing_or_warehouse_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "warehouse-alternatives-DEMO-A0006",
+      "name": "Demo tool cabinet — Receiving bay [A0006]",
+      "type": "tool_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "warehouse-alternatives-F0-receiving",
+      "floor_id": "warehouse-alternatives-F0",
+      "position": [
+        7,
+        3
+      ],
+      "footprint": {
+        "width_m": 0.7,
+        "depth_m": 0.45,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "receiving_or_logistics_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    }
+  ]
+}
