@@ -2,7 +2,7 @@
 
 This file is the single canonical place for shared interfaces. Builder prompts link here and do not copy the details. If a prompt and this file disagree, this file wins. To change a section, use the change-request protocol in [OWNERSHIP_AND_DEPENDENCIES.md](OWNERSHIP_AND_DEPENDENCIES.md#6-change-request-protocol). Only the section owner edits a section, and the owner appends one line to the [contract changelog](#16-contract-changelog).
 
-Contract version: **C9** (24 Oct 2026; reset-safe HTTP building-state identity; C2–C8 definitions preserved). Section owners:
+Contract version: **C10** (25 Oct 2026; user-approved common LLM agent, guarded tool transport and submission mode; C2–C9 platform behavior preserved). Section owners:
 
 | § | Section | Owner | Main consumers |
 |---|---|---|---|
@@ -69,7 +69,7 @@ Contract version: **C9** (24 Oct 2026; reset-safe HTTP building-state identity; 
 - `step_free` drops every stair connector and every opening with `step_free: false` (kit rule). Lifts stay.
 - `min_door_width_m` drops every opening narrower than the value (an opening exactly as wide passes).
 - `closed` lists connector, opening or space IDs; they cannot be used at all. Session/building closures are merged with request closures.
-- `no_transit_room_types` is implemented in core but **not used by any demo or benchmark path** (forklift and production-bay semantics are unconfirmed; see the decision register D-19).
+- `no_transit_room_types` prevents routes through the listed room types. A restricted room can still be the start or destination of a route leg. Shared agent queries and supplied benchmark constraints preserve this rule; they do not globally exempt a room type. Forklift-specific semantics remain unconfirmed (D-19).
 - **A wheelchair profile never silently becomes a stairs route.** If no step-free route exists, the result is `reachable: false` with a reason. The UI and agent say so and may offer, as a separate explicit option, the route with stairs.
 
 ## 4. Core Python API
@@ -81,7 +81,8 @@ from core.building import Building, load_building          # Building wraps star
 b = load_building(Path("data/dev/proc-factory-dev-003"))   # or load_building(dict); b.id, b.content_hash, b.version (0)
 
 from core.spatial import solve                             # benchmark solvers, ported from the sibling core (D-03)
-solve(b, kind: str, inputs: dict) -> dict                  # kinds: the 9 benchmark kinds plus locate, count, route, route_step_free, route_with_closure, tour
+solve(b, kind: str, inputs: dict, *, constraints: dict | None = None) -> dict
+                                                           # kinds: the 9 benchmark kinds plus locate, count, route, route_step_free, route_with_closure, tour
                                                            # inputs use exactly the field names of the kit `inputs` (README §4, train/dev files)
 
 from core.resolve import resolve
@@ -236,7 +237,10 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `POST /api/buildings` | `building.json` body (admin) | `{"building_id", "validation": <validate_building report>}`; 422 if invalid |
 | `POST /api/buildings/{id}/plan-import` | multipart PNG/SVG + `floor_level` (admin, X5 only) | draft + validation, §6-style preview; nothing saved until confirmed |
 | `GET /api/buildings/{id}/events` | `?since=` | `[event]` |
-| `POST /api/tools/{name}` | `{"session_id", "args": {...}}` | ToolResponse §8 |
+| `POST /api/tools/{name}` | `{"session_id", "args": {...}}` | manual application controls; ToolResponse §8; not model transport |
+| `POST /api/agent/turns` | `{"session_id", "message"}` | `{"turn_id"}`; register a real user voice/typed turn |
+| `GET /api/agent/tools` | `?session_id=` | role-filtered tool definitions |
+| `POST /api/agent/tools/{name}` | `{"session_id", "turn_id", "args": {...}}` | ToolResponse §8 after current-turn and confirmation checks |
 | `POST /api/sessions` | `{"building_id", "device": "desk|phone", "role": "navigator|admin", "profile": "walk"}` | session §10 |
 | `GET /api/sessions/{id}` / `PATCH /api/sessions/{id}` | position, profile, active tour | session |
 | `POST /api/tours` | `{"session_id", "start"?, "items": ["asset or space ids"], "keep_order": false, "end": null}` | TourResult with `tour_id` |
@@ -247,7 +251,7 @@ FastAPI service, one process (owner Manuel's codex). All JSON. `/api`, `/ws` and
 | `POST /api/buildings/{id}/markers` | `{"markers": [{"space_id", "point", "heading_deg", "label"}]}` (admin) | `[marker]` |
 | `GET /api/buildings/{id}/markers/sheet` | – | printable HTML with QR codes (URL form §10) |
 | `GET /api/voice/token` | `?agent=navigator|admin` | `{"token", "agent_id"}`; 503 `voice_unavailable` when no key; the API key never leaves the server |
-| `POST /api/chat` | `{"session_id", "message"}` | `{"reply", "tool_calls": [ToolResponse], "display": {...}}` |
+| `POST /api/chat` | `{"session_id", "message"}` | `{"reply", "tool_calls": [ToolResponse], "display", "status", "stop_reason", "usage", "cost_usd", "sources"}` |
 | `POST /api/demo/reset` | `{"building_id"}` (admin; demo mode) | archives the building's event log, restarts it at version 0 and broadcasts `building_reset`; never available outside demo mode |
 
 **Admin authentication (C8, CR-C-2):** `POST /api/sessions` with `role: "admin"` requires `X-Admin-Token` matching the private server `TYB_ADMIN_TOKEN`; comparison is constant-time. Missing/wrong codes return 403 `forbidden`. Navigator creation requires no code. With no configured code, admin creation is denied unless both `TYB_DEMO_MODE=true` and `TYB_ALLOW_UNAUTHENTICATED_DEMO_ADMIN=true` explicitly enable an isolated no-code local demo; a configured code is mandatory even in demo mode. The database stores a private session-bound HMAC authority proof, never the code. Legacy role-only admin sessions and proofs from a previous code are rejected; same-code restarts retain authority. Public session payloads omit authority data. Public event feeds, tour payloads, tool displays/results and WebSocket broadcasts omit session bearer IDs; internal storage keeps ownership for authorization and undo. The admin UI keeps its code and session ID in `sessionStorage`, sends the code only on admin-session creation, and asks again after revoked/expired authority. It never embeds it in a URL, build variable or source.
@@ -268,7 +272,9 @@ Types for TypeScript are generated from FastAPI's OpenAPI (`server/openapi.json`
 
 ## 8. Tool API and voice client tools
 
-**One tool registry** (`server/tools.py`, owner Manuel's codex) backs the HTTP tool endpoint, the text chat agent and the ElevenLabs client tools. Names and parameters below are frozen at C1. The ten tools from `docs/elevenlabs-agent-config.md` are unchanged; `spatial_query` is an addition.
+One tool registry (`server/tools.py`) backs manual controls and the text/voice agent tools. C10 has 17 tools for admin sessions and 11 for navigator sessions. Generated `server/agent-tools.json` is the complete list of names, argument schemas and roles. Regenerate it with `python -m server.export_openapi`; then run `bun run gen:api` in `web/app`. The human-owned ElevenLabs configuration describes an older hosted setup. Local changes do not deploy it.
+
+Text chat and benchmark submission use `agent.core.BuildingAgent`, the same prompt recipes, configured model, platform registry, execution policy and `AgentLoop`. The default is Sonnet with at most 24 model requests, 128 attempted tool calls and 90 seconds. `TYB_AGENT_*` settings can change these limits. Voice keeps the hosted ElevenLabs model loop and shares server tool execution. See `agent/README.md` for configuration and limits.
 
 **ToolResponse:**
 
@@ -279,7 +285,8 @@ Types for TypeScript are generated from FastAPI's OpenAPI (`server/openapi.json`
   "result": {"tour_id": "k3j9q2m7xa", "order": ["s1", "s2"], "length_m": 112.6},
   "speech": "Three parts in two stops, about 113 metres. First the tool crib, then the store upstairs.",
   "display": {"kind": "tour", "tour_id": "k3j9q2m7xa"},
-  "trace": [{"fn": "resolve", "args": {"text": "torque wrench"}, "ms": 2}, {"fn": "plan_tour", "args": {"stops": 2}, "ms": 41}]
+  "trace": [],
+  "model_result": {"ok": true, "tool": "plan_tour", "request_id": "req_ab12cd34ef56", "result": {"tour_id": "k3j9q2m7xa", "length_m": 112.6}}
 }
 ```
 
@@ -288,10 +295,16 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 | Agent | Tool | Arguments | Behaviour |
 |---|---|---|---|
 | navigator | `find` | `query` (string, required) | resolve over assets and spaces; unique → highlight and `speech` with place; ambiguous → candidates for one clarifying question; none → says so |
-| navigator | `plan_tour` | `items` (comma-separated string, required), `keep_order` (bool), `step_free` (bool) | resolves each item (ambiguous item → error with candidates, nothing planned), plans from the session position, creates a tour, returns `tour_id` |
+| navigator | `building_info` | none | floors, types, counts, position and current constraints |
+| navigator | `search_entities` | `kind`, `query`, `type`, `floor_id`, `space_id`, `limit`, `cursor` | paged discovery; default 25, maximum 100 results; cursor is bound to filters and building state |
+| navigator | `get_entities` | `ids` (1–100 stable IDs) | details in request order; unknown IDs fail explicitly |
+| navigator | `compare_routes` | `destination_ids`, optional `start`, `step_free`, `min_door_width_m`, `closed` | rank actual reachable routes and report unreachable candidates; no navigation changes |
+| navigator | `query_route` | `destination`, optional `start`, `step_free`, `min_door_width_m`, `closed` | pure route calculation; explicit start overrides session position; unreachable is a normal result |
+| navigator | `query_tour` | `items`, optional `start`, `end`, `keep_order`, `step_free`, `min_door_width_m`, `closed` | pure multi-stop calculation; reports partial or blocked stops; no active tour is saved |
+| navigator | `plan_tour` | `items` (1–100 stable IDs), `keep_order`, `step_free`, `min_door_width_m`, `end` | validates IDs, plans from session position and saves navigation; comma-separated input is accepted only for older hosted configurations |
 | navigator | `route` | `destination` (required), `step_free`, `min_door_width_m` | route from session position with session profile merged |
 | navigator | `next_step` | – | next maneuver of the active tour; at a collection stop asks to confirm collection; on the final leg returns stop_id=end, complete=false, then at_end=true for explicit arrival confirmation (§7) |
-| navigator | `spatial_query` | `kind` (one of the nine benchmark kinds, required), `target`, `second_target`, `floor`, `room_type`, `asset_type`, `direction`, `min_width_m` (strings/number as applicable) | resolves names to IDs and calls `core.spatial.solve`; answers "what is above office 0.29", "largest meeting room on floor 1", "how many rooms share a wall with …"; **added by the master agent (not in `docs/elevenlabs-agent-config.md`)**: required for the text chat, optional for the ElevenLabs navigator (H4) |
+| navigator | `spatial_query` | `kind` (nine spatial kinds plus `count`, `locate`), `target`, `second_target`, `floor`, `room_type`, `asset_type`, `direction`, `min_width_m`, `step_free`, `closed` | validates IDs/types and computes facts through `core.spatial.solve`, preserving effective constraints |
 | admin | `propose_edit` | `action`, `target` (required), `second_target`, `value` | §6 step 1–2 |
 | admin | `commit_edit` | `proposal_id` (required) | §6 step 3; client adds `op_id` |
 | admin | `undo` | – | §6 step 4 |
@@ -299,12 +312,16 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 | admin | `set_scale` | `reference`, `length_m` | X5 import only; otherwise `not_available` |
 | admin | `generate_markers` | – | creates markers for entrances and doors of the demo route; returns sheet URL |
 
-- ElevenLabs tools are type **Client** with **"Wait for response"** enabled (verified in the ElevenLabs React docs on 24 Oct 2026: without blocking, the agent assumes success). The browser handler calls `POST /api/tools/{name}`, updates the view from `display`, and returns `JSON.stringify({ok, speech, result})` truncated to ≤ 1,500 characters.
+- Model tools use `AgentExecution`; manual controls retain `/api/tools/{name}` and their existing permission/idempotency checks. The manual endpoint does not enforce conversation confirmation and must not be exposed as model transport. Agent calls require the session's current `turn_id`. A new text or registered voice turn supersedes old turns. `commit_edit` requires the pending preview to be confirmed in a later real user message. Tool arguments, agent transcripts and context updates cannot confirm it.
+- ElevenLabs tools are Client tools with "Wait for response" enabled. Only `source=user` transcripts or accepted typed user input register voice turns. Tools wait for registration; a failure cannot reuse an old turn. The browser updates the view from `display` and returns complete compact `model_result`, speech and errors within 49,152 UTF-8 bytes. Larger results return `result_too_large`, never truncated rows or candidates. Full geometry stays with the application. `trace` stays empty because calculation explanations are disabled.
+- Desk-only `update_selection` and `focus_floor` validate IDs in the loaded building and require the same current local turn/connection guards as backend callbacks. They do not add server permissions. Retired or superseded callbacks cannot update a replacement view.
+- Chat status is `completed`, `incomplete`, `unavailable` or `superseded`. Failure retains the question for retry; no local answer fallback runs. SQLite stores bounded conversation history and persistent budget reservations. The text budget does not cover ElevenLabs billing. Hosted tool definitions, prompts and live microphone behavior need separate deployment/acceptance checks.
+- Pure queries combine building, session and temporary closures. They cannot weaken saved step-free, door-width or transit restrictions. Missing starts and unknown IDs fail explicitly. Query calculation metadata records validated inputs for submission result selection; it is not a UI explanation trace.
 - **Mobility persistence (C4, CR-L-1):** a valid, resolved `route`/`plan_tour` request with affirmative `step_free: true` persists step-free mobility in its session (a `walk` session becomes `wheelchair`; existing `wheelchair|pram|trolley` remains). A route's `min_door_width_m` persists as well. Required position and entity validation precede session mutation; a valid `no_route` still preserves the user's stated mobility need. `step_free: false` cannot silently downgrade a persisted non-walk profile; an explicit profile change belongs to the session UI/PATCH API.
 - **Step-free spatial closures (C5, CR-L-2):** for `spatial_query(kind="step_free_reachable_count")`, existing optional `second_target` may name an additional closed connector/opening/space. Validate and pass the union of current building/session closures and that optional target as a list to the core's §4-compatible live interface. An empty list means no closures; it returns the actual step-free reachable count without inventing a required closure. The original single-string benchmark input remains supported unchanged.
 - **Find precedence (C5, CR-L-3):** compare resolution stages across assets and spaces before comparing scores: exact ID, then exact name/ref/rendered label, then normalized, then fuzzy. A fuzzy score of 1.0 cannot outrank an exact item name at 1.0; equal best-stage candidates remain ambiguous.
 
-- Position, building and profile come from the session, never from the conversation.
+- Building, role and saved profile come from the session. Pure route/tour queries can supply an explicit validated start without changing the saved position.
 - Context the app pushes with `sendContextualUpdate` (no reply is triggered), exact phrasing:
   - `Position: <space name> (<floor name>), source <marker|manual|tour start>.`
   - `Tour <tour_id> loaded: <n> stops, next <label>.`
@@ -352,8 +369,9 @@ Failure: `{"ok": false, "tool", "request_id", "building_version", "error": {"cod
 Owner Lenard's codex.
 
 - **Official evaluator entry point (unchanged contract):** `bench.agent:answer(building_directory: Path, question_text: str) -> str`, used as `uv run python -m benchmark.evaluate data/dev --agent bench.agent:answer`.
-- **Run order inside `answer`:** (1) deterministic template parser → typed inputs → `core.spatial.solve` → serializer; (2) if parsing fails with "unsupported wording" or the parser finds an ambiguity, and `ANTHROPIC_API_KEY` is available, the LLM fallback ([MASTER_PLAN.md §4.2](MASTER_PLAN.md#42-benchmark-and-product-agent-harness)) produces validated inputs through tools; (3) otherwise an honest reply **without** an `Answer:` line. Never a placeholder answer.
-- **Batch runner:** `uv run python -m bench.run <split_dir> --name <run> [--csv out.csv] [--workers 4] [--mode hybrid|template|llm]` with per-question checkpoints keyed by `(question_id, sha of question text, building content_hash, git commit, profile, model, prompt_version)`.
+- **Default `answer` path:** give the original question to the common `BuildingAgent` in a fresh isolated navigator session, with supplied constraints set before inference. It uses the same model, limits, prompt and building tools as chat. There is no parser-first step, Haiku/Sonnet escalation or hidden template fallback. Credentials and an explicit benchmark allocation are required; otherwise return an honest unanswered reply without an `Answer:` line and without a provider call.
+- **Submission:** `submit_answer(request_id)` selects a successful calculation observed in this run. It accepts no answer value or calculation inputs. The serializer formats the stored tool result without another solver call. Model prose cannot submit an answer. Inference never reads gold labels or question `inputs`.
+- **Batch runner:** `uv run python -m bench.run <split_dir> --name <run> [--csv out.csv] [--workers 4] [--mode llm|template] [--max-cost <approved USD>]`. Default mode is `llm`; `hybrid` is rejected. `template` is an explicit offline baseline, including offline CI rehearsals. Checkpoints include question/building identity, source hash, profile, actual configured model/options and prompt versions. Reports retain usage/cost on failure. Scoring is separate from inference.
 - **Sunday adapter (provisional until the organizers publish the schema):** `uv run python -m bench.run_benchmark <building_dir> <questions.json> <answers.json> [--csv answers.csv]`.
   - Input accepted: a JSON list or `{"questions": [...]}`; each entry has `id` and `text` (or `question`), optional `kind`, optional `constraints` (`step_free`, `closed`, `min_door_width_m`). Also accepts JSONL and the kit CSV `question_id,building_id,kind,question`.
   - Output `answers.json`: `{"profile": "kit_1_1_0", "commit": "<sha>", "building_id", "content_hash", "answers": [{"id", "kind", "answer_text": "<full reply ending with the Answer line>", "value": <number|null>, "item_id": <asset id|null>, "space_id": <space id|null>, "route": null | {"reachable": true, "space_path": [...], "node_path": [...], "element_path": [...], "length_m": 57.41}, "error": null}]}`. Unreachable: `"route": {"reachable": false, "space_path": [], "node_path": [], "element_path": [], "length_m": null}`. Tours: `route.legs` holds one entry per leg plus the summed `length_m`.
@@ -420,3 +438,4 @@ HTTP transport errors use FastAPI's default `{"detail": ...}` plus `{"error": {"
 
 - **C8 — 24 Oct 2026, Hagen release coordination, CR-C-2:** §6/§7/§10 require authenticated admin-session creation, private session-bound authority and legacy/rotated-code revocation; UI credentials use sessionStorage. C7 final-destination and C6 explicit mobility semantics preserved. Human explicitly authorized the coordinated fixes, main merge and deployment.
 - **C9 — 24 Oct 2026, Manuel's codex, CR-M-8/reset follow-up:** §7 adds opaque building_state_id to live HTTP snapshots and server tours so reset/reused versions cannot validate stale directions. §9 clarifies reset/cold-load/reconnect freshness, including blocked tours and final legs. Old stored tours refresh lazily; core/kit schemas, eleven tools and request bodies are unchanged.
+- **C10 — 25 Oct 2026, Lenard's codex, user-approved agent rebuild/integration:** §3/§4 preserve route-leg endpoint exceptions and shared spatial constraints; §7/§8 add guarded turns, role-filtered discovery and pure query tools, complete bounded observations, durable history/budget and later-user confirmation. §12 makes the common LLM core the default and retains only an explicit template baseline. Manual controls and hosted voice deployment remain separate. C9 reset-safe state identity is preserved.

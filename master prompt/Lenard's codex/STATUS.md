@@ -134,7 +134,7 @@ The full repository gate remains blocked by the existing AR assertion. Current c
 
 The user approved integrating latest main, fixing the existing AR assertion, running combined checks and independent reviews, then committing, pushing and opening a real pull request. Merge and deployment are excluded.
 
-- Rebased the unpublished refactor onto main `96cc8cd`. Integration preserves team entry, Colab initialization, the focused/isometric desktop, parts panel and the newer conversational voice UI. Calculation explainability remains removed. Agent calculation metadata remains for submission result selection.
+- Rebased the unpublished refactor onto main `96cc8cd`, then onto the newer `f536cb6` floor-control update. Integration preserves team entry, Colab initialization, the focused/isometric desktop, parts panel and the newer conversational voice UI. Calculation explainability remains removed. Agent calculation metadata remains for submission result selection.
 - The combined voice bridge retains typed messages, real transcripts, orb/mute/end/retry and browser desk actions. It adds registered server turns and guards for server and browser tools. The AR depth assertion now treats signed zero as the same coordinate; geometry code is unchanged.
 - Regenerated OpenAPI, tool definitions and TypeScript contracts after combining the server. The offline CI Sunday rehearsal now selects `--mode template` explicitly. The default benchmark remains the LLM agent.
 - First combined Python run: 826 passed; only the still-conflicted navigator prompt failed its length check. After prompt resolution, `tests/agent/test_prompts_budget.py`: 17 passed. Combined frontend run: 312 passed; production build passed with the existing Three.js chunk warning.
@@ -143,4 +143,8 @@ The user approved integrating latest main, fixing the existing AR assertion, run
 - Browser checks use real local API and isolated state with empty provider keys. Desktop 1280x800 and phone 390x844 show the actual unavailable-service error and retain the request for retry. Phone retry makes another HTTP request. No horizontal overflow was found. Evidence is in `docs/agent-ui/` for upload with the PR.
 - Native preview snapshot failed twice with a 15000ms timeout. Playwright used existing cached Chromium; no installed app was replaced. Docker is not running locally; the production image build/smoke must run in CI.
 
-Final repository gate, fixed-tree HTTP rehearsal and independent review remain in progress. No paid calls, live account edits, merge or deployment.
+- Final `scripts/check.sh`: passed, exit 0. Python 827 passed in 57.37 seconds, oracle 369/369, core text 138/138, frontend 312 passed, production build and device gate passed. Log: `/tmp/tyb-integrated-check.log`.
+- Fixed-tree HTTP/WebSocket/restart rehearsal: PASS, source unchanged, isolated process stopped and isolated state removed. Evidence: `/tmp/tyb-integrated-live-final.json`. No provider calls or deployments. After the latest main update, frontend 312 passed and build passed again; no agent/backend source changed in that main update. Screenshots were refreshed.
+- Independent Standards review found stale canonical contract text for the tool endpoint, truncation and parser-first benchmark. Updated `CONTRACTS.md` and its changelog to C10, synchronized FastAPI/OpenAPI metadata, and regenerated clients. `tests/server/test_health.py tests/server/test_live.py`: 22 passed. Spec review and the contract follow-up review remain in progress.
+
+No paid calls, live account edits, merge or deployment. Production Docker checks remain for CI because the local daemon is unavailable.

@@ -1,4 +1,4 @@
-# Platform integration (C9)
+# Platform integration (C10)
 
 Run `uv sync`, copy `.env.example` to `.env`, then run:
 
