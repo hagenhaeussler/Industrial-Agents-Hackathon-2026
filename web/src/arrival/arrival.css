@@ -1,0 +1,9 @@
+.workspace-arrival { position: fixed; inset: 0; z-index: 100; background: #09130f; color: white; opacity: 1; transition: opacity 200ms ease; }
+.workspace-arrival[data-leaving="true"] { opacity: 0; pointer-events: none; }
+.workspace-arrival .workspace-arrival-map { position: absolute; inset: 0; }
+.workspace-arrival-caption { position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%); display: grid; gap: 8px; width: min(85%, 640px); text-align: center; text-shadow: 0 2px 18px #09130f; pointer-events: none; }
+.workspace-arrival-caption span { color: #dcff58; font-size: 11px; font-weight: 750; letter-spacing: .22em; }
+.workspace-arrival-caption strong { font-size: clamp(20px, 4vw, 32px); font-weight: 750; letter-spacing: -.04em; }
+.workspace-arrival-skip { position: absolute; top: 20px; right: 20px; padding: 10px 16px; border: 1px solid #ffffff4d; border-radius: 12px; background: #09130fcc; color: white; font: inherit; font-size: 13px; cursor: pointer; }
+.workspace-arrival-skip:focus-visible { outline: 2px solid #dcff58; outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .workspace-arrival { transition: none; } }

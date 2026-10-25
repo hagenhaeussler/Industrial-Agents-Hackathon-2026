@@ -33,8 +33,8 @@ export function useLocation() {
   return { page: parsePage(url.pathname), query: url.searchParams };
 }
 
-export function navigate(to: string, replace = false) {
-  if (replace) history.replaceState(null, "", to);
-  else history.pushState(null, "", to);
+export function navigate(to: string, replace = false, state: unknown = null) {
+  if (replace) history.replaceState(state, "", to);
+  else history.pushState(state, "", to);
   notify();
 }

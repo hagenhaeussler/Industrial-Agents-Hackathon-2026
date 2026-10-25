@@ -172,7 +172,7 @@ function BuildingCard({ building }: { building: BuildingSummary }) {
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
-          onClick={() => navigate(`/admin/${id}`)}
+          onClick={() => navigate(`/admin/${id}`, false, { workspaceArrival: building.id })}
           className="flex items-center justify-center gap-1.5 rounded-[13px] bg-ink px-3 py-2.5 text-xs font-[700] text-white"
         >
           <Monitor size={15} className="shrink-0" /> Workspace

@@ -26,6 +26,12 @@ pnpm test    # unit tests
 pnpm build
 ```
 
+Clicking **Workspace** on Home briefly flies from Earth to the real footprint for any of the 17 mapped
+OSM buildings, then reveals the existing workspace. Other buildings, direct workspace links and phone
+guides open as before. The entrance is capped at three seconds including loading, can be skipped, and
+respects reduced motion. If the map or WebGL is unavailable the workspace still opens. Only the entrance
+loads MapLibre; it reuses the geographic metadata and Earth treatment from `feature/campus-explorer`.
+
 ## Deploy
 
 The Railway service `web` (project `talk-to-your-building`) runs the building API and serves the built app from

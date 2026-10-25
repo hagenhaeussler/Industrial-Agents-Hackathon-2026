@@ -10,3 +10,16 @@ Every building's `building.json` names its own source, licence and attribution, 
 | `procedural` | CC0 1.0 | Generated for the Munich hackathon | Everything is generated. |
 
 Furniture with `source: generated` comes from rules in `config/furniture_catalog.yaml`. Fixtures with `source: dataset` come from the original data.
+
+## Workspace arrival map
+
+The brief geographic entrance reuses the Earth style and footprint-derived camera bearing from
+`feature/campus-explorer`. Its 17 real building locations/outlines come from that branch's OSM catalogue
+(© OpenStreetMap contributors, ODbL). No evaluation data or generated indoor models are included.
+
+- Photographic Earth: [Sentinel-2 cloudless](https://s2maps.eu) by EOX IT Services GmbH, containing modified
+  Copernicus Sentinel data 2016, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Campus basemap: [OpenFreeMap](https://openfreemap.org), OpenMapTiles, ©
+  [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), OSM-derived data under ODbL.
+
+Attribution remains visible in the map. Imagery is requested at runtime; no imagery or credentials are committed.
