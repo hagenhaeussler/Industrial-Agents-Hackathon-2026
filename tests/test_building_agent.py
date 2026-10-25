@@ -221,6 +221,9 @@ class SubmissionTests(unittest.TestCase):
         self.assertEqual(self.read('{"Q1": "Where is the kitchen?"}'), expected)
         self.assertEqual(self.read('{"id": "Q1", "question": "Where is the kitchen?"}\n'), expected)
 
+    def test_numeric_ids_are_read_as_text_also_zero(self) -> None:
+        self.assertEqual(self.read('[{"id": 0, "text": "A?"}, {"id": 1, "text": "B?"}]'), [("0", "A?"), ("1", "B?")])
+
     def test_constraints_reach_the_agent_as_text(self) -> None:
         ((_, text),) = self.read('[{"id": "Q1", "text": "Route to A?", "constraints": {"step_free": true}}]')
         self.assertEqual(text, 'Route to A?\nConstraints: {"step_free": true}')

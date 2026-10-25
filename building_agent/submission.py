@@ -40,7 +40,7 @@ def read_questions(path: Path) -> list[tuple[str, str]]:
     questions = []
     for entry in data:
         text = entry.get("question") or entry.get("text")
-        if not entry.get("id") or not text:
+        if entry.get("id") in (None, "") or not text:  # 0 is a valid id
             raise ValueError(f"each question needs an id and a question or text field: {entry!r}")
         if entry.get("constraints"):
             text += f"\nConstraints: {json.dumps(entry['constraints'], ensure_ascii=False)}"
