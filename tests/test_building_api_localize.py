@@ -3,6 +3,7 @@
 import json
 import tempfile
 import unittest
+from collections.abc import Iterator
 from pathlib import Path
 
 import httpx
@@ -47,7 +48,7 @@ class LocalizeRouteTest(unittest.TestCase):
 
         return Localization("https://gpu.example", "secret", transport=httpx.MockTransport(handle))
 
-    def post(self, client: TestClient, body: bytes = b"\xff\xd8jpeg", **kwargs) -> httpx.Response:
+    def post(self, client: TestClient, body: bytes | Iterator[bytes] = b"\xff\xd8jpeg", **kwargs) -> httpx.Response:
         headers = kwargs.pop("headers", {"Content-Type": "image/jpeg"})
         return client.post("/api/buildings/b 1/localize", content=body, headers=headers, **kwargs)
 
@@ -77,12 +78,20 @@ class LocalizeRouteTest(unittest.TestCase):
             self.answer = httpx.Response(upstream, json={"detail": "x"})
             self.assertEqual(self.post(client).status_code, expected, f"upstream {upstream}")
 
-    def test_unreachable_service_is_unavailable(self) -> None:
-        def fail(request: httpx.Request) -> httpx.Response:
-            raise httpx.ConnectTimeout("no route", request=request)
+    def test_unreachable_or_slow_service_is_a_temporary_failure(self) -> None:
+        for error in (httpx.ConnectError, httpx.ReadTimeout):
 
-        response = self.post(self.client(Localization("https://gpu.example", "t", transport=httpx.MockTransport(fail))))
-        self.assertEqual(response.status_code, 503)
+            def fail(request: httpx.Request, error: type[httpx.TransportError] = error) -> httpx.Response:
+                raise error("no answer", request=request)
+
+            localization = Localization("https://gpu.example", "t", transport=httpx.MockTransport(fail))
+            self.assertEqual(self.post(self.client(localization)).status_code, 502, error.__name__)
+
+    def test_rejects_a_large_photo_sent_without_a_declared_length(self) -> None:
+        chunks = iter([b"x" * MAX_IMAGE_BYTES, b"x"])
+        response = self.post(self.client(self.upstream()), body=chunks)
+        self.assertEqual(response.status_code, 413)
+        self.assertEqual(self.requests, [])
 
     def test_the_token_never_reaches_the_caller(self) -> None:
         self.answer = httpx.Response(401, json={"detail": "bad token"})

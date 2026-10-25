@@ -1,13 +1,14 @@
 import type { Building, BuildingScene, Overlay, PathPoint } from "@building/view";
 import { ConversationProvider } from "@elevenlabs/react";
 import { Accessibility, MapPin, Search, Settings } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useBuilding, useRoute, type RouteRequest } from "../api/buildings";
 import type { Fix } from "../camera/localize";
 import { navigate } from "../router";
 import { directions, type Step } from "../route/directions";
 import { guidePath, readGuideLink } from "../route/link";
 import { spaceName } from "../route/places";
+import { stopsAhead } from "../route/progress";
 import { Sheet } from "../ui/Sheet";
 import { FloorPlanView } from "../views/FloorPlanView";
 import { ChatInput, Transcript } from "../voice/ConversationLog";
@@ -38,6 +39,9 @@ function storedMode(): GuideMode {
 
 const toFloorPoint = (point: PathPoint) => ({ floorId: point.floor_id, x: point.x, y: point.y });
 
+/** Camera fixes in a row that must agree on a new room before it becomes the start. One fix can land next door. */
+const ROOM_FIXES = 2;
+
 function Guide({
   buildingId,
   query,
@@ -61,6 +65,7 @@ function Guide({
   const [picker, setPicker] = useState<"from" | "to">();
   const [panel, setPanel] = useState<"chat" | "settings">();
   const [fix, setFix] = useState<Fix>();
+  const roomStreak = useRef<{ spaceId: string; count: number }>(undefined);
   const step: Step | undefined = steps[Math.min(stepIndex, steps.length - 1)];
 
   useEffect(() => {
@@ -68,6 +73,11 @@ function Guide({
   }, [route.data]);
   useEffect(() => {
     localStorage.setItem("guide-mode", mode);
+    // A camera position is only current while the camera runs.
+    if (mode !== "camera") {
+      setFix(undefined);
+      roomStreak.current = undefined;
+    }
   }, [mode]);
 
   const update = (next: Partial<RouteRequest>) => {
@@ -95,8 +105,13 @@ function Guide({
     : step && toFloorPoint(step.at);
   const onFix = (next: Fix) => {
     setFix(next);
-    // A new room becomes the start, so the route is planned again from where the camera says you are.
-    if (next.spaceId !== link.from) update({ stops: [next.spaceId, ...link.to] });
+    const count = roomStreak.current?.spaceId === next.spaceId ? roomStreak.current.count + 1 : 1;
+    roomStreak.current = { spaceId: next.spaceId, count };
+    if (count !== ROOM_FIXES || next.spaceId === link.from) return;
+    // A confirmed new room becomes the start, and the route is planned again with the stops still ahead.
+    const ahead = stopsAhead(route.data?.route, next.spaceId, link.to);
+    if (link.to.length > 0 && ahead.length === 0) return; // arrived
+    update({ stops: [next.spaceId, ...ahead] });
   };
 
   const overlay: Overlay = useMemo(

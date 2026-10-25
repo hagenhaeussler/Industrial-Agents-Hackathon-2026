@@ -32,14 +32,14 @@ describe("frameSize", () => {
 describe("postFrame", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("tells the caller to stop when the building has no map or the service is down", async () => {
+  it("tells the caller to stop when the building has no map or the server has no localization", async () => {
     for (const status of [404, 503]) {
       vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status })));
       expect(await postFrame("b1", new Blob(["x"]))).toEqual({ kind: "unavailable" });
     }
   });
 
-  it("keeps trying after other failures", async () => {
+  it("keeps trying after other failures, such as a timeout", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 502 })));
     expect(await postFrame("b1", new Blob(["x"]))).toEqual({ kind: "failed" });
   });

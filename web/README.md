@@ -65,10 +65,11 @@ In the camera view the phone sends about one frame per second (JPEG, long side 1
 `POST /api/buildings/{id}/localize`. The building API forwards it to the GPU localization service with the token
 from `LOCALIZATION_TOKEN`; the browser never sees the token or the service URL. See `docs/localization.md`.
 
-- Only results with `reliable: true` count. A new `space_id` becomes the start and the route is planned again.
-  `position` and `heading_deg` draw the marker on the mini map.
-- After 404 (no map for the building) or 503 (not configured or not reachable) the phone stops sending until the
-  page reloads.
+- Only results with `reliable: true` count. `position` and `heading_deg` draw the marker on the mini map.
+- When two fixes in a row agree on a new `space_id`, it becomes the start. The route is planned again with the
+  stops still ahead, so passed waypoints are dropped. In the destination nothing changes.
+- After 404 (no map for the building) or 503 (localization not configured on the server) the phone stops sending
+  until the page reloads. After other failures, such as a timeout (502), the wait doubles up to 16 s.
 - The service does not store images. Settings tell the user that frames are sent.
 
 ## Preview parts

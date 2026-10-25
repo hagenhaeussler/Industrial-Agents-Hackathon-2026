@@ -52,8 +52,9 @@ export async function captureFrame(video: HTMLVideoElement, canvas: HTMLCanvasEl
 
 export type LocalizeOutcome =
   | { kind: "result"; result: LocalizeResult }
-  /** 404 (no map for this building) or 503 (not configured or not reachable): stop sending. */
+  /** 404 (no map for this building) or 503 (not configured on the server): stop sending. */
   | { kind: "unavailable" }
+  /** Any other failure, such as a timeout: try again later. */
   | { kind: "failed" };
 
 export async function postFrame(buildingId: string, frame: Blob, signal?: AbortSignal): Promise<LocalizeOutcome> {

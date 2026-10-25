@@ -16,7 +16,9 @@ from fastapi import APIRouter, FastAPI, HTTPException, Query, Request, Response
 MAX_IMAGE_BYTES = 4 * 1024 * 1024
 TIMEOUT_S = 5.0
 PASSED_THROUGH = {200, 404, 413, 422}
-"""Upstream answers the phone can act on. Other failures become 502 or 503."""
+"""Upstream answers the phone can act on. Other failures become 502, which the phone retries.
+
+503 means only that localization is not configured here, so the phone can stop for good."""
 
 
 @dataclass
@@ -53,8 +55,8 @@ def localization_router(localization: Localization | None) -> APIRouter:
             413: {"description": "Image larger than 4 MB"},
             415: {"description": "Body is not image/jpeg"},
             422: {"description": "Body is not a readable image"},
-            502: {"description": "Localization service failed or rejected the server's token"},
-            503: {"description": "Localization not configured or not reachable"},
+            502: {"description": "Localization service failed, timed out, was not reachable or rejected the token"},
+            503: {"description": "Localization not configured on this server"},
         },
     )
     async def localize(
@@ -76,7 +78,7 @@ def localization_router(localization: Localization | None) -> APIRouter:
                 headers={"Authorization": f"Bearer {localization.token}", "Content-Type": "image/jpeg"},
             )
         except httpx.HTTPError:
-            raise HTTPException(503, "localization service not reachable") from None
+            raise HTTPException(502, "localization service not reachable") from None
         if upstream.status_code == 401:
             raise HTTPException(502, "localization service rejected the server's token")
         if upstream.status_code not in PASSED_THROUGH:
