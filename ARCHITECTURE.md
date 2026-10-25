@@ -43,8 +43,9 @@ requires a check against that model.
 Keep one implementation of each building tool and publish it through one MCP server.
 
 - Our benchmark agent (PydanticAI) uses the server in the same process. No network or token is involved.
-- The ElevenLabs conversational agent behind the later frontend connects to the same server over Streamable
-  HTTP. Because that endpoint is reachable from the internet, it requires a secret bearer token.
+- The ElevenLabs conversational agent connects to the same server over Streamable HTTP. Because that endpoint is
+  reachable from the internet, it requires a secret bearer token. ElevenLabs drops tools whose parameters contain
+  objects, so `voice_agent` gives the route tools flat condition parameters. See [docs/voice.md](docs/voice.md).
 
 ElevenLabs owns its conversational loop. Its requests do not pass through our own agent. Our agent is the
 benchmark entry point. Same tools do not guarantee the same answer quality, so each host needs its own

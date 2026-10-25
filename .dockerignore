@@ -1,0 +1,16 @@
+# Docker build context. Evaluation questions and answers must never enter an image; from data/ only building.json
+# files are sent. Same intent as .railwayignore, but Docker re-includes files in excluded folders directly and drops
+# trailing slashes, so a line such as `!data/**/` here would re-include every file.
+data/**
+!data/*/*/building.json
+benchmark/
+tests/
+web/
+SUBMISSION/
+results/
+agent_output/
+packages/
+.env*
+*.sqlite3
+.venv/
+.git/

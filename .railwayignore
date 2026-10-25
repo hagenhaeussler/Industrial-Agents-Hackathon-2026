@@ -1,0 +1,15 @@
+# Files `railway up` does not upload. Evaluation questions and answers must never leave this machine.
+# From data/ only building.json files are uploaded; the voice image copies one of them.
+data/**
+!data/**/
+!data/*/*/building.json
+benchmark/
+tests/
+web/
+SUBMISSION/
+results/
+agent_output/
+packages/
+.env*
+!.env.example
+*.sqlite3
