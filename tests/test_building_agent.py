@@ -11,7 +11,7 @@ from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, Tool
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from benchmark.score import score_reply
-from building_agent.agent import answer, load_from_directory
+from building_agent.agent import answer, load_from_directory, save_record
 from building_agent.answers import (
     CountAnswer,
     Failure,
@@ -189,6 +189,12 @@ class AgentTests(unittest.TestCase):
 
         reply = answer(self.building_directory, QUESTION, model=FunctionModel(model))
         self.assertIn("already called with these arguments", reply)
+
+    def test_runs_of_the_same_question_keep_separate_records(self) -> None:
+        # The same question text about two buildings, saved in the same second.
+        for building_id in ("A", "B"):
+            save_record(self.root / "runs", {"question": QUESTION, "building_id": building_id, "reply": "x"})
+        self.assertEqual(sorted(record["building_id"] for record in self.run_records()), ["A", "B"])
 
     def test_stopped_run_is_an_explicit_failure(self) -> None:
         def endless(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
