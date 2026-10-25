@@ -1,8 +1,8 @@
 # Track 01: rewrite baseline
 
 This branch starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
-at commit `dc03c44`. It contains building data, the evaluator and the building database. No agent or application
-is implemented yet.
+at commit `dc03c44`. It contains building data, the evaluator, the building database, the building tools and the
+benchmark agent. No application is implemented yet.
 
 The starter agent, PNG and SVG plan exports, duplicate equipment tables, duplicate test-question table,
 and student-kit marker have been removed. `building.json` is the source for each building's geometry and
@@ -10,19 +10,23 @@ equipment. The backend will use Python and SQLite. The frontend will use TypeScr
 
 ## Project guide
 
-The evaluator and the building database are implemented. Building tools, the agent and the web application
-are planned. These documents describe the decisions and the current state:
+The evaluator, the building database, the building tools with the route model and the benchmark agent are
+implemented. The agent answers all 138 dev questions. The benchmark submission is in `SUBMISSION/`. The web
+application is planned. These documents describe the decisions and the current state:
 
 - [AGENTS.md](AGENTS.md): working rules and evaluation-data isolation.
 - [ARCHITECTURE.md](ARCHITECTURE.md): responsibilities, shared tools and implementation order.
 - [docs/db.md](docs/db.md): SQLite schema, stored room areas, import and verification.
+- [docs/tools.md](docs/tools.md): building tools, their rules and the definitions checked against the answers.
 - [docs/agent.md](docs/agent.md): harness, MCP tools, model configuration and output design.
+- [docs/challenge.md](docs/challenge.md): organizer messages on route scoring, submission and deadline.
+- [SUBMISSION/BENCHMARK.md](SUBMISSION/BENCHMARK.md): how to run `run_benchmark` and reproduce `answers.json`.
 
 Import buildings into a SQLite file with `uv run python -m building_db import DATABASE BUILDING_JSON...`.
-See section 5 and [docs/db.md](docs/db.md). The agent and its tools build on this database next.
+See section 5 and [docs/db.md](docs/db.md). The tools in `building_tools/` read this database.
 
-`.env.example` records the planned model setting, `BUILDING_AGENT_MODEL=anthropic:claude-sonnet-5-5`.
-The agent will read this setting when it is implemented. The current evaluator does not consume it.
+Run the agent with `uv run python -m benchmark.evaluate data/dev --agent building_agent.agent:answer`.
+It needs `ANTHROPIC_API_KEY` in `.env`; `.env.example` lists all settings. See [docs/agent.md](docs/agent.md).
 
 Build a conversational agent that knows a building as well as its facility manager does. You give it a building, and people just ask it things:
 
@@ -72,9 +76,11 @@ CHANGELOG.md               what changed between kit versions (1.1.0: stair and l
 ATTRIBUTION.md             data sources and licences (read before you share anything)
 pyproject.toml             Python package and dependencies
 building_db/               SQLite schema, building.json validation, import and read-back
+building_tools/            building search, spatial calculations, route model, and their MCP server
+building_agent/            benchmark agent: instructions, answer shapes, formatter and entry point
 .env.example               example Anthropic credentials, if your agent uses them
 benchmark/                 score.py (the official scorer) and evaluate.py (runs an agent, writes the submission)
-tests/                     offline evaluator and database checks
+tests/                     offline evaluator, database and tool checks
 data/
   manifest.csv             one row per building: split, source, licence, size, lifts, stairs, ...
   train/<building_id>/     200 buildings: geometry, equipment and questions with answers

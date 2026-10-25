@@ -1,6 +1,82 @@
 # Agent and tools
 
-Status: decisions recorded. No harness or building tools are implemented yet.
+Status: the agent uses PydanticAI, the MCP server over the six building tools in [tools.md](tools.md), the
+answer shapes and the formatter. It answers all 138 dev questions correctly.
+
+## Measured results
+
+Dev run `dev-6` on 25 Oct 2026, Sonnet 5.5, effort `medium`, 10 questions at a time, with all nine tools and the
+route answer shape:
+
+| Kind | Correct |
+|---|---|
+| `errand` | 19 / 19 |
+| `floor_area_total` | 31 / 31 |
+| `largest_room` | 20 / 20 |
+| `room_stacked` | 9 / 9 |
+| `shared_walls_count` | 24 / 24 |
+| `step_free_reachable_count` | 1 / 1 |
+| `straight_line_3d` | 13 / 13 |
+| `what_if_door` | 2 / 2 |
+| `wide_delivery_count` | 19 / 19 |
+| Total | 138 / 138 |
+
+The run took 66 s and cost $1.27, about $0.01 per question. The earlier run `dev-5`, before the route answer
+shape, also had 138 / 138 in 72 s for $1.42. In `dev-6`, 94% of input tokens were cache reads. Before the route
+tools existed (`dev-4`), the agent answered the 41 route questions with explicit failures and no guesses.
+
+Other runs on the same day:
+
+| Run | Result | Time | Cost |
+|---|---|---|---|
+| Test set, 145 questions, written to `SUBMISSION/answers.json` | 145 answered, 0 stopped runs | 68 s | $1.38 |
+| An earlier test run | Same answer on 144 of 145 questions | 68 s | $1.50 |
+| Dev warm-up route questions on 5 buildings, through `run_benchmark` | 30 / 30 with the exact space path and length | about 1 min | $0.74 |
+
+In the one test difference, the earlier run looked for the nearest coat rack on the start floor only. The
+submitted run searched the whole building, as the question and the errand definition require.
+
+Fixes found in earlier dev runs:
+
+- The model looped on one identical tool call until the request limit stopped the run. A repeat guard now refuses
+  the third identical call and tells the model to use the earlier result or report a failure.
+- The model returned a room's area as a number when the question asked which room and how big. Answers are now
+  output tools (`answer_room`, `answer_number`, `answer_count`, `report_failure`), and the instructions say that
+  "which space" questions use `answer_room`.
+- The model recounted listed neighbours and subtracted an excluded corridor twice. `shared_walls` now returns
+  separate `counted` and `not_counted` lists. Each answer shape puts the explanation before the value.
+
+## Running it
+
+```bash
+uv run python -m building_agent.batch data/dev --workers 10 --name dev-run
+uv run python -m benchmark.evaluate data/dev --agent building_agent.agent:answer --per-kind 1
+```
+
+`building_agent.batch` answers 10 questions at a time and scores with the official scorer after all replies are
+in. It writes the same replies file and optional submission CSV as `benchmark.evaluate`, plus total cost, tokens
+and cache use. The official evaluator stays the reference and runs one question at a time.
+
+Instructions and tool definitions are cache breakpoints, because they are the same for every question. Parallel
+questions read them from the cache. A third, automatic breakpoint caches the growing history within one run.
+
+`answer(building_directory, question_text)` in `building_agent/agent.py` imports the building into
+`buildings.sqlite3` if needed, starts an MCP server bound to that one building and runs the agent on the question
+text. Each run writes a record with the tool calls, token use, cost and reply to `agent_output/runs/`. The
+instructions are in `building_agent/instructions.md`; their hash is stored in each record as the prompt version.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | none | Provider key, in `.env` only |
+| `BUILDING_AGENT_MODEL` | `anthropic:claude-sonnet-5-5` | Model |
+| `BUILDING_AGENT_EFFORT` | `medium` | Effort level sent in the provider's output configuration |
+| `BUILDING_AGENT_COST_LIMIT_USD` | `1.00` | Cost limit per question. Above it the run stops with a failure reply. |
+| `BUILDING_AGENT_REQUEST_LIMIT` | `60` | Model requests per question |
+| `BUILDING_DATABASE` | `buildings.sqlite3` | Database file |
+| `BUILDING_AGENT_RUNS` | `agent_output/runs` | Run records |
+
+Without a key, or after any error or limit, the reply says that the run stopped and why. It has no `Answer:`
+line.
 
 ## Harness and configuration
 
@@ -24,8 +100,7 @@ ANTHROPIC_API_KEY=
 ```
 
 `BUILDING_AGENT_MODEL` is the single model selection setting. The provider-qualified value permits a later
-model change without editing prompts or domain logic. The key remains server-side. This planned setting is
-recorded in `.env.example`; no runtime consumes it yet.
+model change without editing prompts or domain logic. The key remains server-side.
 
 Do not introduce small fixed tool-call caps that cut off valid reasoning. PydanticAI's `UsageLimits` allows
 50 model requests per run by default. Raise that limit deliberately. Use a generous `cost_limit` per run as the
@@ -47,14 +122,18 @@ versioned prompt files initially. A separate skills mechanism is not required.
 Each numerical claim must come from tool results. Keep a record of the relevant tool calls and computed values
 so failures can be inspected. Do not ask the model to provide hidden reasoning as a substitute for that record.
 
+The prompt states the README definitions, such as "directly above" as the largest overlap, and tells the
+agent which tool parameter expresses them, such as the number of floors for stacking. It describes concepts,
+not question phrasings. Story details in a question, such as a leaking washing machine, are context only.
+The benchmark answer follows the definition. [tools.md](tools.md) shows why.
+
 Clear benchmark questions should proceed directly. For live conversations, ask for a missing location,
 identity or constraint when it changes the result. Do not select an arbitrary room from ambiguous matches.
 
 ## Tools and host adapters
 
-Tools should support useful operations over buildings: finding entities, filtering facts, computing geometric
-relationships and calculating routes under explicit constraints. Design their exact interfaces after the data
-interface is established. Return typed results with units, stable entity IDs and explicit failure states.
+The tool list, its rules and the checked definitions are in [tools.md](tools.md). Route answers in the hidden
+evaluation are scored by their space sequence, see [challenge.md](challenge.md).
 
 Keep the calculation implementation independent of PydanticAI, Anthropic and ElevenLabs. Publish the tools
 through one MCP server, for example built with FastMCP:
@@ -74,14 +153,21 @@ validation and authority. Do not add placeholder write tools or allow raw SQL, s
 
 Our agent returns structured output. A deterministic formatter writes the benchmark `Answer:` line from it.
 These answer shapes apply only to benchmark submissions. The ElevenLabs conversational agent answers freely.
-The nine benchmark kinds need only three answer shapes, plus failure:
+The nine benchmark kinds need three answer shapes. Route questions on new buildings add a fourth. Failure covers
+the rest:
 
 | Shape | Fields | `Answer:` line | Kinds |
 |---|---|---|---|
 | Number | value, unit | `Answer: 214.7` | `floor_area_total`, `errand`, `straight_line_3d` |
 | Count | integer | `Answer: 7` | `wide_delivery_count`, `step_free_reachable_count`, `shared_walls_count`, `what_if_door` |
 | Room | room ref, optional area | `Answer: N5325, 79.48 m²` | `largest_room` (with area), `room_stacked` |
-| Failure | reason | A line without a number | Any stopped or unanswerable run |
+| Route | stops, conditions, leg conditions | `Answer: 12.99 m`, after a `Route:` line | Route questions on new buildings |
+| Failure | reason | No `Answer:` line | Any stopped or unanswerable run |
+
+The route shape holds only the stops and conditions the agent passed to `route`. The formatter calculates the
+route again from them, so the space sequence and the length always come from the route tool. If no route exists,
+the line is `Answer: No route exists under these rules.` An output validator sends unknown space or element IDs
+back to the model for repair.
 
 Every shape also has an `explanation` field for a short natural-language answer. The agent picks the shape from
 the answer instruction in the question text, such as "Finish with a line 'Answer: <number>'". The dataset `kind`
@@ -97,6 +183,17 @@ What each part catches:
 
 Exact field names, rounding and the repair limit are decided when the harness is built. Test the formatter
 against `benchmark/score.py`.
+
+## Submission and run_benchmark
+
+`uv run run_benchmark <building_dir> <questions.json> <answers.json>` runs the agent on every question about one
+building, 10 at a time, and writes `answers.json`. It imports the building into a new temporary database, so a
+stored building with the same ID and other content cannot block the import. `building_agent.batch` writes the
+same file with `--answers-json`. The format and the commands are in [SUBMISSION/BENCHMARK.md](../SUBMISSION/BENCHMARK.md).
+
+Each `answers.json` entry has the full reply, the text of its `Answer:` line and the answer as data. For routes
+the data holds the space IDs in walking order, the element IDs and the length. The organizers did not publish a
+schema, so the entry holds both the text and the IDs.
 
 ## Evaluation
 

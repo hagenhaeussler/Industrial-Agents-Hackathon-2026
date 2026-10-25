@@ -1,6 +1,9 @@
 # Rewrite architecture
 
-Status: the evaluator and the building database exist. Tools, agent and web application are planned.
+Status: the evaluator, the building database, nine building tools with the route model, their MCP server and
+the benchmark agent exist. The agent answers all 138 dev questions. The benchmark submission is in `SUBMISSION/`.
+The web application is planned. Organizer rules and the submission format are in
+[docs/challenge.md](docs/challenge.md).
 
 ## Confirmed direction
 
@@ -70,9 +73,12 @@ prove numerical correctness; values must come from tool results. Details are in 
 ## Next implementation steps
 
 1. Done: validated SQLite import and read-back, with stored room areas.
-2. Design the first building tools and the MCP server over the database.
-3. Adopt PydanticAI with the answer shapes and formatter. Run one full question through the real evaluator.
-4. Expand tool coverage and evaluate on dev before adding the web application.
+2. Done: six lookup and spatial tools, checked against train and dev answers. See [docs/tools.md](docs/tools.md).
+3. Done: PydanticAI agent with the MCP server, answer shapes and formatter. On dev it answers all 97 questions
+   its tools cover. See [docs/agent.md](docs/agent.md).
+4. Done: route tools. The agent answers all 138 dev questions.
+5. Done: `SUBMISSION/` with `BENCHMARK.md`, the test answers in `answers.json` and the `run_benchmark` command
+   for new buildings.
 
 The database details are in [docs/db.md](docs/db.md). Harness and output requirements are in
 [docs/agent.md](docs/agent.md). Do not implement future write tools, sessions or frontend features as prerequisites.
