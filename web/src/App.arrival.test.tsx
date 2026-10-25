@@ -62,11 +62,11 @@ describe("Home workspace arrival", () => {
     expect(history.state.workspaceArrival).toBeUndefined();
   });
 
-  it("caps the entire entrance at three seconds even if the map never completes", async () => {
+  it("caps the entire entrance at five seconds even if the map never completes", async () => {
     vi.useFakeTimers();
     renderApp();
     fireEvent.click(screen.getAllByRole("button", { name: "Workspace" })[0]!);
-    act(() => vi.advanceTimersByTime(2999));
+    act(() => vi.advanceTimersByTime(4999));
     expect(screen.getByLabelText(`Arriving at ${mapped.label}`)).toBeTruthy();
     act(() => vi.advanceTimersByTime(1));
     expect(screen.queryByLabelText(`Arriving at ${mapped.label}`)).toBeNull();

@@ -1,6 +1,6 @@
 import type { Building, BuildingScene, Overlay, PathPoint } from "@locora/view";
 import { ConversationProvider } from "@elevenlabs/react";
-import { Accessibility, MapPin, Search, Settings } from "lucide-react";
+import { Accessibility, Camera, MapPin, Search, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBuilding, useRoute, type RouteRequest } from "../api/buildings";
 import type { Fix } from "../camera/localize";
@@ -18,6 +18,7 @@ import { CameraLayer } from "./CameraLayer";
 import { Compass } from "./Compass";
 import type { GuideMode } from "./ModeSwitch";
 import { PlacePicker } from "./PlacePicker";
+import { PhotoQuestion } from "./PhotoQuestion";
 import { RouteBanner } from "./RouteBanner";
 
 /** The phone guide at `/b/:buildingId`, opened from a QR code or a shared link. */
@@ -63,7 +64,7 @@ function Guide({
   const [mode, setMode] = useState<GuideMode>(storedMode);
   const [stepIndex, setStepIndex] = useState(0);
   const [picker, setPicker] = useState<"from" | "to">();
-  const [panel, setPanel] = useState<"chat" | "settings">();
+  const [panel, setPanel] = useState<"chat" | "settings" | "photo">();
   const [fix, setFix] = useState<Fix>();
   const [currentSpaceId, setCurrentSpaceId] = useState(link.from);
   const roomStreak = useRef<{ spaceId: string; count: number }>(undefined);
@@ -199,6 +200,16 @@ function Guide({
           )}
         </div>
       </div>
+
+      <button type="button" aria-label="Take a photo to find an object" onClick={() => {
+        // Release the live localization camera before the phone's native photo picker uses it.
+        if (mode === "camera") setMode("map");
+        setPanel("photo");
+      }}
+        className="float absolute right-3.5 bottom-[max(225px,calc(env(safe-area-inset-bottom)+211px))] flex items-center gap-2 rounded-full px-4 py-3 text-xs font-[700]">
+        <Camera size={19} /> Find an object
+      </button>
+      <PhotoQuestion open={panel === "photo"} onClose={() => setPanel(undefined)} onAnalyze={voice.stop} />
 
       <AgentDock
         voice={voice}

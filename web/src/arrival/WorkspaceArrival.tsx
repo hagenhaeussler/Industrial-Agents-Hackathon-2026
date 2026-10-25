@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { arrivalBuildings } from "./catalogue";
 import "./arrival.css";
 
-const MAX_DURATION_MS = 3000;
+const MAX_DURATION_MS = 5000;
 const FADE_MS = 200;
 let renderer: Promise<typeof import("./map")> | undefined;
 function loadRenderer() {

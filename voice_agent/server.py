@@ -12,6 +12,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
 from building_tools.building import Building
+from voice_agent.photo import PhotoService, photo_routes
 from voice_agent.settings import VoiceSettings, require_agent_id
 
 log = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ def create_app(
     tools: Starlette | None = None,
     buildings: Iterable[Building] = (),
     cors_origins: Sequence[str] = (),
+    photos: PhotoService | None = None,
 ) -> Starlette:
     """`tools` is the MCP app from `voice_agent.tools`; it serves its own path and lifespan. `buildings` are the
     buildings it serves; a conversation passes one of their IDs as the `building_id` dynamic variable. `cors_origins`
@@ -55,9 +57,11 @@ def create_app(
     routes: list[Route | Mount] = [
         Route("/api/voice/token", conversation_token, methods=["GET"]),
         Route("/api/voice/buildings", list_buildings, methods=["GET"]),
+        *photo_routes(photos, list(cors_origins)),
     ]
-    # Only GET, without cookies: the MCP endpoint is for ElevenLabs' servers, not browsers.
-    middleware = [Middleware(CORSMiddleware, allow_origins=list(cors_origins), allow_methods=["GET"])]
+    # No cookies or browser MCP access. Photos use an explicit origin check as well as CORS.
+    middleware = [Middleware(CORSMiddleware, allow_origins=list(cors_origins),
+                             allow_methods=["GET", "POST"], allow_headers=["Content-Type"])]
     if tools is None:
         return Starlette(routes=routes, middleware=middleware)
     return Starlette(

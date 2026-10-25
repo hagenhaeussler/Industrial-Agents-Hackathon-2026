@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 setWorkerUrl(workerUrl);
 
-/** The Campus-Explorer Earth/approach/tilt sequence, shortened for the existing workspace entrance. */
+/** Earth, approach and tilt over roughly five seconds, including the final fade. */
 export function startArrival(container: HTMLElement, building: ArrivalBuilding, done: () => void, signal: AbortSignal) {
   const map = new Map({
     container, interactive: false,
@@ -47,16 +47,16 @@ export function startArrival(container: HTMLElement, building: ArrivalBuilding, 
       const target = map.cameraForBounds([[building.bounds[0], building.bounds[1]], [building.bounds[2], building.bounds[3]]],
         { padding: Math.min(container.clientWidth, container.clientHeight) * .2, maxZoom: 18.4 });
       const zoom = target?.zoom ?? 16;
-      // A brief globe beat, descent, then the branch's footprint-derived corner view.
+      // A globe beat, a slower descent, then the footprint-derived corner view.
       hold = window.setTimeout(() => {
         if (signal.aborted) return;
         map.once("moveend", () => {
           if (signal.aborted) return;
           map.once("moveend", done);
-          map.easeTo({ center: building.center, zoom, pitch: 56, bearing: buildingBearing(building.outline), duration: 500 });
+          map.easeTo({ center: building.center, zoom, pitch: 56, bearing: buildingBearing(building.outline), duration: 1000 });
         });
-        map.flyTo({ center: building.center, zoom: zoom - .7, pitch: 0, bearing: 0, duration: 1400, curve: 1.25 });
-      }, 200);
+        map.flyTo({ center: building.center, zoom: zoom - .7, pitch: 0, bearing: 0, duration: 3000, curve: 1.25 });
+      }, 400);
     });
     map.setStyle(adaptEarthStyle(style));
   }).catch(() => { if (!signal.aborted) done(); });

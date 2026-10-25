@@ -4,13 +4,15 @@ import { useImportBuilding } from "../api/importBuilding";
 import { navigate } from "../router";
 
 /** Import one file, then open the stored building in the workspace. */
-export function ImportBuilding() {
+export function ImportBuilding({ label = "Import building", inputLabel = "Building JSON file", onImported }: {
+  label?: string; inputLabel?: string; onImported?: (id: string) => void;
+}) {
   const input = useRef<HTMLInputElement>(null);
   const busy = useRef(false);
   const upload = useImportBuilding();
 
   return (
-    <section aria-label="Import building" className="grid min-w-0 gap-3 border-y border-line py-4">
+    <section aria-label={label} className="grid min-w-0 gap-3 border-y border-line py-4">
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -19,13 +21,13 @@ export function ImportBuilding() {
           className="flex items-center gap-2 rounded-[11px] bg-ink px-4 py-2.5 text-sm font-[650] text-white"
         >
           <Upload size={16} aria-hidden="true" />
-          {upload.isPending ? "Importing…" : "Import building"}
+          {upload.isPending ? "Importing…" : label}
         </button>
         <span className="text-sm text-muted">building.json, up to 20 MiB.</span>
         <input
           ref={input}
           type="file"
-          aria-label="Building JSON file"
+          aria-label={inputLabel}
           accept=".json,application/json"
           hidden
           disabled={upload.isPending}
@@ -35,7 +37,7 @@ export function ImportBuilding() {
             if (!file || busy.current) return;
             busy.current = true;
             upload.mutate(file, {
-              onSuccess: ({ id }) => navigate(`/admin/${encodeURIComponent(id)}`),
+              onSuccess: ({ id }) => { onImported?.(id); navigate(`/admin/${encodeURIComponent(id)}`); },
               onSettled: () => { busy.current = false; },
             });
           }}

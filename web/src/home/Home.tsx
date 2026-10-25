@@ -6,6 +6,7 @@ import { Avatar } from "../avatar/Avatar";
 import { navigate } from "../router";
 import { floorLabel, groupBuildings, matches, type Collection } from "./collections";
 import { ImportBuilding } from "./ImportBuilding";
+import { DemoBuilding } from "./DemoBuilding";
 
 const PAGE = 20;
 
@@ -61,6 +62,7 @@ export function Home() {
       </div>
 
       <ImportBuilding />
+      <DemoBuilding buildings={buildings.data ?? []} />
       {buildings.isError && <p className="text-sm text-danger">{buildings.error.message}</p>}
       {buildings.isPending && <p className="text-sm text-muted">Loading buildings…</p>}
       {buildings.isSuccess && buildings.data.length === 0 && (

@@ -11,6 +11,7 @@ import uvicorn
 from elevenlabs import ElevenLabs
 
 from voice_agent.agent import create_agent, sync
+from voice_agent.photo import PhotoService
 from voice_agent.server import create_app, elevenlabs_token_source
 from voice_agent.settings import MissingSetting, load_settings, require_agent_id, require_mcp_token
 from voice_agent.tools import MCP_PATH, building_files, load_buildings, mcp_app, voice_tools
@@ -61,7 +62,8 @@ def main(argv: list[str] | None = None) -> int:
         logging.basicConfig(level=logging.INFO)
         buildings = load_buildings(building_files(arguments.buildings))
         tools = mcp_app(asyncio.run(voice_tools(buildings)), mcp_token)
-        app = create_app(elevenlabs_token_source(settings), tools, buildings.values(), settings.cors_origins)
+        app = create_app(elevenlabs_token_source(settings), tools, buildings.values(), settings.cors_origins,
+                         PhotoService.from_environment(settings))
         uvicorn.run(app, host=arguments.host, port=arguments.port)
         return 0
     except (MissingSetting, ValueError) as error:
