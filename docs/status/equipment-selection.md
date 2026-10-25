@@ -13,7 +13,7 @@ Base and pull request target: `t3/rewrite-synera-project-baseline`.
 ## Checks run
 
 - `pnpm --dir web check`: passed.
-- `pnpm --dir web test`: 22 tests passed, including 10 equipment browser tests.
+- `pnpm --dir web test`: 33 tests passed after rebasing onto the latest rewrite branch, including 10 equipment browser tests.
 - `pnpm --dir web build`: passed. Vite reports bundles larger than 500 kB.
 - `pnpm --dir packages/building-view test`: 22 tests passed.
 - `pnpm --dir packages/building-view check`: passed.
