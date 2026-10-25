@@ -60,11 +60,6 @@ export function CanvasTools({
           </>
         )}
       </div>
-      {onResetView && (
-        <p className="float absolute right-3 bottom-3 z-10 rounded-full px-3.5 py-2 text-[11px] text-muted">
-          Drag to turn · Right-drag or Shift-drag to move · Scroll to zoom at the pointer · Double-click to centre
-        </p>
-      )}
       {hint && (
         <p className="float absolute top-3 left-1/2 z-10 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] font-[650]">
           {hint}{" "}
