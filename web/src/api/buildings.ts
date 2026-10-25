@@ -41,7 +41,7 @@ export interface LoadedBuilding {
 }
 
 /** The building document and the scene both views draw. */
-export function useBuilding(buildingId: string) {
+export function useBuilding(buildingId: string, enabled = true) {
   return useQuery({
     queryKey: ["building", buildingId],
     queryFn: async ({ signal }): Promise<LoadedBuilding> => {
@@ -49,6 +49,7 @@ export function useBuilding(buildingId: string) {
       return { document, scene: compileScene(document) };
     },
     staleTime: Infinity,
+    enabled,
   });
 }
 

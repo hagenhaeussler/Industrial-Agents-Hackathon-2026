@@ -9,6 +9,7 @@ const voiceServer = process.env.VOICE_SERVER ?? "https://voice-agent-production-
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  worker: { format: "es" },
   server: {
     proxy: {
       "/api/voice": { target: voiceServer, changeOrigin: true },

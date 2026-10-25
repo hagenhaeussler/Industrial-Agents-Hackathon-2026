@@ -1,12 +1,19 @@
 # Locora web app
 
-One React app with two routes:
+One React app with these routes:
 
 | Route | For | What it does |
 |---|---|---|
-| `/` | Everyone | Pick a building |
+| `/` | Everyone | Existing Locora building list, including unlocated datasets; **Explore on globe** entry |
+| `/explore` | Everyone | Photographic Earth, flight to a real OSM building, 3D campus and aerial imagery; calibrated CIT interior |
+| `/buildings` | Everyone | Alias of the full building list |
 | `/b/:buildingId?from=…&to=…&step_free=1` | Phone, QR target | Map, step list or camera view, with the avatar and the voice assistant in every view |
 | `/admin/:buildingId` | Desktop | 3D building and floor plans, search, position by click, routes, QR code to a phone, team sidebar |
+
+Use `/explore?building=<id>` to fly to a catalogue building, with `&map=photo` for optional Google 3D.
+Legacy local preview links `/?building=<id>` still open the explorer; navigating to its canonical route
+keeps that explorer mounted. The illustrated collections branch (`t3/home-collections`, `b601c75`)
+is not included here; the small Home-header globe action can be reused in that UI independently.
 
 ## Run
 
@@ -40,6 +47,26 @@ The service variable `VITE_VOICE_SERVER` holds the voice server's public URL. Th
 app's origin in `VOICE_CORS_ORIGINS`.
 
 ## How the parts fit
+
+The map explorer and its data preparation, sources and limitations are described in
+[Campus explorer](../docs/campus-explorer.md). `web/public/maps/` ships with the web build. The aerial
+layer uses the public Bavarian DOP20 WMS; the campus basemap uses OpenFreeMap. These modes need no API key.
+The Earth entrance uses EOX Sentinel-2 cloudless imagery containing modified Copernicus Sentinel data
+2016 (CC BY 4.0). It rotates slowly, flies down to a top-down view and tilts while buildings rise. The
+globe treatment remains inside the existing Locora map UI. Later selections have a shorter flight;
+**Skip arrival** finishes immediately, and reduced-motion preferences disable rotation and the arrival
+animation. The real footprint determines the exterior camera angle in both MapLibre and Google.
+The optional **3D Photo** mode uses Google's Maps JavaScript API. Enter a restricted browser key or
+Demo Key in the on-screen password field. It is used only in the running tab; no environment file,
+repository file, browser storage or build artifact holds the key. A reload requires entering it again.
+For CIT, clicking the real building replaces its Google mesh with our georeferenced floor models
+inside the same photographic scene. Its surroundings remain visible. Select a level or separate the
+five floors; **Back to 3D** restores Google's building without recreating the map. Regeneration instructions
+and the source manifest are documented in the Campus explorer guide. Google attribution remains visible,
+including above the phone sheet.
+Opening the model animates into a closer view and hides Google's place labels. Selecting a level gives
+a near-top-down floor view. Search source rooms by name/number in the left rail; selecting one zooms to
+its actual geometry and highlights the floor area. Close its card to return to that level.
 
 ```mermaid
 flowchart LR

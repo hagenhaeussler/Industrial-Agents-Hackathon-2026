@@ -5,7 +5,8 @@
   "description": "2D and 3D building views compiled from the building.json format",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./gltf": "./src/export/FloorGlb.ts"
   },
   "scripts": {
     "dev": "vite",
