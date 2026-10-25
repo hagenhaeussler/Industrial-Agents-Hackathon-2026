@@ -1,6 +1,9 @@
-# Track 01: rewrite baseline
+# Locora
 
-This branch starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
+Locora helps people find rooms and equipment and plan routes through a building.
+It includes a desktop workspace, a phone guide and a voice assistant.
+
+This project starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
 at commit `dc03c44`. It contains building data, the evaluator, the building database, the building tools and the
 benchmark agent, web app and voice service.
 

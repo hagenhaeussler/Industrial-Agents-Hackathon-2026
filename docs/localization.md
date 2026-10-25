@@ -1,4 +1,4 @@
-# Camera localization
+# Locora camera localization
 
 Status: steps 1 to 5 are done. The code is in `localization/`. Results are in [Spike results](#spike-results)
 and [Floor plan results](#floor-plan-results). The service runs on the GPU VM, see [Localization service](#localization-service).

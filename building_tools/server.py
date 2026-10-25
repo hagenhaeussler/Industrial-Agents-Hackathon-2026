@@ -17,7 +17,7 @@ Space and asset IDs come from find_spaces and find_assets. Areas are in m², len
 
 def create_server(building: Building) -> FastMCP:
     """An MCP server whose tools answer questions about `building` only."""
-    server = FastMCP(f"building-{building.id}", instructions=SERVER_INSTRUCTIONS)
+    server = FastMCP(f"locora-building-{building.id}", instructions=SERVER_INSTRUCTIONS)
 
     def run[T](tool: Callable[[], T]) -> T:
         try:

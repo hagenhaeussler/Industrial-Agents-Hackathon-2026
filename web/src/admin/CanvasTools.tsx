@@ -1,4 +1,4 @@
-import type { Building } from "@building/view";
+import type { Building } from "@locora/view";
 import { Fullscreen, LocateFixed, MousePointer2, Move, Navigation, Package, Tag, X } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Selection } from "./Workspace";

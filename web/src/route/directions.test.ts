@@ -1,4 +1,4 @@
-import type { RouteView } from "@building/view";
+import type { RouteView } from "@locora/view";
 import { describe, expect, it } from "vitest";
 import { directions, turnAt, type BuildingIndex } from "./directions";
 

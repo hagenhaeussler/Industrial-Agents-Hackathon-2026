@@ -98,7 +98,7 @@ class Site:
 
 
 def create_app(sites: dict[str, Site], token: str) -> FastAPI:
-    app = FastAPI(title="Localization service")
+    app = FastAPI(title="Locora localization service")
 
     def authorized(authorization: Annotated[str, Header()] = "") -> None:
         if not hmac.compare_digest(authorization.encode(), f"Bearer {token}".encode()):

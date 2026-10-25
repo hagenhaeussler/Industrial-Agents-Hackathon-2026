@@ -5,9 +5,9 @@ from typing import Any
 
 from elevenlabs import ElevenLabs
 
-AGENT_NAME = "Building voice agent"
-FIRST_MESSAGE = "Hi! Ask me anything about this building."
-MCP_SERVER_NAME = "Building tools"
+AGENT_NAME = "Locora"
+FIRST_MESSAGE = "Hi, I'm Locora. Ask me anything about this building."
+MCP_SERVER_NAME = "Locora building tools"
 MCP_SECRET_NAME = "building-mcp-authorization"
 # Optional context the UI passes as dynamic variables when it starts a conversation; prompt.md uses them. An empty
 # string means unknown. `building_id` is also set by the UI but only goes into the MCP header, so it has no default.

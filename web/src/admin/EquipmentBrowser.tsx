@@ -1,4 +1,4 @@
-import type { Building } from "@building/view";
+import type { Building } from "@locora/view";
 import { ChevronRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 

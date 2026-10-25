@@ -1,4 +1,4 @@
-import type { Building, RouteView } from "@building/view";
+import type { Building, RouteView } from "@locora/view";
 import { Blobatar } from "@blobatar/react";
 import { Accessibility, Hash, LocateFixed, QrCode, Send, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
@@ -43,7 +43,7 @@ export function SidePanel(props: {
   onPost: (text: string) => void;
 }) {
   const tabs: { tab: PanelTab; label: string }[] = [
-    { tab: "assistant", label: "Assistant" },
+    { tab: "assistant", label: "Locora" },
     { tab: "route", label: "Route" },
     { tab: "activity", label: "Activity" },
   ];
@@ -77,13 +77,13 @@ function AssistantTab({ voice }: { voice: BuildingVoice }) {
       <div className="flex items-center gap-3">
         <Avatar phase={voice.phase} level={voice.level} size={72} />
         <div className="min-w-0 flex-1">
-          <h2 className="text-[16px] font-[800] tracking-[-0.3px]">Building assistant</h2>
+          <h2 className="text-[16px] font-[800] tracking-[-0.3px]">Locora</h2>
           <p className="text-xs text-muted">{voice.error ?? PHASE_TEXT[voice.phase]}</p>
         </div>
         <MicButton phase={voice.phase} onStart={() => void voice.start()} onStop={voice.stop} />
       </div>
       <div className="mt-4 flex min-h-0 flex-1 flex-col">
-        <Transcript entries={voice.entries} empty="Start the conversation with the mic. Routes the assistant plans appear in the view." />
+        <Transcript entries={voice.entries} empty="Start the conversation with the mic. Routes Locora plans appear in the view." />
       </div>
       <ChatInput enabled={live} onSend={voice.send} />
     </div>

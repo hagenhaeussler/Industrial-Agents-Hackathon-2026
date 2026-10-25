@@ -98,7 +98,7 @@ def build_agent(building: Building, model: Model | str, effort: AnthropicEffort)
             anthropic_cache_instructions=True,
             anthropic_cache_tool_definitions=True,
         ),
-        name="building-agent",
+        name="Locora",
     )
 
     @agent.output_validator

@@ -1,4 +1,4 @@
-import type { Building } from "@building/view";
+import type { Building } from "@locora/view";
 
 /** A room or a piece of equipment the user can pick. Equipment leads to the space that holds it. */
 export interface PlaceOption {

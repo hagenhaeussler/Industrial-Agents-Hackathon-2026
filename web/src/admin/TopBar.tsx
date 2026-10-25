@@ -1,4 +1,4 @@
-import type { Building, FloorScene } from "@building/view";
+import type { Building, FloorScene } from "@locora/view";
 import { Blobatar } from "@blobatar/react";
 import { DoorOpen, Package, QrCode, Search } from "lucide-react";
 import { useMemo, useState } from "react";
