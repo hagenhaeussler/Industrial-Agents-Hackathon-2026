@@ -29,8 +29,12 @@ export function FloorPlanView({
     return () => view.destroy();
   }, []);
 
-  useEffect(() => plan?.show(scene, floorId), [plan, scene, floorId]);
-  useEffect(() => plan?.setOverlay(overlay), [plan, overlay]);
+  useEffect(() => {
+    plan?.show(scene, floorId);
+  }, [plan, scene, floorId]);
+  useEffect(() => {
+    plan?.setOverlay(overlay);
+  }, [plan, overlay]);
   useEffect(() => (plan && onPick ? plan.onPick(onPick) : undefined), [plan, onPick]);
   useEffect(() => {
     if (!plan || !focus) return;

@@ -26,13 +26,20 @@ export function BuildingView3DView({
     return () => created.destroy();
   }, []);
 
-  useEffect(() => view?.show(scene), [view, scene]);
-  useEffect(() => view?.setFocusFloor(focusFloorId), [view, focusFloorId]);
-  useEffect(() => view?.setOverlay(overlay), [view, overlay]);
+  useEffect(() => {
+    view?.show(scene);
+  }, [view, scene]);
+  useEffect(() => {
+    view?.setFocusFloor(focusFloorId);
+  }, [view, focusFloorId]);
+  useEffect(() => {
+    view?.setOverlay(overlay);
+  }, [view, overlay]);
   useEffect(() => (view && onPick ? view.onPick(onPick) : undefined), [view, onPick]);
   useEffect(() => {
     if (view && options) view.setOptions(options);
   }, [view, options?.labels, options?.assets, options?.floorGap, options?.wallHeight]);
 
-  return <div ref={container} className={className} />;
+  // The label renderer gives each label a z-index; isolate keeps them below the floating controls.
+  return <div ref={container} className={`isolate ${className}`} />;
 }

@@ -61,8 +61,12 @@ function Guide({
   const [panel, setPanel] = useState<"chat" | "settings">();
   const step: Step | undefined = steps[Math.min(stepIndex, steps.length - 1)];
 
-  useEffect(() => setStepIndex(0), [route.data]);
-  useEffect(() => localStorage.setItem("guide-mode", mode), [mode]);
+  useEffect(() => {
+    setStepIndex(0);
+  }, [route.data]);
+  useEffect(() => {
+    localStorage.setItem("guide-mode", mode);
+  }, [mode]);
 
   const update = (next: Partial<RouteRequest>) => {
     const stops = next.stops ?? [link.from ?? "", ...link.to];
@@ -78,7 +82,9 @@ function Guide({
   const ground = scene.floors.find((floor) => floor.level === 0) ?? scene.floors[0]!;
   const startFloor = document.spaces.find((space) => space.id === link.from)?.floor_id ?? ground.id;
   const [viewFloor, setViewFloor] = useState(startFloor);
-  useEffect(() => setViewFloor(step?.at.floor_id ?? startFloor), [step, startFloor]);
+  useEffect(() => {
+    setViewFloor(step?.at.floor_id ?? startFloor);
+  }, [step, startFloor]);
 
   const overlay: Overlay = useMemo(
     () => ({
@@ -129,7 +135,7 @@ function Guide({
           />
         )}
         <div className="mt-2 flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-2">
+          <div className={`flex flex-col gap-2 ${mode === "steps" ? "invisible" : ""}`}>
             <button
               type="button"
               onClick={() => setPanel("settings")}

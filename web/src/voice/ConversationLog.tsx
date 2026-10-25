@@ -5,7 +5,9 @@ import type { TranscriptEntry } from "./transcript";
 /** The conversation so far. Tool calls show as short activity lines. */
 export function Transcript({ entries, empty }: { entries: TranscriptEntry[]; empty: string }) {
   const list = useRef<HTMLOListElement>(null);
-  useEffect(() => list.current?.scrollTo({ top: list.current.scrollHeight }), [entries]);
+  useEffect(() => {
+    list.current?.scrollTo({ top: list.current.scrollHeight });
+  }, [entries]);
   if (entries.length === 0) return <p className="py-6 text-center text-sm text-muted">{empty}</p>;
   return (
     <ol ref={list} role="log" aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-3">
