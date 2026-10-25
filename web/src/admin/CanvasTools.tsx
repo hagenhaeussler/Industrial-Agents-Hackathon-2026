@@ -93,7 +93,7 @@ function ToolButton({
       aria-label={label}
       title={label}
       aria-pressed={active}
-      className={`grid size-10 place-items-center rounded-[10px] ${active ? "bg-accent text-ink" : "hover:bg-field"}`}
+      className={`grid size-10 place-items-center rounded-[10px] ${active ? "bg-ink text-white" : "hover:bg-field"}`}
     >
       {children}
     </button>
