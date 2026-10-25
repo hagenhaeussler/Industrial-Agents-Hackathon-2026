@@ -1,0 +1,2227 @@
+{
+  "note": "Invented for the navigation demo. The outline and Table 1 and 2 come from the scan; rooms behind the scanned walls are synthetic. Doors, room names and equipment are made up.",
+  "spaces": [
+    {
+      "ref": "0.01",
+      "name": "Kitchen 0.01",
+      "type": "room",
+      "room_type": "kitchen",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          7.3,
+          0
+        ],
+        [
+          7.3,
+          7.25
+        ],
+        [
+          0,
+          7.25
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.02",
+      "name": "Open office 0.02",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          7.3,
+          0
+        ],
+        [
+          21.85,
+          0
+        ],
+        [
+          21.85,
+          7.25
+        ],
+        [
+          7.3,
+          7.25
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.03",
+      "name": "Makerspace 0.03",
+      "type": "room",
+      "room_type": "makerspace",
+      "polygon": [
+        [
+          21.85,
+          0
+        ],
+        [
+          31.65,
+          0
+        ],
+        [
+          31.65,
+          7.25
+        ],
+        [
+          21.85,
+          7.25
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.04",
+      "name": "Open office 0.04",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          21.85,
+          7.25
+        ],
+        [
+          31.65,
+          7.25
+        ],
+        [
+          31.65,
+          16
+        ],
+        [
+          21.85,
+          16
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.05",
+      "name": "Team area 0.05",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          21.85,
+          16
+        ],
+        [
+          27.3,
+          16
+        ],
+        [
+          27.3,
+          21.9
+        ],
+        [
+          21.85,
+          21.9
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.06",
+      "name": "Meeting room 0.06",
+      "type": "room",
+      "room_type": "meeting_room",
+      "polygon": [
+        [
+          27.3,
+          17.55
+        ],
+        [
+          33.75,
+          17.55
+        ],
+        [
+          33.75,
+          21.9
+        ],
+        [
+          27.3,
+          21.9
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.07",
+      "name": "Open office 0.07",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          0,
+          7.25
+        ],
+        [
+          7.3,
+          7.25
+        ],
+        [
+          7.3,
+          17
+        ],
+        [
+          0,
+          17
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.08",
+      "name": "Library 0.08",
+      "type": "room",
+      "room_type": "library",
+      "polygon": [
+        [
+          0,
+          17
+        ],
+        [
+          7.3,
+          17
+        ],
+        [
+          7.3,
+          27.85
+        ],
+        [
+          0,
+          27.85
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.09",
+      "name": "Corridor 0.09",
+      "type": "corridor",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          27.3,
+          16
+        ],
+        [
+          60.025,
+          16
+        ],
+        [
+          60.025,
+          17.55
+        ],
+        [
+          27.3,
+          17.55
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.10",
+      "name": "Entrance 0.10",
+      "type": "corridor",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          43.65,
+          12.55
+        ],
+        [
+          45.05,
+          12.55
+        ],
+        [
+          45.05,
+          16
+        ],
+        [
+          43.65,
+          16
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "ref": "0.11",
+      "name": "Print room 0.11",
+      "type": "room",
+      "room_type": "print_room",
+      "polygon": [
+        [
+          33.75,
+          17.55
+        ],
+        [
+          39,
+          17.55
+        ],
+        [
+          39,
+          22.55
+        ],
+        [
+          33.75,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.12",
+      "name": "Electronics lab 0.12",
+      "type": "room",
+      "room_type": "lab",
+      "polygon": [
+        [
+          39,
+          17.55
+        ],
+        [
+          44.25,
+          17.55
+        ],
+        [
+          44.25,
+          22.55
+        ],
+        [
+          39,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.13",
+      "name": "Server room 0.13",
+      "type": "room",
+      "room_type": "server_room",
+      "polygon": [
+        [
+          44.25,
+          17.55
+        ],
+        [
+          49.5,
+          17.55
+        ],
+        [
+          49.5,
+          22.55
+        ],
+        [
+          44.25,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.14",
+      "name": "Office 0.14",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          49.5,
+          17.55
+        ],
+        [
+          54.75,
+          17.55
+        ],
+        [
+          54.75,
+          22.55
+        ],
+        [
+          49.5,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.15",
+      "name": "Meeting room 0.15",
+      "type": "room",
+      "room_type": "meeting_room",
+      "polygon": [
+        [
+          54.75,
+          17.55
+        ],
+        [
+          60.025,
+          17.55
+        ],
+        [
+          60.025,
+          22.55
+        ],
+        [
+          54.75,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.16",
+      "name": "Storage 0.16",
+      "type": "room",
+      "room_type": "storage",
+      "polygon": [
+        [
+          31.65,
+          12.55
+        ],
+        [
+          37.65,
+          12.55
+        ],
+        [
+          37.65,
+          16
+        ],
+        [
+          31.65,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.17",
+      "name": "Toilets 0.17",
+      "type": "room",
+      "room_type": "toilet",
+      "polygon": [
+        [
+          37.65,
+          12.55
+        ],
+        [
+          43.65,
+          12.55
+        ],
+        [
+          43.65,
+          16
+        ],
+        [
+          37.65,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.18",
+      "name": "Office 0.18",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          45.05,
+          12.55
+        ],
+        [
+          50,
+          12.55
+        ],
+        [
+          50,
+          16
+        ],
+        [
+          45.05,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.19",
+      "name": "Office 0.19",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          50,
+          12.55
+        ],
+        [
+          55,
+          12.55
+        ],
+        [
+          55,
+          16
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "ref": "0.20",
+      "name": "Technical room 0.20",
+      "type": "room",
+      "room_type": "technical_room",
+      "polygon": [
+        [
+          55,
+          12.55
+        ],
+        [
+          60.025,
+          12.55
+        ],
+        [
+          60.025,
+          16
+        ],
+        [
+          55,
+          16
+        ]
+      ],
+      "synthetic": true
+    }
+  ],
+  "openings": [
+    {
+      "spaces": [
+        "0.01",
+        "0.02"
+      ],
+      "kind": "opening",
+      "position": [
+        7.3,
+        3.625
+      ],
+      "width_m": 7.05
+    },
+    {
+      "spaces": [
+        "0.02",
+        "0.03"
+      ],
+      "kind": "opening",
+      "position": [
+        21.85,
+        3.625
+      ],
+      "width_m": 7.05
+    },
+    {
+      "spaces": [
+        "0.03",
+        "0.04"
+      ],
+      "kind": "opening",
+      "position": [
+        26.75,
+        7.25
+      ],
+      "width_m": 9.6
+    },
+    {
+      "spaces": [
+        "0.01",
+        "0.07"
+      ],
+      "kind": "opening",
+      "position": [
+        3.65,
+        7.25
+      ],
+      "width_m": 7.1
+    },
+    {
+      "spaces": [
+        "0.07",
+        "0.08"
+      ],
+      "kind": "opening",
+      "position": [
+        3.65,
+        17
+      ],
+      "width_m": 7.1
+    },
+    {
+      "spaces": [
+        "0.04",
+        "0.05"
+      ],
+      "kind": "opening",
+      "position": [
+        24.575,
+        16
+      ],
+      "width_m": 5.25
+    },
+    {
+      "spaces": [
+        "0.05",
+        "0.09"
+      ],
+      "kind": "opening",
+      "position": [
+        27.3,
+        16.775
+      ],
+      "width_m": 1.35
+    },
+    {
+      "spaces": [
+        "0.04",
+        "0.09"
+      ],
+      "kind": "opening",
+      "position": [
+        28.2,
+        16
+      ],
+      "width_m": 1.6
+    },
+    {
+      "spaces": [
+        "0.09",
+        "0.10"
+      ],
+      "kind": "opening",
+      "position": [
+        44.35,
+        16
+      ],
+      "width_m": 1.2
+    },
+    {
+      "spaces": [
+        "0.10",
+        "outside"
+      ],
+      "kind": "entrance",
+      "position": [
+        44.35,
+        12.55
+      ],
+      "width_m": 1.2
+    },
+    {
+      "spaces": [
+        "0.09",
+        "outside"
+      ],
+      "kind": "entrance",
+      "position": [
+        60.025,
+        16.775
+      ],
+      "width_m": 1.35
+    },
+    {
+      "spaces": [
+        "0.06",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        30.5,
+        17.55
+      ],
+      "width_m": 1.2
+    },
+    {
+      "spaces": [
+        "0.05",
+        "0.06"
+      ],
+      "kind": "door",
+      "position": [
+        27.3,
+        19.7
+      ],
+      "width_m": 0.9
+    },
+    {
+      "spaces": [
+        "0.11",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        36.4,
+        17.55
+      ],
+      "width_m": 0.9
+    },
+    {
+      "spaces": [
+        "0.12",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        41.6,
+        17.55
+      ],
+      "width_m": 1.2
+    },
+    {
+      "spaces": [
+        "0.13",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        46.9,
+        17.55
+      ],
+      "width_m": 1.6
+    },
+    {
+      "spaces": [
+        "0.14",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        52.1,
+        17.55
+      ],
+      "width_m": 0.9
+    },
+    {
+      "spaces": [
+        "0.15",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        57.4,
+        17.55
+      ],
+      "width_m": 1.2
+    },
+    {
+      "spaces": [
+        "0.16",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        34.6,
+        16
+      ],
+      "width_m": 1.6
+    },
+    {
+      "spaces": [
+        "0.17",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        40.6,
+        16
+      ],
+      "width_m": 1.2
+    },
+    {
+      "spaces": [
+        "0.18",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        47.5,
+        16
+      ],
+      "width_m": 0.9
+    },
+    {
+      "spaces": [
+        "0.19",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        52.5,
+        16
+      ],
+      "width_m": 0.9
+    },
+    {
+      "spaces": [
+        "0.20",
+        "0.09"
+      ],
+      "kind": "door",
+      "position": [
+        57.5,
+        16
+      ],
+      "width_m": 1.6
+    }
+  ],
+  "assets": [
+    {
+      "name": "Kitchen counter 0.01",
+      "category": "fixture",
+      "type": "kitchen_counter",
+      "position": [
+        0.4,
+        2.6
+      ],
+      "footprint": {
+        "width_m": 3.2,
+        "depth_m": 0.7,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Coffee machine 0.01",
+      "category": "equipment",
+      "type": "coffee_machine",
+      "position": [
+        0.4,
+        1.4
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.45,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Microwave 0.01",
+      "category": "equipment",
+      "type": "microwave",
+      "position": [
+        0.4,
+        2.2
+      ],
+      "footprint": {
+        "width_m": 0.5,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Sink 0.01",
+      "category": "fixture",
+      "type": "sink",
+      "position": [
+        0.4,
+        3.4
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Dishwasher 0.01",
+      "category": "equipment",
+      "type": "dishwasher",
+      "position": [
+        0.4,
+        4.55
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Fridge 0.01",
+      "category": "equipment",
+      "type": "fridge",
+      "position": [
+        0.45,
+        5.6
+      ],
+      "footprint": {
+        "width_m": 0.7,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Vending machine 0.01",
+      "category": "equipment",
+      "type": "vending_machine",
+      "position": [
+        6.7,
+        0.6
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.02-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        12.5,
+        3.2
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.02-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        13.0,
+        3.45
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.02-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        12.5,
+        4.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.02-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        13.0,
+        3.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.02-C",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        15.0,
+        3.2
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.02-C",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        15.5,
+        3.45
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.02-D",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        15.0,
+        4.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.02-D",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        15.5,
+        3.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.02-E",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        17.5,
+        3.2
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.02-E",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        18.0,
+        3.45
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.02-F",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        17.5,
+        4.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.02-F",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        18.0,
+        3.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Multifunction printer 0.02",
+      "category": "equipment",
+      "type": "multifunction_printer",
+      "position": [
+        20.9,
+        6.6
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "3D printer 0.03-A",
+      "category": "machine",
+      "type": "3d_printer",
+      "position": [
+        31.1,
+        1.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "3D printer 0.03-B",
+      "category": "machine",
+      "type": "3d_printer",
+      "position": [
+        31.1,
+        1.9
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "3D printer 0.03-C",
+      "category": "machine",
+      "type": "3d_printer",
+      "position": [
+        31.1,
+        2.8
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Workbench 0.03",
+      "category": "furniture",
+      "type": "workbench",
+      "position": [
+        28.2,
+        6.6
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Tool cabinet 0.03",
+      "category": "furniture",
+      "type": "tool_cabinet",
+      "position": [
+        28.0,
+        0.35
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Fire extinguisher 0.03",
+      "category": "equipment",
+      "type": "fire_extinguisher",
+      "position": [
+        22.1,
+        0.3
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.3,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.04-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        24.1,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        24.35,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        24.9,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        24.65,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-C",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        24.1,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-C",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        24.35,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-D",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        24.9,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-D",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        24.65,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-E",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        28.1,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-E",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        28.35,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-F",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        28.9,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-F",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        28.65,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-G",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        28.1,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-G",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        28.35,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.04-H",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        28.9,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "PC 0.04-H",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        28.65,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Whiteboard 0.04",
+      "category": "equipment",
+      "type": "whiteboard",
+      "position": [
+        31.5,
+        11.75
+      ],
+      "footprint": {
+        "width_m": 1.8,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.05-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        24.0,
+        19.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.05-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        24.5,
+        19.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.05-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        24.0,
+        19.9
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.05-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        24.5,
+        19.65
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Whiteboard 0.05",
+      "category": "equipment",
+      "type": "whiteboard",
+      "position": [
+        22.0,
+        19.0
+      ],
+      "footprint": {
+        "width_m": 1.8,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Plant 0.05",
+      "category": "furniture",
+      "type": "plant",
+      "position": [
+        26.8,
+        21.4
+      ],
+      "footprint": {
+        "width_m": 0.5,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Meeting table 0.06",
+      "category": "furniture",
+      "type": "meeting_table",
+      "position": [
+        30.5,
+        19.8
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Display screen 0.06",
+      "category": "equipment",
+      "type": "display_screen",
+      "position": [
+        33.6,
+        19.8
+      ],
+      "footprint": {
+        "width_m": 1.4,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.07-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        4.0,
+        9.6
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.07-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        4.5,
+        9.85
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.07-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        4.0,
+        10.4
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.07-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        4.5,
+        10.15
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.07-C",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        4.0,
+        13.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.07-C",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        4.5,
+        13.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.07-D",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        4.0,
+        13.9
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.07-D",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        4.5,
+        13.65
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Filing cabinet 0.07",
+      "category": "furniture",
+      "type": "filing_cabinet",
+      "position": [
+        0.4,
+        15.5
+      ],
+      "footprint": {
+        "width_m": 0.8,
+        "depth_m": 0.6,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Reading table 0.08-A",
+      "category": "furniture",
+      "type": "reading_table",
+      "position": [
+        4.0,
+        20.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Reading table 0.08-B",
+      "category": "furniture",
+      "type": "reading_table",
+      "position": [
+        4.0,
+        22.8
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Reading table 0.08-C",
+      "category": "furniture",
+      "type": "reading_table",
+      "position": [
+        4.0,
+        26.3
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Bookshelf 0.08-A",
+      "category": "furniture",
+      "type": "bookshelf",
+      "position": [
+        6.95,
+        19.5
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Bookshelf 0.08-B",
+      "category": "furniture",
+      "type": "bookshelf",
+      "position": [
+        6.95,
+        24.5
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Bookshelf 0.08-C",
+      "category": "furniture",
+      "type": "bookshelf",
+      "position": [
+        0.35,
+        24.5
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Fire extinguisher 0.09-A",
+      "category": "equipment",
+      "type": "fire_extinguisher",
+      "position": [
+        38.0,
+        17.35
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.3,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Fire extinguisher 0.09-B",
+      "category": "equipment",
+      "type": "fire_extinguisher",
+      "position": [
+        54.0,
+        17.35
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.3,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Multifunction printer 0.11",
+      "category": "equipment",
+      "type": "multifunction_printer",
+      "position": [
+        36.4,
+        21.9
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Paper shelf 0.11",
+      "category": "furniture",
+      "type": "paper_shelf",
+      "position": [
+        34.1,
+        20.0
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Lab bench 0.12-A",
+      "category": "furniture",
+      "type": "lab_bench",
+      "position": [
+        41.6,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Lab bench 0.12-B",
+      "category": "furniture",
+      "type": "lab_bench",
+      "position": [
+        43.8,
+        20.0
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Oscilloscope station 0.12",
+      "category": "equipment",
+      "type": "oscilloscope_station",
+      "position": [
+        40.8,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "3D printer 0.12",
+      "category": "machine",
+      "type": "3d_printer",
+      "position": [
+        39.5,
+        18.3
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Server rack 0.13-A",
+      "category": "equipment",
+      "type": "server_rack",
+      "position": [
+        45.3,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Server rack 0.13-B",
+      "category": "equipment",
+      "type": "server_rack",
+      "position": [
+        46.0,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Server rack 0.13-C",
+      "category": "equipment",
+      "type": "server_rack",
+      "position": [
+        46.7,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Server rack 0.13-D",
+      "category": "equipment",
+      "type": "server_rack",
+      "position": [
+        47.4,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "UPS unit 0.13",
+      "category": "equipment",
+      "type": "ups_unit",
+      "position": [
+        49.0,
+        21.9
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.14-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        51.0,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.14-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        51.5,
+        22.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.14-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        53.3,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.14-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        53.8,
+        22.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Filing cabinet 0.14",
+      "category": "furniture",
+      "type": "filing_cabinet",
+      "position": [
+        54.35,
+        18.4
+      ],
+      "footprint": {
+        "width_m": 0.8,
+        "depth_m": 0.6,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Meeting table 0.15",
+      "category": "furniture",
+      "type": "meeting_table",
+      "position": [
+        57.4,
+        20.3
+      ],
+      "footprint": {
+        "width_m": 2.4,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Display screen 0.15",
+      "category": "equipment",
+      "type": "display_screen",
+      "position": [
+        59.9,
+        20.3
+      ],
+      "footprint": {
+        "width_m": 1.4,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Shelf 0.16-A",
+      "category": "furniture",
+      "type": "shelf",
+      "position": [
+        32.0,
+        14.3
+      ],
+      "footprint": {
+        "width_m": 2.4,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Shelf 0.16-B",
+      "category": "furniture",
+      "type": "shelf",
+      "position": [
+        34.6,
+        12.85
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Shelf 0.16-C",
+      "category": "furniture",
+      "type": "shelf",
+      "position": [
+        37.3,
+        14.0
+      ],
+      "footprint": {
+        "width_m": 2.4,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Toilet 0.17-A",
+      "category": "fixture",
+      "type": "toilet",
+      "position": [
+        38.3,
+        12.95
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Toilet 0.17-B",
+      "category": "fixture",
+      "type": "toilet",
+      "position": [
+        39.3,
+        12.95
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Sink 0.17-A",
+      "category": "fixture",
+      "type": "sink",
+      "position": [
+        43.35,
+        13.6
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Sink 0.17-B",
+      "category": "fixture",
+      "type": "sink",
+      "position": [
+        43.35,
+        14.5
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Hand dryer 0.17",
+      "category": "equipment",
+      "type": "hand_dryer",
+      "position": [
+        43.5,
+        15.3
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.2,
+        "rotation_deg": 90.0
+      }
+    },
+    {
+      "name": "Desk 0.18-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        46.4,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.18-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        46.9,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.18-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        48.7,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.18-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        49.2,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.19-A",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        51.3,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.19-A",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        51.8,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Desk 0.19-B",
+      "category": "furniture",
+      "type": "desk",
+      "position": [
+        53.7,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "PC 0.19-B",
+      "category": "equipment",
+      "type": "computer",
+      "position": [
+        54.2,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      }
+    },
+    {
+      "name": "Electrical panel 0.20",
+      "category": "equipment",
+      "type": "electrical_panel",
+      "position": [
+        59.85,
+        14.3
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.3,
+        "rotation_deg": 90.0
+      }
+    }
+  ]
+}

@@ -10,7 +10,8 @@
       "building_from_map": "[[0.996195, 0.0, 0.087156, 23.489848], [0.087156, 0.0, -0.996195, 17.989188], [0.0, 1.0, 0.0, 1.35], [0.0, 0.0, 0.0, 1.0]]",
       "wall_angle_deg": "5.00",
       "cell_m": "0.05",
-      "annotations": "{\"name\": \"Office (scan 233fe5f22a)\", \"space\": {\"name\": \"Office\", \"type\": \"room\", \"room_type\": \"office\"}, \"assets\": [{\"name\": \"Table 1\", \"category\": \"furniture\", \"type\": \"table\", \"near\": [3.0, 4.0]}, {\"name\": \"Table 2\", \"category\": \"furniture\", \"type\": \"table\", \"near\": [25.0, 4.0]}]}"
+      "annotations": "{\"name\": \"Office (scan 233fe5f22a)\", \"space\": {\"name\": \"Office\", \"type\": \"room\", \"room_type\": \"office\"}, \"assets\": [{\"name\": \"Table 1\", \"category\": \"furniture\", \"type\": \"table\", \"near\": [3.0, 4.0]}, {\"name\": \"Table 2\", \"category\": \"furniture\", \"type\": \"table\", \"near\": [25.0, 4.0]}]}",
+      "layout": "data/scan/scan-233fe5f22a/layout.json"
     },
     "license": "private",
     "attribution": "Phone scan",
@@ -31,79 +32,913 @@
       "id": "scan-233fe5f22a-F0-S001",
       "floor_id": "scan-233fe5f22a-F0",
       "type": "room",
-      "room_type": "office",
-      "name": "Office",
-      "ref": "",
+      "room_type": "kitchen",
+      "name": "Kitchen 0.01",
+      "ref": "0.01",
       "polygon": [
         [
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          27.85
+          0,
+          0
         ],
         [
           7.3,
-          27.85
+          0
         ],
         [
           7.3,
           7.25
         ],
         [
-          21.85,
+          0,
           7.25
-        ],
-        [
-          21.85,
-          21.9
-        ],
-        [
-          33.75,
-          21.9
-        ],
-        [
-          33.75,
-          17.55
-        ],
-        [
-          60.025,
-          17.55
-        ],
-        [
-          60.025,
-          16.0
-        ],
-        [
-          45.05,
-          16.0
-        ],
-        [
-          45.05,
-          12.55
-        ],
-        [
-          43.65,
-          12.55
-        ],
-        [
-          43.65,
-          16.0
-        ],
-        [
-          31.65,
-          16.0
-        ],
-        [
-          31.65,
-          0.0
         ]
       ],
       "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Open office 0.02",
+      "ref": "0.02",
+      "polygon": [
+        [
+          7.3,
+          0
+        ],
+        [
+          21.85,
+          0
+        ],
+        [
+          21.85,
+          7.25
+        ],
+        [
+          7.3,
+          7.25
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "makerspace",
+      "name": "Makerspace 0.03",
+      "ref": "0.03",
+      "polygon": [
+        [
+          21.85,
+          0
+        ],
+        [
+          31.65,
+          0
+        ],
+        [
+          31.65,
+          7.25
+        ],
+        [
+          21.85,
+          7.25
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Open office 0.04",
+      "ref": "0.04",
+      "polygon": [
+        [
+          21.85,
+          7.25
+        ],
+        [
+          31.65,
+          7.25
+        ],
+        [
+          31.65,
+          16
+        ],
+        [
+          21.85,
+          16
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Team area 0.05",
+      "ref": "0.05",
+      "polygon": [
+        [
+          21.85,
+          16
+        ],
+        [
+          27.3,
+          16
+        ],
+        [
+          27.3,
+          21.9
+        ],
+        [
+          21.85,
+          21.9
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S006",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "meeting_room",
+      "name": "Meeting room 0.06",
+      "ref": "0.06",
+      "polygon": [
+        [
+          27.3,
+          17.55
+        ],
+        [
+          33.75,
+          17.55
+        ],
+        [
+          33.75,
+          21.9
+        ],
+        [
+          27.3,
+          21.9
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Open office 0.07",
+      "ref": "0.07",
+      "polygon": [
+        [
+          0,
+          7.25
+        ],
+        [
+          7.3,
+          7.25
+        ],
+        [
+          7.3,
+          17
+        ],
+        [
+          0,
+          17
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "library",
+      "name": "Library 0.08",
+      "ref": "0.08",
+      "polygon": [
+        [
+          0,
+          17
+        ],
+        [
+          7.3,
+          17
+        ],
+        [
+          7.3,
+          27.85
+        ],
+        [
+          0,
+          27.85
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S009",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "corridor",
+      "room_type": "corridor",
+      "name": "Corridor 0.09",
+      "ref": "0.09",
+      "polygon": [
+        [
+          27.3,
+          16
+        ],
+        [
+          60.025,
+          16
+        ],
+        [
+          60.025,
+          17.55
+        ],
+        [
+          27.3,
+          17.55
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S010",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "corridor",
+      "room_type": "corridor",
+      "name": "Entrance 0.10",
+      "ref": "0.10",
+      "polygon": [
+        [
+          43.65,
+          12.55
+        ],
+        [
+          45.05,
+          12.55
+        ],
+        [
+          45.05,
+          16
+        ],
+        [
+          43.65,
+          16
+        ]
+      ],
+      "synthetic": false
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S011",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "print_room",
+      "name": "Print room 0.11",
+      "ref": "0.11",
+      "polygon": [
+        [
+          33.75,
+          17.55
+        ],
+        [
+          39,
+          17.55
+        ],
+        [
+          39,
+          22.55
+        ],
+        [
+          33.75,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S012",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "lab",
+      "name": "Electronics lab 0.12",
+      "ref": "0.12",
+      "polygon": [
+        [
+          39,
+          17.55
+        ],
+        [
+          44.25,
+          17.55
+        ],
+        [
+          44.25,
+          22.55
+        ],
+        [
+          39,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "server_room",
+      "name": "Server room 0.13",
+      "ref": "0.13",
+      "polygon": [
+        [
+          44.25,
+          17.55
+        ],
+        [
+          49.5,
+          17.55
+        ],
+        [
+          49.5,
+          22.55
+        ],
+        [
+          44.25,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Office 0.14",
+      "ref": "0.14",
+      "polygon": [
+        [
+          49.5,
+          17.55
+        ],
+        [
+          54.75,
+          17.55
+        ],
+        [
+          54.75,
+          22.55
+        ],
+        [
+          49.5,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S015",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "meeting_room",
+      "name": "Meeting room 0.15",
+      "ref": "0.15",
+      "polygon": [
+        [
+          54.75,
+          17.55
+        ],
+        [
+          60.025,
+          17.55
+        ],
+        [
+          60.025,
+          22.55
+        ],
+        [
+          54.75,
+          22.55
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S016",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "storage",
+      "name": "Storage 0.16",
+      "ref": "0.16",
+      "polygon": [
+        [
+          31.65,
+          12.55
+        ],
+        [
+          37.65,
+          12.55
+        ],
+        [
+          37.65,
+          16
+        ],
+        [
+          31.65,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "toilet",
+      "name": "Toilets 0.17",
+      "ref": "0.17",
+      "polygon": [
+        [
+          37.65,
+          12.55
+        ],
+        [
+          43.65,
+          12.55
+        ],
+        [
+          43.65,
+          16
+        ],
+        [
+          37.65,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S018",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Office 0.18",
+      "ref": "0.18",
+      "polygon": [
+        [
+          45.05,
+          12.55
+        ],
+        [
+          50,
+          12.55
+        ],
+        [
+          50,
+          16
+        ],
+        [
+          45.05,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S019",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Office 0.19",
+      "ref": "0.19",
+      "polygon": [
+        [
+          50,
+          12.55
+        ],
+        [
+          55,
+          12.55
+        ],
+        [
+          55,
+          16
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-S020",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "technical_room",
+      "name": "Technical room 0.20",
+      "ref": "0.20",
+      "polygon": [
+        [
+          55,
+          12.55
+        ],
+        [
+          60.025,
+          12.55
+        ],
+        [
+          60.025,
+          16
+        ],
+        [
+          55,
+          16
+        ]
+      ],
+      "synthetic": true
     }
   ],
-  "openings": [],
+  "openings": [
+    {
+      "id": "scan-233fe5f22a-F0-O001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S001",
+        "scan-233fe5f22a-F0-S002"
+      ],
+      "kind": "opening",
+      "position": [
+        7.3,
+        3.625
+      ],
+      "width_m": 7.05,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S002",
+        "scan-233fe5f22a-F0-S003"
+      ],
+      "kind": "opening",
+      "position": [
+        21.85,
+        3.625
+      ],
+      "width_m": 7.05,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S003",
+        "scan-233fe5f22a-F0-S004"
+      ],
+      "kind": "opening",
+      "position": [
+        26.75,
+        7.25
+      ],
+      "width_m": 9.6,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S001",
+        "scan-233fe5f22a-F0-S007"
+      ],
+      "kind": "opening",
+      "position": [
+        3.65,
+        7.25
+      ],
+      "width_m": 7.1,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S007",
+        "scan-233fe5f22a-F0-S008"
+      ],
+      "kind": "opening",
+      "position": [
+        3.65,
+        17
+      ],
+      "width_m": 7.1,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O006",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S004",
+        "scan-233fe5f22a-F0-S005"
+      ],
+      "kind": "opening",
+      "position": [
+        24.575,
+        16
+      ],
+      "width_m": 5.25,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S005",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "opening",
+      "position": [
+        27.3,
+        16.775
+      ],
+      "width_m": 1.35,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S004",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "opening",
+      "position": [
+        28.2,
+        16
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O009",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S009",
+        "scan-233fe5f22a-F0-S010"
+      ],
+      "kind": "opening",
+      "position": [
+        44.35,
+        16
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O010",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S010",
+        "outside"
+      ],
+      "kind": "entrance",
+      "position": [
+        44.35,
+        12.55
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O011",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S009",
+        "outside"
+      ],
+      "kind": "entrance",
+      "position": [
+        60.025,
+        16.775
+      ],
+      "width_m": 1.35,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O012",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S006",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        30.5,
+        17.55
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S005",
+        "scan-233fe5f22a-F0-S006"
+      ],
+      "kind": "door",
+      "position": [
+        27.3,
+        19.7
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S011",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        36.4,
+        17.55
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O015",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S012",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        41.6,
+        17.55
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O016",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S013",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        46.9,
+        17.55
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S014",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        52.1,
+        17.55
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O018",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S015",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        57.4,
+        17.55
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O019",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S016",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        34.6,
+        16
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O020",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S017",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        40.6,
+        16
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O021",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S018",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        47.5,
+        16
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O022",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S019",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        52.5,
+        16
+      ],
+      "width_m": 0.9,
+      "step_free": true,
+      "synthetic": true
+    },
+    {
+      "id": "scan-233fe5f22a-F0-O023",
+      "floor_id": "scan-233fe5f22a-F0",
+      "space_ids": [
+        "scan-233fe5f22a-F0-S020",
+        "scan-233fe5f22a-F0-S009"
+      ],
+      "kind": "door",
+      "position": [
+        57.5,
+        16
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "synthetic": true
+    }
+  ],
   "vertical_connectors": [],
   "assets": [
     {
@@ -129,7 +964,7 @@
       "name": "Table 2",
       "category": "furniture",
       "type": "table",
-      "space_id": "scan-233fe5f22a-F0-S001",
+      "space_id": "scan-233fe5f22a-F0-S003",
       "floor_id": "scan-233fe5f22a-F0",
       "position": [
         24.8,
@@ -141,6 +976,1860 @@
         "rotation_deg": 0.0
       },
       "source": "dataset"
+    },
+    {
+      "id": "scan-233fe5f22a-A003",
+      "name": "Kitchen counter 0.01",
+      "category": "fixture",
+      "type": "kitchen_counter",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.4,
+        2.6
+      ],
+      "footprint": {
+        "width_m": 3.2,
+        "depth_m": 0.7,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A004",
+      "name": "Coffee machine 0.01",
+      "category": "equipment",
+      "type": "coffee_machine",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.4,
+        1.4
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.45,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A005",
+      "name": "Microwave 0.01",
+      "category": "equipment",
+      "type": "microwave",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.4,
+        2.2
+      ],
+      "footprint": {
+        "width_m": 0.5,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A006",
+      "name": "Sink 0.01",
+      "category": "fixture",
+      "type": "sink",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.4,
+        3.4
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A007",
+      "name": "Dishwasher 0.01",
+      "category": "equipment",
+      "type": "dishwasher",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.4,
+        4.55
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A008",
+      "name": "Fridge 0.01",
+      "category": "equipment",
+      "type": "fridge",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.45,
+        5.6
+      ],
+      "footprint": {
+        "width_m": 0.7,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A009",
+      "name": "Vending machine 0.01",
+      "category": "equipment",
+      "type": "vending_machine",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        6.7,
+        0.6
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A010",
+      "name": "Desk 0.02-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        12.5,
+        3.2
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A011",
+      "name": "PC 0.02-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        13.0,
+        3.45
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A012",
+      "name": "Desk 0.02-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        12.5,
+        4.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A013",
+      "name": "PC 0.02-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        13.0,
+        3.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A014",
+      "name": "Desk 0.02-C",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        15.0,
+        3.2
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A015",
+      "name": "PC 0.02-C",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        15.5,
+        3.45
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A016",
+      "name": "Desk 0.02-D",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        15.0,
+        4.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A017",
+      "name": "PC 0.02-D",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        15.5,
+        3.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A018",
+      "name": "Desk 0.02-E",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        17.5,
+        3.2
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A019",
+      "name": "PC 0.02-E",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        18.0,
+        3.45
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A020",
+      "name": "Desk 0.02-F",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        17.5,
+        4.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A021",
+      "name": "PC 0.02-F",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        18.0,
+        3.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A022",
+      "name": "Multifunction printer 0.02",
+      "category": "equipment",
+      "type": "multifunction_printer",
+      "space_id": "scan-233fe5f22a-F0-S002",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        20.9,
+        6.6
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A023",
+      "name": "3D printer 0.03-A",
+      "category": "machine",
+      "type": "3d_printer",
+      "space_id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        31.1,
+        1.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A024",
+      "name": "3D printer 0.03-B",
+      "category": "machine",
+      "type": "3d_printer",
+      "space_id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        31.1,
+        1.9
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A025",
+      "name": "3D printer 0.03-C",
+      "category": "machine",
+      "type": "3d_printer",
+      "space_id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        31.1,
+        2.8
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A026",
+      "name": "Workbench 0.03",
+      "category": "furniture",
+      "type": "workbench",
+      "space_id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.2,
+        6.6
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A027",
+      "name": "Tool cabinet 0.03",
+      "category": "furniture",
+      "type": "tool_cabinet",
+      "space_id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.0,
+        0.35
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A028",
+      "name": "Fire extinguisher 0.03",
+      "category": "equipment",
+      "type": "fire_extinguisher",
+      "space_id": "scan-233fe5f22a-F0-S003",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        22.1,
+        0.3
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.3,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A029",
+      "name": "Desk 0.04-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.1,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A030",
+      "name": "PC 0.04-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.35,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A031",
+      "name": "Desk 0.04-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.9,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A032",
+      "name": "PC 0.04-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.65,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A033",
+      "name": "Desk 0.04-C",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.1,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A034",
+      "name": "PC 0.04-C",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.35,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A035",
+      "name": "Desk 0.04-D",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.9,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A036",
+      "name": "PC 0.04-D",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.65,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A037",
+      "name": "Desk 0.04-E",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.1,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A038",
+      "name": "PC 0.04-E",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.35,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A039",
+      "name": "Desk 0.04-F",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.9,
+        10.5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A040",
+      "name": "PC 0.04-F",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.65,
+        11.0
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A041",
+      "name": "Desk 0.04-G",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.1,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A042",
+      "name": "PC 0.04-G",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.35,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A043",
+      "name": "Desk 0.04-H",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.9,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A044",
+      "name": "PC 0.04-H",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        28.65,
+        13.5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A045",
+      "name": "Whiteboard 0.04",
+      "category": "equipment",
+      "type": "whiteboard",
+      "space_id": "scan-233fe5f22a-F0-S004",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        31.5,
+        11.75
+      ],
+      "footprint": {
+        "width_m": 1.8,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A046",
+      "name": "Desk 0.05-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.0,
+        19.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A047",
+      "name": "PC 0.05-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.5,
+        19.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A048",
+      "name": "Desk 0.05-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.0,
+        19.9
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A049",
+      "name": "PC 0.05-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.5,
+        19.65
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A050",
+      "name": "Whiteboard 0.05",
+      "category": "equipment",
+      "type": "whiteboard",
+      "space_id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        22.0,
+        19.0
+      ],
+      "footprint": {
+        "width_m": 1.8,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A051",
+      "name": "Plant 0.05",
+      "category": "furniture",
+      "type": "plant",
+      "space_id": "scan-233fe5f22a-F0-S005",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        26.8,
+        21.4
+      ],
+      "footprint": {
+        "width_m": 0.5,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A052",
+      "name": "Meeting table 0.06",
+      "category": "furniture",
+      "type": "meeting_table",
+      "space_id": "scan-233fe5f22a-F0-S006",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        30.5,
+        19.8
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A053",
+      "name": "Display screen 0.06",
+      "category": "equipment",
+      "type": "display_screen",
+      "space_id": "scan-233fe5f22a-F0-S006",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        33.6,
+        19.8
+      ],
+      "footprint": {
+        "width_m": 1.4,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A054",
+      "name": "Desk 0.07-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        9.6
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A055",
+      "name": "PC 0.07-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.5,
+        9.85
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A056",
+      "name": "Desk 0.07-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        10.4
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A057",
+      "name": "PC 0.07-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.5,
+        10.15
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A058",
+      "name": "Desk 0.07-C",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        13.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A059",
+      "name": "PC 0.07-C",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.5,
+        13.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A060",
+      "name": "Desk 0.07-D",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        13.9
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A061",
+      "name": "PC 0.07-D",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.5,
+        13.65
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A062",
+      "name": "Filing cabinet 0.07",
+      "category": "furniture",
+      "type": "filing_cabinet",
+      "space_id": "scan-233fe5f22a-F0-S007",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.4,
+        15.5
+      ],
+      "footprint": {
+        "width_m": 0.8,
+        "depth_m": 0.6,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A063",
+      "name": "Reading table 0.08-A",
+      "category": "furniture",
+      "type": "reading_table",
+      "space_id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        20.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A064",
+      "name": "Reading table 0.08-B",
+      "category": "furniture",
+      "type": "reading_table",
+      "space_id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        22.8
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A065",
+      "name": "Reading table 0.08-C",
+      "category": "furniture",
+      "type": "reading_table",
+      "space_id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        4.0,
+        26.3
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A066",
+      "name": "Bookshelf 0.08-A",
+      "category": "furniture",
+      "type": "bookshelf",
+      "space_id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        6.95,
+        19.5
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A067",
+      "name": "Bookshelf 0.08-B",
+      "category": "furniture",
+      "type": "bookshelf",
+      "space_id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        6.95,
+        24.5
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A068",
+      "name": "Bookshelf 0.08-C",
+      "category": "furniture",
+      "type": "bookshelf",
+      "space_id": "scan-233fe5f22a-F0-S008",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        0.35,
+        24.5
+      ],
+      "footprint": {
+        "width_m": 2.0,
+        "depth_m": 0.4,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A069",
+      "name": "Fire extinguisher 0.09-A",
+      "category": "equipment",
+      "type": "fire_extinguisher",
+      "space_id": "scan-233fe5f22a-F0-S009",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        38.0,
+        17.35
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.3,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A070",
+      "name": "Fire extinguisher 0.09-B",
+      "category": "equipment",
+      "type": "fire_extinguisher",
+      "space_id": "scan-233fe5f22a-F0-S009",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        54.0,
+        17.35
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.3,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A071",
+      "name": "Multifunction printer 0.11",
+      "category": "equipment",
+      "type": "multifunction_printer",
+      "space_id": "scan-233fe5f22a-F0-S011",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        36.4,
+        21.9
+      ],
+      "footprint": {
+        "width_m": 1.0,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A072",
+      "name": "Paper shelf 0.11",
+      "category": "furniture",
+      "type": "paper_shelf",
+      "space_id": "scan-233fe5f22a-F0-S011",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        34.1,
+        20.0
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A073",
+      "name": "Lab bench 0.12-A",
+      "category": "furniture",
+      "type": "lab_bench",
+      "space_id": "scan-233fe5f22a-F0-S012",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        41.6,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A074",
+      "name": "Lab bench 0.12-B",
+      "category": "furniture",
+      "type": "lab_bench",
+      "space_id": "scan-233fe5f22a-F0-S012",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        43.8,
+        20.0
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 0.8,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A075",
+      "name": "Oscilloscope station 0.12",
+      "category": "equipment",
+      "type": "oscilloscope_station",
+      "space_id": "scan-233fe5f22a-F0-S012",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        40.8,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A076",
+      "name": "3D printer 0.12",
+      "category": "machine",
+      "type": "3d_printer",
+      "space_id": "scan-233fe5f22a-F0-S012",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        39.5,
+        18.3
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.6,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A077",
+      "name": "Server rack 0.13-A",
+      "category": "equipment",
+      "type": "server_rack",
+      "space_id": "scan-233fe5f22a-F0-S013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        45.3,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A078",
+      "name": "Server rack 0.13-B",
+      "category": "equipment",
+      "type": "server_rack",
+      "space_id": "scan-233fe5f22a-F0-S013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        46.0,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A079",
+      "name": "Server rack 0.13-C",
+      "category": "equipment",
+      "type": "server_rack",
+      "space_id": "scan-233fe5f22a-F0-S013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        46.7,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A080",
+      "name": "Server rack 0.13-D",
+      "category": "equipment",
+      "type": "server_rack",
+      "space_id": "scan-233fe5f22a-F0-S013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        47.4,
+        22.0
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 1.0,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A081",
+      "name": "UPS unit 0.13",
+      "category": "equipment",
+      "type": "ups_unit",
+      "space_id": "scan-233fe5f22a-F0-S013",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        49.0,
+        21.9
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A082",
+      "name": "Desk 0.14-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        51.0,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A083",
+      "name": "PC 0.14-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        51.5,
+        22.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A084",
+      "name": "Desk 0.14-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        53.3,
+        22.1
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A085",
+      "name": "PC 0.14-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        53.8,
+        22.35
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A086",
+      "name": "Filing cabinet 0.14",
+      "category": "furniture",
+      "type": "filing_cabinet",
+      "space_id": "scan-233fe5f22a-F0-S014",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        54.35,
+        18.4
+      ],
+      "footprint": {
+        "width_m": 0.8,
+        "depth_m": 0.6,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A087",
+      "name": "Meeting table 0.15",
+      "category": "furniture",
+      "type": "meeting_table",
+      "space_id": "scan-233fe5f22a-F0-S015",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        57.4,
+        20.3
+      ],
+      "footprint": {
+        "width_m": 2.4,
+        "depth_m": 1.2,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A088",
+      "name": "Display screen 0.15",
+      "category": "equipment",
+      "type": "display_screen",
+      "space_id": "scan-233fe5f22a-F0-S015",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        59.9,
+        20.3
+      ],
+      "footprint": {
+        "width_m": 1.4,
+        "depth_m": 0.1,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A089",
+      "name": "Shelf 0.16-A",
+      "category": "furniture",
+      "type": "shelf",
+      "space_id": "scan-233fe5f22a-F0-S016",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        32.0,
+        14.3
+      ],
+      "footprint": {
+        "width_m": 2.4,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A090",
+      "name": "Shelf 0.16-B",
+      "category": "furniture",
+      "type": "shelf",
+      "space_id": "scan-233fe5f22a-F0-S016",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        34.6,
+        12.85
+      ],
+      "footprint": {
+        "width_m": 3.0,
+        "depth_m": 0.5,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A091",
+      "name": "Shelf 0.16-C",
+      "category": "furniture",
+      "type": "shelf",
+      "space_id": "scan-233fe5f22a-F0-S016",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        37.3,
+        14.0
+      ],
+      "footprint": {
+        "width_m": 2.4,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A092",
+      "name": "Toilet 0.17-A",
+      "category": "fixture",
+      "type": "toilet",
+      "space_id": "scan-233fe5f22a-F0-S017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        38.3,
+        12.95
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A093",
+      "name": "Toilet 0.17-B",
+      "category": "fixture",
+      "type": "toilet",
+      "space_id": "scan-233fe5f22a-F0-S017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        39.3,
+        12.95
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.7,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A094",
+      "name": "Sink 0.17-A",
+      "category": "fixture",
+      "type": "sink",
+      "space_id": "scan-233fe5f22a-F0-S017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        43.35,
+        13.6
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A095",
+      "name": "Sink 0.17-B",
+      "category": "fixture",
+      "type": "sink",
+      "space_id": "scan-233fe5f22a-F0-S017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        43.35,
+        14.5
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.5,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A096",
+      "name": "Hand dryer 0.17",
+      "category": "equipment",
+      "type": "hand_dryer",
+      "space_id": "scan-233fe5f22a-F0-S017",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        43.5,
+        15.3
+      ],
+      "footprint": {
+        "width_m": 0.3,
+        "depth_m": 0.2,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A097",
+      "name": "Desk 0.18-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S018",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        46.4,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A098",
+      "name": "PC 0.18-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S018",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        46.9,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A099",
+      "name": "Desk 0.18-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S018",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        48.7,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A100",
+      "name": "PC 0.18-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S018",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        49.2,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A101",
+      "name": "Desk 0.19-A",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S019",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        51.3,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A102",
+      "name": "PC 0.19-A",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S019",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        51.8,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A103",
+      "name": "Desk 0.19-B",
+      "category": "furniture",
+      "type": "desk",
+      "space_id": "scan-233fe5f22a-F0-S019",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        53.7,
+        13.0
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.8,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A104",
+      "name": "PC 0.19-B",
+      "category": "equipment",
+      "type": "computer",
+      "space_id": "scan-233fe5f22a-F0-S019",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        54.2,
+        12.75
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 0.0
+      },
+      "source": "generated"
+    },
+    {
+      "id": "scan-233fe5f22a-A105",
+      "name": "Electrical panel 0.20",
+      "category": "equipment",
+      "type": "electrical_panel",
+      "space_id": "scan-233fe5f22a-F0-S020",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        59.85,
+        14.3
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.3,
+        "rotation_deg": 90.0
+      },
+      "source": "generated"
     }
   ]
 }
