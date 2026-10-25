@@ -65,6 +65,7 @@ function Guide({
   const [picker, setPicker] = useState<"from" | "to">();
   const [panel, setPanel] = useState<"chat" | "settings">();
   const [fix, setFix] = useState<Fix>();
+  const [currentSpaceId, setCurrentSpaceId] = useState(link.from);
   const roomStreak = useRef<{ spaceId: string; count: number }>(undefined);
   const step: Step | undefined = steps[Math.min(stepIndex, steps.length - 1)];
 
@@ -85,10 +86,10 @@ function Guide({
     navigate(guidePath(buildingId, { stops, stepFree: next.stepFree ?? link.stepFree }), true);
   };
 
-  const position = link.from ? { id: link.from, name: spaceName(document, link.from) ?? link.from } : undefined;
+  const position = currentSpaceId ? { id: currentSpaceId, name: spaceName(document, currentSpaceId) ?? currentSpaceId } : undefined;
   const destination = destinationId ? { id: destinationId, name: spaceName(document, destinationId) ?? destinationId } : undefined;
   const voice = useBuildingVoice({ buildingId, position, destination }, (planned) =>
-    update({ stops: planned.stops, stepFree: planned.stepFree }),
+    navigate(guidePath(buildingId, planned), true),
   );
 
   const ground = scene.floors.find((floor) => floor.level === 0) ?? scene.floors[0]!;
@@ -107,7 +108,9 @@ function Guide({
     setFix(next);
     const count = roomStreak.current?.spaceId === next.spaceId ? roomStreak.current.count + 1 : 1;
     roomStreak.current = { spaceId: next.spaceId, count };
-    if (count !== ROOM_FIXES || next.spaceId === link.from) return;
+    if (count !== ROOM_FIXES) return;
+    setCurrentSpaceId(next.spaceId);
+    if (next.spaceId === link.from) return;
     // A confirmed new room becomes the start, and the route is planned again with the stops still ahead.
     const ahead = stopsAhead(route.data?.route, next.spaceId, link.to);
     if (link.to.length > 0 && ahead.length === 0) return; // arrived
@@ -212,7 +215,10 @@ function Guide({
         onClose={() => setPicker(undefined)}
         onPick={(place) => {
           setPicker(undefined);
-          if (picker === "from") update({ stops: [place.spaceId, ...link.to] });
+          if (picker === "from") {
+            setCurrentSpaceId(place.spaceId);
+            update({ stops: [place.spaceId, ...link.to] });
+          }
           else update({ stops: [link.from ?? "", place.spaceId] });
         }}
       />
@@ -223,7 +229,7 @@ function Guide({
         className="flex-col [&[open]]:flex [&[open]]:h-[min(660px,84svh)]"
       >
         <Transcript entries={voice.entries} empty="Tap the mic below to start. You can talk or type." />
-        <ChatInput enabled={voice.phase === "listening" || voice.phase === "speaking"} onSend={voice.send} />
+        <ChatInput enabled={voice.phase === "listening" || voice.phase === "speaking"} onSend={voice.send} onTyping={voice.muteForTyping} />
       </Sheet>
       <Sheet open={panel === "settings"} onClose={() => setPanel(undefined)} title="Settings" subtitle={document.building.name}>
         <GuideSettings

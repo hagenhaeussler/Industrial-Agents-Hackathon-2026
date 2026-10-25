@@ -34,7 +34,11 @@ export function Transcript({ entries, empty }: { entries: TranscriptEntry[]; emp
   );
 }
 
-export function ChatInput({ enabled, onSend }: { enabled: boolean; onSend: (text: string) => void }) {
+export function ChatInput({ enabled, onSend, onTyping }: {
+  enabled: boolean;
+  onSend: (text: string) => void;
+  onTyping: () => void;
+}) {
   const [text, setText] = useState("");
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -49,7 +53,11 @@ export function ChatInput({ enabled, onSend }: { enabled: boolean; onSend: (text
       <input
         id="chat-message"
         value={text}
-        onChange={(event) => setText(event.target.value)}
+        onFocus={onTyping}
+        onChange={(event) => {
+          onTyping();
+          setText(event.target.value);
+        }}
         disabled={!enabled}
         maxLength={1000}
         autoComplete="off"

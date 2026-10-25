@@ -5,7 +5,7 @@ with every building from `data/`; each conversation selects one. A minimal test 
 
 ## What it does
 
-The voice agent answers spoken questions about the building selected for the conversation. It does not change buildings or control the app.
+The voice agent answers spoken questions about the building selected for the conversation. It stays in one building. Successful route calls update the route shown in the app.
 ElevenLabs runs speech recognition, the language model and speech output. Our server only issues conversation
 tokens and serves the building tools over MCP. The benchmark agent is separate and unaffected.
 
@@ -39,7 +39,8 @@ flowchart LR
 | Call limits | 3 at once, 200 per day | The token route is public on Railway; the limits cap anonymous use |
 | Expressive voice | On (default) | More natural speech. Its audio tags such as `[happy]` are hidden in the transcript |
 | Speech before tool calls | Off, a typing sound plays instead | Spoken text before a call was repeated after the result ([#21](https://github.com/hagenhaeussler/Industrial-Agents-Hackathon-2026/issues/21)) |
-| Speech recognition, voice, turn-taking | ElevenLabs defaults | Change only when a test shows a need |
+| Background voice detection | On | Filter background speech before it can interrupt the conversation |
+| Speech recognition, voice, turn-taking | ElevenLabs defaults | Other speech settings stay at their defaults |
 
 Change settings in `voice_agent/agent.py` or `prompt.md` and deploy. Railway runs `sync` before each deploy, so
 ElevenLabs always matches the deployed code. Changes made in the ElevenLabs dashboard are overwritten by the next
@@ -121,10 +122,30 @@ and builds `RouteConditions` from them. The calculation stays in `building_tools
 by voice: per-leg conditions and added doors, and with them `exit_distance_change`, which answers benchmark
 what-if questions. A test fails if a tool schema with objects reaches ElevenLabs again.
 
+## Conversation controls and context
+
+The main desktop and phone UI share `web/src/voice/useBuildingVoice.ts`.
+
+- The microphone button mutes or unmutes the current conversation. A separate button ends it.
+- Focusing the message input or typing mutes the microphone. It stays muted until the user unmutes it.
+- A new conversation clears the visible transcript. Late callbacks from an ended session are ignored.
+- Room and destination changes send a complete `app_context` snapshot through `sendContextualUpdate`.
+  A null value clears the previous value. These snapshots describe screen state; they are not user requests.
+- A route start selected by the agent does not establish the user's position. Position changes need a user
+  selection or a confirmed camera fix. The desktop keeps the planned route separate from that position.
+- Interrupted agent replies use the provider's corrected text in the transcript.
+
+The download button exports the current session log as JSON. It includes the conversation ID, timestamps,
+messages with typed or microphone input labels, context changes, tool events, interruptions and errors.
+It contains no conversation token or audio. Logs stay in memory in the browser until downloaded. A new
+conversation replaces the previous log.
+
+Background voice detection is a provider filter. It does not lower the device's microphone gain.
+The setting takes effect after the voice agent is synced. Offline tests check the request sent by the SDK;
+a live conversation is still needed to check filtering in the user's room.
+
 ## Later
 
-- The UI can report changes during a conversation, such as a newly selected room, with `sendContextualUpdate`.
-  This adds context without triggering a reply.
 - Remove `web/voice-demo/` once the real UI covers its tests.
 
 ## References

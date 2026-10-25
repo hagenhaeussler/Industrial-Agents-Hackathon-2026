@@ -30,7 +30,7 @@ export function AgentDock({
   // What the agent understood the person to say, so they can see it was received.
   const lastUser = voice.entries.findLast((entry) => entry.kind === "message" && entry.role === "user");
   const heard = voice.phase !== "off" && lastUser?.kind === "message" ? lastUser.text : undefined;
-  const bubble = voice.error ?? (voice.phase === "off" ? HINTS.off : (said ?? HINTS[voice.phase]));
+  const bubble = voice.error ?? (voice.phase === "off" ? HINTS.off : voice.isMuted ? "Microphone muted. You can type." : (said ?? HINTS[voice.phase]));
   return (
     <section
       aria-label="Locora assistant"
@@ -49,7 +49,7 @@ export function AgentDock({
       </button>
       <div className="float mt-1 flex items-center gap-1.5 rounded-[20px] p-1.5">
         <ModeSwitch mode={mode} onChange={onMode} />
-        <MicButton phase={voice.phase} onStart={() => void voice.start()} onStop={voice.stop} />
+        <MicButton voice={voice} />
       </div>
     </section>
   );

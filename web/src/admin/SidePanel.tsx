@@ -78,14 +78,14 @@ function AssistantTab({ voice }: { voice: BuildingVoice }) {
         <Avatar phase={voice.phase} level={voice.level} size={72} />
         <div className="min-w-0 flex-1">
           <h2 className="text-[16px] font-[800] tracking-[-0.3px]">Locora</h2>
-          <p className="text-xs text-muted">{voice.error ?? PHASE_TEXT[voice.phase]}</p>
+          <p className="text-xs text-muted">{voice.error ?? (live && voice.isMuted ? "Microphone muted. You can type." : PHASE_TEXT[voice.phase])}</p>
         </div>
-        <MicButton phase={voice.phase} onStart={() => void voice.start()} onStop={voice.stop} />
+        <MicButton voice={voice} />
       </div>
       <div className="mt-4 flex min-h-0 flex-1 flex-col">
         <Transcript entries={voice.entries} empty="Start the conversation with the mic. Routes Locora plans appear in the view." />
       </div>
-      <ChatInput enabled={live} onSend={voice.send} />
+      <ChatInput enabled={live} onSend={voice.send} onTyping={voice.muteForTyping} />
     </div>
   );
 }

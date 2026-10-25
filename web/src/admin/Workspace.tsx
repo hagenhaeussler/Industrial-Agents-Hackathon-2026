@@ -55,16 +55,29 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
   const [tool, setTool] = useState<Tool>("select");
   const [focusFloor, setFocusFloor] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection>();
-  const [position, setPosition] = useState<Position>();
-  const [destination, setDestination] = useState<string>();
-  const [stepFree, setStepFree] = useState(false);
+  const [position, storePosition] = useState<Position>();
+  const [destination, storeDestination] = useState<string>();
+  const [stepFree, storeStepFree] = useState(false);
+  const [plannedRoute, setPlannedRoute] = useState<RouteRequest>();
+  const setPosition = (next: Position) => {
+    storePosition(next);
+    setPlannedRoute(undefined);
+  };
+  const setDestination = (next: string | undefined) => {
+    storeDestination(next);
+    setPlannedRoute(undefined);
+  };
+  const setStepFree = (next: boolean) => {
+    storeStepFree(next);
+    setPlannedRoute((current) => current && { ...current, stepFree: next });
+  };
   const [labels, setLabels] = useState(true);
   const [assets, setAssets] = useState(true);
   const [dialog, setDialog] = useState<"share" | "settings">();
   const camera = useRef<View3DHandle>(null);
 
   const request: RouteRequest | undefined =
-    position && destination ? { stops: [position.spaceId, destination], stepFree } : undefined;
+    plannedRoute ?? (position && destination ? { stops: [position.spaceId, destination], stepFree } : undefined);
   const route = useRoute(buildingId, request);
   const steps = useMemo(() => (route.data ? directions(route.data, document) : []), [route.data, document]);
 
@@ -78,11 +91,9 @@ function WorkspaceView({ buildingId, document: stored }: { buildingId: string; d
   const voice = useBuildingVoice(
     { buildingId, position: position && placeOf(position.spaceId), destination: destination ? placeOf(destination) : undefined },
     (planned) => {
-      const [from, ...rest] = planned.stops;
-      const floorId = document.spaces.find((space) => space.id === from)?.floor_id;
-      if (from && floorId) setPosition({ spaceId: from, floorId });
-      setDestination(rest.at(-1));
-      setStepFree(planned.stepFree ?? false);
+      setPlannedRoute(planned);
+      storeDestination(planned.stops.at(-1));
+      storeStepFree(planned.stepFree ?? false);
     },
   );
 

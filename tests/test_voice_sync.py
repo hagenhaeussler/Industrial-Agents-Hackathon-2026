@@ -1,9 +1,13 @@
 """Voice agent sync against a fake ElevenLabs client: which remote resources it creates, updates and deletes."""
 
+import json
 import unittest
 from types import SimpleNamespace
 
-from voice_agent.agent import sync
+import httpx
+from elevenlabs import ElevenLabs
+
+from voice_agent.agent import conversation_config, sync
 
 AGENT, URL, OLD_URL = "agent-1", "https://voice.example/mcp", "https://old.example/mcp"
 
@@ -73,6 +77,21 @@ class FakeElevenLabs:
 
 
 class SyncTest(unittest.TestCase):
+    def test_background_voice_filter_is_sent_by_the_real_sdk(self) -> None:
+        requests = []
+
+        def reply(request: httpx.Request) -> httpx.Response:
+            requests.append(json.loads(request.content))
+            return httpx.Response(200, json={
+                "agent_id": AGENT, "name": "Locora", "conversation_config": {},
+                "metadata": {"created_at_unix_secs": 0},
+            })
+
+        with httpx.Client(transport=httpx.MockTransport(reply)) as transport:
+            client = ElevenLabs(api_key="offline-test", httpx_client=transport)
+            client.conversational_ai.agents.update(AGENT, conversation_config=conversation_config("mcp-test"))
+        self.assertEqual(requests[0]["conversation_config"]["vad"], {"background_voice_detection": True})
+
     def test_same_url_updates_this_agents_integration_only(self) -> None:
         # "other" belongs to another agent in the workspace and points elsewhere; sync must leave it alone.
         fake = FakeElevenLabs({"mine": URL, "other": OLD_URL}, attached=["mine"])

@@ -21,6 +21,7 @@ def system_prompt() -> str:
 def conversation_config(mcp_server_id: str) -> dict[str, Any]:
     """Speech recognition, LLM and speech output all run at ElevenLabs. Unset fields keep ElevenLabs' defaults."""
     return {
+        "vad": {"background_voice_detection": True},
         "agent": {
             "language": "en",
             "first_message": FIRST_MESSAGE,
