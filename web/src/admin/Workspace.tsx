@@ -1,4 +1,4 @@
-import { compileScene, type Building, type Overlay, type PickResult } from "@building/view";
+import { compileScene, type Building, type Overlay, type PickResult } from "@locora/view";
 import { ConversationProvider } from "@elevenlabs/react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useBuilding, useRoute, type RouteRequest } from "../api/buildings";

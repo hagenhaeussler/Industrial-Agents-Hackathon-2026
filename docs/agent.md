@@ -1,4 +1,4 @@
-# Agent and tools
+# Locora agent and tools
 
 Status: the agent uses PydanticAI, the MCP server over the six building tools in [tools.md](tools.md), the
 answer shapes and the formatter. It answers all 138 dev questions correctly.

@@ -54,7 +54,7 @@ def create_app(database: Path, localization: Localization | None = None) -> Fast
         finally:
             db.close()
 
-    app = FastAPI(title="Building API", lifespan=lifespan(localization))
+    app = FastAPI(title="Locora API", lifespan=lifespan(localization))
     app.include_router(localization_router(localization))
 
     @app.get("/api/buildings")

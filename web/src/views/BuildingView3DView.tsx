@@ -1,4 +1,4 @@
-import { BuildingView3D, type BuildingScene, type BuildingView3DOptions, type Overlay, type PickResult } from "@building/view";
+import { BuildingView3D, type BuildingScene, type BuildingView3DOptions, type Overlay, type PickResult } from "@locora/view";
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 
 /** Camera commands for the workspace. */

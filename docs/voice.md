@@ -1,4 +1,4 @@
-# Voice agent
+# Locora voice agent
 
 Status: the agent runs at ElevenLabs and answers from the building tools. The voice server is deployed on Railway
 with every building from `data/`; each conversation selects one. A minimal test page starts conversations.

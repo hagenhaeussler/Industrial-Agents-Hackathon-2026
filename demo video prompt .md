@@ -18,7 +18,7 @@ The audience must understand three things immediately:
 
 Show a real product being used, with a few exceptional visual moments. Convey complexity through clear actions and visual cause and effect. Keep the interface readable and the story easy to follow even on a first viewing.
 
-The product name is **Locora**. Use the supplied Locora logo and brand assets where available, and derive typography and colors from the actual product. If the repository still displays the older heading “Talk to your building,” treat that as legacy interface copy, not the film's product name. Use a clean Locora wordmark if no final logo asset is supplied. Keep name and logo replaceable from one production configuration value.
+The product name is **Locora**. Use the supplied Locora logo and brand assets where available, and derive typography and colors from the actual product. Use a clean Locora wordmark if no final logo asset is supplied. Keep name and logo replaceable from one production configuration value.
 
 ## 2. Inputs and preparation
 

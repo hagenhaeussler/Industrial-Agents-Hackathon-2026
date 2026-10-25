@@ -1,4 +1,4 @@
-import type { Building } from "@building/view";
+import type { Building } from "@locora/view";
 import { describe, expect, it } from "vitest";
 import { applyMoves } from "./moves";
 

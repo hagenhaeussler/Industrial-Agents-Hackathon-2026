@@ -1,7 +1,7 @@
 [project]
-name = "talk-to-your-building"
+name = "locora"
 version = "0.1.0"
-description = "Building data, calculation tools and agent for Talk to Your Building"
+description = "Building data, calculation tools and agent for Locora"
 requires-python = ">=3.12"
 dependencies = [
     "anthropic>=2.1.0",

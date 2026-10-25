@@ -85,7 +85,7 @@ function VoiceDemo() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-4 p-6 font-sans text-neutral-900">
       <header className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">Voice agent demo</h1>
+        <h1 className="text-xl font-semibold">Locora voice demo</h1>
         <select
           value={buildingId}
           onChange={(event) => setBuildingId(event.target.value)}
@@ -119,7 +119,7 @@ function VoiceDemo() {
         {entries.map((entry) =>
           entry.kind === "message" ? (
             <li key={entry.key} className={entry.role === "user" ? "self-end text-right" : "self-start"}>
-              <span className="block text-xs text-neutral-500">{entry.role === "user" ? "You" : "Agent"}</span>
+              <span className="block text-xs text-neutral-500">{entry.role === "user" ? "You" : "Locora"}</span>
               <span
                 className={`inline-block rounded px-3 py-2 ${entry.role === "user" ? "bg-blue-50" : "bg-neutral-100"}`}
               >

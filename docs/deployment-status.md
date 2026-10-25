@@ -1,6 +1,9 @@
-# Main deployment
+# Locora deployment
 
 ## Target
+
+Locora uses the existing repository, Railway project and service addresses listed below.
+The Railway project still has its original infrastructure name, `talk-to-your-building`.
 
 - Repository: `hagenhaeussler/Industrial-Agents-Hackathon-2026`, branch `main`.
 - Railway project: `talk-to-your-building`, environment `production`.

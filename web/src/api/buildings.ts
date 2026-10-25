@@ -1,4 +1,4 @@
-import { compileScene, type Building, type BuildingScene, type BuildingSummary, type RouteView } from "@building/view";
+import { compileScene, type Building, type BuildingScene, type BuildingSummary, type RouteView } from "@locora/view";
 import { useQuery } from "@tanstack/react-query";
 
 /** What a route must follow. The same flat rules the voice agent's route tool takes. */

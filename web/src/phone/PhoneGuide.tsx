@@ -1,4 +1,4 @@
-import type { Building, BuildingScene, Overlay, PathPoint } from "@building/view";
+import type { Building, BuildingScene, Overlay, PathPoint } from "@locora/view";
 import { ConversationProvider } from "@elevenlabs/react";
 import { Accessibility, MapPin, Search, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -219,7 +219,7 @@ function Guide({
       <Sheet
         open={panel === "chat"}
         onClose={() => setPanel(undefined)}
-        title="Ask the building"
+        title="Ask Locora"
         className="flex-col [&[open]]:flex [&[open]]:h-[min(660px,84svh)]"
       >
         <Transcript entries={voice.entries} empty="Tap the mic below to start. You can talk or type." />
@@ -362,13 +362,13 @@ function GuideSettings({
         <span className="text-sm font-[650]">Change where you are</span>
       </button>
       <section className="mt-2 grid gap-1.5 text-xs leading-relaxed text-muted">
-        <h3 className="font-[750] text-ink">About this guide</h3>
+        <h3 className="font-[750] text-ink">About Locora</h3>
         <p>Your position comes from the QR code, the steps you confirm, or the camera view.</p>
         <p>
           In the camera view, the guide sends a still image about once per second to the localization server to find
           your position. Images are not stored.
         </p>
-        <p>Routes and answers come from the building data. The assistant talks about this building only.</p>
+        <p>Routes and answers come from the building data. Locora answers questions about this building only.</p>
       </section>
     </div>
   );
