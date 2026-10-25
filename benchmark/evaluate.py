@@ -1,9 +1,9 @@
 """Run an agent on the benchmark questions (questions.jsonl) and score its replies.
 
-  uv run --env-file .env python -m benchmark.evaluate data/dev --per-kind 4
+  uv run python -m benchmark.evaluate data/dev --agent my_agent:answer --per-kind 4
 
-By default it runs the unchanged starter agent. Pass --agent module:function to evaluate your own; the
-function gets (building_directory: Path, question_text: str) and returns the reply text."""
+Pass --agent module:function to evaluate your agent. The function gets
+(building_directory: Path, question_text: str) and returns the reply text."""
 
 import argparse
 import csv
@@ -22,14 +22,6 @@ QUESTIONS_FILENAME = "questions.jsonl"
 SUBMISSION_COLUMNS = ("question_id", "answer")
 RESULTS_DIRECTORY = Path("agent_output") / "benchmark"
 SAMPLE_SEED = 7
-OUTPUT_DIRECTORY = RESULTS_DIRECTORY / "scratch"
-# claude-opus-5-5 prices, dollars per million tokens; cache writes are 1.25x input (5-minute cache)
-PRICE_PER_MILLION = {
-    "input_tokens": 4.00,
-    "output_tokens": 20.00,
-    "cache_read_input_tokens": 0.20,
-    "cache_creation_input_tokens": 5.00,
-}
 
 AgentFunction = Callable[[Path, str], str]
 
@@ -56,35 +48,9 @@ def sample_per_kind(questions: list[tuple[Path, dict]], per_kind: int | None) ->
     return sampled
 
 
-class StarterAgentRunner:
-    """Runs the starter agent exactly as shipped, one fresh conversation per question."""
-
-    def __init__(self) -> None:
-        from starter_agent.agent import BuildingAgent
-        from starter_agent.building_map import BuildingMap
-
-        self.agent_class = BuildingAgent
-        self.map_class = BuildingMap
-        self.client = anthropic.Anthropic()
-        self.usage: Counter[str] = Counter()
-
-    def __call__(self, building_directory: Path, question_text: str) -> str:
-        agent = self.agent_class(self.map_class.load(building_directory), OUTPUT_DIRECTORY, self.client)
-        try:
-            return agent.ask(question_text)
-        finally:
-            self.usage.update(agent.usage)
-
-
-def load_agent(reference: str | None) -> AgentFunction:
-    if reference is None:
-        return StarterAgentRunner()
+def load_agent(reference: str) -> AgentFunction:
     module_name, function_name = reference.split(":")
     return getattr(importlib.import_module(module_name), function_name)
-
-
-def cost_dollars(usage: Counter[str]) -> float:
-    return sum(usage[key] * price / 1_000_000 for key, price in PRICE_PER_MILLION.items())
 
 
 def write_submission_csv(path: Path, replies: list[tuple[str, str]]) -> None:
@@ -100,7 +66,7 @@ def write_submission_csv(path: Path, replies: list[tuple[str, str]]) -> None:
 def run(
     directory: Path,
     per_kind: int | None,
-    agent_reference: str | None,
+    agent_reference: str,
     results_name: str,
     submission_csv: Path | None = None,
     kinds: list[str] | None = None,
@@ -108,9 +74,7 @@ def run(
     agent = load_agent(agent_reference)
     results: Counter[tuple[str, bool]] = Counter()
     replies: list[tuple[str, str]] = []
-    OUTPUT_DIRECTORY.mkdir(
-        parents=True, exist_ok=True
-    )  # the starter agent saves edits here without creating it
+    RESULTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     results_path = RESULTS_DIRECTORY / f"{results_name}.jsonl"
     with results_path.open("w", encoding="utf-8") as log:
         questions = [item for item in load_questions(directory) if not kinds or item[1]["kind"] in kinds]
@@ -147,7 +111,7 @@ def run(
         write_submission_csv(submission_csv, replies)
     usage = getattr(agent, "usage", None)
     if usage:
-        print(f"tokens: {dict(usage)}  cost: ${cost_dollars(usage):.2f}")
+        print(f"tokens: {dict(usage)}")
     print(f"replies saved to {results_path}")
 
 
@@ -167,7 +131,7 @@ def main() -> None:
     parser.add_argument("--per-kind", type=int, default=None, help="sample this many questions per kind")
     parser.add_argument("--kinds", nargs="+", default=None, help="only these question kinds")
     parser.add_argument(
-        "--agent", default=None, help="module:function of your agent (default: starter agent)"
+        "--agent", required=True, help="module:function of your agent"
     )
     parser.add_argument("--name", default="results", help="file name for the saved replies")
     parser.add_argument(

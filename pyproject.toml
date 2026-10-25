@@ -1,31 +1,39 @@
 [project]
-name = "track01-student-kit"
-version = "1.1.0"
-description = "Track 01 Google Maps for Every Building: starter agent and scorer"
+name = "talk-to-your-building"
+version = "0.1.0"
+description = "Building data, calculation tools and agent for Talk to Your Building"
 requires-python = ">=3.12"
 dependencies = [
     "anthropic>=2.1.0",
+    "elevenlabs>=2.74.1",
+    "fastapi>=0.162.0",
+    "fastmcp>=4.1.3",
     "matplotlib>=3.11.2",
     "networkx>=3.7",
+    "pydantic>=2.14.1",
+    "pydantic-ai-slim[anthropic,mcp]>=2.61.0",
+    "python-dotenv>=1.2.4",
     "shapely>=2.2.0",
-    "fastapi",
-    "uvicorn[standard]",
-    "pydantic>=2",
-    "rapidfuzz",
-    "qrcode",
-    "svgelements",
-    "httpx",
+    "starlette>=1.10.0",
+    "uvicorn>=0.54.0",
 ]
 
-[dependency-groups]
-dev = ["pytest", "httpx"]
+[project.scripts]
+run_benchmark = "building_agent.submission:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["starter_agent", "benchmark", "core", "server", "bench", "agent"]
+packages = ["benchmark", "building_agent", "building_api", "building_db", "building_tools", "voice_agent"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
+[tool.ruff]
+line-length = 120
+# Kit files are read-only.
+extend-exclude = ["benchmark", "data"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+]

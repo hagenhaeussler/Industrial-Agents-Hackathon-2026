@@ -1,0 +1,31 @@
+{
+  "name": "@building/view",
+  "private": true,
+  "version": "0.1.0",
+  "description": "2D and 3D building views compiled from the building.json format",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "gen:api": "node scripts/gen-api.mjs"
+  },
+  "dependencies": {
+    "polylabel": "^2.1.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/polylabel": "^2.0.0",
+    "@types/three": "^0.186.0",
+    "happy-dom": "^21.0.4",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

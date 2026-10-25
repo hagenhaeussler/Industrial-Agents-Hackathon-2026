@@ -1,0 +1,19 @@
+# systemd unit for the localization service on the GPU VM. Install:
+#   sudo cp localization/deploy/localization.service /etc/systemd/system/ && sudo systemctl enable --now localization
+# ~/localization.env holds LOCALIZATION_TOKEN and must stay readable only by its owner (chmod 600).
+[Unit]
+Description=Camera localization service
+After=network-online.target
+RequiresMountsFor=/home/lenard /usr/local/lib/python3.12/dist-packages
+Wants=network-online.target
+
+[Service]
+User=lenard
+WorkingDirectory=/home/lenard/app
+EnvironmentFile=/home/lenard/localization.env
+ExecStart=/home/lenard/venv/bin/python -m localization.server --maps /home/lenard/data/maps --building /home/lenard/data/buildings/233fe5f22a/building.json
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

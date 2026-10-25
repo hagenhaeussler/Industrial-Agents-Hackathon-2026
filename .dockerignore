@@ -1,29 +1,17 @@
-.git
-.env
-.env.*
-**/.env
-**/.env.*
-!.env.example
-.venv
-**/.venv
-**/__pycache__
-**/*.pyc
-**/node_modules
-**/dist
-.state
-agent_output
-research
-.pytest_cache
-**/.pytest_cache
-data/**/*.png
-data/**/*.svg
-/*.png
-/*.pdf
-
-# Runtime kit data: geometry/inventory/catalog only; evaluation labels stay out.
-data/**/*.json*
-!data/**/building.json
-data/**/*.csv
-!data/**/equipment.csv
-!data/manifest.csv
-submissions/
+# Shared build context for the web and voice services. Only building.json enters from data/.
+# Docker re-includes matching files directly; do not re-include data directories.
+data/**
+!data/*/*/building.json
+benchmark/
+tests/
+web/voice-demo/
+SUBMISSION/
+results/
+agent_output/
+.env*
+*.sqlite3
+.venv/
+.git/
+**/node_modules/
+**/dist/
+**/__pycache__/

@@ -1,16 +1,6 @@
-# Secrets
 .env
-.env.*
-!.env.example
-
-# Python
 .venv/
 __pycache__/
-*.pyc
-
-# Agent- und Benchmark-Ausgaben
+*.sqlite3
+*.sqlite3-*
 agent_output/
-
-# Platform state and SPA build
-.state/
-web/app/dist/

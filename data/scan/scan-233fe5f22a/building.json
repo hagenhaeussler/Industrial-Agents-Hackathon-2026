@@ -1,0 +1,146 @@
+{
+  "building": {
+    "id": "scan-233fe5f22a",
+    "name": "Office (scan 233fe5f22a)",
+    "source": "scan",
+    "source_ref": {
+      "capture": "233fe5f22a",
+      "map": "233fe5f22a-v3",
+      "generator": "localization.floor_plan",
+      "building_from_map": "[[0.996195, 0.0, 0.087156, 23.489848], [0.087156, 0.0, -0.996195, 17.989188], [0.0, 1.0, 0.0, 1.35], [0.0, 0.0, 0.0, 1.0]]",
+      "wall_angle_deg": "5.00",
+      "cell_m": "0.05",
+      "annotations": "{\"name\": \"Office (scan 233fe5f22a)\", \"space\": {\"name\": \"Office\", \"type\": \"room\", \"room_type\": \"office\"}, \"assets\": [{\"name\": \"Table 1\", \"category\": \"furniture\", \"type\": \"table\", \"near\": [3.0, 4.0]}, {\"name\": \"Table 2\", \"category\": \"furniture\", \"type\": \"table\", \"near\": [25.0, 4.0]}]}"
+    },
+    "license": "private",
+    "attribution": "Phone scan",
+    "split": "scan",
+    "units": "m"
+  },
+  "floors": [
+    {
+      "id": "scan-233fe5f22a-F0",
+      "level": 0,
+      "name": "Ground floor",
+      "elevation_m": 0.0,
+      "height_m": 2.53
+    }
+  ],
+  "spaces": [
+    {
+      "id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "type": "room",
+      "room_type": "office",
+      "name": "Office",
+      "ref": "",
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          27.85
+        ],
+        [
+          7.3,
+          27.85
+        ],
+        [
+          7.3,
+          7.25
+        ],
+        [
+          21.85,
+          7.25
+        ],
+        [
+          21.85,
+          21.9
+        ],
+        [
+          33.75,
+          21.9
+        ],
+        [
+          33.75,
+          17.55
+        ],
+        [
+          60.025,
+          17.55
+        ],
+        [
+          60.025,
+          16.0
+        ],
+        [
+          45.05,
+          16.0
+        ],
+        [
+          45.05,
+          12.55
+        ],
+        [
+          43.65,
+          12.55
+        ],
+        [
+          43.65,
+          16.0
+        ],
+        [
+          31.65,
+          16.0
+        ],
+        [
+          31.65,
+          0.0
+        ]
+      ],
+      "synthetic": false
+    }
+  ],
+  "openings": [],
+  "vertical_connectors": [],
+  "assets": [
+    {
+      "id": "scan-233fe5f22a-A001",
+      "name": "Table 1",
+      "category": "furniture",
+      "type": "table",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        3.15,
+        4.35
+      ],
+      "footprint": {
+        "width_m": 2.05,
+        "depth_m": 2.05,
+        "rotation_deg": 0.0
+      },
+      "source": "dataset"
+    },
+    {
+      "id": "scan-233fe5f22a-A002",
+      "name": "Table 2",
+      "category": "furniture",
+      "type": "table",
+      "space_id": "scan-233fe5f22a-F0-S001",
+      "floor_id": "scan-233fe5f22a-F0",
+      "position": [
+        24.8,
+        3.625
+      ],
+      "footprint": {
+        "width_m": 1.55,
+        "depth_m": 2.5,
+        "rotation_deg": 0.0
+      },
+      "source": "dataset"
+    }
+  ]
+}

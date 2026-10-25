@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Building view playground</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <label>Building <select id="building"></select></label>
+      <label>Floor <select id="floor"></select></label>
+      <label>3D focus <input id="focus" type="checkbox" checked /></label>
+      <label>Floor gap <input id="gap" type="range" min="0" max="20" step="0.5" value="6" /></label>
+      <label>Walls
+        <select id="walls">
+          <option value="1.2">1.2 m</option>
+          <option value="full">Full height</option>
+        </select>
+      </label>
+      <label><input id="labels" type="checkbox" checked /> Labels</label>
+      <label><input id="assets" type="checkbox" checked /> Assets</label>
+    </header>
+    <main>
+      <section id="plan"></section>
+      <section id="model"></section>
+    </main>
+    <footer id="status">Click selects. Shift-click in the plan adds a point to a test path. Esc clears it.</footer>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
