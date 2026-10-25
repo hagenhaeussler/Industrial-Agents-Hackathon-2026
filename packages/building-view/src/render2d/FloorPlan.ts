@@ -4,6 +4,7 @@ import type { Overlay, PickResult } from "../overlay";
 import { fitLabel } from "../scene/labels";
 import { assetColor, colors, spaceColors } from "../scene/style";
 import type { Bounds, BuildingScene, FloorScene, Point } from "../scene/types";
+import { CoworkerMarkers2D } from "./coworkers";
 
 const SVG = "http://www.w3.org/2000/svg";
 const WALL_M = 0.12;
@@ -31,6 +32,8 @@ export class FloorPlan {
   readonly svg: SVGSVGElement;
   private readonly building: SVGGElement;
   private readonly overlayLayer: SVGGElement;
+  private readonly coworkers = new CoworkerMarkers2D();
+  private overlayKey = "";
   private options: FloorPlanOptions;
   private scene: BuildingScene | undefined;
   private floor: FloorScene | undefined;
@@ -45,13 +48,13 @@ export class FloorPlan {
     options: Partial<FloorPlanOptions> = {},
   ) {
     this.options = { ...DEFAULTS, ...options };
-    this.svg = element("svg", { width: "100%", height: "100%", role: "img" });
+    this.svg = element("svg", { width: "100%", height: "100%", role: "group" });
     this.svg.style.display = "block";
     this.svg.style.touchAction = "none";
     this.svg.style.userSelect = "none";
     this.building = element("g");
     this.overlayLayer = element("g", { "pointer-events": "none" });
-    this.svg.append(this.building, this.overlayLayer);
+    this.svg.append(this.building, this.overlayLayer, this.coworkers.layer);
     container.append(this.svg);
     this.listen();
   }
@@ -61,11 +64,14 @@ export class FloorPlan {
     const floor = scene.floors.find((candidate) => candidate.id === floorId);
     if (!floor) throw new Error(`scene ${scene.id} has no floor ${floorId}`);
     const sameFloor = this.scene?.id === scene.id && this.floor?.id === floorId;
+    this.coworkers.clear();
+    if (this.scene && this.scene.id !== scene.id) this.overlay = { ...this.overlay, coworkers: [] };
     this.scene = scene;
     this.floor = floor;
     this.svg.setAttribute("aria-label", `${scene.name}, ${floor.name}`);
     this.drawBuilding();
     this.drawOverlay();
+    this.coworkers.update(this.overlay.coworkers ?? [], floor.id);
     // A live update of the same floor keeps the user's zoom.
     if (!sameFloor) this.fit();
   }
@@ -77,7 +83,12 @@ export class FloorPlan {
 
   setOverlay(overlay: Overlay): void {
     this.overlay = overlay;
-    this.drawOverlay();
+    const key = JSON.stringify([overlay.route, overlay.position, overlay.highlightIds, overlay.closedIds]);
+    if (key !== this.overlayKey) {
+      this.overlayKey = key;
+      this.drawOverlay();
+    }
+    if (this.floor) this.coworkers.update(overlay.coworkers ?? [], this.floor.id);
   }
 
   /** Show the whole floor with a small margin. */
@@ -112,6 +123,9 @@ export class FloorPlan {
 
   destroy(): void {
     for (const dispose of this.cleanup) dispose();
+    this.coworkers.clear();
+    this.pickListeners.clear();
+    this.viewListeners.clear();
     this.svg.remove();
   }
 
@@ -326,6 +340,11 @@ export class FloorPlan {
       }
       const floor = this.floor;
       if (!floor) return;
+      const coworker = this.coworkers.pick(event.target);
+      if (coworker) {
+        for (const listener of this.pickListeners) listener(coworker);
+        return;
+      }
       const target = event.target instanceof Element ? event.target.closest("[data-id]") : null;
       const kind = target?.getAttribute("data-kind");
       const id = target?.getAttribute("data-id");
@@ -333,6 +352,24 @@ export class FloorPlan {
       const pick: PickResult | null =
         id && (kind === "space" || kind === "asset" || kind === "opening") ? { kind, id, floorId: floor.id, x, y } : null;
       for (const listener of this.pickListeners) listener(pick);
+    });
+
+    on("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const pick = this.coworkers.pick(event.target);
+      if (!pick) return;
+      event.preventDefault();
+      if (!event.repeat) for (const listener of this.pickListeners) listener(pick);
+    });
+
+    on("focusin", (event) => {
+      if (this.coworkers.pick(event.target) && event.target instanceof SVGElement) {
+        event.target.style.outline = "2px solid #302e2b";
+        event.target.style.outlineOffset = "3px";
+      }
+    });
+    on("focusout", (event) => {
+      if (this.coworkers.pick(event.target) && event.target instanceof SVGElement) event.target.style.outline = "";
     });
 
     if (typeof ResizeObserver !== "undefined") {

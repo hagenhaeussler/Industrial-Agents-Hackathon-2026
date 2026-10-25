@@ -14,6 +14,7 @@ import { assetColor, colors, spaceColors } from "../scene/style";
 import type { BuildingScene, FloorScene, Point } from "../scene/types";
 import { placeLabels, type LabelCandidate } from "./labelPlacement";
 import { assetHeight, floorOffsets } from "./layout";
+import { CoworkerMarkers3D } from "./coworkers";
 
 const SLAB_M = 0.12;
 const WALL_M = 0.12;
@@ -54,6 +55,10 @@ export class BuildingView3D {
   private readonly plan = new THREE.Group();
   private readonly connectorGroup = new THREE.Group();
   private readonly overlayGroup = new THREE.Group();
+  private readonly coworkers = new CoworkerMarkers3D((pick) => {
+    for (const listener of this.pickListeners) listener(pick);
+  });
+  private overlayKey = "";
   private options: BuildingView3DOptions;
   private scene: BuildingScene | undefined;
   private floors: FloorObjects[] = [];
@@ -87,7 +92,7 @@ export class BuildingView3D {
     sun.position.set(-0.6, 1, 0.4);
     this.world.add(sun);
     this.plan.rotation.x = -Math.PI / 2;
-    this.plan.add(this.connectorGroup, this.overlayGroup);
+    this.plan.add(this.connectorGroup, this.overlayGroup, this.coworkers.group);
     this.world.add(this.plan);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -106,6 +111,8 @@ export class BuildingView3D {
   /** Build the view for `scene`. Keeps the camera if the same building is shown again. */
   show(scene: BuildingScene): void {
     const sameBuilding = this.scene?.id === scene.id;
+    this.coworkers.clear();
+    if (this.scene && !sameBuilding) this.overlay = { ...this.overlay, coworkers: [] };
     this.scene = scene;
     for (const objects of this.floors) {
       this.plan.remove(objects.group);
@@ -138,7 +145,12 @@ export class BuildingView3D {
 
   setOverlay(overlay: Overlay): void {
     this.overlay = overlay;
-    this.drawOverlay();
+    const key = JSON.stringify([overlay.route, overlay.position, overlay.highlightIds, overlay.closedIds]);
+    if (key !== this.overlayKey) {
+      this.overlayKey = key;
+      this.drawOverlay();
+    }
+    this.drawCoworkers();
     this.requestRender();
   }
 
@@ -176,6 +188,8 @@ export class BuildingView3D {
     if (this.frame !== undefined) cancelAnimationFrame(this.frame);
     for (const dispose of this.cleanup) dispose();
     this.controls.dispose();
+    this.coworkers.clear();
+    this.pickListeners.clear();
     dispose(this.plan);
     for (const material of Object.values(this.connectorMaterials)) material.dispose();
     this.renderer.dispose();
@@ -286,7 +300,15 @@ export class BuildingView3D {
     }
     this.drawConnectors(offsets);
     this.drawOverlay();
+    this.drawCoworkers();
     this.requestRender();
+  }
+
+  private drawCoworkers(): void {
+    this.coworkers.update(this.overlay.coworkers ?? [], {
+      offsets: this.scene ? floorOffsets(this.scene.floors, this.options.floorGap) : new Map(),
+      focusFloorId: this.focusFloorId,
+    });
   }
 
   /** Stairs and lifts as columns between the stop points of consecutive stops. */
@@ -425,6 +447,14 @@ export class BuildingView3D {
     );
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(pointer, this.camera);
+    const coworker = this.coworkers.pick(raycaster);
+    if (coworker) {
+      if (event.type === "dblclick") {
+        const offset = this.floors.find((objects) => objects.floor.id === coworker.floorId)?.group.position.z ?? 0;
+        this.orbitAround(this.plan.localToWorld(new THREE.Vector3(coworker.x, coworker.y, offset)));
+      }
+      return coworker;
+    }
     // With a focused floor only that floor is clickable; faded floors would otherwise catch clicks.
     const candidates = this.floors.filter((objects) => this.focusFloorId === null || objects.floor.id === this.focusFloorId);
     const hit = raycaster.intersectObjects(candidates.flatMap((objects) => objects.pickables.filter((o) => o.visible)), false)[0];

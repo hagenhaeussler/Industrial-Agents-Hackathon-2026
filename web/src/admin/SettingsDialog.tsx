@@ -1,7 +1,7 @@
 import { RotateCcw } from "lucide-react";
 import { Sheet } from "../ui/Sheet";
 
-/** Workspace settings. The only place that says which parts of the workspace are a preview. */
+/** Workspace settings and preview limits. */
 export function SettingsDialog({
   open,
   onClose,
@@ -32,7 +32,7 @@ export function SettingsDialog({
         </section>
         <section className="grid gap-1.5 rounded-[14px] bg-field p-3.5 text-xs leading-relaxed">
           <h3 className="text-[13px] font-[750]">Preview features</h3>
-          <p>Team members, channels, messages and presence are sample content. Messages stay in this browser.</p>
+          <p>Channels contain sample posts. Coworkers are an AI simulation. Direct messages are sent to the AI service and kept for this building session.</p>
           <p>Moving equipment changes only this browser's view. The building data and routes do not change.</p>
           <p>Routes, rooms and equipment come from the building data. Locora answers from the same building tools.</p>
         </section>
