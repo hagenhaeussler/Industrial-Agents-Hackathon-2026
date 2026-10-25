@@ -120,11 +120,12 @@ def answer_result(answer: Answer, building: Building) -> dict:
             return {"type": "space", "space_id": space_id, "area_m2": round(area, 2)}
         case RouteAnswer():
             found = answer_route(answer, building)
+            elements = [element.id for leg in found.legs for element in leg.elements]
             return {
                 "type": "route",
                 "reachable": found.reachable,
                 "space_path": route_spaces(found) if found.reachable else [],
-                "element_path": [element.id for leg in found.legs for element in leg.elements],
+                "element_path": elements if found.reachable else [],
                 "length_m": found.length_m,
             }
         case Failure(reason=reason):
