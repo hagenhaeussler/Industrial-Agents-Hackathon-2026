@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import type { Point } from '../api/types';
 import type { Box } from './transform';
 import { bounds, toSvg } from './transform';
-import { createIsometricLayout, ISOMETRIC_COS, isometricBox, isometricMatrix, isometricPoint, isometricSvgPoint, isometricViewBox } from './isometric';
+import { createIsometricLayout, createIsometricScene, ISOMETRIC_COS, isometricBox, isometricMatrix, isometricPoint, isometricSvgPoint, isometricViewBox } from './isometric';
 
 const footprint: Box = { minX: 0, minY: 0, maxX: 20, maxY: 10 };
 const layout = createIsometricLayout(footprint, 3);
@@ -94,5 +94,58 @@ describe('isometric exploded floor projection', () => {
     expect(createIsometricLayout(footprint, NaN).floorCount).toBe(1);
     expect(() => createIsometricLayout({ ...footprint, maxX: Infinity }, 3)).toThrow(RangeError);
     expect(() => isometricPoint(layout, [NaN, 0], 0)).toThrow(RangeError);
+  });
+});
+
+describe('full isometric canvas and selected floor framing', () => {
+  const contains = (outer: Box, inner: Box) => {
+    expect(inner.minX).toBeGreaterThanOrEqual(outer.minX - 1e-9);
+    expect(inner.minY).toBeGreaterThanOrEqual(outer.minY - 1e-9);
+    expect(inner.maxX).toBeLessThanOrEqual(outer.maxX + 1e-9);
+    expect(inner.maxY).toBeLessThanOrEqual(outer.maxY + 1e-9);
+  };
+
+  test('every enlarged plane and slab fits the uncropped canvas at every selection', () => {
+    for (const count of [3, 5, 7]) {
+      for (const source of [footprint, { minX: -40, minY: 3, maxX: 100, maxY: 8 }, { minX: 2, minY: -70, maxX: 5, maxY: 60 }]) {
+        const projection = createIsometricLayout(source, count);
+        const original = isometricViewBox(createIsometricScene(projection, 0));
+        for (let selected = 0; selected < count; selected++) {
+          const scene = createIsometricScene(projection, selected);
+          expect(isometricViewBox(scene)).toBe(original);
+          scene.floors.forEach((frame, rank) => {
+            const plane = isometricBox(projection, source, rank);
+            // Actual CSS emphasis undoes the ordinal offset, then scales and positions the slab.
+            const drawn = {
+              minX: plane.minX * frame.scale, maxX: plane.maxX * frame.scale,
+              minY: (plane.minY + rank * projection.gap) * frame.scale + frame.centerY,
+              maxY: (plane.maxY + projection.slab + rank * projection.gap) * frame.scale + frame.centerY,
+            };
+            contains(scene.scene, drawn);
+            contains(frame.box, drawn);
+            if (rank === selected) contains(scene.focus, drawn);
+            if (rank > 0) expect(frame.box.maxY).toBeLessThan(scene.floors[rank - 1]!.box.minY);
+          });
+          const active = scene.floors[selected]!.box;
+          const context = scene.floors[(selected + 1) % count]!.box;
+          expect((active.maxX - active.minX) / (context.maxX - context.minX)).toBeGreaterThan(1.8);
+        }
+      }
+    }
+  });
+
+  test('the camera frames remain finite and positive for point and line footprints', () => {
+    for (const source of [{ minX: 0, minY: 0, maxX: 0, maxY: 0 }, { minX: 0, minY: -5, maxX: 0, maxY: 20 }]) {
+      const projection = createIsometricLayout(source, 5);
+      for (let selected = 0; selected < 5; selected++) {
+        const scene = createIsometricScene(projection, selected);
+        for (const frame of [scene.scene, scene.focus]) {
+          expect(Object.values(frame).every(Number.isFinite)).toBe(true);
+          expect(frame.maxX - frame.minX).toBeGreaterThan(0);
+          expect(frame.maxY - frame.minY).toBeGreaterThan(0);
+        }
+        scene.floors.forEach(frame => contains(scene.scene, frame.box));
+      }
+    }
   });
 });
