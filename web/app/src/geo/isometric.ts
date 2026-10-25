@@ -80,14 +80,44 @@ export function isometricMatrix(layout: IsometricLayout, rank: number): string {
 }
 
 /** Already screen-space: do not pass this box to the 2D viewBox helper (which flips y again). */
-export function isometricViewBox(layout: IsometricLayout): string {
+export function isometricViewBox(layout: Pick<IsometricLayout, 'scene'>): string {
   const { minX, minY, maxX, maxY } = layout.scene;
   return `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
 }
 
-/** A focused camera frame keeps the selected slab broad and the other levels as context. */
-export function isometricFocusViewBox(layout: IsometricLayout): string {
-  const width = (layout.footprint.maxX - layout.footprint.minX) * 1.62;
-  const height = (layout.footprint.maxY - layout.footprint.minY) * 2.15;
-  return `${-width / 2} ${-height / 2} ${width} ${height}`;
+export type IsometricFloorFrame = {
+  scale: number;
+  /** Center of the unshifted projected footprint in the full scene. */
+  centerY: number;
+  /** Includes the entire scaled slab, not just its top face. */
+  box: Box;
+};
+
+/**
+ * Pack real floors in physical order with clear gaps, emphasizing one without covering its neighbours.
+ * The full canvas has the same bounds for every selection. Focusing is a separate pan/zoom operation:
+ * cropping the SVG viewBox to the selected floor would permanently hide the other floors on zoom-out.
+ */
+export function createIsometricScene(layout: IsometricLayout, selectedRank: number) {
+  const rank = floorRank(layout, selectedRank);
+  const { footprint, slab, floorCount } = layout;
+  const height = footprint.maxY - footprint.minY + slab;
+  const gutter = Math.max(height * .055, slab);
+  let bottom = 0;
+  const floors: IsometricFloorFrame[] = Array.from({ length: floorCount }, (_, index) => {
+    const scale = index === rank ? 1.4 : .76;
+    const centerY = bottom - scale * (footprint.maxY + slab);
+    const box = { minX: footprint.minX * scale, maxX: footprint.maxX * scale, minY: bottom - height * scale, maxY: bottom };
+    bottom = box.minY - gutter;
+    return { scale, centerY, box };
+  });
+  const active = floors[rank]!;
+  const padX = Math.max((active.box.maxX - active.box.minX) * .065, slab * 3, 1);
+  const padY = Math.max(height * 1.4 * .1, slab * 3, 1);
+  const focus = { minX: active.box.minX - padX, minY: active.box.minY - padY, maxX: active.box.maxX + padX, maxY: active.box.maxY + padY };
+  // Sum scales analytically so switching the active floor cannot resize the canvas through rounding.
+  const fullHeight = height * (1.4 + .76 * (floorCount - 1)) + gutter * (floorCount - 1);
+  const scenePadY = Math.max(height * 1.4 * .5, padY);
+  const scene = { minX: footprint.minX * 1.4 - padX, maxX: footprint.maxX * 1.4 + padX, minY: -fullHeight - scenePadY, maxY: scenePadY };
+  return { floors, focus, scene };
 }

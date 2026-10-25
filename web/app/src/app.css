@@ -131,8 +131,6 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 .floor-switch button:hover .floor-level { background: #ecefe5; }
 .floor-switch button.active .floor-level { background: var(--ink); color: var(--accent); }
 /* Exploded desk model; floor geometry and route distances remain in building metres. */
-.isometric-building { padding: 24px; }
-.isometric-camera { transition: transform 550ms cubic-bezier(.22,.7,.3,1); }
 .isometric-floor { opacity: .36; transition: opacity 350ms ease, transform 550ms cubic-bezier(.22,.7,.3,1); cursor: pointer; }
 .isometric-floor:hover { opacity: .65; }
 .isometric-floor:focus-visible { outline: none; }
@@ -211,7 +209,7 @@ a:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px s
 @media (prefers-reduced-motion: reduce) {
   .route-draw { animation: none; stroke-dashoffset: 0; }
   .spin, .pulse { animation: none; }
-  .isometric-camera, .isometric-floor { transition: none; }
+  .isometric-floor { transition: none; }
 }
 
 /* phone journey: banner on top, map in the middle, guidance dock at the thumb */

@@ -45,9 +45,17 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, isometric = fa
     const controls = ref.current;
     if (!controls) return;
     const time = animate && !reducedMotion() ? 500 : 0;
-    if (stacked && frame !== 'space') { controls.resetTransform(time); return; }
-    if (box) void controls.zoomToElement(fitId, { maxScale: stacked ? 2 : frame === 'space' ? 3 : 5, animationTime: time });
+    // The isometric canvas contains every floor. Frame the whole active slab even when a part is
+    // selected; fitting only its room would crop the rest of the selected floor again.
+    if (stacked) { void controls.zoomToElement(fitId, { animationTime: time }); return; }
+    if (box) void controls.zoomToElement(fitId, { maxScale: frame === 'space' ? 3 : 5, animationTime: time });
     else controls.resetTransform(time);
+  };
+
+  const selectFloor = (id: string) => {
+    onFloor?.(id);
+    // Clicking the already selected level should also return from overview/panning to floor focus.
+    if (id === floorId) fitNow();
   };
 
   useEffect(() => {
@@ -79,20 +87,20 @@ export function MapView({ frameKey, frame = 'all', frameSpaceIds, isometric = fa
   const floors = [...model.floors].reverse();
 
   return <div className={`map-view${stacked ? ' isometric-view' : ''}`} ref={view}>
-    <TransformWrapper ref={ref} minScale={0.6} maxScale={12} limitToBounds={false} doubleClick={{ mode: 'zoomIn', step: 0.7 }} wheel={{ step: 0.12 }} centerOnInit>
+    <TransformWrapper key={stacked ? 'stacked' : 'flat'} ref={ref} minScale={stacked ? 1 : 0.6} maxScale={12} limitToBounds={stacked} doubleClick={{ mode: 'zoomIn', step: 0.7 }} wheel={{ step: 0.12 }} centerOnInit>
       <TransformComponent wrapperClass="map-wrapper" contentClass="map-content">
-        {stacked ? <IsometricBuilding {...map} fit={{ id: fitId, box }}/> : <FloorMap {...map} fit={{ id: fitId, box }}/>}
+        {stacked ? <IsometricBuilding {...map} onFloor={selectFloor} fit={{ id: fitId, box }}/> : <FloorMap {...map} fit={{ id: fitId, box }}/>}
       </TransformComponent>
     </TransformWrapper>
     {floors.length > 1 && <nav className="floor-switch" aria-label="Floors">
-      {floors.map(floor => <button key={floor.id} className={floor.id === floorId ? 'active' : ''} aria-label={floor.name} aria-pressed={floor.id === floorId} onClick={() => onFloor?.(floor.id)}>
+      {floors.map(floor => <button key={floor.id} className={floor.id === floorId ? 'active' : ''} aria-label={floor.name} aria-pressed={floor.id === floorId} onClick={() => selectFloor(floor.id)}>
         <span className="floor-level" aria-hidden="true">{floor.level}</span>
       </button>)}
     </nav>}
     <div className="map-controls surface" role="group" aria-label="Map zoom">
       <button onClick={() => ref.current?.zoomIn(0.5)} aria-label="Zoom in"><Plus size={18}/></button>
       <button onClick={() => ref.current?.zoomOut(0.5)} aria-label="Zoom out"><Minus size={18}/></button>
-      <button onClick={() => fitNow()} aria-label={tour || route ? 'Fit route' : 'Fit building'} title={tour || route ? 'Fit route' : 'Fit building'}><Maximize size={17}/></button>
+      <button onClick={() => stacked ? ref.current?.resetTransform(reducedMotion() ? 0 : 500) : fitNow()} aria-label={!stacked && (tour || route) ? 'Fit route' : 'Fit building'} title={!stacked && (tour || route) ? 'Fit route' : 'Fit building'}><Maximize size={17}/></button>
     </div>
   </div>;
 }

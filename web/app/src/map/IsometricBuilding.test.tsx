@@ -106,18 +106,25 @@ describe('exploded isometric building', () => {
     }
   });
 
-  test('floor slabs support keyboard selection and refocus without resizing the camera frame', async () => {
+  test('keyboard selection moves a full-floor focus target inside a stable full-building canvas', async () => {
     const calls: string[] = [];
-    const screen = render(<IsometricBuilding model={model} floorId={floor0} onFloor={id => calls.push(id)}/>);
+    const fit = { id: 'selected-floor-frame', box: { minX: 0, minY: 0, maxX: 1, maxY: 1 } };
+    const screen = render(<IsometricBuilding model={model} floorId={floor0} fit={fit} onFloor={id => calls.push(id)}/>);
     const viewBox = screen.getByRole('group', { name: 'Exploded 3D building: 3 floors' }).getAttribute('viewBox');
-    const camera = screen.container.querySelector('.isometric-camera')!.getAttribute('style');
+    const target = screen.container.querySelector('#selected-floor-frame')!;
+    const originalY = target.getAttribute('y');
+    // Part/room selection must not replace this with a tiny cropped room frame.
+    const projection = createIsometricLayout(model.box, model.floors.length);
+    expect(Number(target.getAttribute('width'))).toBeGreaterThan((projection.footprint.maxX - projection.footprint.minX) * 1.4);
+    expect(Number(target.getAttribute('height'))).toBeGreaterThan((projection.footprint.maxY - projection.footprint.minY + projection.slab) * 1.4);
+    expect(target.closest('.isometric-floor')).toBeNull(); // stable target, independent of animated slab transforms
     await act(async () => { fireEvent.keyDown(screen.getByRole('button', { name: 'Focus Floor 2' }), { key: 'Enter' }); });
     expect(calls).toEqual([floor2]);
-    await act(async () => { screen.rerender(<IsometricBuilding model={model} floorId={floor2} onFloor={id => calls.push(id)}/>); });
+    await act(async () => { screen.rerender(<IsometricBuilding model={model} floorId={floor2} fit={fit} onFloor={id => calls.push(id)}/>); });
     expect(screen.getByRole('button', { name: 'Focus Floor 2' }).getAttribute('aria-pressed')).toBe('true');
     expect(screen.getByRole('button', { name: 'Focus Ground floor' }).getAttribute('aria-pressed')).toBe('false');
     expect(screen.getByRole('group', { name: 'Exploded 3D building: 3 floors' }).getAttribute('viewBox')).toBe(viewBox);
-    expect(screen.container.querySelector('.isometric-camera')!.getAttribute('style')).not.toBe(camera);
+    expect(screen.container.querySelector('#selected-floor-frame')!.getAttribute('y')).not.toBe(originalY);
   });
 
   test('a connector pill selects its target floor once instead of bubbling back to the source floor', async () => {
