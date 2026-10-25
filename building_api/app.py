@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
 from building_db.source import BuildingDocument
-from building_db.store import connect, load_building
+from building_db.store import connect_readonly, load_building
 
 
 class BuildingSummary(BaseModel):
@@ -20,10 +20,10 @@ class BuildingSummary(BaseModel):
 
 
 def create_app(database: Path) -> FastAPI:
-    """An app that reads buildings from `database`. The file is opened per request, not at creation."""
+    """An app that reads buildings from `database`. The file is opened read-only per request."""
 
     def connection() -> Iterator[sqlite3.Connection]:
-        db = connect(database)
+        db = connect_readonly(database)
         try:
             yield db
         finally:

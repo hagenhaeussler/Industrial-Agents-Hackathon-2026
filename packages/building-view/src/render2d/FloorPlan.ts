@@ -289,6 +289,11 @@ export class FloorPlan {
     });
     on("pointermove", (event) => {
       if (!drag) return;
+      // The button was released outside the plan before the drag started, so no pointerup arrived.
+      if (event.buttons === 0) {
+        drag = undefined;
+        return;
+      }
       const dx = event.clientX - drag.x;
       const dy = event.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < DRAG_PX) return;
@@ -298,12 +303,12 @@ export class FloorPlan {
       const scale = drag.view.width / (rect.width || 1);
       this.setView({ ...drag.view, x: drag.view.x - dx * scale, y: drag.view.y + dy * scale });
     });
-    const endDrag = () => {
+    on("pointerup", () => {
+      // The click that follows a drag must not count as a pick.
       suppressClick = drag?.moved ?? false;
       drag = undefined;
-    };
-    on("pointerup", endDrag);
-    on("pointercancel", endDrag);
+    });
+    on("pointercancel", () => (drag = undefined));
 
     on("wheel", (event) => {
       if (!this.options.interactive) return;
@@ -331,18 +336,37 @@ export class FloorPlan {
     });
 
     if (typeof ResizeObserver !== "undefined") {
-      // Keep the view's aspect ratio equal to the container's, around the same centre.
+      let pixels = this.container.getBoundingClientRect();
       const observer = new ResizeObserver(() => {
-        const { x, y, width, height } = this.view;
-        const aspect = this.aspect();
-        const centre = [x + width / 2, y + height / 2] as const;
-        const size = Math.max(width, height * aspect);
-        this.setView({ x: centre[0] - size / 2, y: centre[1] - size / aspect / 2, width: size, height: size / aspect });
+        const next = this.container.getBoundingClientRect();
+        if (next.width === 0 || next.height === 0) return;
+        if (pixels.width === 0 || pixels.height === 0) {
+          // The first real size: the earlier fit used a guessed aspect ratio.
+          pixels = next;
+          this.fit();
+          return;
+        }
+        this.setView(resizeView(this.view, pixels, next));
+        pixels = next;
       });
       observer.observe(this.container);
       this.cleanup.push(() => observer.disconnect());
     }
   }
+}
+
+/**
+ * The view after the container changes from `before` to `after` pixels. Metres per pixel and the centre stay
+ * the same, so resizing never zooms and the view keeps the container's aspect ratio.
+ */
+export function resizeView(
+  view: PlanView,
+  before: { width: number; height: number },
+  after: { width: number; height: number },
+): PlanView {
+  const width = (view.width * after.width) / before.width;
+  const height = (view.height * after.height) / before.height;
+  return { x: view.x + (view.width - width) / 2, y: view.y + (view.height - height) / 2, width, height };
 }
 
 /** The smallest view with the given aspect ratio that contains `bounds`, centred on it. */

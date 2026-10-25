@@ -26,7 +26,6 @@ def main() -> None:
         sys.stdout.write("\n")
         return
     if not args.database.is_file():
-        # connect() would create an empty database, which hides a wrong path.
         sys.exit(f"building database {args.database} does not exist")
     uvicorn.run(create_app(args.database), host=args.host, port=args.port)
 

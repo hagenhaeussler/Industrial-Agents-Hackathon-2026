@@ -59,7 +59,12 @@ export class BuildingView3D {
   private floors: FloorObjects[] = [];
   private focusFloorId: string | null = null;
   private overlay: Overlay = {};
-  private renderQueued = false;
+  private frame: number | undefined;
+  private destroyed = false;
+  private readonly connectorMaterials = {
+    stairs: new THREE.MeshLambertMaterial({ color: "#d9a441" }),
+    lift: new THREE.MeshLambertMaterial({ color: "#5b8fd6" }),
+  };
   private readonly pickListeners = new Set<(pick: PickResult | null) => void>();
   private readonly cleanup: (() => void)[] = [];
 
@@ -152,10 +157,15 @@ export class BuildingView3D {
   }
 
   destroy(): void {
+    this.destroyed = true;
+    if (this.frame !== undefined) cancelAnimationFrame(this.frame);
     for (const dispose of this.cleanup) dispose();
     this.controls.dispose();
     dispose(this.plan);
+    for (const material of Object.values(this.connectorMaterials)) material.dispose();
     this.renderer.dispose();
+    // Browsers allow only a few live WebGL contexts. Free this one now instead of at garbage collection.
+    this.renderer.forceContextLoss();
     this.renderer.domElement.remove();
     this.labelRenderer.domElement.remove();
   }
@@ -266,18 +276,14 @@ export class BuildingView3D {
 
   /** Stairs and lifts as columns between the stop points of consecutive stops. */
   private drawConnectors(offsets: Map<string, number>): void {
-    clear(this.connectorGroup);
+    clear(this.connectorGroup, { keepMaterials: true });
     if (!this.scene) return;
-    const materials = {
-      stairs: new THREE.MeshLambertMaterial({ color: "#d9a441" }),
-      lift: new THREE.MeshLambertMaterial({ color: "#5b8fd6" }),
-    };
     for (const connector of this.scene.connectors) {
       connector.stops.slice(1).forEach((stop, index) => {
         const previous = connector.stops[index]!;
         const from = new THREE.Vector3(previous.point[0], previous.point[1], offsets.get(previous.floorId)!);
         const to = new THREE.Vector3(stop.point[0], stop.point[1], offsets.get(stop.floorId)!);
-        this.connectorGroup.add(column(from, to, connector.kind === "lift" ? 0.25 : 0.15, materials[connector.kind]));
+        this.connectorGroup.add(column(from, to, connector.kind === "lift" ? 0.25 : 0.15, this.connectorMaterials[connector.kind]));
       });
     }
   }
@@ -287,7 +293,9 @@ export class BuildingView3D {
     if (!this.scene) return;
     const offsets = floorOffsets(this.scene.floors, this.options.floorGap);
     const lift = 0.35;
-    const { route = [], position, highlightIds = [], closedIds = [] } = this.overlay;
+    const { position, highlightIds = [], closedIds = [] } = this.overlay;
+    // Points on floors this building does not have are skipped, like in the floor plan.
+    const route = (this.overlay.route ?? []).filter((point) => offsets.has(point.floorId));
 
     if (route.length > 1) {
       const geometry = new LineGeometry();
@@ -319,7 +327,7 @@ export class BuildingView3D {
       }
     }
 
-    if (position) {
+    if (position && offsets.has(position.floorId)) {
       const marker = new THREE.Group();
       const dot = new THREE.Mesh(new THREE.SphereGeometry(0.45, 24, 16), new THREE.MeshLambertMaterial({ color: colors.position }));
       dot.position.z = 0.6;
@@ -331,16 +339,15 @@ export class BuildingView3D {
         cone.position.set(Math.cos(THREE.MathUtils.degToRad(position.headingDeg)) * 0.9, Math.sin(THREE.MathUtils.degToRad(position.headingDeg)) * 0.9, 0.6);
         marker.add(cone);
       }
-      marker.position.set(position.x, position.y, offsets.get(position.floorId) ?? 0);
+      marker.position.set(position.x, position.y, offsets.get(position.floorId)!);
       this.overlayGroup.add(marker);
     }
   }
 
   private requestRender(): void {
-    if (this.renderQueued) return;
-    this.renderQueued = true;
-    requestAnimationFrame(() => {
-      this.renderQueued = false;
+    if (this.frame !== undefined || this.destroyed) return;
+    this.frame = requestAnimationFrame(() => {
+      this.frame = undefined;
       this.renderer.render(this.world, this.camera);
       this.declutterLabels();
       this.labelRenderer.render(this.world, this.camera);
@@ -484,17 +491,18 @@ function column(from: THREE.Vector3, to: THREE.Vector3, radius: number, material
   return mesh;
 }
 
-function clear(group: THREE.Group): void {
+function clear(group: THREE.Group, options: { keepMaterials?: boolean } = {}): void {
   for (const child of [...group.children]) {
     group.remove(child);
-    dispose(child);
+    dispose(child, options);
   }
 }
 
-function dispose(root: THREE.Object3D): void {
+function dispose(root: THREE.Object3D, { keepMaterials = false }: { keepMaterials?: boolean } = {}): void {
   root.traverse((object) => {
     if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments || object instanceof Line2) {
       object.geometry.dispose();
+      if (keepMaterials) return;
       const materials: THREE.Material[] = Array.isArray(object.material) ? object.material : [object.material];
       for (const material of materials) material.dispose();
     }

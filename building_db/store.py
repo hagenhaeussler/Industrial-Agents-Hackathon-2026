@@ -48,6 +48,20 @@ def connect(path: Path | str) -> sqlite3.Connection:
     return connection
 
 
+def connect_readonly(path: Path | str) -> sqlite3.Connection:
+    """Open an existing building database for reading only. Never creates or changes the file.
+
+    The connection may be used from a different thread than the one that opened it, as web frameworks do,
+    but not from two threads at once.
+    """
+    connection = sqlite3.connect(f"{Path(path).resolve().as_uri()}?mode=ro", uri=True, check_same_thread=False)
+    version = connection.execute("PRAGMA user_version").fetchone()[0]
+    if version != SCHEMA_VERSION:
+        connection.close()
+        raise RuntimeError(f"{path} has schema version {version}; this code expects {SCHEMA_VERSION}")
+    return connection
+
+
 ImportStatus = Literal["imported", "unchanged", "conflict", "failed"]
 
 

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { PickResult } from "../overlay";
 import { compileScene } from "../scene/compile";
 import { fixture } from "../testing/fixture";
-import { FloorPlan } from "./FloorPlan";
+import { FloorPlan, resizeView } from "./FloorPlan";
 
 const scene = compileScene(fixture());
 
@@ -64,6 +64,27 @@ describe("FloorPlan", () => {
     expect(picks.map((pick) => pick && [pick.kind, pick.id, pick.floorId])).toEqual([["asset", "D1", "F0"], null]);
   });
 
+  it("ignores the click after a drag but not after a cancelled drag", () => {
+    const plan = mount();
+    plan.show(scene, "F0");
+    const picks: (PickResult | null)[] = [];
+    plan.onPick((pick) => picks.push(pick));
+    const desk = plan.svg.querySelector('[data-id="D1"]')!;
+    const pointer = (type: string, clientX: number) =>
+      plan.svg.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX, clientY: 0, buttons: 1 }));
+    const click = () => desk.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    pointer("pointerdown", 0);
+    pointer("pointermove", 30);
+    pointer("pointerup", 30);
+    click(); // ends a drag: no pick
+    pointer("pointerdown", 0);
+    pointer("pointermove", 30);
+    pointer("pointercancel", 30);
+    click(); // after a cancelled drag: a normal pick
+    expect(picks.map((pick) => pick?.id)).toEqual(["D1"]);
+  });
+
   it("can hide detail for an overview such as a minimap", () => {
     const plan = mount();
     plan.show(scene, "F0");
@@ -71,5 +92,14 @@ describe("FloorPlan", () => {
     expect(ids(plan, "asset")).toEqual([]);
     expect(ids(plan, "opening")).toEqual([]);
     expect(plan.svg.querySelectorAll("text")).toHaveLength(0);
+  });
+});
+
+describe("resizeView", () => {
+  it("keeps scale and centre, so resizing back and forth does not zoom", () => {
+    const view = { x: 0, y: 0, width: 10, height: 10 };
+    const wide = resizeView(view, { width: 100, height: 100 }, { width: 200, height: 100 });
+    expect(wide).toEqual({ x: -5, y: 0, width: 20, height: 10 });
+    expect(resizeView(wide, { width: 200, height: 100 }, { width: 100, height: 100 })).toEqual(view);
   });
 });
