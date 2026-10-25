@@ -62,6 +62,28 @@ class BuildingApiTest(unittest.TestCase):
             ).result()
         self.assertEqual(building.building.id, read_building(DEV_BUILDING / "building.json").building.id)
 
+    def test_route_matches_the_tool_and_has_drawing_points(self) -> None:
+        source = read_building(DEV_BUILDING / "building.json")
+        lift = next(c for c in source.vertical_connectors if c.kind == "lift")
+        start, end = lift.space_ids[0], lift.space_ids[-1]
+        response = self.client.get(f"/api/buildings/{source.building.id}/route", params={"stops": [start, end]})
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertTrue(body["route"]["reachable"])
+        self.assertEqual(body["path"][0]["floor_id"], lift.floor_ids[0])
+        self.assertEqual(body["path"][-1]["floor_id"], lift.floor_ids[-1])
+
+    def test_route_with_unknown_stop_is_rejected(self) -> None:
+        source = read_building(DEV_BUILDING / "building.json")
+        start = source.spaces[0].id
+        response = self.client.get(f"/api/buildings/{source.building.id}/route", params={"stops": [start, "missing"]})
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("missing", response.json()["detail"])
+
+    def test_route_in_unknown_building_is_not_found(self) -> None:
+        response = self.client.get("/api/buildings/missing/route", params={"stops": ["a", "b"]})
+        self.assertEqual(response.status_code, 404)
+
     def test_never_creates_a_missing_database(self) -> None:
         missing = self.directory / "missing.sqlite3"
         with self.assertRaises(sqlite3.OperationalError):

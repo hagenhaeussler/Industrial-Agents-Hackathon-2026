@@ -11,5 +11,12 @@ export type Opening = Schemas["Opening"];
 export type VerticalConnector = Schemas["VerticalConnector"];
 export type Asset = Schemas["Asset"];
 
+/** A route from the building tools with the points to draw it (`GET /api/buildings/{id}/route`). */
+export type RouteView = Schemas["RouteView"];
+export type Route = Schemas["Route"];
+export type RouteLeg = Schemas["RouteLeg"];
+export type ElementStep = Schemas["ElementStep"];
+export type PathPoint = Schemas["PathPoint"];
+
 /** The space reference an entrance uses for the area outside the building. */
 export const OUTSIDE = "outside";

@@ -6,14 +6,14 @@ import unittest
 from collections import defaultdict
 from pathlib import Path
 
-from shapely.geometry import Polygon
+from shapely.geometry import Point, Polygon
 
 from building_db.source import BuildingDocument
 from building_db.store import connect, import_building
 from building_tools.building import Building, ToolInputError, load
 from building_tools.lookup import find_spaces
 from building_tools.network import RouteConditions, shared_wall_midpoint
-from building_tools.routes import exit_distance_change, reachable_spaces, route
+from building_tools.routes import exit_distance_change, reachable_spaces, route, route_path
 from tests.test_building_db import fixture_building
 
 REPO = Path(__file__).resolve().parents[1]
@@ -73,6 +73,22 @@ class FixtureRouteTests(unittest.TestCase):
         # The lift ride costs 15 m plus 1 m per metre climbed (3 m), on top of walking to and from the door.
         self.assertGreater(result.length_m or 0, 18.0)
         self.assertLess(result.length_m or 0, 21.0)
+
+    def test_route_path_follows_the_route_across_floors(self) -> None:
+        path = route_path(self.building, ["S-office", "S-lift-1"])
+        floors = [point.floor_id for point in path]
+        # Office centre, the door, the lift on the ground floor, then the lift on floor 1.
+        self.assertEqual(floors, ["F0", "F0", "F0", "F1"])
+        self.assertEqual((path[1].x, path[1].y), (2.0, 0.5))
+        office = self.building.polygon_by_id["S-office"]
+        self.assertTrue(office.contains(Point(path[0].x, path[0].y)))
+
+    def test_route_path_is_empty_when_a_leg_is_unreachable(self) -> None:
+        self.assertEqual(route_path(self.building, ["S-office", "S-store"]), [])
+
+    def test_route_path_rejects_unknown_stops(self) -> None:
+        with self.assertRaises(ToolInputError):
+            route_path(self.building, ["S-office", "missing"])
 
     def test_no_route_goes_round_the_outside(self) -> None:
         result = route(self.building, ["S-office", "S-store"])

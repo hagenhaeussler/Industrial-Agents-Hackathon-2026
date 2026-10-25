@@ -1,7 +1,7 @@
 # Building views
 
-Status: the read-only building API, the scene compiler, the 2D floor plan and the 3D exploded view are
-implemented. The web application, the minimap and the display of agent routes are not.
+Status: the read-only building API with routes, the scene compiler, the 2D floor plan and the 3D exploded view are
+implemented. The web application in `web/` uses both views. See [web/README.md](../web/README.md).
 
 ## Data flow
 
@@ -56,7 +56,7 @@ back from the name to the ref. Wheel zoom and drag pan are built in. `getView`, 
 `onViewChange` and the `interactive`, `labels`, `assets` and `openings` options are what a later minimap
 needs.
 
-`BuildingView3D` draws all floors as an exploded view with orbit controls. Each floor sits at its elevation
+`BuildingView3D` draws all floors as an exploded view. Drag turns the camera, right-drag or Shift-drag moves it, and the wheel zooms toward the pointer. A double click, or `centerOn`, makes a point the new centre to turn around, so off-centre parts are easy to inspect. Arrow keys move the view when the canvas has focus. Each floor sits at its elevation
 plus `floorGap` for each floor below. Walls are 1.2 m high by default, or `"full"` for the floor height.
 `setFocusFloor` shows the other floors as flat outlines and limits clicks to the focused floor.
 Transparent 3D floors were rejected: where floors share a layout, their translucent walls stack and look half

@@ -91,6 +91,13 @@ export class BuildingView3D {
     this.world.add(this.plan);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // Zoom toward the pointer, so an off-centre part of the building can be reached without moving the centre
+    // first. Panning moves in the screen plane, and the camera never goes below the ground.
+    this.controls.zoomToCursor = true;
+    this.controls.screenSpacePanning = true;
+    this.controls.maxPolarAngle = Math.PI * 0.495;
+    this.renderer.domElement.tabIndex = 0;
+    this.controls.listenToKeyEvents(this.renderer.domElement);
     this.controls.addEventListener("change", () => this.requestRender());
     this.listen();
     this.resize();
@@ -154,6 +161,14 @@ export class BuildingView3D {
     this.controls.target.copy(centre);
     this.controls.update();
     this.requestRender();
+  }
+
+  /** Turn around a point of a floor from now on, keeping the current viewing angle and distance. */
+  centerOn(floorId: string, x: number, y: number): void {
+    const objects = this.floors.find((candidate) => candidate.floor.id === floorId);
+    if (!objects) return;
+    this.plan.updateMatrixWorld(true);
+    this.orbitAround(objects.group.localToWorld(new THREE.Vector3(x, y, 0)));
   }
 
   destroy(): void {
@@ -395,6 +410,13 @@ export class BuildingView3D {
     this.requestRender();
   }
 
+  private orbitAround(point: THREE.Vector3): void {
+    this.camera.position.add(point.clone().sub(this.controls.target));
+    this.controls.target.copy(point);
+    this.controls.update();
+    this.requestRender();
+  }
+
   private pick(event: MouseEvent): PickResult | null {
     const rect = this.renderer.domElement.getBoundingClientRect();
     const pointer = new THREE.Vector2(
@@ -407,6 +429,7 @@ export class BuildingView3D {
     const candidates = this.floors.filter((objects) => this.focusFloorId === null || objects.floor.id === this.focusFloorId);
     const hit = raycaster.intersectObjects(candidates.flatMap((objects) => objects.pickables.filter((o) => o.visible)), false)[0];
     if (!hit) return null;
+    if (event.type === "dblclick") this.orbitAround(hit.point);
     const floor = this.floors.find((objects) => objects.detail === hit.object.parent)!.floor;
     const local = this.plan.worldToLocal(hit.point.clone());
     const data = hit.object.userData as { kind: "space" | "asset"; id?: string; ids?: string[] };
@@ -424,13 +447,17 @@ export class BuildingView3D {
       const pick = this.pick(event);
       for (const listener of this.pickListeners) listener(pick);
     };
+    // A double click makes the point under the pointer the new centre to turn around.
+    const onDoubleClick = (event: MouseEvent) => void this.pick(event);
     canvas.addEventListener("pointerdown", onDown);
     canvas.addEventListener("pointerup", onUp);
+    canvas.addEventListener("dblclick", onDoubleClick);
     const observer = new ResizeObserver(() => this.resize());
     observer.observe(this.container);
     this.cleanup.push(() => {
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointerup", onUp);
+      canvas.removeEventListener("dblclick", onDoubleClick);
       observer.disconnect();
     });
   }

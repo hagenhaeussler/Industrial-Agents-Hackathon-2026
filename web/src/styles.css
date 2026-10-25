@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/* Design tokens from the phone prototype (commit b411e05, web/mobile/DESIGN.md). */
+@theme {
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #191c16;
+  --color-muted: #64685f;
+  --color-accent: #dcff58;
+  --color-accent-deep: #6b8026;
+  --color-line: #e9eae3;
+  --color-paper: #f4f3ee;
+  --color-field: #f2f3ed;
+  --color-danger: #c83432;
+  --color-rail: #151912;
+  --color-side: #20251b;
+  --color-side-hover: #2c3325;
+  --shadow-float: 0 6px 28px #20251b12, 0 1px 3px #20251b0a;
+  --shadow-sheet: 0 -10px 70px #151b1633;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-synthesis: none;
+  }
+  button {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-accent-deep);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* A white floating container. Every control over a map or camera uses it. */
+  .float {
+    background: #fff;
+    box-shadow: var(--shadow-float);
+  }
+
+  /* Native dialog as a bottom sheet on phones and a centred card from 800px. */
+  .sheet {
+    margin: auto auto 0;
+    width: min(100%, 520px);
+    max-width: 100%;
+    max-height: 88svh;
+    border: 0;
+    border-radius: 30px 30px 0 0;
+    padding: 10px 22px max(22px, env(safe-area-inset-bottom));
+    background: #fff;
+    color: var(--color-ink);
+    box-shadow: var(--shadow-sheet);
+  }
+  .sheet::backdrop {
+    background: #17201266;
+  }
+  @media (min-width: 800px) {
+    .sheet {
+      margin: auto;
+      border-radius: 28px;
+      max-height: 90svh;
+    }
+  }
+}
+
+/* The avatar follows the agent's voice level through --level, set while the agent speaks. */
+.avatar-voice {
+  transform: scale(calc(1 + var(--level, 0) * 0.14));
+  transform-origin: 50% 70%;
+}
+.avatar-paused * {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-voice {
+    transform: none;
+  }
+}
