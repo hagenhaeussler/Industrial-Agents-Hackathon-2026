@@ -1,15 +1,29 @@
-import { Camera, Flag } from "lucide-react";
+import { Camera, Flag, LocateFixed } from "lucide-react";
 import { useEffect } from "react";
+import type { Fix } from "../camera/localize";
 import { useCamera } from "../camera/useCamera";
+import { useLocalization } from "../camera/useLocalization";
 import type { Turn } from "../route/directions";
 
+const STATUS_TEXT = { searching: "Finding your position…", located: "Position found", unavailable: undefined };
+
 /**
- * Full-screen camera with the next turn drawn over it. The arrow comes from the route plan; the camera image
- * is not analysed and the position is not tracked.
+ * Full-screen camera with the next turn drawn over it. The arrow comes from the route plan. While the camera
+ * runs, about one frame per second goes to the localization service; reliable positions arrive through `onFix`.
  */
-export function CameraLayer({ turn }: { turn: Turn | undefined }) {
+export function CameraLayer({
+  turn,
+  buildingId,
+  onFix,
+}: {
+  turn: Turn | undefined;
+  buildingId: string;
+  onFix: (fix: Fix) => void;
+}) {
   const camera = useCamera();
   const live = camera.state.kind === "live";
+  const localization = useLocalization(buildingId, camera.videoRef, live, onFix);
+  const statusText = live ? STATUS_TEXT[localization] : undefined;
 
   // Start on entering the camera view; the hook stops the stream when the view closes.
   useEffect(() => {
@@ -28,6 +42,15 @@ export function CameraLayer({ turn }: { turn: Turn | undefined }) {
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(#131a0d1f,transparent_35%,transparent_60%,#131a0d2e)]" />
       {turn && <TurnOverlay turn={turn} />}
+      {statusText && (
+        <p
+          role="status"
+          className="float absolute top-[max(150px,calc(env(safe-area-inset-top)+136px))] left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-[700] whitespace-nowrap"
+        >
+          <LocateFixed size={13} className={localization === "located" ? "text-accent-deep" : "text-muted"} />
+          {statusText}
+        </p>
+      )}
       {!live && (
         <div className="absolute inset-x-6 top-[40%] mx-auto max-w-[340px]">
           <div className="float grid gap-3 rounded-[18px] p-4 text-center">

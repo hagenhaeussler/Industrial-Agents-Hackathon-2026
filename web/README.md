@@ -59,11 +59,23 @@ flowchart LR
   speaking with the voice level, and happy on arrival.
 - A QR code holds only the phone link. The phone loads the route itself.
 
+## Camera localization
+
+In the camera view the phone sends about one frame per second (JPEG, long side 1024 px, one request at a time) to
+`POST /api/buildings/{id}/localize`. The building API forwards it to the GPU localization service with the token
+from `LOCALIZATION_TOKEN`; the browser never sees the token or the service URL. See `docs/localization.md`.
+
+- Only results with `reliable: true` count. `position` and `heading_deg` draw the marker on the mini map.
+- When two fixes in a row agree on a new `space_id`, it becomes the start. The route is planned again with the
+  stops still ahead, so passed waypoints are dropped. In the destination nothing changes.
+- After 404 (no map for the building) or 503 (localization not configured on the server) the phone stops sending
+  until the page reloads. After other failures, such as a timeout (502), the wait doubles up to 16 s.
+- The service does not store images. Settings tell the user that frames are sent.
+
 ## Preview parts
 
 Settings in the workspace name these. The main view does not.
 
 - Team members, channels, messages and presence are sample content in `src/admin/team.ts`.
 - Moving equipment changes only the browser's copy of the building.
-- The camera view draws the next turn over the camera image. It does not track the position. The position comes
-  from the QR code, a click or the steps the user confirms.
+- The camera view draws the next turn over the camera image.
