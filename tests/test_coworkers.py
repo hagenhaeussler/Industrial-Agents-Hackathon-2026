@@ -91,6 +91,13 @@ class CoworkerTest(unittest.TestCase):
         self.assertEqual(self.send(member="jonas").status_code, 409)
         self.assertEqual(len(self.chat.contexts), 1)
 
+    def test_request_id_with_reply_suffix_keeps_the_actual_user_prompt(self):
+        self.send(text="First question")
+        result = self.send(text="Second actual question", request_id="request-number-0001-reply")
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(self.chat.contexts[-1].history[-1].text, "Second actual question")
+        self.assertEqual(len({message["id"] for message in result.json()["messages"]}), 4)
+
     def test_failure_retry_keeps_one_user_message_and_retains_spend(self):
         self.chat.failure = True
         self.assertEqual(self.send().status_code, 502)

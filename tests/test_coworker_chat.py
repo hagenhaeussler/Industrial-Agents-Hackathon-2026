@@ -7,8 +7,12 @@ from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
+import httpx
+from anthropic import AsyncAnthropic
 from pydantic_ai.messages import ModelResponse, TextPart, ToolCallPart, ToolReturnPart
+from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.function import FunctionModel
+from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.usage import RequestUsage
 from shapely.geometry import Polygon
 
@@ -153,3 +157,19 @@ class CoworkerHarnessTest(unittest.IsolatedAsyncioTestCase):
             reply = await CoworkerChat(FunctionModel(model)).reply(self.context)
         self.assertIn("UsageLimitExceeded", reply.error)
         self.assertIsNone(reply.cost)
+
+    async def test_real_anthropic_client_does_not_retry_uncertain_message_requests(self):
+        requests = []
+
+        def transport(request):
+            if request.url.path.endswith("count_tokens"):
+                return httpx.Response(200, json={"input_tokens": 1000})
+            requests.append(request)
+            raise httpx.ReadTimeout("uncertain provider response", request=request)
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+            provider = AnthropicProvider(anthropic_client=AsyncAnthropic(api_key="offline-test", http_client=client))
+            reply = await CoworkerChat(AnthropicModel("claude-sonnet-5-5", provider=provider)).reply(self.context)
+        self.assertEqual(len(requests), 1)
+        self.assertIsNone(reply.cost)
+        self.assertIsNone(reply.text)

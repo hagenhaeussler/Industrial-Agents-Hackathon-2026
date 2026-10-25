@@ -58,7 +58,7 @@ class CoworkerChat:
             ),
             toolsets=[MCPToolset(create_server(context.building), tool_error_behavior="failed")],
             model_settings=AnthropicModelSettings(
-                max_tokens=900, anthropic_effort="low", anthropic_cache_instructions=True
+                max_tokens=900, max_retries=0, anthropic_effort="low", anthropic_cache_instructions=True
             ),
         )
 

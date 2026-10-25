@@ -108,11 +108,11 @@ class CoworkerService:
                 )
 
             messages = [item for item in self.store.messages(session_id) if item.member_id == member.id]
-            current_message = next(item for item in messages if item.id == message.request_id)
+            current_message = next(item for item in messages if item.id == message.request_id and item.role == "user")
             context = ChatContext(
                 building=workday.building,
                 member=member,
-                history=[item for item in messages if item.id != message.request_id] + [current_message],
+                history=[item for item in messages if item is not current_message] + [current_message],
                 location=location,
             )
             try:

@@ -85,7 +85,7 @@ class CoworkerStore:
             if turn["reply"] is not None:
                 messages.append(
                     ChatMessage(
-                        id=turn["request_id"] + "-reply",
+                        id="reply:" + turn["request_id"],
                         member_id=turn["member_id"],
                         role="assistant",
                         text=turn["reply"],

@@ -49,7 +49,8 @@ before the retry reserves a separate allowance. Attempt IDs prevent a late reply
 Deleting sessions or starting another browser session does not reset the ledger.
 
 Each run has a $0.20 cost limit, preflight input-token checks, at most eight model requests, 900 output tokens
-per response and a 60-second timeout. Provider-reported costs arrive after a response, so these are application
+per response and a 60-second timeout. Automatic provider retries are disabled so uncertain requests keep their
+reservation. Provider-reported costs arrive after a response, so these are application
 limits, not a replacement for provider billing controls. Replies are serialized in each server process. SQLite
 reservations also protect the shared budget if multiple workers run. Never reset an uncertain reservation to
 make room for another paid call.
