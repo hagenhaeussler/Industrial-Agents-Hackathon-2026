@@ -23,12 +23,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle
-from shapely.geometry import Point, Polygon
 
 from .alignment import apply
 from .capture import load_capture, select_keyframes, turn_clockwise, upright_turns
 from .evaluate import localize_as_client
 from .localizer import Localizer, resize_long_side
+from .placement import BuildingFrame, Placement
 from .point_cloud import colored_cloud, render
 from .video import probe, read_frames
 
@@ -55,11 +55,10 @@ def load_cloud(map_dir: Path, map_capture: Path) -> tuple[np.ndarray, np.ndarray
     return points, colors
 
 
-def plan_pose(building_from_map: np.ndarray, world_from_cam: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Plan position and unit viewing direction of a camera."""
-    position = apply(building_from_map, world_from_cam[:3, 3][None])[0, :2]
-    direction = (building_from_map[:3, :3] @ world_from_cam[:3, 2])[:2]
-    return position, direction / (np.linalg.norm(direction) or 1)
+def draw_camera(ax, placement: Placement, color: str, **marker) -> None:
+    heading = np.radians(placement.heading_deg)
+    ax.plot(*placement.position, c=color, **marker)
+    ax.arrow(*placement.position, 1.5 * np.cos(heading), 1.5 * np.sin(heading), color=color, width=0.08)
 
 
 def draw_plan(ax, building: dict, walls: np.ndarray) -> None:
@@ -93,8 +92,9 @@ def main() -> None:
     report = json.loads((args.map / f"eval-capture-{args.capture.name}-long{LONG_SIDE}.json").read_text())
     map_from_capture = np.array(report["summary"]["map_from_capture"])
     building = json.loads(args.building.read_text())
-    building_from_map = np.array(building["building"]["source_ref"]["building_from_map"])
-    spaces = [(space["name"], Polygon(space["polygon"])) for space in building["spaces"]]
+    building_frame = BuildingFrame(building)
+    building_from_map = building_frame.building_from_map
+    space_names = {space["id"]: space["name"] for space in building["spaces"]}
 
     points, colors = load_cloud(args.map, args.map_capture)
     plan_points = apply(building_from_map, points)
@@ -111,10 +111,9 @@ def main() -> None:
     for index, video_frame in read_frames(capture.video, chosen):
         frame = turn_clockwise(capture.frames[index], turns)
         photo = np.ascontiguousarray(np.rot90(video_frame.bgr(), k=-turns))
-        result, row = localize_as_client(localizer, photo, frame.K, LONG_SIDE, JPEG_QUALITY)
+        result, _row = localize_as_client(localizer, photo, frame.K, LONG_SIDE, JPEG_QUALITY)
         small, scale = resize_long_side(photo, LONG_SIDE)
         reference = map_from_capture @ frame.world_from_cam
-        ref_xy, ref_dir = plan_pose(building_from_map, reference)
 
         fig = plt.figure(figsize=(18, 13))
         grid = fig.add_gridspec(2, 3, height_ratios=[1, 1.15])
@@ -124,8 +123,15 @@ def main() -> None:
         lines = [f"Frame {index}: {result.num_inliers} inliers, {sum(result.timings_ms.values()):.0f} ms on the GPU"]
         plan = fig.add_subplot(grid[1, :])
         draw_plan(plan, building, walls)
-        plan.plot(*ref_xy, "x", c="#2ca02c", ms=12, mew=3, label="Reference (ARKit path, aligned)")
-        plan.arrow(*ref_xy, *(ref_dir * 1.5), color="#2ca02c", width=0.08)
+        draw_camera(
+            plan,
+            building_frame.place(reference),
+            "#2ca02c",
+            marker="x",
+            ms=12,
+            mew=3,
+            label="Reference (ARKit path, aligned)",
+        )
 
         if result.world_from_cam is None:
             for ax in panels[1:]:
@@ -140,16 +146,14 @@ def main() -> None:
             panels[1].set_title("Point cloud from the estimated pose")
             panels[2].imshow(((small.astype(np.float32) + view) / 2).astype(np.uint8)[:, :, ::-1])
             panels[2].set_title("Both blended")
-            xy, direction = plan_pose(building_from_map, result.world_from_cam)
-            height = apply(building_from_map, result.world_from_cam[:3, 3][None])[0, 2]
-            space = next((name for name, polygon in spaces if polygon.contains(Point(xy))), "outside every space")
+            placed = building_frame.place(result.world_from_cam)
+            space = space_names.get(placed.space_id, "no space")
             error = float(np.linalg.norm(result.world_from_cam[:3, 3] - reference[:3, 3]))
-            heading = np.degrees(np.arctan2(direction[1], direction[0]))
-            plan.plot(*xy, "o", c="#d62728", ms=10, label="Estimated position")
-            plan.arrow(*xy, *(direction * 1.5), color="#d62728", width=0.08)
+            draw_camera(plan, placed, "#d62728", marker="o", ms=10, label="Estimated position")
+            x, y = placed.position
             lines.append(
-                f"Plan position ({xy[0]:.2f}, {xy[1]:.2f}) m in {space}, phone {height:.2f} m above the floor, "
-                f"heading {heading:.0f}° from +x. Distance to reference {error:.2f} m"
+                f"Plan position ({x:.2f}, {y:.2f}) m in {space}, phone {placed.height_m:.2f} m above the floor, "
+                f"heading {placed.heading_deg:.0f}° from +x. Distance to reference {error:.2f} m"
             )
         for ax in panels:
             ax.axis("off")

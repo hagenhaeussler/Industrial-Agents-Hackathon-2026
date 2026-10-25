@@ -36,6 +36,11 @@ def colmap_camera(K: np.ndarray, width: int, height: int) -> pycolmap.Camera:
     return pycolmap.Camera(model="PINHOLE", width=width, height=height, params=[fx, fy, cx, cy])
 
 
+def phone_camera(focal_px: float, width: int, height: int) -> pycolmap.Camera:
+    """A camera known only by its focal length, with the principal point in the image centre."""
+    return pycolmap.Camera(model="SIMPLE_PINHOLE", width=width, height=height, params=[focal_px, width / 2, height / 2])
+
+
 def resize_long_side(image: np.ndarray, long_side: int) -> tuple[np.ndarray, float]:
     """Shrink so the longer side is at most `long_side`. Returns the image and the scale used."""
     scale = long_side / max(image.shape[:2])
@@ -51,6 +56,7 @@ class Localization:
     num_inliers: int
     num_matches: int
     retrieved: list[str]
+    focal_px: float  # as given, or as estimated when the focal length was unknown
     timings_ms: dict[str, float] = field(default_factory=dict)
 
 
@@ -78,8 +84,7 @@ class Localizer:
         images = {im.name: im for im in self.reconstruction.images.values() if im.num_points3D > 0}
         self.names = sorted(images)
         self.point3D_ids = [
-            np.array([p.point3D_id if p.has_point3D() else -1 for p in images[n].points2D])
-            for n in self.names
+            np.array([p.point3D_id if p.has_point3D() else -1 for p in images[n].points2D]) for n in self.names
         ]
 
         with h5py.File(map_dir / "global.h5", "r") as f:
@@ -104,7 +109,12 @@ class Localizer:
         return result
 
     @torch.no_grad()
-    def localize(self, image_bgr: np.ndarray, camera: pycolmap.Camera) -> Localization:
+    def localize(self, image_bgr: np.ndarray, camera: pycolmap.Camera, estimate_focal: bool = False) -> Localization:
+        """Pose of the camera that took `image_bgr`.
+
+        Browsers do not report the focal length. With `estimate_focal`, the camera's focal length is only a
+        starting value: RANSAC solves for it with the pose, and the refinement adjusts it.
+        """
         clock = _Stopwatch(self.device)
         height, width = image_bgr.shape[:2]
 
@@ -149,7 +159,11 @@ class Localizer:
                 points2D,
                 points3D,
                 camera,
-                estimation_options={"ransac": {"max_error": RANSAC_MAX_ERROR_PX}},
+                estimation_options={
+                    "ransac": {"max_error": RANSAC_MAX_ERROR_PX},
+                    "estimate_focal_length": estimate_focal,
+                },
+                refinement_options={"refine_focal_length": estimate_focal},
             )
             if estimate is not None:
                 cam_from_world = estimate["cam_from_world"]
@@ -163,5 +177,6 @@ class Localizer:
             num_inliers=num_inliers,
             num_matches=len(pairs),
             retrieved=[self.names[i] for i in top],
+            focal_px=float(camera.mean_focal_length()),
             timings_ms=clock.timings,
         )

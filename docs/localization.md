@@ -1,7 +1,7 @@
 # Camera localization
 
-Status: steps 1 to 4 are done. The code is in `localization/`. Results are in [Spike results](#spike-results)
-and [Floor plan results](#floor-plan-results).
+Status: steps 1 to 5 are done. The code is in `localization/`. Results are in [Spike results](#spike-results)
+and [Floor plan results](#floor-plan-results). The service runs on the GPU VM, see [Localization service](#localization-service).
 
 ## Goal
 
@@ -88,15 +88,46 @@ Planned:
 1. The client sends a downscaled frame. During walking it sends 1 to 2 frames per second.
 2. MegaLoc finds the 3 to 5 most similar map frames.
 3. SuperPoint and LightGlue match the frame to them. PnP + RANSAC gives the 6DoF pose.
-   Browsers do not expose camera intrinsics, so calibrate each test phone once or let hloc estimate focal length.
+   Browsers do not expose camera intrinsics, so the server estimates the focal length with the pose.
 4. Shapely finds the space polygon that contains the position. The floor follows from the height.
-5. Smooth successive poses. Reject positions outside walkable spaces.
+5. Planned in the client: smooth successive poses. Ignore results that are not `reliable`.
 
-Proposed result shape:
+### Localization service
 
-```json
-{"floor_id": "...", "space_id": "...", "position": [x, y], "heading_deg": 0.0, "confidence": 0.0}
+`localization/server.py` serves one request per image over HTTPS. A plain POST is enough at 1 to 2 frames per
+second, and a server can forward it without keeping a connection open.
+
 ```
+POST /v1/buildings/{building_id}/localize[?focal_px=...]
+Authorization: Bearer <LOCALIZATION_TOKEN>
+Content-Type: image/jpeg
+
+{"building_id": "scan-233fe5f22a", "located": true, "reliable": true,
+ "floor_id": "scan-233fe5f22a-F0", "space_id": "scan-233fe5f22a-F0-S001",
+ "position": [37.798, 17.022], "height_m": 1.578, "heading_deg": 177.3,
+ "num_inliers": 526, "focal_px": 773.1,
+ "timings_ms": {"decode": 5.5, "retrieval": 45.5, "features": 23.4, "matching": 95.7, "pose": 10.2}}
+```
+
+- `position` is in plan metres, as in `building.json`. `heading_deg` is the viewing direction, counterclockwise
+  from +x. `height_m` is the camera height above its floor.
+- `reliable` means at least 30 inliers. Below that, the spike's median error was 4.3 m.
+- `GET /health` lists the buildings with a map. It needs no token.
+- Errors: 401 for a missing or wrong token, 404 for a building without a map, 413 above 4 MB, 422 for a body
+  that is not an image.
+- The token stays on servers. The web app's own server forwards the images and adds the token, so browsers
+  never see it.
+
+Focal length test on 40 frames of the iPhone 17 Pro capture, at 1024 px:
+
+| Focal length | Median error | Within 1 m | Median error, reliable only |
+|---|---|---|---|
+| Known from ARKit | 0.41 m | 85 % | 0.29 m |
+| Estimated from a start value of 0.75 x long side | 0.38 m | 85 % | 0.33 m |
+| Fixed start value, 7 % too long | 0.41 m | 85 % | 0.34 m |
+
+The estimate lands within -8 % to +4 % of the true value for 80 % of the frames. So the web client needs no
+calibration per phone model.
 
 ### Server time
 
@@ -191,6 +222,14 @@ python -m localization.compare --map ~/data/maps/<map> --map-capture ~/data/raw/
     --capture ~/data/raw/<other capture> --building ~/data/buildings/<capture>/building.json --out ~/data/compare
 ```
 
+The service runs under systemd, so it starts again after a reboot or a Spot preemption. Install it with
+`localization/deploy/localization.service`. `~/localization.env` on the VM holds `LOCALIZATION_TOKEN`.
+
+```sh
+sudo systemctl status localization
+journalctl -u localization -f
+```
+
 Stop the VM when it is idle: `gcloud compute instances stop loc-gpu --zone=europe-west4-a`.
 
 ## Capture guide
@@ -211,7 +250,7 @@ Scans show real buildings and may show people. Keep them out of Git. Store them 
 | 2 | Record one corridor slowly in both directions with Stray Scanner on the iPhone 12 Pro | Lenard | Done: 9.5 minutes on the VM |
 | 3 | Localization spike: import Stray Scanner data, build the hloc map, localize held-out frames and the fast video | Claude | Done: median error below 0.5 m and server time below 500 ms, see [Spike results](#spike-results) |
 | 4 | Floor plan spike: point cloud, density image, semi-automatic spaces and doors, first `building.json` | Claude | Done: one clean outline, see [Floor plan results](#floor-plan-results). Rooms and doors are planned |
-| 5 | Localization API: FastAPI WebSocket returning the result shape above | Claude | A phone frame returns a floor, space and position |
+| 5 | Localization API: HTTPS endpoint returning floor, space, position and heading | Claude | Done on the VM: a phone frame returns a floor, space and position in about 180 ms. Public HTTPS and the Railway connection are open |
 | 6 | Web client: camera, frame upload, arrow to the next route point | Team | A person can follow a route on one floor |
 | 7 | Scale up: full floors, several floors, stairs and lifts | Team | Multi-floor route works in the test building |
 | 8 | Optional: SpatialLM floor plan draft, LoMa matcher, compass needle in the UI | Team | Only after steps 1 to 7 work |
@@ -224,7 +263,7 @@ Then try LoMa, more retrieved frames, or a newer phone for the capture.
 - Similar corridors can confuse retrieval. Pose smoothing and walkable-area checks reduce this.
 - Light changes and moved furniture between capture and demo reduce matches. Capture close to the demo date.
 - Google can stop a Spot VM at any time. For the demo, start it early and check it. Switch to on-demand if a zone has stock.
-- Browsers do not give camera intrinsics. The spike used the ARKit intrinsics of each frame. The web client needs a calibration per phone model or focal length estimation.
+- Browsers do not give camera intrinsics. The server estimates the focal length; this has been tested with recorded video frames, not yet with a browser camera.
 - SpatialLM was trained on homes. Office corridors may need manual correction.
 
 ## Sources
