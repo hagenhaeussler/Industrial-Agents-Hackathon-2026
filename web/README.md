@@ -4,7 +4,8 @@ One React app with two routes:
 
 | Route | For | What it does |
 |---|---|---|
-| `/` | Everyone | Pick a building |
+| `/` | Everyone | Globe, flight to a real OSM building, 3D campus and aerial imagery; calibrated CIT interior |
+| `/buildings` | Everyone | Full building list, including unlocated datasets |
 | `/b/:buildingId?from=…&to=…&step_free=1` | Phone, QR target | Map, step list or camera view, with the avatar and the voice assistant in every view |
 | `/admin/:buildingId` | Desktop | 3D building and floor plans, search, position by click, routes, QR code to a phone, team sidebar |
 
@@ -40,6 +41,21 @@ The service variable `VITE_VOICE_SERVER` holds the voice server's public URL. Th
 app's origin in `VOICE_CORS_ORIGINS`.
 
 ## How the parts fit
+
+The map explorer and its data preparation, sources and limitations are described in
+[Campus explorer](../docs/campus-explorer.md). `web/public/maps/` ships with the web build. The aerial
+layer uses the public Bavarian DOP20 WMS; the campus basemap uses OpenFreeMap. These modes need no API key.
+The optional **3D Photo** mode uses Google's Maps JavaScript API. Enter a restricted browser key or
+Demo Key in the on-screen password field. It is used only in the running tab; no environment file,
+repository file, browser storage or build artifact holds the key. A reload requires entering it again.
+For CIT, clicking the real building replaces its Google mesh with our georeferenced floor models
+inside the same photographic scene. Its surroundings remain visible. Select a level or separate the
+five floors; **Back to 3D** restores Google's building without recreating the map. Regeneration instructions
+and the source manifest are documented in the Campus explorer guide. Google attribution remains visible,
+including above the phone sheet.
+Opening the model animates into a closer view and hides Google's place labels. Selecting a level gives
+a near-top-down floor view. Search source rooms by name/number in the left rail; selecting one zooms to
+its actual geometry and highlights the floor area. Close its card to return to that level.
 
 ```mermaid
 flowchart LR

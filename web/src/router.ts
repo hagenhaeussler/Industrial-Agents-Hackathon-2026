@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 /** The app's pages. A building ID comes from the URL, never from code. */
 export type Page =
   | { name: "home" }
+  | { name: "library" }
   | { name: "guide"; buildingId: string }
   | { name: "admin"; buildingId: string }
   | { name: "missing" };
@@ -10,6 +11,7 @@ export type Page =
 export function parsePage(pathname: string): Page {
   const [first, second, ...rest] = pathname.split("/").filter(Boolean).map(decodeURIComponent);
   if (first === undefined) return { name: "home" };
+  if (first === "buildings" && second === undefined) return { name: "library" };
   if (second !== undefined && rest.length === 0) {
     if (first === "b") return { name: "guide", buildingId: second };
     if (first === "admin") return { name: "admin", buildingId: second };

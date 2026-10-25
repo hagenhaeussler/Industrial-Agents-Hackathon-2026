@@ -1,4 +1,4 @@
-import { Building2, ChevronRight, Monitor, Smartphone } from "lucide-react";
+import { ArrowLeft, Building2, ChevronRight, Monitor, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useBuildings } from "../api/buildings";
 import { Avatar } from "../avatar/Avatar";
@@ -17,6 +17,7 @@ export function Home() {
   );
   return (
     <main className="mx-auto grid max-w-[720px] gap-6 px-5 py-10">
+      <a href="/" className="flex items-center gap-2 text-xs text-muted"><ArrowLeft size={14} /> Back to map</a>
       <header className="flex items-center gap-4">
         <Avatar phase="off" size={84} />
         <div>
