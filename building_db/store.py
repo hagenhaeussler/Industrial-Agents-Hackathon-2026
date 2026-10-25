@@ -62,6 +62,21 @@ def connect_readonly(path: Path | str) -> sqlite3.Connection:
     return connection
 
 
+def connect_existing(path: Path) -> sqlite3.Connection:
+    """Open an existing database for import. Never creates or migrates a database."""
+    connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=rw", uri=True)
+    try:
+        version = connection.execute("PRAGMA user_version").fetchone()[0]
+        if version != SCHEMA_VERSION:
+            raise RuntimeError(f"{path} has schema version {version}; this code expects {SCHEMA_VERSION}")
+        connection.execute("PRAGMA foreign_keys = ON")
+        connection.create_function("polygon_area", 1, polygon_area, deterministic=True)
+    except Exception:
+        connection.close()
+        raise
+    return connection
+
+
 ImportStatus = Literal["imported", "unchanged", "conflict", "failed"]
 
 
@@ -82,13 +97,15 @@ def import_building(connection: sqlite3.Connection, path: Path) -> ImportResult:
 
     building_id = document.building.id
     content_sha256 = content_identity(path)
-    stored = connection.execute("SELECT content_sha256 FROM buildings WHERE id = ?", (building_id,)).fetchone()
-    if stored is not None:
-        if stored[0] == content_sha256:
-            return ImportResult(path, "unchanged", building_id)
-        return ImportResult(path, "conflict", building_id, "a building with this id and different content is stored")
-
     with connection:
+        # Serialize the identity check and insert across connections and server workers.
+        if not connection.in_transaction:
+            connection.execute("BEGIN IMMEDIATE")
+        stored = connection.execute("SELECT content_sha256 FROM buildings WHERE id = ?", (building_id,)).fetchone()
+        if stored is not None:
+            if stored[0] == content_sha256:
+                return ImportResult(path, "unchanged", building_id)
+            return ImportResult(path, "conflict", building_id, "a building with this id and different content is stored")
         insert_building(connection, document, path, content_sha256)
     return ImportResult(path, "imported", building_id)
 

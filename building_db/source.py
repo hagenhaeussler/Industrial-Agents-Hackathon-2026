@@ -1,5 +1,7 @@
 """The `building.json` source format and the checks a building must pass before import."""
 
+import json
+import math
 from collections import Counter
 from pathlib import Path
 from typing import Annotated, Literal
@@ -20,7 +22,7 @@ class SourceModel(BaseModel):
 
 
 class BuildingInfo(SourceModel):
-    id: str = Field(min_length=1)
+    id: str = Field(min_length=1, pattern=r"^[^\s/\\\x00-\x1f\x7f]+$")
     name: str
     source: str
     source_ref: dict[str, str]
@@ -90,8 +92,8 @@ class Asset(SourceModel):
 
 class BuildingDocument(SourceModel):
     building: BuildingInfo
-    floors: list[Floor]
-    spaces: list[Space]
+    floors: Annotated[list[Floor], Field(min_length=1)]
+    spaces: Annotated[list[Space], Field(min_length=1)]
     openings: list[Opening]
     vertical_connectors: list[VerticalConnector]
     assets: list[Asset]
@@ -111,19 +113,37 @@ def read_building(path: Path) -> BuildingDocument:
     if path.name != "building.json":
         raise BuildingSourceError(path, ["only building.json files can be imported"])
     try:
-        document = BuildingDocument.model_validate_json(path.read_bytes())
+        content = path.read_bytes().removeprefix(b"\xef\xbb\xbf")
+        # Reject repeated keys before the model parser can silently keep the last value.
+        json.loads(content, object_pairs_hook=unique_json_keys)
+        document = BuildingDocument.model_validate_json(content)
     except ValidationError as error:
         problems = [f"{'.'.join(map(str, issue['loc']))}: {issue['msg']}" for issue in error.errors()]
         raise BuildingSourceError(path, problems) from None
+    except (ValueError, RecursionError) as error:
+        raise BuildingSourceError(path, [f"invalid JSON: {error}"]) from None
     problems = consistency_problems(document)
     if problems:
         raise BuildingSourceError(path, problems)
     return document
 
 
+def unique_json_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key {key!r}")
+        result[key] = value
+    return result
+
+
 def consistency_problems(document: BuildingDocument) -> list[str]:
     """Check what the schema alone cannot: unique IDs, references, floor agreement and polygon validity."""
     problems = [f"duplicate id {entity_id}" for entity_id, count in id_counts(document).items() if count > 1]
+    if document.building.id in (".", ".."):
+        problems.append("building id must not be '.' or '..'")
+    if OUTSIDE in id_counts(document):
+        problems.append(f"{OUTSIDE!r} is reserved for the area outside the building")
     levels = Counter(floor.level for floor in document.floors)
     problems += [f"duplicate floor level {level}" for level, count in levels.items() if count > 1]
 
@@ -142,8 +162,12 @@ def consistency_problems(document: BuildingDocument) -> list[str]:
         polygon = Polygon(space.polygon)
         if not polygon.is_valid:
             problems.append(f"space {space.id} has an invalid polygon: {explain_validity(polygon)}")
+        elif not math.isfinite(polygon.area) or polygon.area <= 0:
+            problems.append(f"space {space.id} must have a finite, positive area")
 
     for opening in document.openings:
+        if opening.floor_id not in floor_ids:
+            problems.append(f"opening {opening.id} references unknown floor {opening.floor_id}")
         outside_count = opening.space_ids.count(OUTSIDE)
         if outside_count != (1 if opening.kind == "entrance" else 0):
             problems.append(f"opening {opening.id}: only an entrance connects exactly one side to {OUTSIDE!r}")
@@ -152,12 +176,18 @@ def consistency_problems(document: BuildingDocument) -> list[str]:
                 check_space(f"opening {opening.id}", space_id, opening.floor_id)
 
     for connector in document.vertical_connectors:
+        if len(set(connector.floor_ids)) != len(connector.floor_ids):
+            problems.append(f"connector {connector.id} repeats a floor")
         if len(connector.floor_ids) != len(connector.space_ids):
             problems.append(f"connector {connector.id} needs one space per floor")
         for floor_id, space_id in zip(connector.floor_ids, connector.space_ids, strict=False):
+            if floor_id not in floor_ids:
+                problems.append(f"connector {connector.id} references unknown floor {floor_id}")
             check_space(f"connector {connector.id}", space_id, floor_id)
 
     for asset in document.assets:
+        if asset.floor_id not in floor_ids:
+            problems.append(f"asset {asset.id} references unknown floor {asset.floor_id}")
         check_space(f"asset {asset.id}", asset.space_id, asset.floor_id)
     return problems
 

@@ -79,3 +79,13 @@ Settings in the workspace name these. The main view does not.
 - Team members, channels, messages and presence are sample content in `src/admin/team.ts`.
 - Moving equipment changes only the browser's copy of the building.
 - The camera view draws the next turn over the camera image.
+
+## Building import
+
+Use **Import building** on the home page to choose a file named `building.json`, up to 20 MiB.
+After validation and saving, the app opens the building in the workspace. An identical file opens the
+existing building. A changed file with the same ID is rejected without overwriting data. Validation and
+storage errors stay on the home page so the file can be corrected or retried.
+
+The upload uses the dataset schema. Extra metadata in the current `building_local/` examples is not
+accepted by the strict importer. It must be normalized before those examples can be imported.

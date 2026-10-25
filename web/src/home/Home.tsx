@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useBuildings } from "../api/buildings";
 import { Avatar } from "../avatar/Avatar";
 import { navigate } from "../router";
+import { ImportBuilding } from "./ImportBuilding";
 
 /** Pick a building, then open it on the desktop workspace or as the phone guide. */
 export function Home() {
@@ -24,6 +25,7 @@ export function Home() {
           <p className="mt-1 text-sm text-muted">Choose a building to explore, plan a route or send it to a phone.</p>
         </div>
       </header>
+      <ImportBuilding />
       <input
         value={text}
         onChange={(event) => setText(event.target.value)}
@@ -60,6 +62,9 @@ export function Home() {
           </li>
         ))}
         {buildings.isPending && <li className="px-4 py-6 text-center text-sm text-muted">Loading buildings…</li>}
+        {buildings.isSuccess && buildings.data.length === 0 && (
+          <li className="px-4 py-6 text-center text-sm text-muted">No buildings yet. Import a building.json to open it here.</li>
+        )}
       </ul>
     </main>
   );
