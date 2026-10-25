@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe("floor plan coworkers", () => {
-  it("draws a named person at the supplied plan coordinates", () => {
+  it("draws a named bot at the supplied plan coordinates", () => {
     const plan = mount();
     plan.setOverlay({ coworkers: [coworker] });
     const node = marker(plan);
@@ -42,10 +42,9 @@ describe("floor plan coworkers", () => {
       accessibleName: node.getAttribute("aria-label"),
       role: node.getAttribute("role"),
       tabIndex: node.getAttribute("tabindex"),
-      personParts: node.querySelectorAll("circle, path").length,
     }).toEqual({
       transform: "translate(2 -1)", color: "#397a91", name: coworker.name,
-      accessibleName: "Chat with Test Person, AI coworker", role: "button", tabIndex: "0", personParts: 2,
+      accessibleName: "Chat with Test Person, AI coworker", role: "button", tabIndex: "0",
     });
   });
 

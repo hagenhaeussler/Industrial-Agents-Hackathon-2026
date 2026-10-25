@@ -1,3 +1,4 @@
+import { BOT_BODY_PATH, BOT_EYE_COLOR } from "../avatar";
 import type { CoworkerMarker, PickResult } from "../overlay";
 
 const SVG = "http://www.w3.org/2000/svg";
@@ -52,17 +53,15 @@ export class CoworkerMarkers2D {
 function createMarker(coworker: CoworkerMarker): Marker {
   const node = element("g", { "data-kind": "coworker", "data-id": coworker.id, role: "button", tabindex: 0 });
   node.style.cursor = "pointer";
-  const target = element("rect", { x: -0.5, y: -1.2, width: 1, height: 1.5, fill: "transparent" });
-  const head = element("circle", { cy: -0.95, r: 0.19, fill: "currentColor", stroke: "white", "stroke-width": 0.05 });
-  const body = element("path", {
-    d: "M-.31 -.34 L-.23 -.68 Q0 -.82 .23 -.68 L.31 -.34 M-.13 -.58 L-.13 -.3 L-.18 0 M.13 -.58 L.13 -.3 L.18 0",
-    fill: "none", stroke: "currentColor", "stroke-width": 0.15, "stroke-linecap": "round", "stroke-linejoin": "round",
-  });
+  const target = element("rect", { x: -1.5, y: -3.2, width: 3, height: 3.8, fill: "transparent" });
+  const face = element("g", { transform: "translate(-1.6 -3.2) scale(.05)" });
+  face.append(element("path", { d: BOT_BODY_PATH, fill: "currentColor", stroke: "white", "stroke-width": 2 }));
+  for (const x of [21, 37]) face.append(element("rect", { x, y: 23, width: 6, height: 15, rx: 3, fill: BOT_EYE_COLOR }));
   const label = element("text", {
     y: 0.42, "text-anchor": "middle", "font-family": "system-ui, sans-serif", "font-size": 0.32,
     "font-weight": 600, fill: "#302e2b", stroke: "white", "stroke-width": 0.08, "paint-order": "stroke",
   });
-  node.append(target, head, body, label);
+  node.append(target, face, label);
   return { node, label, coworker };
 }
 

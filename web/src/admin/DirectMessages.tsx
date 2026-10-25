@@ -1,4 +1,5 @@
 import { Blobatar } from "@blobatar/react";
+import { CoworkerAvatar } from "./CoworkerAvatar";
 import { Send } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import type { CoworkerChat } from "./useCoworkers";
@@ -73,11 +74,11 @@ export function DirectMessages({ chat }: { chat: CoworkerChat }) {
         {chat.messages.map((message) => (
           <li key={message.id} className="flex gap-2.5">
             <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[10px] bg-field" aria-hidden="true">
-              <Blobatar name={message.role === "user" ? "alain00" : message.memberId} size={26} />
+              {message.role === "user" ? <Blobatar name="alain00" size={26} /> : <CoworkerAvatar id={message.memberId} color={selected?.color} size={28} />}
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-[750]">
-                {message.role === "user" ? "You" : `${selected?.name ?? "Coworker"} · AI`}
+                {message.role === "user" ? "You" : selected?.name ?? "Coworker"}
                 <time dateTime={new Date(message.createdAt).toISOString()} className="ml-2 text-[11px] font-normal text-muted">
                   {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </time>

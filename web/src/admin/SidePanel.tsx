@@ -1,4 +1,5 @@
 import type { Building, RouteView } from "@locora/view";
+import { CoworkerAvatar } from "./CoworkerAvatar";
 import { Blobatar } from "@blobatar/react";
 import { Accessibility, Hash, LocateFixed, QrCode, Send, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
@@ -186,7 +187,7 @@ function ActivityTab({ channel, posts, onPost }: { channel: Channel; posts: Post
         {shown.map((post) => (
           <li key={post.id} className="flex gap-2.5">
             <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[10px] bg-field">
-              <Blobatar name={post.author === "you" ? "alain00" : post.author} size={26} />
+              {post.author === "you" ? <Blobatar name="alain00" size={26} /> : <CoworkerAvatar id={post.author} size={28} />}
             </span>
             <div className="min-w-0">
               <p className="text-[13px]">

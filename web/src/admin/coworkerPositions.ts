@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useReducer } from "react";
 import type { Coworker } from "../api/coworkers";
 
-const CLOCK_MS = 250;
-
 /** Keeps floor transitions discrete and only interpolates points on the same floor. */
 export function coworkerPosition(member: Coworker, serverNow: number) {
   const points = member.journey?.points;
@@ -21,23 +19,30 @@ export function coworkerPosition(member: Coworker, serverNow: number) {
   return points.at(-1)!;
 }
 
-/** Redraws markers at a low rate. Hidden markers keep their server-clock position. */
+/** Slides markers along their timed path. Stops the frame clock when hidden or at rest. */
 export function useCoworkerMarkers(members: Coworker[], show: boolean, offset: number) {
   const [tick, redraw] = useReducer((value: number) => value + 1, 0);
   useEffect(() => {
     if (!show || !members.some((member) => member.journey)) return;
-    let timer: number | undefined;
-    const updateClock = () => {
-      window.clearInterval(timer);
-      if (document.visibilityState !== "hidden") {
-        redraw();
-        timer = window.setInterval(redraw, CLOCK_MS);
+    let frame: number | undefined;
+    const animate = () => {
+      redraw();
+      const now = Date.now() + offset;
+      if (members.some((member) => (member.journey?.points.at(-1)?.at ?? 0) > now)) {
+        frame = window.requestAnimationFrame(animate);
       }
+    };
+    const updateClock = () => {
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
+      if (document.visibilityState !== "hidden") animate();
     };
     updateClock();
     document.addEventListener("visibilitychange", updateClock);
-    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", updateClock); };
-  }, [members, show]);
+    return () => {
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
+      document.removeEventListener("visibilitychange", updateClock);
+    };
+  }, [members, show, offset]);
   return useMemo(() => show ? members.map((member) => ({
     ...coworkerPosition(member, Date.now() + offset), id: member.id, name: member.name, color: member.color,
   })) : [], [members, show, offset, tick]);

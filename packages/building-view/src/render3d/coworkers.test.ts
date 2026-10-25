@@ -48,24 +48,24 @@ describe("3D coworker objects", () => {
       .toEqual({ position: [4, 1, 9], sameMeshes: true });
   });
 
-  it("returns the person from a real geometry raycast", () => {
+  it("returns the bot from a real geometry raycast", () => {
     const markers = create();
-    const ray = new THREE.Raycaster(new THREE.Vector3(2, -3, 1.42), new THREE.Vector3(0, 1, 0));
+    const ray = new THREE.Raycaster(new THREE.Vector3(2, 1, 6), new THREE.Vector3(0, 0, -1));
     expect(markers.pick(ray)).toEqual({ kind: "coworker", ...coworker });
   });
 
-  it("picks a moved person on a new floor before the next render", () => {
+  it("picks a moved bot on a new floor before the next render", () => {
     const markers = create();
     const moved = { ...coworker, floorId: "F1", x: 4 };
     markers.update([moved], layout);
-    const ray = new THREE.Raycaster(new THREE.Vector3(4, -3, 10.42), new THREE.Vector3(0, 1, 0));
+    const ray = new THREE.Raycaster(new THREE.Vector3(4, 1, 15), new THREE.Vector3(0, 0, -1));
     expect(markers.pick(ray)).toEqual({ kind: "coworker", ...moved });
   });
 
   it("hides other floors from picking and keyboard access", () => {
     const markers = create();
     markers.update([coworker], { ...layout, focusFloorId: "F1" });
-    const ray = new THREE.Raycaster(new THREE.Vector3(2, -3, 1.42), new THREE.Vector3(0, 1, 0));
+    const ray = new THREE.Raycaster(new THREE.Vector3(2, 1, 6), new THREE.Vector3(0, 0, -1));
     expect({ pick: markers.pick(ray), hidden: button(markers).hidden, tabIndex: button(markers).tabIndex })
       .toEqual({ pick: null, hidden: true, tabIndex: -1 });
   });
@@ -98,7 +98,27 @@ describe("3D coworker objects", () => {
     markers.update([], layout);
     label.click();
     expect({ children: markers.group.children.length, labelConnected: label.isConnected, geometries: disposedGeometry.length, materials: disposedMaterials.size, picks })
-      .toEqual({ children: 0, labelConnected: false, geometries: objects.length, materials: 1, picks: [] });
+      .toEqual({ children: 0, labelConnected: false, geometries: objects.length, materials: 2, picks: [] });
+  });
+
+  it("faces an orbiting camera without changing the bot's physical size", () => {
+    const markers = create();
+    const plan = new THREE.Group();
+    plan.rotation.x = -Math.PI / 2;
+    plan.add(markers.group);
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    const avatar = markers.group.children[0]!.children.find((child) => child instanceof THREE.Group)!;
+    const scales: number[][] = [];
+    const alignments: number[] = [];
+    for (const [x, y, z] of [[20, 30, 40], [-8, 12, 5], [80, 120, -90]] as const) {
+      camera.position.set(x, y, z);
+      camera.lookAt(0, 0, 0);
+      markers.faceCamera(camera);
+      scales.push(avatar.scale.toArray());
+      alignments.push(Math.abs(avatar.getWorldQuaternion(new THREE.Quaternion()).dot(camera.quaternion)));
+    }
+    expect({ scales, aligned: alignments.every((value) => Math.abs(value - 1) < 1e-10), hidden: button(markers).hidden })
+      .toEqual({ scales: [[1, 1, 1], [1, 1, 1], [1, 1, 1]], aligned: true, hidden: false });
   });
 
   it("rejects positions on floors absent from the building", () => {

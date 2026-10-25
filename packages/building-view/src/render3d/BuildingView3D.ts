@@ -385,6 +385,7 @@ export class BuildingView3D {
     if (this.frame !== undefined || this.destroyed) return;
     this.frame = requestAnimationFrame(() => {
       this.frame = undefined;
+      this.coworkers.faceCamera(this.camera);
       this.renderer.render(this.world, this.camera);
       this.declutterLabels();
       this.labelRenderer.render(this.world, this.camera);

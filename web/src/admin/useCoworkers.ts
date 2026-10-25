@@ -7,10 +7,7 @@ import { MEMBERS } from "./team";
 import { useCoworkerMarkers } from "./coworkerPositions";
 
 export type CoworkerIdentity = Pick<Coworker, "id" | "name" | "role" | "color">;
-const FALLBACK_COLORS = ["#b56843", "#397a91", "#8568a6", "#b58c26"];
-const FALLBACK_MEMBERS: CoworkerIdentity[] = MEMBERS.map((member, index) => ({
-  id: member.id, name: member.name, role: member.role, color: FALLBACK_COLORS[index] ?? "#397a91",
-}));
+const FALLBACK_MEMBERS: CoworkerIdentity[] = MEMBERS.map(({ id, name, role, color }) => ({ id, name, role, color }));
 const SHOW_KEY = "building-workspace:show-coworkers";
 const POLL_MS = 5_000;
 const NO_MEMBERS: Coworker[] = [];

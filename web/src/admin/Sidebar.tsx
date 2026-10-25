@@ -1,5 +1,5 @@
 import type { Building } from "@locora/view";
-import { Blobatar } from "@blobatar/react";
+import { CoworkerAvatar } from "./CoworkerAvatar";
 import { Box, ChevronDown, Hash, Layers, MapPin, Menu, Package, Plus, Route, Settings } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useBuildings } from "../api/buildings";
@@ -94,11 +94,10 @@ export function Sidebar({
               aria-label={`${member.name}, ${member.role}, AI coworker`}
               className={`flex w-full items-center gap-2 rounded-[8px] px-2 py-1.5 text-left text-[13px] ${selectedMemberId === member.id ? "bg-accent font-[700] text-ink" : "hover:bg-side-hover"}`}
             >
-              <span className="grid size-6 shrink-0 place-items-center rounded-full" style={{ backgroundColor: member.color }}>
-                <Blobatar name={member.id} size={20} />
+              <span className="grid size-7 shrink-0 place-items-center">
+                <CoworkerAvatar id={member.id} color={member.color} size={28} />
               </span>
               <span className="min-w-0 flex-1 truncate">{member.name}</span>
-              <span className="text-[10px]">AI</span>
             </button>
           ))}
           <label className="mt-2 flex cursor-pointer items-center gap-2 px-2 py-2 text-xs">

@@ -1,5 +1,5 @@
 import type { Building, FloorScene } from "@locora/view";
-import { Blobatar } from "@blobatar/react";
+import { CoworkerAvatar } from "./CoworkerAvatar";
 import { DoorOpen, Package, QrCode, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { searchPlaces } from "../route/places";
@@ -35,7 +35,7 @@ export function TopBar({
           <div className="hidden -space-x-2 xl:flex" aria-label={`${MEMBERS.length} AI coworkers in this building`}>
             {MEMBERS.slice(0, 3).map((member) => (
               <span key={member.id} title={`${member.name}, AI coworker`} className="grid size-8 place-items-center rounded-full bg-white ring-2 ring-white">
-                <Blobatar name={member.id} size={28} />
+                <CoworkerAvatar id={member.id} size={28} />
               </span>
             ))}
             <span className="grid size-8 place-items-center rounded-full bg-field text-[11px] font-[750] ring-2 ring-white">

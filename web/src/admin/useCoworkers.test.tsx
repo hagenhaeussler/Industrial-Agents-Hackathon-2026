@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CoworkerMessageRequest } from "../api/coworkers";
 import { coworker, coworkerSession } from "./__tests__/coworkerData";
-import { coworkerPosition } from "./coworkerPositions";
+import { coworkerPosition, useCoworkerMarkers } from "./coworkerPositions";
 import { useCoworkers } from "./useCoworkers";
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -218,6 +218,31 @@ describe("coworker display position", () => {
     { floorId: "ground", x: 10, y: 4, at: 2_000 },
     { floorId: "upper", x: 30, y: 8, at: 3_000 },
   ] } });
+
+  it("moves on each animation frame and stops after arrival", () => {
+    vi.setSystemTime(1_000);
+    const members = [member];
+    const { result } = renderHook(() => useCoworkerMarkers(members, true, 0));
+    act(() => vi.advanceTimersToNextFrame());
+    const first = result.current[0]!.x;
+    act(() => vi.advanceTimersToNextFrame());
+    const second = result.current[0]!.x;
+    act(() => vi.advanceTimersByTime(2_000));
+    expect({ movesEachFrame: first > 0 && Math.abs(second - first - 0.16) < 1e-10, final: result.current[0], timers: vi.getTimerCount() }).toMatchObject({
+      movesEachFrame: true, final: { floorId: "upper", x: 30, y: 8 }, timers: 0,
+    });
+  });
+
+  it("cancels movement frames when hidden and catches up when shown", () => {
+    vi.setSystemTime(1_000);
+    const members = [member];
+    const { result, rerender } = renderHook(({ show }) => useCoworkerMarkers(members, show, 0), { initialProps: { show: true } });
+    rerender({ show: false });
+    const hiddenTimers = vi.getTimerCount();
+    act(() => vi.advanceTimersByTime(500));
+    rerender({ show: true });
+    expect({ hiddenTimers, position: result.current[0] }).toMatchObject({ hiddenTimers: 0, position: { x: 5, y: 2 } });
+  });
 
   it("interpolates a same-floor segment", () => {
     expect(coworkerPosition(member, 1_500)).toMatchObject({ floorId: "ground", x: 5, y: 2 });
