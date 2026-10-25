@@ -46,7 +46,7 @@ export function Avatar({
       className={`avatar-voice inline-grid place-items-center ${hidden ? "avatar-paused" : ""}`}
       style={{ width: size, height: size }}
     >
-      <Blobatar name={name} animate="always" size={size} expression={expression} title="Building assistant" />
+      <Blobatar name={name} animate="always" size={size} expression={expression} title="Locora assistant" />
     </span>
   );
 }

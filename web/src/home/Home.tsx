@@ -21,7 +21,7 @@ export function Home() {
       <header className="flex items-center gap-4">
         <Avatar phase="off" size={84} />
         <div>
-          <h1 className="text-[30px] leading-tight font-[800] tracking-[-1.2px]">Talk to your building</h1>
+          <h1 className="text-[30px] leading-tight font-[800] tracking-[-1.2px]">Locora</h1>
           <p className="mt-1 text-sm text-muted">Choose a building to explore, plan a route or send it to a phone.</p>
         </div>
       </header>

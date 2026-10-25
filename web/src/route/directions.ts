@@ -1,4 +1,4 @@
-import type { Building, PathPoint, RouteView } from "@building/view";
+import type { Building, PathPoint, RouteView } from "@locora/view";
 
 /** How a step changes direction, seen from the walker. Computed from the plan, not from a live position. */
 export type Turn = "start" | "straight" | "left" | "right" | "up" | "down" | "arrive";

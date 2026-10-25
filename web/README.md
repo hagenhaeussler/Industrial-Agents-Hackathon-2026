@@ -1,4 +1,4 @@
-# Web app
+# Locora web app
 
 One React app with two routes:
 

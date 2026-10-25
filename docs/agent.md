@@ -1,4 +1,4 @@
-# Agent and tools
+# Locora agent and tools
 
 Status: the agent uses PydanticAI, the MCP server over the six building tools in [tools.md](tools.md), the
 answer shapes and the formatter. It answers all 138 dev questions correctly.
@@ -174,7 +174,7 @@ back to the model for repair.
 
 A room answer can carry the `asset_id` of an item the question asks for. The validator checks that the item
 exists and is in the answered space. The `Answer:` line then names the room and its floor instead of its area,
-and the answers.json entry also holds the item ID, name and position.
+and the run record also holds the item ID, name and position.
 
 Every shape also has an `explanation` field for a short natural-language answer. The agent picks the shape from
 the answer instruction in the question text, such as "Finish with a line 'Answer: <number>'". The dataset `kind`
@@ -196,11 +196,14 @@ against `benchmark/score.py`.
 `uv run run_benchmark <building_dir> <questions.json> <answers.json>` runs the agent on every question about one
 building, 10 at a time, and writes `answers.json`. It imports the building into a new temporary database, so a
 stored building with the same ID and other content cannot block the import. `building_agent.batch` writes the
-same file with `--answers-json`. The format and the commands are in [SUBMISSION/BENCHMARK.md](../SUBMISSION/BENCHMARK.md).
+same format, defaulting to `agent_output/benchmark/<name>_answers.json`; `--answers-json` changes the path.
+The jury setup, commands, accepted inputs, and checks are in [SUBMISSION/BENCHMARK.md](../SUBMISSION/BENCHMARK.md).
 
-Each `answers.json` entry has the full reply, the text of its `Answer:` line and the answer as data. For routes
-the data holds the space IDs in walking order, the element IDs and the length. The organizers did not publish a
-schema, so the entry holds both the text and the IDs.
+Each `answers.json` entry has exactly `question_id` and `answer`, as confirmed by Bhushan Kotnis on 25 Oct 2026
+at 11:16. `answer` is text, or `null` for a failure. For routes it includes space IDs in walking order, element
+IDs, reachability, length, and the full reply. For room and item locations it includes their IDs and the full
+reply. Plain numbers and counts keep the existing final answer text. Full structured results also remain in
+the run records. The shared writer rejects invalid submission keys and duplicate IDs before writing.
 
 ## Evaluation
 

@@ -11,7 +11,7 @@ importers:
       '@blobatar/react':
         specifier: ^2.7.0
         version: 2.7.0(blobatar@2.7.0(react@19.3.1))(react@19.3.1)
-      '@building/view':
+      '@locora/view':
         specifier: link:../packages/building-view
         version: link:../packages/building-view
       '@elevenlabs/react':

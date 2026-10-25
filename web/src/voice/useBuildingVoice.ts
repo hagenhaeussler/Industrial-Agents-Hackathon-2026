@@ -93,7 +93,7 @@ export function useBuildingVoice(context: VoiceContext, onRoute: (request: Route
       if (!response.ok || !body.token) throw new Error(body.error ?? "The voice assistant is not available right now.");
       conversation.startSession({ conversationToken: body.token, dynamicVariables: dynamicVariables(context) });
     } catch (cause) {
-      if (cause instanceof DOMException) setError("Allow the microphone to talk to the building.");
+      if (cause instanceof DOMException) setError("Allow the microphone to talk to Locora.");
       else setError(cause instanceof Error ? cause.message : String(cause));
     }
   }

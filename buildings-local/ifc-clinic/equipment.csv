@@ -1,0 +1,49 @@
+asset_id,name,type,category,source,building_id,floor_level,floor_name,space_id,space_name,room_ref,room_type,x_m,y_m,width_m,depth_m,rotation_deg
+ifc-clinic-DEMO-A0001,Demo medical cart — OPT. EXAM / OFF. [A0001],medical_cart,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-407,OPT. EXAM / OFF.,1C07,generic_room,29.346,55.969191,0.6,0.45,0
+ifc-clinic-DEMO-A0002,Demo medical cart — CONSULT. [A0002],medical_cart,equipment,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-410,CONSULT.,2C03,generic_room,26.87425,48.653282,0.6,0.45,90
+ifc-clinic-DEMO-A0003,Demo coffee machine — STAFF LOUNGE [A0003],coffee_machine,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-559,STAFF LOUNGE,1B10,generic_room,45.929697,21.520662,0.4,0.4,90
+ifc-clinic-DEMO-A0004,Demo coffee machine — LOUNGE [A0004],coffee_machine,equipment,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-563,LOUNGE,2C22,generic_room,22.695,45.649782,0.4,0.4,0
+ifc-clinic-DEMO-A0005,Demo laboratory bench — LAB [A0005],laboratory_bench,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-179,LAB,1B04,lab,49.260025,28.827162,1.2,0.65,90
+ifc-clinic-DEMO-A0006,Demo laboratory bench — PROSTH. LAB [A0006],laboratory_bench,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-296,PROSTH. LAB,2C17,lab,6.828,52.1906,1.2,0.65,90
+ifc-clinic-DEMO-A0007,Demo meeting table — CONF. LIBRARY [A0007],meeting_table,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1561,CONF. LIBRARY,1E07,generic_room,18.841,23.369162,1.2,0.7,90
+ifc-clinic-DEMO-A0008,Demo meeting table — LIBRARY / CONF. ROOM [A0008],meeting_table,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-462,LIBRARY / CONF. ROOM,2A01,generic_room,50.649,46.544881,1.2,0.7,90
+ifc-clinic-DEMO-A0009,Demo storage cabinet — HK EQUIP. STORAGE [A0009],storage_cabinet,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1558,HK EQUIP. STORAGE,1E01,generic_room,30.643,23.241162,0.6,0.4,90
+ifc-clinic-DEMO-A0010,Demo storage cabinet — DIPC CLEAN [A0010],storage_cabinet,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-500,DIPC CLEAN,2C12,generic_room,13.473,52.0106,0.6,0.4,0
+ifc-clinic-DEMO-A0011,Demo desk — TRICARE OFFICE [A0011],desk,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1129,TRICARE OFFICE,1A03,office,46.108,52.064162,1.2,0.65,180
+ifc-clinic-DEMO-A0012,Demo desk — OFFICE [A0012],desk,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-643,OFFICE,2B01,office,50.3865,31.347381,1.2,0.65,180
+ifc-clinic-DEMO-A0013,Demo chair — CENTRAL WAITING [A0013],office_chair,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-85,CENTRAL WAITING,1AC1,generic_room,42.11975,41.249162,0.6,0.6,0
+ifc-clinic-DEMO-A0014,Demo chair — DENTAL WAITING [A0014],office_chair,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1570,DENTAL WAITING,2A10,generic_room,35.7905,53.216381,0.6,0.6,90
+ifc-clinic-DEMO-A0015,Demo medical cart — IMMUNIZ'N ROOM [A0015],medical_cart,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-498,IMMUNIZ'N ROOM,1D40,generic_room,28.762,36.512162,0.6,0.45,90
+ifc-clinic-DEMO-A0016,Demo medical cart — OFFICE / EXAM [A0016],medical_cart,equipment,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1577,OFFICE / EXAM,2B8,office,41.5,30.0816,0.6,0.45,90
+ifc-clinic-DEMO-A0017,Demo coffee machine — LOUNGE [A0017],coffee_machine,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-499,LOUNGE,1A10,generic_room,38.973,55.954162,0.4,0.4,0
+ifc-clinic-DEMO-A0018,Demo coffee machine — CL. UTL. / KITCHENET [A0018],coffee_machine,equipment,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1582,CL. UTL. / KITCHENET,2B17,generic_room,42.99,25.9186,0.4,0.4,90
+ifc-clinic-DEMO-A0019,Demo laboratory bench — SPECIMEN COLL. LAB [A0019],laboratory_bench,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-890,SPECIMEN COLL. LAB,1D12,lab,17.098,46.418936,1.2,0.65,90
+ifc-clinic-DEMO-A0020,Demo laboratory bench — CERAMIC LAB [A0020],laboratory_bench,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-775,CERAMIC LAB,2C16,lab,6.701,58.1121,1.2,0.65,90
+ifc-clinic-DEMO-A0021,Demo storage cabinet — JAN. CL. [A0021],storage_cabinet,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1908,JAN. CL.,1B16,generic_room,41.091,20.845662,0.6,0.4,90
+ifc-clinic-DEMO-A0022,Demo meeting table — CONF. ROOM [A0022],meeting_table,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-769,CONF. ROOM,2D20,generic_room,29.066,22.132475,1.2,0.7,0
+ifc-clinic-DEMO-A0023,Demo desk — TRICARE OFFICE [A0023],desk,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1130,TRICARE OFFICE,1A05,office,46.108,55.634162,1.2,0.65,0
+ifc-clinic-DEMO-A0024,Demo storage cabinet — COMM. ROOM [A0024],storage_cabinet,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1578,COMM. ROOM,2B12,generic_room,35.43,30.371608,0.6,0.4,90
+ifc-clinic-DEMO-A0025,Demo chair — PEDIATRIC WAITING [A0025],office_chair,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-893,PEDIATRIC WAITING,1D33,generic_room,20.121,36.079162,0.6,0.6,90
+ifc-clinic-DEMO-A0026,Demo desk — READINESS NCOIC OFFICE [A0026],desk,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1576,READINESS NCOIC OFFICE,2D19,office,24.2505,21.307881,1.2,0.65,90
+ifc-clinic-DEMO-A0027,Demo medical cart — FUNDUS CAMERA ROOM [A0027],medical_cart,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-552,FUNDUS CAMERA ROOM,1C09,generic_room,18.343,63.831162,0.6,0.45,0
+ifc-clinic-DEMO-A0028,Demo chair — DENTAL WAITING [A0028],office_chair,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-261,DENTAL WAITING,2A11,generic_room,39.09975,49.431282,0.6,0.6,90
+ifc-clinic-DEMO-A0029,Demo coffee machine — STAFF LOUNGE [A0029],coffee_machine,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-647,STAFF LOUNGE,1E11,generic_room,15.278,26.279162,0.4,0.4,0
+ifc-clinic-DEMO-A0030,Demo meeting table — CONF. / GROUP THERAPY [A0030],meeting_table,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-315,CONF. / GROUP THERAPY,2B3,generic_room,50.174513,36.8486,1.2,0.7,0
+ifc-clinic-DEMO-A0031,Demo laboratory bench — LAB OFFICE [A0031],laboratory_bench,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-2073,LAB OFFICE,1B06,office,50.874513,21.692162,1.2,0.65,90
+ifc-clinic-DEMO-A0032,Demo storage cabinet — COMPUTER ROOM [A0032],storage_cabinet,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-902,COMPUTER ROOM,2D04A,generic_room,22.555875,34.47648,0.6,0.4,90
+ifc-clinic-DEMO-A0033,Demo storage cabinet — PEDIATRIC WTS & MSRS [A0033],storage_cabinet,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-774,PEDIATRIC WTS & MSRS,1D31,generic_room,16.733,36.079162,0.6,0.4,90
+ifc-clinic-DEMO-A0034,Demo desk — DENTAL SURGEON OFFICE [A0034],desk,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1910,DENTAL SURGEON OFFICE,2A04,office,49.9965,57.6956,1.2,0.65,0
+ifc-clinic-DEMO-A0035,Demo desk — TRICARE OFFICE [A0035],desk,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1898,TRICARE OFFICE,1A04,office,50.6115,55.086162,1.2,0.65,0
+ifc-clinic-DEMO-A0036,Demo chair — WAITING [A0036],office_chair,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-644,WAITING,2B11,generic_room,38.293025,36.0506,0.6,0.6,90
+ifc-clinic-DEMO-A0037,Demo medical cart — OPT. EXAM / OFF. [A0037],medical_cart,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-407,OPT. EXAM / OFF.,1C07,generic_room,26.394136,55.343792,0.6,0.45,0
+ifc-clinic-DEMO-A0038,Demo medical cart — CONSULT. [A0038],medical_cart,equipment,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-410,CONSULT.,2C03,generic_room,28.116,53.465937,0.6,0.45,90
+ifc-clinic-DEMO-A0039,Demo coffee machine — STAFF LOUNGE [A0039],coffee_machine,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-559,STAFF LOUNGE,1B10,generic_room,45.466775,20.500912,0.4,0.4,90
+ifc-clinic-DEMO-A0040,Demo coffee machine — LOUNGE [A0040],coffee_machine,equipment,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-563,LOUNGE,2C22,generic_room,21.456143,45.282952,0.4,0.4,0
+ifc-clinic-DEMO-A0041,Demo laboratory bench — LAB [A0041],laboratory_bench,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-179,LAB,1B04,lab,47.856166,25.424162,1.2,0.65,90
+ifc-clinic-DEMO-A0042,Demo laboratory bench — PROSTH. LAB [A0042],laboratory_bench,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-296,PROSTH. LAB,2C17,lab,5.83575,54.592767,1.2,0.65,90
+ifc-clinic-DEMO-A0043,Demo meeting table — LIBRARY / CONF. ROOM [A0043],meeting_table,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-462,LIBRARY / CONF. ROOM,2A01,generic_room,51.213357,48.048491,1.2,0.7,90
+ifc-clinic-DEMO-A0044,Demo storage cabinet — HK EQUIP. STORAGE [A0044],storage_cabinet,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-1558,HK EQUIP. STORAGE,1E01,generic_room,31.2094,22.607962,0.6,0.4,90
+ifc-clinic-DEMO-A0045,Demo storage cabinet — DIPC CLEAN [A0045],storage_cabinet,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-500,DIPC CLEAN,2C12,generic_room,13.795667,53.4598,0.6,0.4,0
+ifc-clinic-DEMO-A0046,Demo chair — CENTRAL WAITING [A0046],office_chair,furniture,generated,ifc-clinic,0,First Floor,ifc-clinic-space-85,CENTRAL WAITING,1AC1,generic_room,43.073875,43.578169,0.6,0.6,0
+ifc-clinic-DEMO-A0047,Demo chair — DENTAL WAITING [A0047],office_chair,furniture,generated,ifc-clinic,1,Second Floor,ifc-clinic-space-1570,DENTAL WAITING,2A10,generic_room,35.014875,53.561936,0.6,0.6,90
+ifc-clinic-DEMO-A0048,Demo medical cart — IMMUNIZ'N ROOM [A0048],medical_cart,equipment,generated,ifc-clinic,0,First Floor,ifc-clinic-space-498,IMMUNIZ'N ROOM,1D40,generic_room,29.415333,36.010412,0.6,0.45,90

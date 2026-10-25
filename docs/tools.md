@@ -1,4 +1,4 @@
-# Building tools
+# Locora building tools
 
 Status: nine tools are implemented in `building_tools/` with tests. `building_tools/server.py` publishes them as
 an MCP server for one building. Together they cover all nine benchmark kinds.

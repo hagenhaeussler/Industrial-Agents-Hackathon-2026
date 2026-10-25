@@ -1,4 +1,4 @@
-import { FloorPlan, type BuildingScene, type FloorPlanOptions, type Overlay, type PickResult } from "@building/view";
+import { FloorPlan, type BuildingScene, type FloorPlanOptions, type Overlay, type PickResult } from "@locora/view";
 import { useEffect, useRef, useState } from "react";
 
 /** React wrapper for the 2D floor plan. The plan only draws; picks go back to the caller. */

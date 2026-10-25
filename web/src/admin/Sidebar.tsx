@@ -1,4 +1,4 @@
-import type { Building } from "@building/view";
+import type { Building } from "@locora/view";
 import { Blobatar } from "@blobatar/react";
 import { Box, ChevronDown, Hash, Layers, MapPin, Package, Plus, Route, Settings } from "lucide-react";
 import type { ReactNode } from "react";

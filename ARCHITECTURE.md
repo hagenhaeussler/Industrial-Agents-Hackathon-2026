@@ -1,4 +1,4 @@
-# Rewrite architecture
+# Locora architecture
 
 Status: the evaluator, the building database, nine building tools with the route model, their MCP server and
 the benchmark agent exist. The agent answers all 138 dev questions. The benchmark submission is in `SUBMISSION/`.

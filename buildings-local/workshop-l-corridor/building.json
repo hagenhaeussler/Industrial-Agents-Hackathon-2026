@@ -1,0 +1,431 @@
+{
+  "building": {
+    "id": "workshop-l-corridor",
+    "name": "Workshop with an L-shaped corridor",
+    "source": "synthetic_generated",
+    "units": "m",
+    "synthetic": true,
+    "dimensions_are_assumed": true,
+    "source_ref": {
+      "generator": "generate.py",
+      "generator_version": 1,
+      "description": "Invented workshop: concave corridor, three functional rooms and a narrow inspection doorway."
+    }
+  },
+  "floors": [
+    {
+      "id": "workshop-l-corridor-F0",
+      "level": 0,
+      "name": "Ground floor",
+      "elevation_m": 0,
+      "height_m": 4.5
+    }
+  ],
+  "spaces": [
+    {
+      "id": "workshop-l-corridor-F0-corridor",
+      "floor_id": "workshop-l-corridor-F0",
+      "name": "L-shaped corridor",
+      "ref": "corridor",
+      "type": "hall",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          24,
+          0
+        ],
+        [
+          24,
+          18
+        ],
+        [
+          20,
+          18
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "workshop-l-corridor-F0-receiving",
+      "floor_id": "workshop-l-corridor-F0",
+      "name": "Receiving",
+      "ref": "receiving",
+      "type": "room",
+      "room_type": "logistics_zone",
+      "polygon": [
+        [
+          0,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          12
+        ],
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "workshop-l-corridor-F0-production",
+      "floor_id": "workshop-l-corridor-F0",
+      "name": "Assembly",
+      "ref": "production",
+      "type": "room",
+      "room_type": "assembly_zone",
+      "polygon": [
+        [
+          8,
+          4
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "workshop-l-corridor-F0-inspection",
+      "floor_id": "workshop-l-corridor-F0",
+      "name": "Inspection",
+      "ref": "inspection",
+      "type": "room",
+      "room_type": "quality_lab",
+      "polygon": [
+        [
+          12,
+          12
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          20,
+          18
+        ],
+        [
+          12,
+          18
+        ]
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "workshop-l-corridor-F0-door-entrance",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_ids": [
+        "outside",
+        "workshop-l-corridor-F0-corridor"
+      ],
+      "position": [
+        0,
+        2
+      ],
+      "width_m": 1.8,
+      "step_free": true,
+      "kind": "entrance"
+    },
+    {
+      "id": "workshop-l-corridor-F0-door-receiving",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_ids": [
+        "workshop-l-corridor-F0-receiving",
+        "workshop-l-corridor-F0-corridor"
+      ],
+      "position": [
+        4,
+        4
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "workshop-l-corridor-F0-door-assembly",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_ids": [
+        "workshop-l-corridor-F0-production",
+        "workshop-l-corridor-F0-corridor"
+      ],
+      "position": [
+        14,
+        4
+      ],
+      "width_m": 1.4,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "workshop-l-corridor-F0-door-inspection",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_ids": [
+        "workshop-l-corridor-F0-inspection",
+        "workshop-l-corridor-F0-corridor"
+      ],
+      "position": [
+        20,
+        15
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "kind": "door"
+    }
+  ],
+  "vertical_connectors": [],
+  "assets": [
+    {
+      "id": "workshop-l-corridor-asset-scanner",
+      "name": "Receiving scanner",
+      "type": "barcode_scanner",
+      "category": "equipment",
+      "source": "synthetic",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_id": "workshop-l-corridor-F0-receiving",
+      "position": [
+        4,
+        8
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "workshop-l-corridor-asset-toolkit",
+      "name": "Assembly toolkit",
+      "type": "toolkit",
+      "category": "inventory",
+      "source": "synthetic",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_id": "workshop-l-corridor-F0-production",
+      "position": [
+        14,
+        8
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "workshop-l-corridor-asset-gauge",
+      "name": "Inspection gauge",
+      "type": "gauge",
+      "category": "equipment",
+      "source": "synthetic",
+      "floor_id": "workshop-l-corridor-F0",
+      "space_id": "workshop-l-corridor-F0-inspection",
+      "position": [
+        16,
+        15
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "workshop-l-corridor-DEMO-A0001",
+      "name": "Demo assembly workbench — Assembly [A0001]",
+      "type": "workbench",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "workshop-l-corridor-F0-production",
+      "floor_id": "workshop-l-corridor-F0",
+      "position": [
+        9.666667,
+        5
+      ],
+      "footprint": {
+        "width_m": 1.6,
+        "depth_m": 0.75,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "assembly_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "workshop-l-corridor-DEMO-A0002",
+      "name": "Demo inspection bench — Inspection [A0002]",
+      "type": "inspection_bench",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "workshop-l-corridor-F0-inspection",
+      "floor_id": "workshop-l-corridor-F0",
+      "position": [
+        13,
+        13
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "inspection_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "workshop-l-corridor-DEMO-A0003",
+      "name": "Demo barcode scanner — Receiving [A0003]",
+      "type": "barcode_scanner",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "workshop-l-corridor-F0-receiving",
+      "floor_id": "workshop-l-corridor-F0",
+      "position": [
+        7.666667,
+        4.333333
+      ],
+      "footprint": {
+        "width_m": 0.25,
+        "depth_m": 0.2,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "receiving_or_logistics_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "workshop-l-corridor-DEMO-A0004",
+      "name": "Demo tool cabinet — Assembly [A0004]",
+      "type": "tool_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "workshop-l-corridor-F0-production",
+      "floor_id": "workshop-l-corridor-F0",
+      "position": [
+        11,
+        5
+      ],
+      "footprint": {
+        "width_m": 0.7,
+        "depth_m": 0.45,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "assembly_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "workshop-l-corridor-DEMO-A0005",
+      "name": "Demo inspection gauge — Inspection [A0005]",
+      "type": "gauge",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "workshop-l-corridor-F0-inspection",
+      "floor_id": "workshop-l-corridor-F0",
+      "position": [
+        14.333333,
+        13
+      ],
+      "footprint": {
+        "width_m": 0.4,
+        "depth_m": 0.3,
+        "rotation_deg": 0
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "inspection_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "workshop-l-corridor-DEMO-A0006",
+      "name": "Demo storage cabinet — Receiving [A0006]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "workshop-l-corridor-F0-receiving",
+      "floor_id": "workshop-l-corridor-F0",
+      "position": [
+        7,
+        5
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "receiving_or_logistics_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    }
+  ]
+}

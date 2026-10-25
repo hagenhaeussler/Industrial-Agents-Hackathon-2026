@@ -34,7 +34,7 @@ export function SettingsDialog({
           <h3 className="text-[13px] font-[750]">Preview features</h3>
           <p>Team members, channels, messages and presence are sample content. Messages stay in this browser.</p>
           <p>Moving equipment changes only this browser's view. The building data and routes do not change.</p>
-          <p>Routes, rooms and equipment come from the building data. The assistant answers from the same building tools.</p>
+          <p>Routes, rooms and equipment come from the building data. Locora answers from the same building tools.</p>
         </section>
       </div>
     </Sheet>

@@ -2181,7 +2181,7 @@ wheels = [
 ]
 
 [[package]]
-name = "talk-to-your-building"
+name = "locora"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

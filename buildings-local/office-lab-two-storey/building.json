@@ -1,0 +1,777 @@
+{
+  "building": {
+    "id": "office-lab-two-storey",
+    "name": "Two-storey office and laboratory",
+    "source": "synthetic_generated",
+    "units": "m",
+    "synthetic": true,
+    "dimensions_are_assumed": true,
+    "source_ref": {
+      "generator": "generate.py",
+      "generator_version": 1,
+      "description": "Invented two-floor building with a 4.2 m floor rise, separate stairs/lift and step-free closure probes."
+    }
+  },
+  "floors": [
+    {
+      "id": "office-lab-two-storey-F0",
+      "level": 0,
+      "name": "Ground floor",
+      "elevation_m": 0,
+      "height_m": 4.2
+    },
+    {
+      "id": "office-lab-two-storey-F1",
+      "level": 1,
+      "name": "Floor 1",
+      "elevation_m": 4.2,
+      "height_m": 4.2
+    }
+  ],
+  "spaces": [
+    {
+      "id": "office-lab-two-storey-F0-hall",
+      "floor_id": "office-lab-two-storey-F0",
+      "name": "Circulation",
+      "ref": "hall",
+      "type": "hall",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F0-office",
+      "floor_id": "office-lab-two-storey-F0",
+      "name": "Office",
+      "ref": "office",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          0,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          12
+        ],
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F0-lab",
+      "floor_id": "office-lab-two-storey-F0",
+      "name": "Laboratory",
+      "ref": "lab",
+      "type": "room",
+      "room_type": "lab",
+      "polygon": [
+        [
+          8,
+          4
+        ],
+        [
+          16,
+          4
+        ],
+        [
+          16,
+          12
+        ],
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F0-stairs",
+      "floor_id": "office-lab-two-storey-F0",
+      "name": "Stair landing",
+      "ref": "stairs",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "polygon": [
+        [
+          16,
+          4
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          16,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F0-lift",
+      "floor_id": "office-lab-two-storey-F0",
+      "name": "Lift lobby",
+      "ref": "lift",
+      "type": "lift",
+      "room_type": "lift",
+      "polygon": [
+        [
+          16,
+          8
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          16,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F1-hall",
+      "floor_id": "office-lab-two-storey-F1",
+      "name": "Circulation",
+      "ref": "hall",
+      "type": "hall",
+      "room_type": "corridor",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F1-office",
+      "floor_id": "office-lab-two-storey-F1",
+      "name": "Office",
+      "ref": "office",
+      "type": "room",
+      "room_type": "office",
+      "polygon": [
+        [
+          0,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          8,
+          12
+        ],
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F1-lab",
+      "floor_id": "office-lab-two-storey-F1",
+      "name": "Laboratory",
+      "ref": "lab",
+      "type": "room",
+      "room_type": "lab",
+      "polygon": [
+        [
+          8,
+          4
+        ],
+        [
+          16,
+          4
+        ],
+        [
+          16,
+          12
+        ],
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F1-stairs",
+      "floor_id": "office-lab-two-storey-F1",
+      "name": "Stair landing",
+      "ref": "stairs",
+      "type": "stairs",
+      "room_type": "stairwell",
+      "polygon": [
+        [
+          16,
+          4
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          16,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-F1-lift",
+      "floor_id": "office-lab-two-storey-F1",
+      "name": "Lift lobby",
+      "ref": "lift",
+      "type": "lift",
+      "room_type": "lift",
+      "polygon": [
+        [
+          16,
+          8
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          16,
+          12
+        ]
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "office-lab-two-storey-F0-door-office",
+      "floor_id": "office-lab-two-storey-F0",
+      "space_ids": [
+        "office-lab-two-storey-F0-hall",
+        "office-lab-two-storey-F0-office"
+      ],
+      "position": [
+        4,
+        4
+      ],
+      "width_m": 1,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F0-door-lab",
+      "floor_id": "office-lab-two-storey-F0",
+      "space_ids": [
+        "office-lab-two-storey-F0-hall",
+        "office-lab-two-storey-F0-lab"
+      ],
+      "position": [
+        12,
+        4
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F0-door-stairs",
+      "floor_id": "office-lab-two-storey-F0",
+      "space_ids": [
+        "office-lab-two-storey-F0-hall",
+        "office-lab-two-storey-F0-stairs"
+      ],
+      "position": [
+        18,
+        4
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F0-door-lift",
+      "floor_id": "office-lab-two-storey-F0",
+      "space_ids": [
+        "office-lab-two-storey-F0-lab",
+        "office-lab-two-storey-F0-lift"
+      ],
+      "position": [
+        16,
+        10
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F0-door-entrance",
+      "floor_id": "office-lab-two-storey-F0",
+      "space_ids": [
+        "outside",
+        "office-lab-two-storey-F0-hall"
+      ],
+      "position": [
+        0,
+        2
+      ],
+      "width_m": 1.8,
+      "step_free": true,
+      "kind": "entrance"
+    },
+    {
+      "id": "office-lab-two-storey-F1-door-office",
+      "floor_id": "office-lab-two-storey-F1",
+      "space_ids": [
+        "office-lab-two-storey-F1-hall",
+        "office-lab-two-storey-F1-office"
+      ],
+      "position": [
+        4,
+        4
+      ],
+      "width_m": 1,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F1-door-lab",
+      "floor_id": "office-lab-two-storey-F1",
+      "space_ids": [
+        "office-lab-two-storey-F1-hall",
+        "office-lab-two-storey-F1-lab"
+      ],
+      "position": [
+        12,
+        4
+      ],
+      "width_m": 1.6,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F1-door-stairs",
+      "floor_id": "office-lab-two-storey-F1",
+      "space_ids": [
+        "office-lab-two-storey-F1-hall",
+        "office-lab-two-storey-F1-stairs"
+      ],
+      "position": [
+        18,
+        4
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "kind": "door"
+    },
+    {
+      "id": "office-lab-two-storey-F1-door-lift",
+      "floor_id": "office-lab-two-storey-F1",
+      "space_ids": [
+        "office-lab-two-storey-F1-lab",
+        "office-lab-two-storey-F1-lift"
+      ],
+      "position": [
+        16,
+        10
+      ],
+      "width_m": 1.2,
+      "step_free": true,
+      "kind": "door"
+    }
+  ],
+  "vertical_connectors": [
+    {
+      "id": "office-lab-two-storey-connector-stairs",
+      "name": "Stairs",
+      "kind": "stairs",
+      "step_free": false,
+      "floor_ids": [
+        "office-lab-two-storey-F0",
+        "office-lab-two-storey-F1"
+      ],
+      "space_ids": [
+        "office-lab-two-storey-F0-stairs",
+        "office-lab-two-storey-F1-stairs"
+      ]
+    },
+    {
+      "id": "office-lab-two-storey-connector-lift",
+      "name": "Lift",
+      "kind": "lift",
+      "step_free": true,
+      "floor_ids": [
+        "office-lab-two-storey-F0",
+        "office-lab-two-storey-F1"
+      ],
+      "space_ids": [
+        "office-lab-two-storey-F0-lift",
+        "office-lab-two-storey-F1-lift"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "office-lab-two-storey-asset-printer",
+      "name": "Ground-floor printer",
+      "type": "printer",
+      "category": "equipment",
+      "source": "synthetic",
+      "floor_id": "office-lab-two-storey-F0",
+      "space_id": "office-lab-two-storey-F0-office",
+      "position": [
+        4,
+        8
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "office-lab-two-storey-asset-toolkit",
+      "name": "Laboratory toolkit",
+      "type": "toolkit",
+      "category": "inventory",
+      "source": "synthetic",
+      "floor_id": "office-lab-two-storey-F1",
+      "space_id": "office-lab-two-storey-F1-lab",
+      "position": [
+        12,
+        8
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "office-lab-two-storey-asset-aed",
+      "name": "Upper-floor AED",
+      "type": "aed",
+      "category": "safety",
+      "source": "synthetic",
+      "floor_id": "office-lab-two-storey-F1",
+      "space_id": "office-lab-two-storey-F1-hall",
+      "position": [
+        10,
+        2
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 0
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0001",
+      "name": "Demo laboratory bench — Laboratory [A0001]",
+      "type": "laboratory_bench",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F0-lab",
+      "floor_id": "office-lab-two-storey-F0",
+      "position": [
+        12,
+        8
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0002",
+      "name": "Demo laboratory bench — Laboratory [A0002]",
+      "type": "laboratory_bench",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F1-lab",
+      "floor_id": "office-lab-two-storey-F1",
+      "position": [
+        15,
+        5
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0003",
+      "name": "Demo desk — Office [A0003]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F0-office",
+      "floor_id": "office-lab-two-storey-F0",
+      "position": [
+        7,
+        5
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0004",
+      "name": "Demo desk — Office [A0004]",
+      "type": "desk",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F1-office",
+      "floor_id": "office-lab-two-storey-F1",
+      "position": [
+        4,
+        8
+      ],
+      "footprint": {
+        "width_m": 1.2,
+        "depth_m": 0.65,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0005",
+      "name": "Demo microscope — Laboratory [A0005]",
+      "type": "microscope",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F0-lab",
+      "floor_id": "office-lab-two-storey-F0",
+      "position": [
+        15,
+        5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.45,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0006",
+      "name": "Demo microscope — Laboratory [A0006]",
+      "type": "microscope",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F1-lab",
+      "floor_id": "office-lab-two-storey-F1",
+      "position": [
+        15,
+        6.333333
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.45,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0007",
+      "name": "Demo monitor — Office [A0007]",
+      "type": "monitor",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F0-office",
+      "floor_id": "office-lab-two-storey-F0",
+      "position": [
+        7.666667,
+        5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0008",
+      "name": "Demo monitor — Office [A0008]",
+      "type": "monitor",
+      "category": "equipment",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F1-office",
+      "floor_id": "office-lab-two-storey-F1",
+      "position": [
+        7.666667,
+        5
+      ],
+      "footprint": {
+        "width_m": 0.45,
+        "depth_m": 0.25,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "office_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    },
+    {
+      "id": "office-lab-two-storey-DEMO-A0009",
+      "name": "Demo storage cabinet — Laboratory [A0009]",
+      "type": "storage_cabinet",
+      "category": "furniture",
+      "source": "generated",
+      "synthetic": true,
+      "space_id": "office-lab-two-storey-F0-lab",
+      "floor_id": "office-lab-two-storey-F0",
+      "position": [
+        15,
+        5.666667
+      ],
+      "footprint": {
+        "width_m": 0.6,
+        "depth_m": 0.4,
+        "rotation_deg": 90
+      },
+      "dimensions_are_assumed": true,
+      "demo_inventory": true,
+      "generation_provenance": {
+        "generator": "experiments/equipment-export/prepare.py",
+        "version": 2,
+        "not_observed_in_source": true,
+        "room_use_basis": "lab_label",
+        "neutral_fallback_used": false,
+        "assumptions": "Demonstration object, assumed dimensions and placement; not an observed real asset"
+      }
+    }
+  ]
+}

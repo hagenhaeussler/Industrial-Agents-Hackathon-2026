@@ -1,4 +1,4 @@
-import type { FloorScene } from "@building/view";
+import type { FloorScene } from "@locora/view";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import type { View } from "./Sidebar";

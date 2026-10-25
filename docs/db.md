@@ -1,4 +1,4 @@
-# Building database
+# Locora building database
 
 Status: schema, validated import and full read-back are implemented in `building_db/`.
 Agent read tools and write operations are not implemented yet.

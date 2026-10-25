@@ -1,4 +1,4 @@
-# Building views
+# Locora building views
 
 Status: the read-only building API with routes, the scene compiler, the 2D floor plan and the 3D exploded view are
 implemented. The web application in `web/` uses both views. See [web/README.md](../web/README.md).

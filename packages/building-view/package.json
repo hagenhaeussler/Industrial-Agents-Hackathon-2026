@@ -1,5 +1,5 @@
 {
-  "name": "@building/view",
+  "name": "@locora/view",
   "private": true,
   "version": "0.1.0",
   "description": "2D and 3D building views compiled from the building.json format",

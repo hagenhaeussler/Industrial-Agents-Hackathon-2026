@@ -1,4 +1,4 @@
-import type { Building } from "@building/view";
+import type { Building } from "@locora/view";
 
 /** A piece of equipment moved in the workspace preview. Kept in the browser only. */
 export interface Move {

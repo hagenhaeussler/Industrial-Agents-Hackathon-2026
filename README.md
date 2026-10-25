@@ -1,6 +1,9 @@
-# Track 01: rewrite baseline
+# Locora
 
-This branch starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
+Locora helps people find rooms and equipment and plan routes through a building.
+It includes a desktop workspace, a phone guide and a voice assistant.
+
+This project starts from the [Synera student kit](https://github.com/Synera-GmbH/industrial-agents-hackathon-2026)
 at commit `dc03c44`. It contains building data, the evaluator, the building database, the building tools and the
 benchmark agent, web app and voice service.
 
@@ -20,7 +23,8 @@ application includes a desktop workspace and a phone guide. These documents desc
 - [docs/tools.md](docs/tools.md): building tools, their rules and the definitions checked against the answers.
 - [docs/agent.md](docs/agent.md): harness, MCP tools, model configuration and output design.
 - [docs/challenge.md](docs/challenge.md): organizer messages on route scoring, submission and deadline.
-- [SUBMISSION/BENCHMARK.md](SUBMISSION/BENCHMARK.md): how to run `run_benchmark` and reproduce `answers.json`.
+- [SUBMISSION/BENCHMARK.md](SUBMISSION/BENCHMARK.md): setup and commands for jury questions and reproducing
+  the submitted `answers.json`.
 - [docs/visualization.md](docs/visualization.md): building API, scene compiler, 2D plan and 3D view.
 - [docs/voice.md](docs/voice.md): ElevenLabs voice agent, token server and test page.
 - [docs/localization.md](docs/localization.md): camera localization and floor plans from a phone scan.

@@ -12,7 +12,7 @@ export function MicButton({ phase, onStart, onStop }: { phase: VoicePhase; onSta
     <button
       type="button"
       onClick={live || busy ? onStop : onStart}
-      aria-label={live ? "End conversation" : busy ? "Cancel" : "Talk to the building"}
+      aria-label={live ? "End conversation" : busy ? "Cancel" : "Talk to Locora"}
       aria-pressed={live}
       className={`grid size-[52px] shrink-0 place-items-center rounded-[15px] ${
         live ? "bg-accent text-ink ring-2 ring-ink" : "bg-ink text-white"

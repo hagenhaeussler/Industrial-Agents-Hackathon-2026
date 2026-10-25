@@ -1,4 +1,4 @@
-import type { Route } from "@building/view";
+import type { Route } from "@locora/view";
 
 /**
  * The stops still ahead when the camera puts the walker in `spaceId`. Leg `i` of `route` ends at `to[i]`. The walker

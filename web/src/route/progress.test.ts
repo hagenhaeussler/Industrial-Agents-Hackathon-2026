@@ -1,4 +1,4 @@
-import type { Route, RouteLeg } from "@building/view";
+import type { Route, RouteLeg } from "@locora/view";
 import { describe, expect, it } from "vitest";
 import { stopsAhead } from "./progress";
 

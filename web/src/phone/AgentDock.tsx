@@ -4,7 +4,7 @@ import type { BuildingVoice } from "../voice/useBuildingVoice";
 import { ModeSwitch, type GuideMode } from "./ModeSwitch";
 
 const HINTS = {
-  off: "Tap the mic and ask me anything about this building.",
+  off: "Ask Locora about rooms, equipment or routes.",
   connecting: "Connecting…",
   listening: "I'm listening.",
   speaking: "",
@@ -33,7 +33,7 @@ export function AgentDock({
   const bubble = voice.error ?? (voice.phase === "off" ? HINTS.off : (said ?? HINTS[voice.phase]));
   return (
     <section
-      aria-label="Building assistant"
+      aria-label="Locora assistant"
       className="absolute inset-x-3.5 bottom-[max(14px,env(safe-area-inset-bottom))] mx-auto max-w-[460px]"
     >
       {heard && (
