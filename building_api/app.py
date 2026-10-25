@@ -1,16 +1,18 @@
 """FastAPI app for validated building imports, stored buildings and routes."""
 
+import hashlib
 import sqlite3
 from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from pydantic import BaseModel
 
 from building_api.imports import import_router
 from building_api.localize import Localization, lifespan, localization_router
+from building_api.preview import isometric_svg
 from building_db.source import BuildingDocument
 from building_db.store import connect_readonly, load_building
 from building_tools import building as tool_building
@@ -55,6 +57,16 @@ def create_app(database: Path, localization: Localization | None = None) -> Fast
         finally:
             db.close()
 
+    @lru_cache(maxsize=1024)
+    def preview(building_id: str) -> tuple[str, str]:
+        """The rendered preview and its ETag. Stored buildings do not change while the app runs."""
+        db = connect_readonly(database)
+        try:
+            svg = isometric_svg(load_building(db, building_id))
+        finally:
+            db.close()
+        return svg, f'"{hashlib.sha256(svg.encode()).hexdigest()[:16]}"'
+
     app = FastAPI(title="Locora API", lifespan=lifespan(localization))
     app.include_router(import_router(database))
     app.include_router(localization_router(localization))
@@ -73,6 +85,22 @@ def create_app(database: Path, localization: Localization | None = None) -> Fast
             return load_building(db, building_id)
         except KeyError:
             raise HTTPException(404, f"building {building_id} is not stored") from None
+
+    @app.get(
+        "/api/buildings/{building_id}/preview.svg",
+        response_class=Response,
+        responses={200: {"content": {"image/svg+xml": {}}}, 404: {"description": "Building not stored"}},
+    )
+    def get_preview(building_id: str, request: Request) -> Response:
+        """An isometric exterior view for cards. Browsers reuse it and revalidate with the ETag in the background."""
+        try:
+            svg, etag = preview(building_id)
+        except KeyError:
+            raise HTTPException(404, f"building {building_id} is not stored") from None
+        headers = {"ETag": etag, "Cache-Control": "public, max-age=3600, stale-while-revalidate=604800"}
+        if request.headers.get("if-none-match") == etag:
+            return Response(status_code=304, headers=headers)
+        return Response(svg, media_type="image/svg+xml", headers=headers)
 
     @app.get(
         "/api/buildings/{building_id}/route",

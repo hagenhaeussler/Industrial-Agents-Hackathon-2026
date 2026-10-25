@@ -24,6 +24,21 @@ flowchart LR
 - `src/api.gen.ts` is generated from the API's OpenAPI schema with `pnpm gen:api`. Run it after a change to
   `building_db/source.py`, so the TypeScript types match the Pydantic models.
 
+## Exterior preview
+
+`GET /api/buildings/{id}/preview.svg` returns an isometric view of the building from outside, for the home page
+cards. `building_api/preview.py` draws it on the server, so a card does not load the whole `building.json`.
+
+- A floor's outline is the union of its spaces without outdoor areas. The renderer grows each space by 0.3 m,
+  joins them and shrinks the result, which closes the wall gaps between rooms. Holes under 30 m² are filled, so
+  only courtyards stay open.
+- Each outline is extruded from the floor's elevation by its height. Floors touch, so the view shows one solid
+  building. Basements are left out unless the building has no other floor.
+- Walls that face the viewer get a window band per floor. Entrances (`kind: "entrance"`) are drawn in the accent
+  colour on the nearest wall.
+- The server keeps each rendered SVG in memory. Browsers cache it for an hour and then revalidate with the ETag.
+  All 281 buildings render in about 1 s in total, and a typical SVG has 2 to 3 KB.
+
 ## Scene compiler
 
 `compileScene(building)` returns the `BuildingScene` that both views draw. It has no side effects, and the

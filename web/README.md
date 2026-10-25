@@ -4,7 +4,7 @@ One React app with two routes:
 
 | Route | For | What it does |
 |---|---|---|
-| `/` | Everyone | Pick a building |
+| `/` | Everyone | Pick a building by collection and floor plan |
 | `/b/:buildingId?from=…&to=…&step_free=1` | Phone, QR target | Map, step list or camera view, with the avatar and the voice assistant in every view |
 | `/admin/:buildingId` | Desktop | 3D building and floor plans, search, position by click, routes, QR code to a phone, team sidebar |
 

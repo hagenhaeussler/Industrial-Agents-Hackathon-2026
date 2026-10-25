@@ -53,6 +53,14 @@ class BuildingImportTests(unittest.TestCase):
         served = self.client.get("/api/buildings/fixture")
         self.assertEqual(BuildingDocument.model_validate_json(served.content), sorted_by_id(source))
         self.assertEqual(self.client.get("/api/buildings").json()[0]["id"], "fixture")
+        preview = self.client.get("/api/buildings/fixture/preview.svg")
+        self.assertEqual(preview.status_code, 200)
+        self.assertIn("image/svg+xml", preview.headers["content-type"])
+        self.assertIn("<svg", preview.text)
+        self.assertEqual(
+            self.client.get("/api/buildings/fixture/preview.svg", headers={"If-None-Match": preview.headers["etag"]}).status_code,
+            304,
+        )
         route = self.client.get("/api/buildings/fixture/route", params={"stops": ["S-office", "S-lift-1"]})
         self.assertTrue(route.json()["route"]["reachable"])
         # Use a new connection to prove the response followed a committed write.

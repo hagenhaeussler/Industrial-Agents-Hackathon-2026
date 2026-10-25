@@ -1,71 +1,191 @@
-import { Building2, ChevronRight, Monitor, Smartphone } from "lucide-react";
+import type { BuildingSummary } from "@locora/view";
+import { Building2, Check, Monitor, Search, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useBuildings } from "../api/buildings";
 import { Avatar } from "../avatar/Avatar";
 import { navigate } from "../router";
+import { floorLabel, groupBuildings, matches, type Collection } from "./collections";
 import { ImportBuilding } from "./ImportBuilding";
 
-/** Pick a building, then open it on the desktop workspace or as the phone guide. */
+const PAGE = 20;
+
+/** Start from an illustrated collection, then pick a building by its exterior view. A search looks through all of them. */
 export function Home() {
   const buildings = useBuildings();
   const [text, setText] = useState("");
-  const shown = useMemo(
-    () =>
-      (buildings.data ?? []).filter((building) =>
-        `${building.name} ${building.id}`.toLowerCase().includes(text.trim().toLowerCase()),
-      ),
-    [buildings.data, text],
-  );
+  const [collectionId, setCollectionId] = useState<string>();
+  const [limit, setLimit] = useState(PAGE);
+
+  const collections = useMemo(() => groupBuildings(buildings.data ?? []), [buildings.data]);
+  const collection = collections.find((item) => item.id === collectionId) ?? collections[0];
+  const searching = text.trim() !== "";
+  const shown = searching
+    ? (buildings.data ?? []).filter((building) => matches(building, text))
+    : (collection?.buildings ?? []);
+
+  function open(id: string) {
+    setCollectionId(id);
+    setText("");
+    setLimit(PAGE);
+  }
+
   return (
-    <main className="mx-auto grid max-w-[720px] gap-6 px-5 py-10">
-      <header className="flex items-center gap-4">
-        <Avatar phase="off" size={84} />
-        <div>
-          <h1 className="text-[30px] leading-tight font-[800] tracking-[-1.2px]">Locora</h1>
-          <p className="mt-1 text-sm text-muted">Choose a building to explore, plan a route or send it to a phone.</p>
-        </div>
+    <main className="mx-auto grid max-w-[1240px] gap-10 px-6 pt-6 pb-16">
+      <header className="flex flex-wrap items-center gap-4">
+        <span className="flex items-center gap-3">
+          <Avatar phase="off" size={48} />
+          <strong className="text-xl font-[800] tracking-[-0.8px]">Locora</strong>
+        </span>
+        <label className="float ml-auto flex w-full items-center gap-2.5 rounded-[16px] px-4 py-3 focus-within:ring-2 focus-within:ring-accent-deep sm:w-[340px]">
+          <Search size={17} className="text-muted" />
+          <input
+            value={text}
+            onChange={(event) => {
+              setText(event.target.value);
+              setLimit(PAGE);
+            }}
+            placeholder="Search all buildings"
+            aria-label="Search buildings"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+          />
+        </label>
       </header>
+
+      <div className="grid items-end gap-4 lg:grid-cols-[1fr_380px]">
+        <h1 className="text-[clamp(32px,4.4vw,52px)] leading-[1.02] font-[800] tracking-[-2px]">
+          Which building are we in today?
+        </h1>
+        <p className="text-[15px] leading-relaxed text-muted">
+          Pick a place. Plan a route in 3D on the big screen, then take it along on your phone.
+        </p>
+      </div>
+
       <ImportBuilding />
-      <input
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        placeholder="Search buildings"
-        aria-label="Search buildings"
-        className="float rounded-[16px] px-4 py-3.5 text-base outline-none"
-      />
       {buildings.isError && <p className="text-sm text-danger">{buildings.error.message}</p>}
-      <ul className="float grid overflow-hidden rounded-[20px]">
-        {shown.slice(0, 60).map((building) => (
-          <li key={building.id} className="flex items-center gap-3 border-b border-line px-4 py-3 last:border-0">
-            <Building2 size={20} className="shrink-0 text-muted" />
-            <span className="grid min-w-0 flex-1">
-              <strong className="truncate text-sm">{building.name}</strong>
-              <span className="truncate text-xs text-muted">
-                {building.floors} {building.floors === 1 ? "floor" : "floors"} · {building.id}
-              </span>
-            </span>
-            <button
-              type="button"
-              onClick={() => navigate(`/admin/${encodeURIComponent(building.id)}`)}
-              className="flex items-center gap-1.5 rounded-[11px] bg-ink px-3 py-2 text-xs font-[650] text-white"
-            >
-              <Monitor size={15} /> Workspace
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(`/b/${encodeURIComponent(building.id)}`)}
-              aria-label={`Open ${building.name} as phone guide`}
-              className="flex items-center gap-1 rounded-[11px] bg-field px-3 py-2 text-xs font-[650]"
-            >
-              <Smartphone size={15} /> Guide <ChevronRight size={14} />
-            </button>
-          </li>
+      {buildings.isPending && <p className="text-sm text-muted">Loading buildings…</p>}
+      {buildings.isSuccess && buildings.data.length === 0 && (
+        <p className="text-sm text-muted">No buildings yet. Import a building.json to open it here.</p>
+      )}
+
+      <nav aria-label="Collections" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {collections.map((item) => (
+          <CollectionCard
+            key={item.id}
+            collection={item}
+            active={!searching && item.id === collection?.id}
+            onClick={() => open(item.id)}
+          />
         ))}
-        {buildings.isPending && <li className="px-4 py-6 text-center text-sm text-muted">Loading buildings…</li>}
-        {buildings.isSuccess && buildings.data.length === 0 && (
-          <li className="px-4 py-6 text-center text-sm text-muted">No buildings yet. Import a building.json to open it here.</li>
+      </nav>
+
+      <section aria-labelledby="shelf-title" className="grid gap-5">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 id="shelf-title" className="text-[22px] font-[800] tracking-[-0.8px]">
+            {searching ? `Results for "${text.trim()}"` : collection?.label}
+          </h2>
+          <span className="text-sm text-muted">
+            {shown.length} {shown.length === 1 ? "building" : "buildings"}
+          </span>
+        </div>
+        {searching && shown.length === 0 && <p className="text-sm text-muted">No building matches this search.</p>}
+        <ul className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
+          {shown.slice(0, limit).map((building) => (
+            <li key={building.id}>
+              <BuildingCard building={building} />
+            </li>
+          ))}
+        </ul>
+        {shown.length > limit && (
+          <button
+            type="button"
+            onClick={() => setLimit(limit + PAGE)}
+            className="float mx-auto rounded-[14px] px-5 py-3 text-sm font-[650]"
+          >
+            Show {Math.min(PAGE, shown.length - limit)} more
+          </button>
         )}
-      </ul>
+      </section>
     </main>
+  );
+}
+
+function CollectionCard({
+  collection,
+  active,
+  onClick,
+}: {
+  collection: Collection;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`group relative grid content-start gap-3 rounded-[28px] bg-white p-2.5 pb-4 text-left shadow-float ${
+        active ? "ring-2 ring-ink" : "hover:-translate-y-0.5 hover:shadow-[0_14px_40px_#20251b1f]"
+      } transition-[translate,box-shadow] duration-200`}
+    >
+      <span className="grid aspect-[5/4] place-items-center overflow-hidden rounded-[21px] bg-paper">
+        {collection.art ? (
+          <img
+            src={collection.art}
+            alt=""
+            className="size-full scale-[1.08] object-cover transition-transform duration-300 group-hover:scale-[1.14]"
+          />
+        ) : (
+          <Building2 size={56} strokeWidth={1.4} className="text-muted" />
+        )}
+      </span>
+      {active && (
+        <span className="absolute top-5 right-5 grid size-8 place-items-center rounded-full bg-accent text-ink">
+          <Check size={17} strokeWidth={2.6} />
+        </span>
+      )}
+      <span className="grid gap-1 px-2">
+        <strong className="text-[17px] font-[750] tracking-[-0.4px]">{collection.label}</strong>
+        <span className="text-[13px] leading-snug text-muted">{collection.blurb}</span>
+        <span className="mt-1 text-xs font-[650]">
+          {collection.buildings.length} buildings · {floorLabel(collection.buildings.map((b) => b.floors))}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function BuildingCard({ building }: { building: BuildingSummary }) {
+  const id = encodeURIComponent(building.id);
+  return (
+    <article className="float grid gap-3 rounded-[24px] p-2.5">
+      <img
+        src={`/api/buildings/${id}/preview.svg`}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="aspect-[4/3] w-full rounded-[17px] bg-field object-contain p-3"
+      />
+      <div className="grid gap-0.5 px-1.5">
+        <strong className="truncate text-sm font-[750]">{building.name}</strong>
+        <span className="text-xs text-muted">{floorLabel([building.floors])}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => navigate(`/admin/${id}`)}
+          className="flex items-center justify-center gap-1.5 rounded-[13px] bg-ink px-3 py-2.5 text-xs font-[700] text-white"
+        >
+          <Monitor size={15} className="shrink-0" /> Workspace
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate(`/b/${id}`)}
+          aria-label={`Open ${building.name} as phone guide`}
+          className="flex items-center justify-center gap-1.5 rounded-[13px] bg-field px-3 py-2.5 text-xs font-[700]"
+        >
+          <Smartphone size={15} className="shrink-0" /> Guide
+        </button>
+      </div>
+    </article>
   );
 }

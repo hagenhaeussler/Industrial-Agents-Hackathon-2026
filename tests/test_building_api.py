@@ -84,6 +84,23 @@ class BuildingApiTest(unittest.TestCase):
         response = self.client.get("/api/buildings/missing/route", params={"stops": ["a", "b"]})
         self.assertEqual(response.status_code, 404)
 
+    def test_preview_is_an_svg_that_browsers_can_cache(self) -> None:
+        source = read_building(DEV_BUILDING / "building.json")
+        response = self.client.get(f"/api/buildings/{source.building.id}/preview.svg")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["content-type"], "image/svg+xml")
+        self.assertTrue(response.text.startswith("<svg"))
+        self.assertIn("max-age", response.headers["cache-control"])
+
+        again = self.client.get(
+            f"/api/buildings/{source.building.id}/preview.svg", headers={"If-None-Match": response.headers["etag"]}
+        )
+        self.assertEqual(again.status_code, 304)
+        self.assertEqual(again.content, b"")
+
+    def test_preview_of_unknown_building_is_not_found(self) -> None:
+        self.assertEqual(self.client.get("/api/buildings/missing/preview.svg").status_code, 404)
+
     def test_never_creates_a_missing_database(self) -> None:
         missing = self.directory / "missing.sqlite3"
         with self.assertRaises(sqlite3.OperationalError):

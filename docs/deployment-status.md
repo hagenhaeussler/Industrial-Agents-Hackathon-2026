@@ -48,13 +48,19 @@ images successfully. No paid model or voice conversations are part of verificati
 
 - Integrates `t3/embed-equipment-rename-building-local` at `7dfb520`, including the local-data consolidation at
   `81633ff`, onto main at `ef73058`. The merge was conflict-free.
-- Remote recovery branch: `backup/main-before-building-json-upload-20261025-ef73058` points to
-  `ef73058cb1386b0926d566eed1787b5047353669`, the main revision before this release.
+- The concurrent home-collections release (PR #40, main at `00f4d09`) is retained. Import sits on the new home
+  page without duplicating its search or discarding its collections. API types were regenerated from the combined
+  backend schema, retaining both import and isometric-preview endpoints.
+- Remote recovery branch: `backup/main-before-building-json-upload-20261025-00f4d09` points to
+  `00f4d09b82098e653097a94cae5a86cb21c0916f`, main immediately before this integration. The earlier
+  `backup/main-before-building-json-upload-20261025-ef73058` recovery point is also retained.
 - Home now offers **Import building**. A valid dataset-format file named `building.json` (maximum 20 MiB)
   is saved before opening its desktop workspace. It is available through the building API and route tools;
   identical uploads are idempotent and changed content with an existing ID is rejected without overwriting it.
-- Release checks: 142 Python tests, 62 web tests and 22 building-view tests passed. Ruff and both production
+- Release checks: 146 Python tests, 66 web tests and 22 building-view tests passed. Ruff and both production
   frontend builds passed. All provider API keys were disabled during the Python checks.
+- Added coverage for importing from the collections home and for an uploaded building's SVG thumbnail. The
+  empty-preview fixture uses an outdoor-only building, respecting the upload schema's nonempty-space requirement.
 - Push main to use the existing GitHub-triggered Railway deployment. This release does not reconnect or deploy
   the retired `hagen-core-test` service.
 
