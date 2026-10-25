@@ -5,6 +5,9 @@ import type { VoicePhase } from "../voice/useBuildingVoice";
 
 const EXPRESSIONS = { off: idle, connecting: unsure, listening: surprised, speaking: happy, error: sad };
 
+// A deep moss green from the app palette with paper-coloured eyes. The lime accent stays for actions.
+const PALETTE = { head: "#4f6b3a", eye: "#f4f3ee" };
+
 /**
  * The building's face: the `alain00` Blobatar from the phone prototype. It shows the conversation phase and
  * moves with the agent's voice level while it speaks. It owns no conversation logic.
@@ -46,7 +49,14 @@ export function Avatar({
       className={`avatar-voice inline-grid place-items-center ${hidden ? "avatar-paused" : ""}`}
       style={{ width: size, height: size }}
     >
-      <Blobatar name={name} animate="always" size={size} expression={expression} title="Locora assistant" />
+      <Blobatar
+        name={name}
+        palette={PALETTE}
+        animate="always"
+        size={size}
+        expression={expression}
+        title="Locora assistant"
+      />
     </span>
   );
 }

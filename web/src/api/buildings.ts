@@ -1,5 +1,5 @@
 import { compileScene, type Building, type BuildingScene, type BuildingSummary, type RouteView } from "@locora/view";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 
 /** What a route must follow. The same flat rules the voice agent's route tool takes. */
 export interface RouteRequest {
@@ -40,12 +40,25 @@ export interface LoadedBuilding {
   scene: BuildingScene;
 }
 
+const documentQuery = (buildingId: string) =>
+  queryOptions({
+    queryKey: ["building-document", buildingId],
+    queryFn: ({ signal }) => getJson<Building>(`/api/buildings/${encodeURIComponent(buildingId)}`, signal),
+    staleTime: Infinity,
+  });
+
+/** The building document alone, for previews. Opening the building later reuses it. */
+export function useBuildingDocument(buildingId: string | undefined, enabled = true) {
+  return useQuery({ ...documentQuery(buildingId ?? ""), enabled: enabled && buildingId !== undefined });
+}
+
 /** The building document and the scene both views draw. */
 export function useBuilding(buildingId: string) {
+  const client = useQueryClient();
   return useQuery({
     queryKey: ["building", buildingId],
-    queryFn: async ({ signal }): Promise<LoadedBuilding> => {
-      const document = await getJson<Building>(`/api/buildings/${encodeURIComponent(buildingId)}`, signal);
+    queryFn: async (): Promise<LoadedBuilding> => {
+      const document = await client.ensureQueryData(documentQuery(buildingId));
       return { document, scene: compileScene(document) };
     },
     staleTime: Infinity,
