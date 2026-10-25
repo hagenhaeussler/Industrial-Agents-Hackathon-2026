@@ -2,7 +2,7 @@
 
 **Ziel:** Die Annahmen aus dem Brainstorming vom 24. Oktober 2026 so weit klären, dass Umfang, Bewertung und technische Umsetzung zusammenpassen. Alle Antworten unten sind noch offen; dieses Dokument protokolliert keine bereits erfolgte Zusage.
 
-Grundlage: [Meeting-Zusammenfassung](2026-10-24-brainstorming-zusammenfassung.md), [Transkript](docs/brainstorming/2026-10-24-transkript.md) und Repo-Snapshot cb51a6f. Bei „Build“ und Sonntags-Input sollten die Track-Verantwortlichen antworten, beim gemeinsamen Finale möglichst die Organisatoren.
+Grundlage: [Meeting-Zusammenfassung](2026-10-24-brainstorming-zusammenfassung.md) und Repo-Snapshot cb51a6f. Bei „Build“ und Sonntags-Input sollten die Track-Verantwortlichen antworten, beim gemeinsamen Finale möglichst die Organisatoren.
 
 ## Einstieg für das Gespräch
 

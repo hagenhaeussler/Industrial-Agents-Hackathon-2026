@@ -188,7 +188,7 @@ Der Portalgraph ist fachlich richtig: Tür-zu-Tür-Kosten innerhalb eines Raums 
 
 ## 9. Build und Scale mit einem belastbaren Mindestumfang planen
 
-Das [Lead-Q&A](2026-10-24-challenge-lead-qa.md), 05:55–08:47, stützt lokale What-if-Änderungen. Es bestätigt nicht eindeutig „Event-Log zwingend, PNG immer optional für volle Punkte“. Die schriftliche Challenge nennt weiterhin neue Gebäude aus Plänen. Das ist ein Scope-Risiko, kein Grund, jetzt ungeprüft eine Bildrekonstruktion zu beginnen.
+Das Lead-Q&A (recording transcript removed), 05:55–08:47, stützt lokale What-if-Änderungen. Es bestätigt nicht eindeutig „Event-Log zwingend, PNG immer optional für volle Punkte“. Die schriftliche Challenge nennt weiterhin neue Gebäude aus Plänen. Das ist ein Scope-Risiko, kein Grund, jetzt ungeprüft eine Bildrekonstruktion zu beginnen.
 
 **Empfohlenes MVP:** Ein neues `building.json` laden, IDs/Referenzen/Einheiten/Geometrie prüfen, sofort darstellen und dieselben Such-/Routingtools darauf anwenden. Dazu eine echte lokale Änderung mit Vorschau, Bestätigung und Undo. Ungültige Referenzen und Geometrie erklären; unerreichbare Räume nicht pauschal als ungültiges Gebäude ablehnen. Unerreichbarkeit ist ein erlaubter fachlicher Ausgang.
 
