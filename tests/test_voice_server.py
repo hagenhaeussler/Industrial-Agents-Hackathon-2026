@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -94,6 +95,11 @@ class McpEndpointTest(unittest.TestCase):
             result = self.tool_result("building_overview", building=building)
             self.assertTrue(result["isError"], building)
 
+    def test_hidden_tool_is_neither_listed_nor_callable(self) -> None:
+        tools = rpc_result(self.call("tools/list").text)["tools"]
+        self.assertNotIn("exit_distance_change", [tool["name"] for tool in tools])
+        self.assertTrue(self.tool_result("exit_distance_change")["isError"])
+
     def test_lists_the_served_buildings(self) -> None:
         listed = self.client.get("/api/voice/buildings").json()
         self.assertEqual({building["id"] for building in listed}, {FACTORY, CAMPUS})
@@ -125,6 +131,18 @@ class AgentConfigTest(unittest.TestCase):
         used = set(re.findall(r"\{\{(\w+)\}\}", system_prompt()))
         self.assertTrue(used)
         self.assertLessEqual(used, set(CONTEXT_VARIABLES))
+
+
+class RailwayUploadTest(unittest.TestCase):
+    def test_upload_holds_no_evaluation_files(self) -> None:
+        # git applies the same gitignore rules as the Railway CLI. Lists tracked files the upload would keep.
+        def tracked(*options: str) -> set[str]:
+            command = ["git", "ls-files", *options, "--", "data", "benchmark", "SUBMISSION", "results"]
+            return set(subprocess.run(command, cwd=REPO, capture_output=True, text=True, check=True).stdout.split())
+
+        uploaded = tracked() - tracked("-ci", "--exclude-from=.railwayignore")
+        self.assertTrue(uploaded)
+        self.assertEqual({path for path in uploaded if not path.endswith("/building.json")}, set())
 
 
 class SettingsTest(unittest.TestCase):

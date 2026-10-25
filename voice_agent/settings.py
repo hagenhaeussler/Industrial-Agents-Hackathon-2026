@@ -40,7 +40,9 @@ def load_settings() -> VoiceSettings:
 
 def require_agent_id(settings: VoiceSettings) -> str:
     if settings.agent_id is None:
-        raise MissingSetting("ELEVENLABS_AGENT_ID is not set. Run `python -m voice_agent sync` and add the printed ID.")
+        raise MissingSetting(
+            "ELEVENLABS_AGENT_ID is not set. Run `python -m voice_agent sync --create` once and set the printed ID."
+        )
     return settings.agent_id
 
 

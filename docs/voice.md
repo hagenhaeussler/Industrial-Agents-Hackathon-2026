@@ -55,7 +55,8 @@ deploy.
 | Route display | On `onMCPToolCall` with `state: "success"` and `tool_name: "route"`, read `parameters.stops` and the flat conditions `step_free`, `closed`, `min_door_width_m`, `no_pass_through_room_types`. These names are kept stable. |
 
 The agent uses a known current room as the route start and a known destination as the end, without asking.
-Without `building_id`, every tool call fails and the agent says it cannot check.
+Without `building_id`, ElevenLabs refuses to start the conversation (WebSocket close 1008, "Missing required
+dynamic variables"). An unknown ID starts, but every tool call fails and the agent says it cannot check.
 
 The UI reaches the routes in one of two ways:
 
@@ -71,8 +72,9 @@ Nothing runs locally except the page; it uses the deployed server:
 ElevenLabs calls the tools at the deployed URL. A local `uv run python -m voice_agent serve data` issues tokens and
 lists buildings, but ElevenLabs cannot reach its tools.
 
-For a new ElevenLabs agent, run `uv run python -m voice_agent sync --mcp-url <public URL>/mcp` once with
+For a new ElevenLabs agent, run `uv run python -m voice_agent sync --create --mcp-url <public URL>/mcp` once with
 `ELEVENLABS_API_KEY` and `BUILDING_MCP_TOKEN` in `.env`, then set the printed `ELEVENLABS_AGENT_ID` on Railway.
+Without `--create`, sync needs the ID, so a deploy never creates agents.
 
 ## Deployment
 
@@ -85,6 +87,7 @@ For a new ElevenLabs agent, run `uv run python -m voice_agent sync --mcp-url <pu
 | Secrets | `ELEVENLABS_API_KEY`, `ELEVENLABS_AGENT_ID` and `BUILDING_MCP_TOKEN` as Railway service variables |
 | Optional | `VOICE_CORS_ORIGINS` for a UI on another domain |
 | Pre-deploy command | `uv run --no-sync python -m voice_agent sync`, set in the service settings. It uses the service's own URL. A failed sync stops the deploy. |
+| Health check | `/api/voice/buildings`, so traffic switches only after all buildings are loaded |
 | Deploy | `railway up` from the repository root, linked to the service |
 
 `.railwayignore` uploads only the `building.json` files from `data/` and leaves out `benchmark/`, `SUBMISSION/`,
@@ -93,7 +96,8 @@ same for local Docker builds. The image contains the locked dependencies, `build
 `voice_agent` and the `building.json` files.
 
 The ElevenLabs API key needs only the ElevenAgents Write permission. MCP was enabled once for the workspace with
-`can_use_mcp_servers`. The MCP token is stored as the ElevenLabs workspace secret `building-mcp-authorization`.
+`can_use_mcp_servers`. The MCP token is stored as the ElevenLabs workspace secret
+`building-mcp-authorization-<agent ID>`.
 
 ## Building tools
 
@@ -105,7 +109,8 @@ The agent uses the shared FastMCP server from `building_tools`, one per building
 - The endpoint is public because ElevenLabs calls it from the internet. It rejects requests without the bearer
   token. ElevenLabs sends the token in an `Authorization` header that reads the workspace secret.
 - The tools only read, so they run without approval prompts (`approval_policy: auto_approve_all`).
-- `sync` registers the MCP integration and attaches it to the agent. ElevenLabs cannot change an integration's
+- `sync` registers the MCP integration and attaches it to the agent. It reuses or removes only integrations
+  attached to this agent, so other agents in the workspace are safe. ElevenLabs cannot change an integration's
   URL, so `sync` replaces the integration when the public URL changes.
 - The server is stateless, so a redeploy does not break running conversations.
 

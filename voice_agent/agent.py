@@ -82,15 +82,25 @@ def store_secret(client: ElevenLabs, name: str, value: str) -> str:
     return existing.secret_id
 
 
-def sync(client: ElevenLabs, agent_id: str | None, mcp_url: str, mcp_token: str) -> str:
-    """Make ElevenLabs match this file: the MCP integration and the agent. Returns the agent ID.
+def create_agent(client: ElevenLabs) -> str:
+    """An empty private agent; `sync` fills in its settings and tools."""
+    return client.conversational_ai.agents.create(
+        name=AGENT_NAME, conversation_config={}, platform_settings=platform_settings()
+    ).agent_id
 
+
+def sync(client: ElevenLabs, agent_id: str, mcp_url: str, mcp_token: str) -> None:
+    """Make the agent match this file, with its own MCP integration and secret.
+
+    Only integrations attached to this agent are reused or removed, so other agents in the workspace are safe.
     ElevenLabs cannot change an integration's URL, so a new URL gets a new integration and the old one is removed.
     """
+    agents = client.conversational_ai.agents
     servers = client.conversational_ai.mcp_servers
-    secret_id = store_secret(client, MCP_SECRET_NAME, f"Bearer {mcp_token}")
+    attached = set(agents.get(agent_id).conversation_config.agent.prompt.mcp_server_ids or [])
+    secret_id = store_secret(client, f"{MCP_SECRET_NAME}-{agent_id}", f"Bearer {mcp_token}")
     behavior = mcp_server_behavior(secret_id)
-    ours = [server for server in servers.list().mcp_servers if server.config.name == MCP_SERVER_NAME]
+    ours = [server for server in servers.list().mcp_servers if server.id in attached]
     current = next((server for server in ours if server.config.url == mcp_url), None)
     if current is None:
         mcp_server_id = servers.create(config=mcp_server_identity(mcp_url) | behavior).id
@@ -98,17 +108,12 @@ def sync(client: ElevenLabs, agent_id: str | None, mcp_url: str, mcp_token: str)
         mcp_server_id = current.id
         servers.update(mcp_server_id, **behavior)
 
-    settings = {
-        "name": AGENT_NAME,
-        "conversation_config": conversation_config(mcp_server_id),
-        "platform_settings": platform_settings(),
-    }
-    if agent_id is None:
-        agent_id = client.conversational_ai.agents.create(**settings).agent_id
-    else:
-        client.conversational_ai.agents.update(agent_id, **settings)
-
+    agents.update(
+        agent_id,
+        name=AGENT_NAME,
+        conversation_config=conversation_config(mcp_server_id),
+        platform_settings=platform_settings(),
+    )
     for stale in ours:
         if stale.id != mcp_server_id:
             servers.delete(stale.id)
-    return agent_id

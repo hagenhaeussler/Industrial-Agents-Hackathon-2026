@@ -10,9 +10,9 @@ from pathlib import Path
 import uvicorn
 from elevenlabs import ElevenLabs
 
-from voice_agent.agent import sync
+from voice_agent.agent import create_agent, sync
 from voice_agent.server import create_app, elevenlabs_token_source
-from voice_agent.settings import MissingSetting, load_settings, require_mcp_token
+from voice_agent.settings import MissingSetting, load_settings, require_agent_id, require_mcp_token
 from voice_agent.tools import MCP_PATH, building_files, load_buildings, mcp_app, voice_tools
 
 
@@ -32,6 +32,9 @@ def main(argv: list[str] | None = None) -> int:
         help=f"public URL of the tools, such as https://example.up.railway.app{MCP_PATH}. "
         "Defaults to this service's own URL on Railway, where sync runs before each deploy.",
     )
+    sync_command.add_argument(
+        "--create", action="store_true", help="create a new agent; only when ELEVENLABS_AGENT_ID is not set"
+    )
     serve = commands.add_parser("serve", help="run the voice server with the tools for every building in a directory")
     serve.add_argument("buildings", type=Path, help="directory searched for building.json files, such as data")
     serve.add_argument("--host", default="127.0.0.1", help="0.0.0.0 inside a container")
@@ -43,11 +46,17 @@ def main(argv: list[str] | None = None) -> int:
         mcp_token = require_mcp_token(settings)
         if arguments.command == "sync":
             mcp_url = arguments.mcp_url or railway_mcp_url()
-            agent_id = sync(ElevenLabs(api_key=settings.api_key), settings.agent_id, mcp_url, mcp_token)
-            if settings.agent_id is None:
-                print(f"Created agent. Add this line to .env:\nELEVENLABS_AGENT_ID={agent_id}")
+            client = ElevenLabs(api_key=settings.api_key)
+            if arguments.create:
+                if settings.agent_id is not None:
+                    raise MissingSetting("ELEVENLABS_AGENT_ID is set. Remove it to create a new agent.")
+                agent_id = create_agent(client)
+                print(f"Created agent. Set ELEVENLABS_AGENT_ID={agent_id} in .env and on Railway.")
             else:
-                print(f"Updated agent {agent_id}")
+                # Without --create, a missing ID stops here, so a deploy never creates agents.
+                agent_id = require_agent_id(settings)
+            sync(client, agent_id, mcp_url, mcp_token)
+            print(f"Updated agent {agent_id}")
             return 0
         logging.basicConfig(level=logging.INFO)
         buildings = load_buildings(building_files(arguments.buildings))
