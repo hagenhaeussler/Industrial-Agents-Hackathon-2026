@@ -7,7 +7,7 @@ from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import httpx2 as httpx
 from anthropic import AsyncAnthropic
 from pydantic_ai.messages import ModelResponse, TextPart, ToolCallPart, ToolReturnPart
 from pydantic_ai.models.anthropic import AnthropicModel
