@@ -18,6 +18,7 @@ function Harness() {
   return <>
     <Sidebar
       building={fixture()} view="model" onView={() => {}} channel={undefined} onChannel={() => {}}
+      selectedAssetId={undefined} onSelectEquipment={() => {}}
       positionName={undefined} onSettings={() => {}} coworkers={chat.members}
       selectedMemberId={open ? chat.selected?.id : undefined}
       onMember={(id) => { chat.select(id); setOpen(true); }} showCoworkers={chat.show} onShowCoworkers={chat.setShow}
