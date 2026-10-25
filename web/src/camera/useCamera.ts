@@ -13,7 +13,7 @@ function cameraError(error: unknown): string {
 
 /**
  * The device camera, rear-facing if possible. Owns the stream, including requests that resolve after stop or
- * unmount. Frames stay in the browser: nothing is recorded or uploaded.
+ * unmount. Nothing is recorded here; `useLocalization` sends single frames to find the position.
  */
 export function useCamera() {
   const [state, setState] = useState<CameraState>({ kind: "off" });

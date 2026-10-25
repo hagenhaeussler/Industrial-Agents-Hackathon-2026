@@ -9,6 +9,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
+from building_api.localize import Localization, lifespan, localization_router
 from building_db.source import BuildingDocument
 from building_db.store import connect_readonly, load_building
 from building_tools import building as tool_building
@@ -31,8 +32,9 @@ class RouteView(BaseModel):
     path: list[PathPoint]
 
 
-def create_app(database: Path) -> FastAPI:
-    """An app that reads buildings from `database`. The file is opened read-only per request."""
+def create_app(database: Path, localization: Localization | None = None) -> FastAPI:
+    """An app that reads buildings from `database`. The file is opened read-only per request.
+    With `localization`, it also forwards camera photos to the localization service."""
 
     def connection() -> Iterator[sqlite3.Connection]:
         db = connect_readonly(database)
@@ -52,7 +54,8 @@ def create_app(database: Path) -> FastAPI:
         finally:
             db.close()
 
-    app = FastAPI(title="Building API")
+    app = FastAPI(title="Building API", lifespan=lifespan(localization))
+    app.include_router(localization_router(localization))
 
     @app.get("/api/buildings")
     def list_buildings(db: Connection) -> list[BuildingSummary]:

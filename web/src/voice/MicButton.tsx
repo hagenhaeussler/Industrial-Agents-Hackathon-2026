@@ -1,7 +1,10 @@
-import { Loader, Mic, MicOff } from "lucide-react";
+import { Loader, Mic } from "lucide-react";
 import type { VoicePhase } from "./useBuildingVoice";
 
-/** Starts or ends the voice conversation. Dark while off, accent while the agent listens or speaks. */
+/**
+ * Starts or ends the voice conversation. Dark while off, accent while the microphone is open.
+ * It always shows a plain mic: a crossed-out mic reads as "muted" while the agent is listening.
+ */
 export function MicButton({ phase, onStart, onStop }: { phase: VoicePhase; onStart: () => void; onStop: () => void }) {
   const live = phase === "listening" || phase === "speaking";
   const busy = phase === "connecting";
@@ -15,7 +18,7 @@ export function MicButton({ phase, onStart, onStop }: { phase: VoicePhase; onSta
         live ? "bg-accent text-ink ring-2 ring-ink" : "bg-ink text-white"
       }`}
     >
-      {busy ? <Loader size={22} /> : live ? <MicOff size={22} /> : <Mic size={22} />}
+      {busy ? <Loader size={22} /> : <Mic size={22} />}
     </button>
   );
 }

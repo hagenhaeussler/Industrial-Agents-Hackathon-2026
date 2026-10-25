@@ -44,7 +44,9 @@ export function useBuildingVoice(context: VoiceContext, onRoute: (request: Route
   onRouteRef.current = onRoute;
 
   const conversation = useConversation({
-    onMessage: ({ role, message, event_id }) =>
+    onMessage: ({ role, message, event_id }) => {
+      // ElevenLabs reports a silent user turn as "...". It is not something the person said.
+      if (role === "user" && message.trim() === "...") return;
       setEntries((current) =>
         upsert(current, {
           key: `${role}-${event_id}`,
@@ -52,7 +54,8 @@ export function useBuildingVoice(context: VoiceContext, onRoute: (request: Route
           role,
           text: role === "agent" ? withoutAudioTags(message) : message,
         }),
-      ),
+      );
+    },
     onMCPToolCall: (call) => {
       setEntries((current) =>
         upsert(current, { key: `tool-${call.tool_call_id}`, kind: "tool", name: toolLabel(call.tool_name), state: call.state }),
