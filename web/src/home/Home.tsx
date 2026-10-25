@@ -5,11 +5,10 @@ import { useBuildings } from "../api/buildings";
 import { Avatar } from "../avatar/Avatar";
 import { navigate } from "../router";
 import { floorLabel, groupBuildings, matches, type Collection } from "./collections";
-import { PlanThumb } from "./PlanThumb";
 
 const PAGE = 20;
 
-/** Start from an illustrated collection, then pick a building by its floor plan. A search looks through all of them. */
+/** Start from an illustrated collection, then pick a building by its exterior view. A search looks through all of them. */
 export function Home() {
   const buildings = useBuildings();
   const [text, setText] = useState("");
@@ -154,7 +153,13 @@ function BuildingCard({ building }: { building: BuildingSummary }) {
   const id = encodeURIComponent(building.id);
   return (
     <article className="float grid gap-3 rounded-[24px] p-2.5">
-      <PlanThumb buildingId={building.id} className="aspect-[4/3] rounded-[17px] bg-field p-3" />
+      <img
+        src={`/api/buildings/${id}/preview.svg`}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="aspect-[4/3] w-full rounded-[17px] bg-field object-contain p-3"
+      />
       <div className="grid gap-0.5 px-1.5">
         <strong className="truncate text-sm font-[750]">{building.name}</strong>
         <span className="text-xs text-muted">{floorLabel([building.floors])}</span>
