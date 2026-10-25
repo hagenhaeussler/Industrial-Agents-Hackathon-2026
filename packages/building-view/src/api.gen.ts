@@ -35,6 +35,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/buildings/{building_id}/route": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Route
+         * @description The same route the building tools give the agents, plus drawing points. Nothing is calculated here.
+         */
+        get: operations["get_route_api_buildings__building_id__route_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -111,6 +131,20 @@ export interface components {
             /** Source */
             source: string;
         };
+        /** ElementStep */
+        ElementStep: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "door" | "opening" | "entrance" | "stairs" | "lift";
+            /** Name */
+            name?: string | null;
+            /** Width M */
+            width_m?: number | null;
+        };
         /** Floor */
         Floor: {
             /** Elevation M */
@@ -166,6 +200,48 @@ export interface components {
             /** Width M */
             width_m: number;
         };
+        /** PathPoint */
+        PathPoint: {
+            /** Floor Id */
+            floor_id: string;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+        };
+        /** Route */
+        Route: {
+            /** Legs */
+            legs: components["schemas"]["RouteLeg"][];
+            /** Length M */
+            length_m: number | null;
+            /** Reachable */
+            reachable: boolean;
+        };
+        /** RouteLeg */
+        RouteLeg: {
+            /** Blocked By */
+            blocked_by: string[];
+            /** Elements */
+            elements: components["schemas"]["ElementStep"][];
+            end: components["schemas"]["SpaceRef"];
+            /** Length M */
+            length_m: number | null;
+            /** Reachable */
+            reachable: boolean;
+            /** Spaces */
+            spaces: components["schemas"]["SpaceRef"][];
+            start: components["schemas"]["SpaceRef"];
+        };
+        /**
+         * RouteView
+         * @description A route from the building tools and the points to draw it.
+         */
+        RouteView: {
+            /** Path */
+            path: components["schemas"]["PathPoint"][];
+            route: components["schemas"]["Route"];
+        };
         /** Space */
         Space: {
             /** Floor Id */
@@ -190,6 +266,15 @@ export interface components {
              * @enum {string}
              */
             type: "room" | "corridor" | "hall" | "stair" | "lift" | "outdoor";
+        };
+        /** SpaceRef */
+        SpaceRef: {
+            /** Floor Name */
+            floor_name: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -288,6 +373,49 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    get_route_api_buildings__building_id__route_get: {
+        parameters: {
+            query: {
+                /** @description Space IDs in walking order */
+                stops: string[];
+                step_free?: boolean;
+                min_door_width_m?: number;
+                /** @description Closed space, opening or connector IDs */
+                closed?: string[] | null;
+            };
+            header?: never;
+            path: {
+                building_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteView"];
+                };
+            };
+            /** @description Building not stored */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown stop or bad rule */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
