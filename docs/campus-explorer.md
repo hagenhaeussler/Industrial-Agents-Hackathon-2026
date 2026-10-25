@@ -41,6 +41,13 @@ Before production adoption, review the Google API version and billing/key restri
 landing-page route, and verify Google rendering on target phones. The original live Google checks
 are documented below; offline checks do not contact paid providers.
 
+Model freshness is currently a build-time responsibility: runtime checks verify the building/floor
+IDs, floor count, elevations, anchor and GLB structure, but do not compare `sourceSha256` or
+`frameSha256` against the active source/calibration. Those hashes are provenance metadata. Regeneration
+is mandatory after geometry or calibration edits, even when IDs and elevations stay unchanged.
+Before production adoption, add source/frame freshness enforcement and a stale-model regression test.
+The production build also reports large JavaScript chunks; review loading performance on target devices.
+
 ## Product and implementation plan
 
 The entry page becomes a geographic building explorer. Selecting a building starts on a globe, flies to

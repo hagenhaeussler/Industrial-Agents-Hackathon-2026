@@ -1,5 +1,5 @@
 import {describe,expect,it} from "vitest";
-import {compileScene} from "@building/view";
+import {compileScene} from "@locora/view";
 import {fixture} from "../../../packages/building-view/src/testing/fixture";
 import type {CampusBuilding} from "./geography";
 import {indoorCamera} from "./indoor-camera";

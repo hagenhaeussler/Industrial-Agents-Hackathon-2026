@@ -1,4 +1,4 @@
-import type { BuildingScene } from "@building/view";
+import type { BuildingScene } from "@locora/view";
 import type { FeatureCollection, Polygon, Position } from "geojson";
 
 export interface LocalFrame {

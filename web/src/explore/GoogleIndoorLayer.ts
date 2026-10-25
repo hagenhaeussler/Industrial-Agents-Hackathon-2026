@@ -1,4 +1,4 @@
-import type { BuildingScene } from "@building/view";
+import type { BuildingScene } from "@locora/view";
 import type { CampusBuilding } from "./geography";
 import { planToGeographic } from "./geography";
 import { isBuildingClick, type Google3dLibrary, type GoogleMapElement, type GoogleModelElement } from "./google3d";

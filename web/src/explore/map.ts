@@ -1,6 +1,6 @@
 import { Map, NavigationControl, ScaleControl, setWorkerUrl, type GeoJSONSource, type StyleSpecification, type ExpressionSpecification } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
-import type { BuildingScene } from "@building/view";
+import type { BuildingScene } from "@locora/view";
 import type { FeatureCollection, Point, Polygon } from "geojson";
 import { buildingFeatures, facadeFeatures, indoorFeatures, type CampusBuilding, type CampusCatalog } from "./geography";
 import type { ExteriorPose } from "./google3d";

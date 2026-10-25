@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import type { CampusBuilding } from "./geography";
-import type { BuildingScene } from "@building/view";
+import type { BuildingScene } from "@locora/view";
 import type { RoomPick } from "./map";
 import { GoogleIndoorLayer } from "./GoogleIndoorLayer";
 import { indoorCamera } from "./indoor-camera";

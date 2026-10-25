@@ -1,6 +1,6 @@
 # Locora web app
 
-One React app with two routes:
+One React app with these routes:
 
 | Route | For | What it does |
 |---|---|---|

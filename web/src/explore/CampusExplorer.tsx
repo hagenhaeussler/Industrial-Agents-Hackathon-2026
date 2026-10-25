@@ -123,7 +123,7 @@ function Explorer({ catalog }: { catalog: CampusCatalog }) {
 
   return <main className="campus-explorer">
     <header className="explore-header">
-      <a className="explore-brand" href="/" aria-label="Talk to your building home"><Box size={31} strokeWidth={1.5} /><span>Talk to your building</span></a>
+      <a className="explore-brand" href="/" aria-label="Locora home"><Box size={31} strokeWidth={1.5} /><span>Locora</span></a>
       <nav aria-label="Main navigation"><a className="active" href="/" aria-current="page">Explore</a>
         <a href={`/admin/${encodeURIComponent(selected.id)}`}>Workspace <ArrowUpRight size={13} /></a></nav>
       <a className="explore-library" href="/buildings"><Building2 size={16} /><span>All buildings</span></a>

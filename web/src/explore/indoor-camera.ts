@@ -1,4 +1,4 @@
-import type { BuildingScene } from "@building/view";
+import type { BuildingScene } from "@locora/view";
 import { planToGeographic, type CampusBuilding } from "./geography";
 import { floorAltitude } from "./model-placement";
 

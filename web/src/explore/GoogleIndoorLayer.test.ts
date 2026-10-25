@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it,vi} from "vitest";
-import {compileScene} from "@building/view";
+import {compileScene} from "@locora/view";
 import {fixture} from "../../../packages/building-view/src/testing/fixture";
 import {GoogleIndoorLayer} from "./GoogleIndoorLayer";
 import type {CampusBuilding} from "./geography";

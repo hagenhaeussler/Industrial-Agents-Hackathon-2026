@@ -4,7 +4,7 @@ import { GoogleExterior } from "./GoogleExterior";
 import { currentGoogle3d, loadGoogle3d, type Google3dLibrary } from "./google3d";
 import type { CampusBuilding } from "./geography";
 import {GoogleIndoorLayer} from "./GoogleIndoorLayer";
-import {compileScene} from "@building/view";
+import {compileScene} from "@locora/view";
 import {fixture} from "../../../packages/building-view/src/testing/fixture";
 
 vi.mock("./GoogleIndoorLayer",()=>({GoogleIndoorLayer:{prepare:vi.fn()}}));
