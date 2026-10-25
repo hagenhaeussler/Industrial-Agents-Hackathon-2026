@@ -32,7 +32,7 @@ flowchart LR
 
 | Setting | Value | Why |
 |---|---|---|
-| LLM | `claude-sonnet-5-5`, reasoning effort `low` | Good tool use; low effort keeps turn-taking fast |
+| LLM | `claude-sonnet-5-5`, reasoning effort `medium` | Good tool use. Medium answered as fast as low (2 to 5 s) and chose better tools |
 | Backup LLM | `claude-haiku-5-5` | A failure of the main model does not end the conversation |
 | Language | English | Agreed for the demo |
 | Authentication | On | A conversation needs a short-lived token from our server, so the API key stays on the server |
