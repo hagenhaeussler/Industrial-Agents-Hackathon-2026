@@ -7,6 +7,7 @@ import networkx as nx
 
 from building_tools.building import Building, SpaceType, ToolInputError, ToolResult, normalize
 from building_tools.network import Node, RouteConditions, RouteNetwork, space_node
+from building_tools.walks import anchor
 
 
 class SpaceRef(ToolResult):
@@ -70,9 +71,48 @@ def route(
     return Route(reachable=reachable, length_m=total, legs=legs)
 
 
-def shortest_leg(building: Building, start: str, end: str, conditions: RouteConditions) -> RouteLeg:
+class PathPoint(ToolResult):
+    floor_id: str
+    x: float
+    y: float
+
+
+def route_path(building: Building, stops: list[str], conditions: RouteConditions | None = None) -> list[PathPoint]:
+    """Points to draw the shortest walk through `stops`: space centres and openings in walking order.
+
+    Consecutive points on different floors are a change of floor. A straight line joins two points, so in an
+    L-shaped room the drawn line can cross a corner that the walk goes round. Empty if a leg is unreachable.
+    """
+    if len(stops) < 2:
+        raise ToolInputError("a route needs at least two stops")
+    for stop in stops:
+        building.space(stop)
+    points: list[PathPoint] = []
+    for start, end in itertools.pairwise(stops):
+        network, found = leg_nodes(building, start, end, conditions or RouteConditions())
+        if found is None:
+            return []
+        for kind, node_id in found[1]:
+            if kind == "opening":
+                opening = network.openings[node_id]
+                point = PathPoint(floor_id=opening.floor_id, x=opening.position[0], y=opening.position[1])
+            else:
+                x, y = anchor(building.polygon_by_id[node_id])
+                point = PathPoint(floor_id=building.space(node_id).floor_id, x=round(x, 3), y=round(y, 3))
+            if not points or points[-1] != point:
+                points.append(point)
+    return points
+
+
+def leg_nodes(
+    building: Building, start: str, end: str, conditions: RouteConditions
+) -> tuple[RouteNetwork, tuple[float, list[Node]] | None]:
     network = RouteNetwork(building, conditions, leavable=frozenset({start}))
-    found = network.shortest_path(space_node(start), space_node(end))
+    return network, network.shortest_path(space_node(start), space_node(end))
+
+
+def shortest_leg(building: Building, start: str, end: str, conditions: RouteConditions) -> RouteLeg:
+    network, found = leg_nodes(building, start, end, conditions)
     if found is None:
         return RouteLeg(
             start=space_ref(building, start),
