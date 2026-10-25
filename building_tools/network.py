@@ -11,8 +11,8 @@ from typing import Literal
 
 import networkx as nx
 from pydantic import BaseModel, ConfigDict, Field
-from shapely.geometry import LineString, MultiLineString, Polygon
-from shapely.ops import nearest_points
+from shapely.geometry import LineString, Polygon
+from shapely.ops import linemerge, nearest_points
 
 from building_db.source import OUTSIDE, Opening
 from building_tools.building import Building, ToolInputError, normalize
@@ -55,10 +55,12 @@ def opening_node(opening_id: str) -> Node:
 def shared_wall_midpoint(first: Polygon, second: Polygon) -> Point2:
     """The middle of the wall two outlines share: halfway along it, between both outlines."""
     wall = first.exterior.intersection(second.exterior.buffer(SHARED_WALL_GAP_M))
-    pieces = [wall] if isinstance(wall, LineString) else list(wall.geoms) if isinstance(wall, MultiLineString) else []
-    pieces = [piece for piece in pieces if piece.length > 0]
-    if not pieces:
+    lines = [piece for piece in getattr(wall, "geoms", [wall]) if isinstance(piece, LineString) and piece.length > 0]
+    if not lines:
         raise ToolInputError("these spaces do not share a wall, so a door cannot join them")
+    # The outline's start point can split one wall in two pieces; merge them so the start point does not matter.
+    merged = linemerge(lines)
+    pieces = [merged] if isinstance(merged, LineString) else list(merged.geoms)
     middle = max(pieces, key=lambda piece: piece.length).interpolate(0.5, normalized=True)
     opposite = nearest_points(second.exterior, middle)[0]
     return ((middle.x + opposite.x) / 2, (middle.y + opposite.y) / 2)

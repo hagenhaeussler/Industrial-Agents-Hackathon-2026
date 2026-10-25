@@ -12,7 +12,7 @@ from building_db.source import BuildingDocument
 from building_db.store import connect, import_building
 from building_tools.building import Building, ToolInputError, load
 from building_tools.lookup import find_spaces
-from building_tools.network import RouteConditions
+from building_tools.network import RouteConditions, shared_wall_midpoint
 from building_tools.routes import exit_distance_change, reachable_spaces, route
 from tests.test_building_db import fixture_building
 
@@ -125,6 +125,17 @@ class FixtureRouteTests(unittest.TestCase):
         unchanged = exit_distance_change(self.building, "Ground floor", RouteConditions(closed=["O-entrance"]))
         self.assertEqual([entry.space.id for entry in unchanged.longer], ["S-office"])
         self.assertIsNone(unchanged.longer[0].after_m)
+
+
+class SharedWallMidpointTests(unittest.TestCase):
+    def test_added_door_position_does_not_depend_on_where_the_outline_starts(self) -> None:
+        east = Polygon([(4, 0), (8, 0), (8, 4), (4, 4)])
+        # The same 4 m square, once starting at a corner and once in the middle of the shared wall at x = 4.
+        for coordinates in ([(0, 0), (4, 0), (4, 4), (0, 4)], [(4, 3), (4, 4), (0, 4), (0, 0), (4, 0)]):
+            for first, second in ((Polygon(coordinates), east), (east, Polygon(coordinates))):
+                x, y = shared_wall_midpoint(first, second)
+                self.assertAlmostEqual(x, 4.0)
+                self.assertAlmostEqual(y, 2.0)
 
 
 class GoldRouteTests(unittest.TestCase):
